@@ -2,7 +2,7 @@
 
 // Update only when indexable page content or search metadata changes. A stable,
 // truthful date is better than rewriting every <lastmod> on every deployment.
-export const SEO_CONTENT_LASTMOD = '2026-11-15'
+export const SEO_CONTENT_LASTMOD = '2026-11-16'
 
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
@@ -14,11 +14,27 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
   { path: '/contact', priority: '0.7', changefreq: 'monthly' },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
+  { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
 ]
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']
+
+export const SPA_SHELL_PATH = '/_seo/spa.html'
+export const SPA_ONLY_PATHS = [
+  '/employee/payroll',
+  '/employee/payroll/preparer',
+  '/copy',
+  '/signup/family',
+  '/signup/invite',
+  '/signup/lead',
+  '/verify-email',
+  '/registration/receipt',
+  '/waivers-memberships',
+  '/camp_interest',
+  '/camp_interest/thank-you',
+]
 
 export const HUB_PRERENDER_PATHS = [
   ...HUB_SITEMAP_ENTRIES.map((entry) => entry.path),

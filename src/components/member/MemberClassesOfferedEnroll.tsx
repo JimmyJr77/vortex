@@ -738,10 +738,7 @@ function AthleteEnrollment({
         if (!stripeEnabled) throw new Error('Online payments are unavailable. Your selections are saved; please try again later.')
         const checkout = await createEnrollmentCheckoutSession(memberToken, {
           ...batchPayload,
-          analytics: {
-            gaClientId: getGaClientId(),
-            gaSessionId: getGaSessionId(),
-          },
+          analytics: { gaClientId: getGaClientId(), gaSessionId: getGaSessionId() },
         })
         if (checkout.url) {
           if (checkout.pendingEnrollmentId != null) {
@@ -790,6 +787,9 @@ function AthleteEnrollment({
       }
 
       const result = await submitSchedulingSignupBatch(batchPayload)
+      if (result.signups.some(signup => signup.status === 'confirmed')) {
+        trackEvent('enrollment_confirmed', '/enroll', { properties: { method: 'account', checkout_type: 'enrollment' } })
+      }
       total += result.signups.length
       setDoneCount(total)
       setCart([])

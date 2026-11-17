@@ -123,7 +123,7 @@ export default function EventBoardCreateModal({
                   type="button"
                   onClick={() => setSelectedId(id)}
                   className={`w-full text-left px-3 py-2 text-sm hover:bg-gray-50 ${
-                    selectedId === id ? 'bg-red-50 text-vortex-red font-semibold' : ''
+                    selectedId === id ? 'bg-blue-50 text-blue-700 font-semibold' : ''
                   }`}
                 >
                   {name}
@@ -156,7 +156,7 @@ export default function EventBoardCreateModal({
             type="button"
             disabled={saving || selectedId == null}
             onClick={() => void handleCreate()}
-            className="px-4 py-2 text-sm portal-primary bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
+            className="px-4 py-2 text-sm portal-primary bg-blue-700 text-white rounded-lg font-semibold disabled:opacity-60"
           >
             {saving ? 'Creating…' : 'Create discussion board'}
           </button>

@@ -12,6 +12,7 @@ import {
   DEFAULT_OG_IMAGE,
   HUB_PRERENDER_PATHS,
   SITE_NAME,
+  SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
 } from './seo-config.mjs'
 
@@ -85,16 +86,23 @@ const injectSeoIntoHtml = (html, seo) => {
   return output.replace('</head>', `${block}  </head>`)
 }
 
-const generateStubHostHtml = () => {
+const generateShellHtml = () => {
   const indexPath = join(distDir, 'index.html')
   if (!existsSync(indexPath)) {
-    console.warn('[prerender] dist/index.html not found, skipping stub SEO HTML')
-    return
+    throw new Error('dist/index.html not found. Run vite build first.')
   }
 
   const baseHtml = readFileSync(indexPath, 'utf8')
   const seoDir = join(distDir, '_seo')
   mkdirSync(seoDir, { recursive: true })
+
+  // Account and other client-only routes need the app entry point without
+  // inheriting the prerendered homepage's content, canonical, and metadata.
+  const spaHtml = baseHtml
+    .replace(/<title>.*?<\/title>/i, '<title>Vortex Athletics</title>')
+    .replace(/<meta\s+name="description"[^>]*>/i, '')
+    .replace('</head>', '    <meta name="robots" content="noindex, nofollow" />\n  </head>')
+  writeFileSync(join(distDir, SPA_SHELL_PATH), spaHtml, 'utf8')
 
   for (const stub of STUB_SEO_ENTRIES) {
     const html = injectSeoIntoHtml(baseHtml, {
@@ -175,7 +183,8 @@ const prerenderAppRoutes = async () => {
   try {
     const playwright = await import('playwright')
     chromium = playwright.chromium
-  } catch {
+  } catch (error) {
+    if (process.env.VERCEL || process.env.PRERENDER_STRICT === 'true') throw error
     console.warn(
       '[prerender] Playwright not installed; skipping route prerender. Run: npm i -D playwright',
     )
@@ -199,9 +208,9 @@ const prerenderAppRoutes = async () => {
   }
 
   const preview = spawn(
-    'npx',
-    ['vite', 'preview', '--port', String(previewPort), '--strictPort'],
-    { cwd: rootDir, stdio: 'inherit', shell: true },
+    process.execPath,
+    [join(rootDir, 'node_modules/vite/bin/vite.js'), 'preview', '--host', '127.0.0.1', '--port', String(previewPort), '--strictPort'],
+    { cwd: rootDir, stdio: 'inherit' },
   )
 
   try {
@@ -227,23 +236,28 @@ const prerenderAppRoutes = async () => {
     for (const target of targets) {
       let lastError
       for (let attempt = 1; attempt <= 2; attempt += 1) {
-        const page = await browser.newPage()
+        const page = await browser.newPage({ reducedMotion: 'reduce' })
         try {
+          await page.route((url) => url.origin !== previewOrigin || url.pathname.startsWith('/api/'), (route) => route.abort())
           await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
-          // The SPA container is empty in source HTML and may not itself have a
-          // rendered box. "attached" proves React has a mount target without
-          // incorrectly requiring the container element to be visually visible.
-          await page.waitForSelector('#root', { state: 'attached', timeout: 30000 })
           await page.waitForFunction(
-            () => document.querySelector('#root')?.childElementCount > 0,
+            () => Boolean(
+              document.querySelector('#root h1') &&
+              document.head.querySelector('link[rel="canonical"]') &&
+              document.head.querySelector('meta[property="og:title"]')
+            ),
+            undefined,
             { timeout: 30000 },
           )
-          await page.waitForSelector('h1', { state: 'attached', timeout: 30000 })
-          // Helmet and lazy route effects settle immediately after the first
-          // committed render. Do not wait for background API polling to idle.
-          await page.waitForTimeout(250)
-          const pageTitle = await page.title()
-          const html = dedupeHeadTags(await page.content(), pageTitle)
+          // Static HTML must be independent of live catalogs, schedules and
+          // account state. Keep the poster and defer every video URL to React.
+          const snapshot = await page.evaluate(() => {
+            const html = document.documentElement.cloneNode(true)
+            html.querySelectorAll('[data-prerender-dynamic]').forEach((node) => node.remove())
+            html.querySelectorAll('video[src], video source[src]').forEach((node) => node.removeAttribute('src'))
+            return { html: `<!doctype html>\n${html.outerHTML}`, title: document.title }
+          })
+          const html = dedupeHeadTags(snapshot.html, snapshot.title)
           snapshots.push({ outFile: target.outFile, html })
           lastError = null
           break
@@ -295,7 +309,7 @@ const main = async () => {
     process.exit(1)
   }
 
-  generateStubHostHtml()
+  generateShellHtml()
   await prerenderAppRoutes()
   console.log('[prerender] Done')
 }

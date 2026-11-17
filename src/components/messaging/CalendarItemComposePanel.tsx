@@ -204,7 +204,7 @@ export default function CalendarItemComposePanel({
                       : [...d.class_ids, cls.id],
                   }))}
                   className={`text-xs font-semibold rounded-full px-2.5 py-1 border ${
-                    checked ? 'bg-vortex-red text-white border-vortex-red' : 'bg-white text-gray-700 border-gray-200'
+                    checked ? 'bg-blue-700 text-white border-blue-700' : 'bg-white text-gray-700 border-gray-200'
                   }`}
                 >
                   {cls.name}
@@ -219,7 +219,7 @@ export default function CalendarItemComposePanel({
           type="button"
           onClick={() => void handleSave()}
           disabled={saving}
-          className="bg-vortex-red text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
+          className="bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-60"
         >
           {saving ? 'Saving…' : 'Save calendar item'}
         </button>

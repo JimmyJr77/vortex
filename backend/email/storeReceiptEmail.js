@@ -29,8 +29,8 @@ export async function sendStoreOrderReceiptEmail({
 
   const paymentLabel = paymentMethod === 'billing_account'
     ? 'Billed to your monthly account'
-    : paymentMethod === 'mobile'
-      ? 'Mobile payment'
+    : paymentMethod === 'terminal'
+      ? 'In-person card payment'
       : `${String(paymentMethod || 'payment').replace(/^./, (letter) => letter.toUpperCase())} payment`
   const lineText = items.map((item) => `${item.quantity} × ${item.productName} — ${money(item.lineTotalCents)}`)
   const lineRows = items.map((item) => `

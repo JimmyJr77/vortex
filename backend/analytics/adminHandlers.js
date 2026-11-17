@@ -1,18 +1,15 @@
 import Joi from 'joi'
 import {
   parseDateRange,
-  hostnameFilterClause,
   normalizeLeadStatus,
   hashEmail,
   logAudit,
   recordUtmAttribution,
 } from './helpers.js'
 import { syncExternalAnalytics } from './syncExternal.js'
-
-function staffExclusion(alias = '') {
-  const p = alias ? `${alias}.` : ''
-  return ` AND (${p}is_staff IS NOT TRUE OR ${p}is_staff IS NULL)`
-}
+import { getBusinessOutcomes } from './businessOutcomes.js'
+import { countWebsiteSessions, getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from './websiteReports.js'
+import { publicPaths, sanitizeAnalyticsId, sanitizeAnalyticsPath, sanitizeCampaign, sanitizeHostname } from './eventContract.js'
 
 export function createAdminAnalyticsHandlers(pool) {
   const getOverview = async (req, res) => {
@@ -22,62 +19,32 @@ export function createAdminAnalyticsHandlers(pool) {
         return res.status(400).json({ success: false, message: 'Invalid date range' })
       }
       const { from, to } = range
-      const host = hostnameFilterClause(req.query, 3, 'vs')
-      const hostReg = req.query.hostname && req.query.hostname !== 'all'
-        ? ` AND landing_page LIKE $3`
-        : ''
-      const regParams = hostReg
-        ? [from, to, `%${req.query.hostname}%`]
-        : [from, to]
-
-      const inquiries = await pool.query(
-        `SELECT
-          COUNT(*)::int AS total,
-          COUNT(*) FILTER (WHERE contacted = true)::int AS contacted
-         FROM registrations
-         WHERE archived IS NOT TRUE AND created_at >= $1 AND created_at <= $2${hostReg}`,
-        regParams,
-      )
-
-      const inquiryTrend = await pool.query(
-        `SELECT DATE(created_at) AS day, COUNT(*)::int AS count
-         FROM registrations
-         WHERE archived IS NOT TRUE AND created_at >= $1 AND created_at <= $2${hostReg}
-         GROUP BY DATE(created_at) ORDER BY day`,
-        regParams,
-      )
-
-      const newsletter = await pool.query(
-        `SELECT COUNT(*)::int AS count FROM newsletter_subscribers
-         WHERE created_at >= $1 AND created_at <= $2`,
-        [from, to],
-      )
-
-      let enrollments = { rows: [{ count: 0 }] }
-      try {
-        enrollments = await pool.query(
-          `SELECT COUNT(*)::int AS count FROM scheduling_signup
-           WHERE orphaned_at IS NULL AND created_at >= $1 AND created_at <= $2`,
+      const [inquiries, inquiryTrend, newsletter, sessions, uncontacted, outcomes] = await Promise.all([
+        pool.query(
+          `SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE contacted = true)::int AS contacted
+           FROM registrations WHERE archived IS NOT TRUE AND created_at BETWEEN $1 AND $2`,
           [from, to],
-        )
-      } catch {
-        enrollments = await pool.query(
-          `SELECT COUNT(*)::int AS count FROM scheduling_signup WHERE orphaned_at IS NULL`,
-        )
-      }
-
-      const sessionParams = [from, to, ...host.params]
-      const sessions = await pool.query(
-        `SELECT COUNT(*)::int AS count FROM visitor_sessions vs
-         WHERE started_at >= $1 AND started_at <= $2${host.clause}${staffExclusion('vs')}`,
-        sessionParams,
-      )
-
-      const uncontacted = await pool.query(
-        `SELECT COUNT(*)::int AS count FROM registrations
-         WHERE archived IS NOT TRUE AND contacted IS NOT TRUE
-         AND created_at < now() - interval '48 hours'`,
-      )
+        ),
+        pool.query(
+          `SELECT (created_at AT TIME ZONE 'America/New_York')::date::text AS day, COUNT(*)::int AS count
+           FROM registrations WHERE archived IS NOT TRUE AND created_at BETWEEN $1 AND $2
+           GROUP BY day ORDER BY day`,
+          [from, to],
+        ),
+        pool.query(
+          `SELECT COUNT(*)::int AS count FROM newsletter_subscribers WHERE created_at BETWEEN $1 AND $2`,
+          [from, to],
+        ),
+        countWebsiteSessions(pool, range, req.query.hostname === 'all' ? undefined : req.query.hostname),
+        pool.query(
+          `SELECT COUNT(*)::int AS count FROM registrations
+           WHERE archived IS NOT TRUE AND contacted IS NOT TRUE AND created_at < now() - interval '48 hours'`,
+        ),
+        getBusinessOutcomes(pool, range, req.canonicalAccess?.facilityId).catch((error) => {
+          console.warn('[analytics business outcomes]', error.message)
+          return null
+        }),
+      ])
 
       let capacity = []
       try {
@@ -120,10 +87,11 @@ export function createAdminAnalyticsHandlers(pool) {
             trend: inquiryTrend.rows,
           },
           newsletterSignups: newsletter.rows[0].count,
-          newEnrollments: enrollments.rows[0].count,
-          sessions: sessions.rows[0].count,
+          newEnrollments: outcomes?.enrollments ?? 0,
+          sessions,
           uncontactedOver48h: uncontacted.rows[0].count,
           capacityAlerts: capacity,
+          outcomes,
         },
       })
     } catch (err) {
@@ -132,109 +100,24 @@ export function createAdminAnalyticsHandlers(pool) {
     }
   }
 
-  const getTraffic = async (req, res) => {
-    try {
-      const range = parseDateRange(req.query)
-      if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
-      const { from, to } = range
-      const host = hostnameFilterClause(req.query, 3, 'ae')
-
-      const byDay = await pool.query(
-        `SELECT DATE(occurred_at) AS day, COUNT(*)::int AS page_views
-         FROM analytics_events ae
-         WHERE event_name = 'page_view' AND occurred_at >= $1 AND occurred_at <= $2${host.clause}${staffExclusion('ae')}
-         GROUP BY DATE(occurred_at) ORDER BY day`,
-        [from, to, ...host.params],
-      )
-
-      const topPages = await pool.query(
-        `SELECT page_path, COUNT(*)::int AS views
-         FROM analytics_events ae
-         WHERE event_name = 'page_view' AND occurred_at >= $1 AND occurred_at <= $2${host.clause}${staffExclusion('ae')}
-         GROUP BY page_path ORDER BY views DESC LIMIT 20`,
-        [from, to, ...host.params],
-      )
-
-      res.json({
-        success: true,
-        data: { pageViewsByDay: byDay.rows, topPages: topPages.rows },
-      })
-    } catch (err) {
-      console.error('[analytics/traffic]', err)
-      res.status(500).json({ success: false, message: 'Internal server error' })
-    }
-  }
-
-  const getFunnel = async (req, res) => {
-    try {
-      const range = parseDateRange(req.query)
-      if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
-      const { from, to } = range
-      const host = hostnameFilterClause(req.query, 3, 'ae')
-      const params = [from, to, ...host.params]
-      const staff = staffExclusion('ae')
-
-      const countEvent = async (name) => {
-        const r = await pool.query(
-          `SELECT COUNT(DISTINCT visitor_id)::int AS c FROM analytics_events ae
-           WHERE event_name = $${params.length + 1} AND occurred_at >= $1 AND occurred_at <= $2${host.clause}${staff}`,
-          [...params, name],
-        )
-        return r.rows[0].c
-      }
-
-      const sessions = await pool.query(
-        `SELECT COUNT(DISTINCT session_id)::int AS c FROM visitor_sessions vs
-         WHERE started_at >= $1 AND started_at <= $2${hostnameFilterClause(req.query, 3, 'vs').clause}${staffExclusion('vs')}`,
-        [from, to, ...hostnameFilterClause(req.query, 3, 'vs').params],
-      )
-
-      const formSubmit = await pool.query(
-        `SELECT COUNT(*)::int AS c FROM registrations
-         WHERE archived IS NOT TRUE AND created_at >= $1 AND created_at <= $2`,
-        [from, to],
-      )
-
-      const contacted = await pool.query(
-        `SELECT COUNT(*)::int AS c FROM registrations
-         WHERE archived IS NOT TRUE AND contacted = true AND created_at >= $1 AND created_at <= $2`,
-        [from, to],
-      )
-
-      let enrolled = { rows: [{ c: 0 }] }
+  function websiteReport(loadReport) {
+    return async (req, res) => {
       try {
-        enrolled = await pool.query(
-          `SELECT COUNT(DISTINCT s.member_id)::int AS c FROM scheduling_signup s
-           WHERE s.orphaned_at IS NULL AND s.created_at >= $1 AND s.created_at <= $2`,
-          [from, to],
-        )
-      } catch {
-        enrolled = { rows: [{ c: 0 }] }
+        const range = parseDateRange(req.query)
+        if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
+        const hostname = req.query.hostname === 'all' ? undefined : req.query.hostname
+        const data = await loadReport(pool, range, hostname)
+        res.json({ success: true, data })
+      } catch (err) {
+        console.error('[analytics website report]', err)
+        res.status(500).json({ success: false, message: 'Internal server error' })
       }
-
-      const steps = [
-        { name: 'Sessions', count: sessions.rows[0].c },
-        { name: 'Program page views', count: await countEvent('program_page_view') },
-        { name: 'Schedule views', count: await countEvent('schedule_view') },
-        { name: 'Inquiry started', count: await countEvent('inquiry_form_start') },
-        { name: 'Inquiry submitted', count: formSubmit.rows[0].c },
-        { name: 'Contacted', count: contacted.rows[0].c },
-        { name: 'Enrolled', count: enrolled.rows[0].c },
-      ]
-
-      let prev = steps[0].count || 1
-      const withRates = steps.map((s, i) => {
-        const rate = i === 0 ? 100 : prev > 0 ? Math.round((s.count / prev) * 1000) / 10 : 0
-        if (i > 0) prev = s.count || prev
-        return { ...s, conversionFromPrevious: rate }
-      })
-
-      res.json({ success: true, data: { steps: withRates } })
-    } catch (err) {
-      console.error('[analytics/funnel]', err)
-      res.status(500).json({ success: false, message: 'Internal server error' })
     }
   }
+
+  const getTraffic = websiteReport(getWebsiteTraffic)
+  const getEngagement = websiteReport(getWebsiteEngagement)
+  const getFunnel = websiteReport(getWebsiteFunnel)
 
   const getPrograms = async (req, res) => {
     try {
@@ -390,14 +273,18 @@ export function createAdminAnalyticsHandlers(pool) {
   const exportReport = async (req, res) => {
     try {
       const reportType = req.query.reportType || 'inquiries'
+      if (!['inquiries', 'programs', 'traffic', 'engagement', 'funnel'].includes(reportType)) {
+        return res.status(400).json({ success: false, message: 'Unknown reportType' })
+      }
       const range = parseDateRange(req.query)
       if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
       const { from, to } = range
+      const hostname = req.query.hostname === 'all' ? undefined : req.query.hostname
 
       await logAudit(pool, {
         adminUserId: req.adminId,
         action: 'analytics_export',
-        details: { reportType, from, to },
+        details: { reportType, from, to, hostname },
       })
 
       res.setHeader('Content-Type', 'text/csv')
@@ -463,7 +350,23 @@ export function createAdminAnalyticsHandlers(pool) {
         return res.end()
       }
 
-      res.status(400).json({ success: false, message: 'Unknown reportType' })
+      if (reportType === 'traffic') {
+        const { sources } = await getWebsiteTraffic(pool, range, hostname)
+        return sendCsv(res, ['channel', 'source', 'medium', 'campaign', 'sessions', 'converting_sessions'],
+          sources.map(row => [row.channel, row.source, row.medium, row.campaign, row.sessions, row.conversions]))
+      }
+
+      if (reportType === 'engagement') {
+        const { topActions } = await getWebsiteEngagement(pool, range, hostname)
+        return sendCsv(res, ['event', 'target', 'hostname', 'page', 'events', 'sessions'],
+          topActions.map(row => [row.event_name, row.target, row.hostname, row.page_path, row.events, row.sessions]))
+      }
+
+      const { journeys } = await getWebsiteFunnel(pool, range, hostname)
+      return sendCsv(res, ['journey', 'step', 'sessions', 'percent_from_previous'],
+        journeys.flatMap(journey => journey.steps.map(step =>
+          [journey.name, step.name, step.count, step.conversionFromPrevious],
+        )))
     } catch (err) {
       console.error('[analytics/export]', err)
       res.status(500).json({ success: false, message: 'Internal server error' })
@@ -476,35 +379,45 @@ export function createAdminAnalyticsHandlers(pool) {
       if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
       const { from, to } = range
 
-      const keywords = await pool.query(
-        `SELECT k.query, k.page, r.date, r.impressions, r.clicks, r.position, r.ctr
-         FROM seo_rankings r
-         JOIN seo_keywords k ON k.id = r.keyword_id
-         WHERE r.date >= $1::date AND r.date <= $2::date
-         ORDER BY r.clicks DESC LIMIT 100`,
-        [from, to],
-      )
+      const hostname = req.query.hostname === 'all' ? null : sanitizeHostname(req.query.hostname)
+      const params = [from, to, hostname]
+      const validDays = `BETWEEN ($1::timestamptz AT TIME ZONE 'America/New_York')::date
+                                 AND ($2::timestamptz AT TIME ZONE 'America/New_York')::date`
 
-      const landingConv = await pool.query(
-        `SELECT landing_page, COUNT(*)::int AS inquiries
-         FROM registrations
-         WHERE archived IS NOT TRUE AND created_at >= $1 AND created_at <= $2
-         AND landing_page IS NOT NULL
-         GROUP BY landing_page ORDER BY inquiries DESC LIMIT 20`,
-        [from, to],
-      )
+      const [keywords, landingConv, dailyGa] = await Promise.all([
+        pool.query(
+          `SELECT k.query, k.page, SUM(r.impressions)::int AS impressions, SUM(r.clicks)::int AS clicks,
+                  ROUND(SUM(r.position * r.impressions) / NULLIF(SUM(r.impressions), 0), 2)::float8 AS position,
+                  (SUM(r.clicks)::float8 / NULLIF(SUM(r.impressions), 0)) AS ctr
+           FROM seo_rankings r JOIN seo_keywords k ON k.id = r.keyword_id
+           WHERE r.date ${validDays}
+             AND ($3::text IS NULL OR LOWER(SUBSTRING(k.page FROM '^https?://([a-zA-Z0-9.-]+)'))
+                  IN ($3, 'www.' || $3))
+           GROUP BY k.query, k.page ORDER BY clicks DESC, impressions DESC, k.query, k.page LIMIT 100`,
+          params,
+        ),
+        pool.query(
+          `WITH landed AS (
+             SELECT LOWER(SPLIT_PART(SPLIT_PART(landing_page, '?', 1), '#', 1)) AS page
+             FROM registrations
+             WHERE archived IS NOT TRUE AND created_at BETWEEN $1 AND $2 AND landing_page IS NOT NULL
+           )
+           SELECT CASE WHEN page = ANY($3::text[]) THEN page ELSE '/other' END AS landing_page,
+                  COUNT(*)::int AS inquiries
+           FROM landed GROUP BY landing_page ORDER BY inquiries DESC, landing_page LIMIT 20`,
+          [from, to, [...publicPaths]],
+        ),
+        pool.query(
+          `SELECT date::text, hostname, sessions, users, page_views, source
+           FROM analytics_daily_traffic WHERE date ${validDays}
+             AND ($3::text IS NULL OR LOWER(hostname) IN ($3, 'www.' || $3))
+           ORDER BY date DESC, source, hostname`,
+          params,
+        ),
+      ])
 
-      const dailyGa = await pool.query(
-        `SELECT date, sessions, users, page_views, source
-         FROM analytics_daily_traffic
-         WHERE date >= $1::date AND date <= $2::date
-         ORDER BY date`,
-        [from, to],
-      )
-
-      const configured = Boolean(
-        process.env.GA4_PROPERTY_ID || process.env.GSC_SITE_URL,
-      )
+      const configured = Boolean(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON &&
+        (process.env.GA4_PROPERTY_ID || process.env.GSC_SITE_URL))
 
       res.json({
         success: true,
@@ -682,6 +595,7 @@ export function createAdminAnalyticsHandlers(pool) {
   return {
     getOverview,
     getTraffic,
+    getEngagement,
     getFunnel,
     getPrograms,
     getInquiries,
@@ -698,9 +612,14 @@ export function createAdminAnalyticsHandlers(pool) {
   }
 }
 
+function sendCsv(res, header, rows) {
+  res.end([header, ...rows].map(row => row.map(csvEscape).join(',')).join('\n') + '\n')
+}
+
 function csvEscape(val) {
   if (val == null) return ''
-  const s = String(val)
+  const value = String(val)
+  const s = typeof val === 'string' && /^[=+@\-\t\r\n]/.test(value) ? "'" + value : value
   if (s.includes(',') || s.includes('"') || s.includes('\n')) {
     return `"${s.replace(/"/g, '""')}"`
   }
@@ -709,16 +628,17 @@ function csvEscape(val) {
 
 /** Attach attribution fields when creating a registration (used from server.js). */
 export async function applyRegistrationAttribution(pool, inquiryId, body) {
-  const visitorId = body.visitorId || body.visitor_id || null
-  const landingPage = body.landingPage || body.landing_page || null
-  const utm = {
-    source: body.utmSource || body.utm_source || null,
-    medium: body.utmMedium || body.utm_medium || null,
-    campaign: body.utmCampaign || body.utm_campaign || null,
-    content: body.utmContent || body.utm_content || null,
-    term: body.utmTerm || body.utm_term || null,
-    clickIds: body.clickIds || null,
-  }
+  const visitorId = sanitizeAnalyticsId(body.visitorId || body.visitor_id)
+  if (!visitorId) return
+
+  const landingPage = sanitizeAnalyticsPath(body.landingPage || body.landing_page)
+  const utm = sanitizeCampaign({
+    source: body.utmSource || body.utm_source,
+    medium: body.utmMedium || body.utm_medium,
+    campaign: body.utmCampaign || body.utm_campaign,
+    content: body.utmContent || body.utm_content,
+    term: body.utmTerm || body.utm_term,
+  })
 
   await pool.query(
     `UPDATE registrations SET
@@ -742,37 +662,18 @@ export async function applyRegistrationAttribution(pool, inquiryId, body) {
     ],
   )
 
-  if (visitorId) {
-    await pool.query(
-      `INSERT INTO visitor_identities (visitor_id, inquiry_id, link_method)
-       VALUES ($1, $2, 'inquiry_form')`,
-      [visitorId, inquiryId],
-    )
-    await recordUtmAttribution(pool, {
-      visitorId,
-      inquiryId,
-      touchType: 'last',
-      utm,
-      landingPage,
-    })
-  }
-
-  if (body.visitorId) {
-    await pool.query(
-      `INSERT INTO analytics_events (
-        event_id, event_name, occurred_at, visitor_id, session_id,
-        page_path, hostname, properties, consent_analytics, consent_marketing, is_staff
-      ) VALUES (gen_random_uuid(), 'inquiry_form_submit', now(), $1, $2, $3, $4, $5, true, false, false)
-      ON CONFLICT DO NOTHING`,
-      [
-        visitorId,
-        body.sessionId || visitorId,
-        landingPage || '/',
-        body.hostname || null,
-        JSON.stringify({ inquiryId }),
-      ],
-    ).catch(() => {})
-  }
+  await pool.query(
+    `INSERT INTO visitor_identities (visitor_id, inquiry_id, link_method)
+     VALUES ($1, $2, 'inquiry_form')`,
+    [visitorId, inquiryId],
+  )
+  await recordUtmAttribution(pool, {
+    visitorId,
+    inquiryId,
+    touchType: 'last',
+    utm,
+    landingPage,
+  })
 }
 
 export { hashEmail, normalizeLeadStatus }

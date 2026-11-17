@@ -11,12 +11,15 @@ import {
   ensureConsentId,
   fetchRemoteConsent,
   getConsentFromCookie,
+  getConsentId,
   pickNewestConsent,
   pushRemoteConsent,
   setConsentCookie,
 } from './crossDomainConsent'
-import { getVisitorId } from './visitorId'
+import { clearAnalyticsCookies, getVisitorId } from './visitorId'
 import { updateGoogleConsent } from './googleAnalytics'
+
+export const CONSENT_CHANGED = 'vortex:consent-changed'
 
 let initPromise: Promise<ConsentChoices | null> | null = null
 
@@ -31,8 +34,10 @@ const getConsentFromLocalStorage = (): ConsentChoices | null => {
 }
 
 export const persistConsentLocally = (choices: ConsentChoices): void => {
-  localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(choices))
+  try { localStorage.setItem(CONSENT_STORAGE_KEY, JSON.stringify(choices)) } catch { /* cookies can still hold consent */ }
   setConsentCookie(choices)
+  if (!choices.analytics) clearAnalyticsCookies()
+  window.dispatchEvent(new Event(CONSENT_CHANGED))
 }
 
 export const getStoredConsent = (): ConsentChoices | null => {
@@ -55,9 +60,10 @@ export const saveConsent = async (
   updateGoogleConsent(full.analytics, full.marketing)
 
   const consentId = ensureConsentId()
-  await pushRemoteConsent(consentId, full)
-
+  // Capture this choice's identifier before the network request. An older
+  // opt-in request must never recreate cookies after the user withdraws.
   const visitorId = getVisitorId(full.analytics)
+  const remoteSync = pushRemoteConsent(consentId, full)
   if (visitorId) {
     try {
       await fetch(`${getApiUrl()}/api/consent`, {
@@ -75,6 +81,7 @@ export const saveConsent = async (
     }
   }
 
+  await remoteSync
   return full
 }
 
@@ -109,11 +116,11 @@ export const initCrossDomainConsent = async (): Promise<ConsentChoices | null> =
   if (!initPromise) {
     initPromise = (async () => {
       captureConsentIdFromUrl()
-      const consentId = ensureConsentId()
-
+      const consentId = getConsentId()
       const local = getStoredConsent()
+      if (!consentId) return local
       const remote = await fetchRemoteConsent(consentId)
-      const merged = pickNewestConsent(local, remote)
+      const merged = pickNewestConsent(getStoredConsent() ?? local, remote)
 
       if (merged) {
         persistConsentLocally(merged)

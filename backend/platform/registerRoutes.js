@@ -38,6 +38,7 @@ import {
   recordStripePayment,
   recordEnrollmentStripePayment,
   getStripeClient,
+  stripeApiKeyIsLive,
   stripeEventCreatedAt,
   stripeWebhookRawBody,
   logWebhookVerificationFailure,
@@ -61,6 +62,7 @@ import {
   stripePaymentIntentOwnershipIsFresh,
 } from '../billing/stripeCheckoutPaymentBinding.js'
 import { completeStoreStripeCheckout, registerStoreRoutes } from '../store/registerRoutes.js'
+import { handleTerminalWebhook, registerStripeTerminalRoutes } from '../billing/stripeTerminal.js'
 import {
   createCustomerBalanceCheckoutSession,
   validateAnnualMembershipRenewalDiscount,
@@ -1221,6 +1223,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     memberAuth: memberBillingAuthMiddleware(pool, jwtSecret),
     requirePermission: (permission) => requirePermission(pool, jwtSecret, permission),
   })
+  registerStripeTerminalRoutes(app, pool, requirePermission(pool, jwtSecret, 'billing.manage'))
 
   app.get('/api/admin/dashboard', ...adminPortalAuthMiddleware(pool, jwtSecret), async (req, res) => {
     try {
@@ -3822,6 +3825,11 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
     try {
       event = await parseWebhookEvent(rawBody, signature)
       if (!event) return res.status(400).json({ success: false })
+      // A shared destination can verify sandbox signatures, but the live API
+      // key and billing ledger must never process those events.
+      if (event.livemode === false && stripeApiKeyIsLive()) {
+        return res.json({ received: true, ignored: true })
+      }
       webhookClaim = await beginStripeWebhookEvent(pool, event)
       if (webhookClaim.replayed) return res.json({ received: true, replayed: true })
       if (!webhookClaim.claimed) {
@@ -3829,6 +3837,10 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         // delivered. Stripe will retry; a later delivery can reclaim the lease
         // if the current worker never completes.
         return res.status(409).json({ received: false, processing: true })
+      }
+      if (await handleTerminalWebhook(pool, event)) {
+        await completeStripeWebhookEvent(pool, event, webhookClaim)
+        return res.json({ received: true, terminalPayment: true })
       }
       if (
         event.type === 'checkout.session.completed'
@@ -4424,7 +4436,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
           err = completionError
         }
       }
-      const paymentOwnerPending = err?.code === 'stripe_payment_owner_pending'
+      const paymentOwnerPending = err?.code === 'stripe_payment_owner_pending' || err?.code === 'stripe_terminal_busy'
       await failStripeWebhookEvent(pool, event, err, webhookClaim ?? {})
       const deliveryTimestamp = String(signature ?? '').match(/(?:^|,)t=(\d+)/)?.[1] ?? Date.now()
       if (!paymentOwnerPending) {
@@ -4664,6 +4676,33 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       [account.id],
     )
     res.json({ success: true, data: payments.rows.map(mapPayment) })
+  })
+
+  app.post('/api/members/waivers/initial-check/complete', ...memberPortalAuthMiddleware(pool, jwtSecret), async (req, res) => {
+    const ctx = req.platformAuth
+    try {
+      const result = await pool.query(
+        `UPDATE app_user AS account
+            SET initial_waiver_checked_at = COALESCE(account.initial_waiver_checked_at, now())
+           FROM member AS linked
+          WHERE account.id = $1
+            AND account.facility_id = $2
+            AND account.is_active = TRUE
+            AND account.member_portal_access_active = TRUE
+            AND linked.id = $3
+            AND linked.app_user_id = account.id
+            AND linked.facility_id = account.facility_id
+            AND linked.is_active = TRUE`,
+        [ctx.user.id, ctx.user.facility_id, linkedPlatformMemberId(ctx)],
+      )
+      if (result.rowCount !== 1) {
+        return res.status(403).json({ success: false, message: 'An active linked Member Portal login is required.' })
+      }
+      return res.json({ success: true })
+    } catch (error) {
+      console.error('[waivers] Failed to record the first sign-in waiver check:', error.message)
+      return res.status(500).json({ success: false, message: 'Unable to save your waiver check. Please try again.' })
+    }
   })
 
   app.get('/api/members/waivers', ...memberPortalAuthMiddleware(pool, jwtSecret), async (req, res) => {

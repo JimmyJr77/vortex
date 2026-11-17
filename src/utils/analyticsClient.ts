@@ -1,8 +1,9 @@
 import { getApiUrl } from './api'
-import { getActiveConsent } from './consent'
+import { CONSENT_CHANGED, getActiveConsent } from './consent'
 import { getSessionId, getVisitorId, isStaffSession, refreshSessionCookie } from './visitorId'
-import { getStoredUtm } from './utmCapture'
+import { clearAttribution, getStoredUtm } from './utmCapture'
 import { trackGoogleEvent, trackGooglePageView } from './googleAnalytics'
+import { analyticsReferrer, publicAnalyticsPath } from './analyticsPaths'
 
 type TrackOptions = {
   properties?: Record<string, unknown>
@@ -10,168 +11,155 @@ type TrackOptions = {
 }
 
 const pending: object[] = []
-let flushTimer: ReturnType<typeof setTimeout> | null = null
-
-/** Browsers cap total in-flight keepalive/beacon data at 64KB (shared with Cloudflare RUM, etc.). */
+let flushTimer: ReturnType<typeof setTimeout> | undefined
+let sending = false
+let consentGeneration = 0
+const MAX_BATCH = 8
+const MAX_QUEUE = 80
 const MAX_BEACON_BYTES = 8192
-const MAX_PENDING_BEFORE_FLUSH = 8
 
-type FlushOptions = {
-  /** Use keepalive transport (page unload). Omit for normal background flush via fetch. */
-  useBeacon?: boolean
+function newEventId(): string {
+  if (crypto.randomUUID) return crypto.randomUUID()
+  const bytes = crypto.getRandomValues(new Uint8Array(16))
+  bytes[6] = (bytes[6] & 15) | 64
+  bytes[8] = (bytes[8] & 63) | 128
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+  return [hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20)].join('-')
 }
 
-const newEventId = (): string => {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID()
-  }
-  return `evt_${Date.now()}_${Math.random().toString(36).slice(2)}`
-}
-
-const buildEvent = (eventName: string, pagePath: string, options?: TrackOptions) => {
+export function trackEvent(eventName: string, path: string, options?: TrackOptions): string | undefined {
+  if (typeof window === 'undefined' || isStaffSession()) return
   const consent = getActiveConsent()
-  const allowAnalytics = consent.analytics
-  const visitorId = getVisitorId(allowAnalytics) || 'anonymous'
-  const sessionId = getSessionId(allowAnalytics) || visitorId
-  if (allowAnalytics) refreshSessionCookie(true)
+  if (!consent.analytics) return
+  const visitorId = getVisitorId(true)
+  const sessionId = getSessionId(true)
+  if (!visitorId || !sessionId) return
+  refreshSessionCookie(true)
 
-  const { last } = getStoredUtm()
-
-  return {
-    eventId: newEventId(),
+  const eventId = newEventId()
+  const { last } = getStoredUtm(sessionId)
+  pending.push({
+    eventId,
     eventName,
     occurredAt: new Date().toISOString(),
-    pagePath,
-    hostname: typeof window !== 'undefined' ? window.location.hostname : '',
+    pagePath: publicAnalyticsPath(path),
+    hostname: window.location.hostname.toLowerCase().replace(/^www\./, ''),
     visitorId,
     sessionId,
-    referrer: typeof document !== 'undefined' ? document.referrer || undefined : undefined,
-    consentAnalytics: allowAnalytics,
+    referrer: analyticsReferrer(),
+    consentAnalytics: true,
     consentMarketing: consent.marketing,
-    isStaff: isStaffSession(),
     properties: options?.properties ?? {},
     utm: Object.keys(last).length ? last : undefined,
-  }
+  })
+  if (pending.length > MAX_QUEUE) pending.splice(MAX_QUEUE)
+  if (!options?.skipGoogle) trackGoogleEvent(eventName, path, options?.properties)
+
+  if (pending.length >= MAX_BATCH) void flushEvents()
+  else scheduleFlush()
+  return eventId
 }
 
-export const trackEvent = (eventName: string, pagePath: string, options?: TrackOptions) => {
-  const consent = getActiveConsent()
-  const ev = buildEvent(eventName, pagePath, options)
-  pending.push(ev)
-
-  if (consent.analytics && !options?.skipGoogle) {
-    trackGoogleEvent(eventName, options?.properties)
-  }
-
-  if (pending.length >= MAX_PENDING_BEFORE_FLUSH) {
-    void flushEvents()
-  } else {
-    scheduleFlush()
-  }
+/** Record a confirmed booking only once in this tab, even after a provider return/reload. */
+export function trackConfirmation(name: string, path: string, id: string | number, properties?: Record<string, unknown>) {
+  if (!id || !['string', 'number'].includes(typeof id)) return
+  const key = `vortex:conversion:${name}:${id}`
+  try {
+    if (sessionStorage.getItem(key)) return
+  } catch { /* storage can be unavailable */ }
+  if (!trackEvent(name, path, { properties })) return
+  try { sessionStorage.setItem(key, '1') } catch { /* storage can be unavailable */ }
 }
 
-/** Track an outbound link click and flush immediately so the event survives navigation. */
-export const trackOutboundClickEvent = (
-  eventName: string,
-  pagePath: string,
-  properties?: Record<string, unknown>,
-) => {
-  trackEvent(eventName, pagePath, { properties })
+export function trackOutboundClickEvent(name: string, path: string, properties?: Record<string, unknown>) {
+  trackEvent(name, path, { properties })
   void flushEvents({ useBeacon: true })
 }
 
-export const trackPageViewEvent = (path: string, options?: { googleAnalytics?: boolean }) => {
-  const consent = getActiveConsent()
-  trackEvent('page_view', path, { skipGoogle: true })
+const programPaths = new Set([
+  '/ninja', '/vortex-athletics', '/summer-athletic-training', '/fit-and-flip', '/gymnastics', '/artistic-gymnastics',
+  '/artistic-gymnastics-early', '/artistic-gymnastics-6-12', '/artistic-gymnastics-13-18', '/summer-camp-26',
+  '/acro-gymnastics', '/rhythmic-gymnastics', '/trampoline-tumbling', '/aerobic-gymnastics',
+])
 
-  const programPaths = [
-    '/ninja',
-    '/vortex-athletics',
-    '/summer-athletic-training',
-    '/fit-and-flip',
-    '/gymnastics',
-    '/artistic-gymnastics',
-    '/artistic-gymnastics-early',
-    '/artistic-gymnastics-6-12',
-    '/artistic-gymnastics-13-18',
-    '/summer-camp-26',
-    '/acro-gymnastics',
-    '/rhythmic-gymnastics',
-    '/trampoline-tumbling',
-    '/aerobic-gymnastics',
-    '/enroll',
-    '/scheduling',
-  ]
-  if (programPaths.some((p) => path === p || path.startsWith(`${p}/`))) {
-    trackEvent('program_page_view', path, {
-      properties: { program_slug: path.split('/').filter(Boolean)[0] },
-    })
-  }
-
-  if (options?.googleAnalytics !== false && consent.analytics) {
-    trackGooglePageView(path)
-  }
+export function trackPageViewEvent(path: string, deviceType: string): string | undefined {
+  const eventId = trackEvent('page_view', path, { properties: { device_type: deviceType }, skipGoogle: true })
+  if (!eventId) return
+  if (programPaths.has(path)) trackEvent('program_page_view', path, { properties: { program_slug: path.slice(1) } })
+  trackGooglePageView(path)
+  return eventId
 }
 
-const scheduleFlush = () => {
-  if (flushTimer) return
+function clearFlushTimer() {
+  if (flushTimer !== undefined) clearTimeout(flushTimer)
+  flushTimer = undefined
+}
+
+function scheduleFlush(delay = 2000) {
+  if (flushTimer !== undefined) return
   flushTimer = setTimeout(() => {
-    flushTimer = null
+    flushTimer = undefined
     void flushEvents()
-  }, 2000)
+  }, delay)
 }
 
-function takeBeaconBatch(events: object[]): object[] {
+function takeBatch() {
   const batch: object[] = []
-  for (const ev of events) {
-    const candidate = [...batch, ev]
-    const size = JSON.stringify({ events: candidate }).length
-    if (size > MAX_BEACON_BYTES && batch.length > 0) break
+  for (const ev of pending.slice(0, MAX_BATCH)) {
+    const bytes = new Blob([JSON.stringify({ events: [...batch, ev] })]).size
+    if (bytes > MAX_BEACON_BYTES && batch.length > 0) break
     batch.push(ev)
-    if (size >= MAX_BEACON_BYTES) break
   }
+  pending.splice(0, batch.length)
   return batch
 }
 
-export const flushEvents = async (options?: FlushOptions) => {
-  if (!pending.length) return
-  const consent = getActiveConsent()
-
-  const useBeacon = options?.useBeacon === true
-  let batch: object[]
-  if (useBeacon) {
-    batch = takeBeaconBatch(pending)
-    pending.splice(0, batch.length)
-  } else {
-    batch = pending.splice(0, pending.length)
-  }
-
-  if (!batch.length) return
-
-  if (!consent.analytics && batch.every((e: { consentAnalytics?: boolean }) => !e.consentAnalytics)) {
+export async function flushEvents({ useBeacon = false } = {}) {
+  if (!getActiveConsent().analytics) {
+    consentGeneration++
+    clearFlushTimer()
+    pending.length = 0
     return
   }
+  if (!pending.length || (sending && !useBeacon)) return
 
+  clearFlushTimer()
+  const generation = consentGeneration
+  const batch = takeBatch()
   const body = JSON.stringify({ events: batch })
   const url = `${getApiUrl()}/api/analytics/event`
-
+  let retry = false
+  if (!useBeacon) sending = true
   try {
-    if (useBeacon && navigator.sendBeacon && body.length <= MAX_BEACON_BYTES) {
-      const ok = navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }))
-      if (ok) {
-        if (pending.length > 0) void flushEvents({ useBeacon: true })
-        return
-      }
+    const blob = new Blob([body], { type: 'application/json' })
+    if (!(useBeacon && blob.size <= MAX_BEACON_BYTES && navigator.sendBeacon?.(url, blob))) {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body,
+        keepalive: useBeacon && blob.size <= MAX_BEACON_BYTES,
+      })
+      retry = response.status === 429 || response.status >= 500
     }
-    await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-      keepalive: useBeacon,
-    })
-    if (useBeacon && pending.length > 0) void flushEvents({ useBeacon: true })
-  } catch (e) {
-    console.warn('[analytics] flush failed', e)
-    pending.unshift(...batch)
+  } catch {
+    retry = true
+  } finally {
+    if (!useBeacon) sending = false
   }
+  if (generation !== consentGeneration) return
+  if (retry && getActiveConsent().analytics) {
+    pending.unshift(...batch)
+    pending.splice(MAX_QUEUE)
+  }
+  if (pending.length && useBeacon && !retry) void flushEvents({ useBeacon: true })
+  else if (pending.length) scheduleFlush(retry ? 15000 : 2000)
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener(CONSENT_CHANGED, () => {
+    if (!getActiveConsent().analytics) {
+      clearAttribution()
+      void flushEvents()
+    }
+  })
 }

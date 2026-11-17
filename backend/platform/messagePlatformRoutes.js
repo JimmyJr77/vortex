@@ -1,3 +1,4 @@
+import { getMessagePanelPreferences, updateMessagePanelPreferences } from './messagePanelPreferences.js'
 /**
  * Message platform HTTP routes — tags, read state, search, collaboration, events.
  */
@@ -81,7 +82,7 @@ import {
   postSchedulingSystemMessage,
   provisionSchedulingFormThread,
 } from './messageSchedulingThreads.js'
-import { broadcastMessageEvent, broadcastReactionUpdate } from './messageRealtime.js'
+import { broadcastMessageEvent, broadcastReactionUpdate, broadcastPanelPreferencesUpdate } from './messageRealtime.js'
 import { hasPermission } from './registerRoutes.js'
 import {
   memberIsThreadParticipant,
@@ -512,6 +513,25 @@ export function registerMessagePlatformRoutes(app, pool, deps) {
         bad(res, error.message, 500)
       }
     })
+
+    for (const method of ['get', 'patch']) {
+      app[method](`/api/${portal}/messages/panel-preferences`, auth, async (req, res) => {
+        try {
+          const { user } = req.platformAuth
+          if (req.platformAuth.portalAccess?.[portal] !== true) return bad(res, 'Portal access required.', 403)
+          if (portal === 'admin' && !isStaffAdmin(req.platformAuth)) return bad(res, 'Admin access required.', 403)
+          if (!user?.id || !user?.facility_id) return bad(res, 'Account required.', 403)
+          res.set('Cache-Control', 'private, no-store')
+          const data = method === 'get'
+            ? await getMessagePanelPreferences(pool, user.facility_id, user.id)
+            : await updateMessagePanelPreferences(pool, user.facility_id, user.id, req.body)
+          if (method === 'patch') broadcastPanelPreferencesUpdate(user.facility_id, user.id)
+          ok(res, data)
+        } catch (error) {
+          bad(res, error.message, error.statusCode === 400 ? 400 : 500)
+        }
+      })
+    }
 
     app.get(`/api/${portal}/messages/notification-preferences`, auth, notificationPrefsHandler(portal, 'GET'))
     app.patch(`/api/${portal}/messages/notification-preferences`, auth, notificationPrefsHandler(portal, 'PATCH'))

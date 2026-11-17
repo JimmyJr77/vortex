@@ -75,7 +75,7 @@ export function MessagePollBlock({
               type="button"
               onClick={() => void castVote(index)}
               className={`w-full text-left rounded-md border px-3 py-2 text-sm transition-colors ${
-                selected ? 'border-vortex-red bg-red-50' : 'border-gray-200 hover:bg-gray-50'
+                selected ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:bg-gray-50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
@@ -84,7 +84,7 @@ export function MessagePollBlock({
               </div>
               {totalVotes > 0 && (
                 <div className="mt-1 h-1 rounded-full bg-gray-100 overflow-hidden">
-                  <div className="h-full bg-vortex-red/70" style={{ width: `${pct}%` }} />
+                  <div className="h-full bg-blue-700/70" style={{ width: `${pct}%` }} />
                 </div>
               )}
             </button>
@@ -172,7 +172,7 @@ export function MessageChecklistBlock({
                 <button
                   type="button"
                   onClick={() => void claimItem(index)}
-                  className="shrink-0 text-xs font-semibold text-vortex-red hover:underline"
+                  className="shrink-0 text-xs font-semibold text-blue-700 hover:underline"
                 >
                   I&apos;ll do this
                 </button>

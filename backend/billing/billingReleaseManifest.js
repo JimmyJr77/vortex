@@ -2,4 +2,4 @@
 // compares this value with the deployment manifest; changing billing migrations
 // requires regenerating it with computeBillingDeployManifestChecksum in the CLI.
 // Request handlers never read or execute migration files.
-export const BILLING_DEPLOY_MANIFEST_CHECKSUM = "10c2d643f34ca9595c9d23d05f3cdc906bff7c734e702ef8608cd70994262e43"
+export const BILLING_DEPLOY_MANIFEST_CHECKSUM = "e43b8a5d5ef9f7a3c7e4c1c4040108d19d4d9156507e70a30de42e023f1ca78e"

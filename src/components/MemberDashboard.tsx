@@ -1,3 +1,4 @@
+import brandLogo from '../assets/vortex-athletics-gymnastics-logo.webp'
 import { clearConfirmedFamilyEnrollmentSubmission } from '../utils/memberEnrollmentDrafts'
 import TextInput from './common/TextInput'
 import StaffLegalPolicies from './legal/StaffLegalPolicies'
@@ -1420,6 +1421,9 @@ export default function MemberDashboard({
         clearEnrollmentReturnParams()
 
         // The backend returns firstConfirmation once per enrollment.
+        if (result.firstConfirmation) {
+          trackEvent('enrollment_confirmed', '/enroll', { properties: { method: 'card', checkout_type: 'enrollment' } })
+        }
         if (result.firstConfirmation && result.purchase && getActiveConsent().analytics) {
           pushGtmEvent('vortex_purchase', {
             transaction_id: result.purchase.transactionId,
@@ -2020,7 +2024,7 @@ export default function MemberDashboard({
               onClick={() => setNavOpen((o) => !o)}>
               {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
-            <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+            <img className="portal-brand" src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" />
             <div className="portal-header-heading"><h1 className="portal-title">Member portal</h1></div>
           </div>
           <PortalNavButtons

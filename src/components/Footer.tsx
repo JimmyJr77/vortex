@@ -10,7 +10,6 @@ import {
   TEAM_PHONE,
   TEAM_PHONE_E164,
 } from '../config/contact'
-import { trackEvent, trackOutboundClickEvent } from '../utils/analyticsClient'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
 import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 import {
@@ -169,12 +168,8 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                     href={JACKRABBIT_PARENT_PORTAL_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={() =>
-                      trackOutboundClickEvent('legacy_login_click', window.location.pathname, {
-                        destination: 'jackrabbit_login',
-                        source: 'footer',
-                      })
-                    }
+                    data-analytics-cta="jackrabbit_login"
+                    data-analytics-section="footer"
                     className="text-gray-300 hover:text-vortex-red transition-colors duration-300"
                   >
                     Jackrabbit Class Login
@@ -206,11 +201,6 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                   <a
                     href={`mailto:${TEAM_EMAIL}`}
                     className="text-gray-300 hover:text-vortex-red transition-colors"
-                    onClick={() =>
-                      trackEvent('email_click', window.location.pathname, {
-                        properties: { target: 'footer' },
-                      })
-                    }
                   >
                     {TEAM_EMAIL}
                   </a>
@@ -220,11 +210,6 @@ const Footer = ({ onLoginClick }: FooterProps) => {
                   <a
                     href={`tel:${TEAM_PHONE_E164}`}
                     className="text-gray-300 hover:text-vortex-red transition-colors"
-                    onClick={() =>
-                      trackEvent('phone_click', window.location.pathname, {
-                        properties: { target: 'footer' },
-                      })
-                    }
                   >
                     {TEAM_PHONE}
                   </a>

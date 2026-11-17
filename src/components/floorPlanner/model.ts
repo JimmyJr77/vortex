@@ -8,7 +8,7 @@ export const BLOCK_HEIGHT = 84
 export const LANE_HEIGHT = 94
 export const LOCATION_OPTIONS = ['Main floor', 'Spring floor', 'Tumbling track', 'Vault', 'Bars', 'Beam', 'Trampoline', 'Ninja course', 'Strength area']
 export interface Location { id: string; name: string }
-export interface PlannerClass { id: string; name: string; program: string; duration: number; coaches: string[]; schedule?: string; idea?: boolean }
+export interface PlannerClass { id: string; classId?: string; formId?: number | null; name: string; program: string; duration: number; coaches: string[]; schedule?: string; idea?: boolean }
 export interface Block { id: string; instanceId: string; classId: string; name: string; program: string; day: number; locationId: string; start: number; end: number; color: number; coaches: string[] }
 export interface Plan { version: 1; increment: number; start: number; end: number; locations: Location[]; classes: PlannerClass[]; blocks: Block[] }
 export interface Coach { id: number; name: string; assignments: { programsId?: number; classId?: number; formId?: number; offeringId?: number; timeSlotId?: number }[] }
@@ -17,10 +17,62 @@ export const timeValue = (minute: number) => `${String(Math.floor(minute / 60)).
 export const minutes = (value: string) => { const [h, m] = value.split(':').map(Number); return h * 60 + m }
 export const timeLabel = (minute: number) => `${Math.floor(minute / 60) % 12 || 12}:${String(minute % 60).padStart(2, '0')} ${minute >= 720 && minute < 1440 ? 'PM' : 'AM'}`
 export const snap = (minute: number, increment: number) => Math.round(minute / increment) * increment
-export const nextColor = (blocks: Block[]) => Math.max(-1, ...blocks.map((b) => b.color)) + 1
-export const colorStyle = (index: number) => {
-  const hue = (index * 137.508 + 210) % 360
+const scheduledClassId = (id: number) => `class:${id}`
+const classLabelId = (program: string, name: string) => {
+  const labels = [program, name].map((label) => label.trim().toLowerCase())
+  return `label:${hashClassId(JSON.stringify(labels))}`
+}
+
+function hashClassId(classId: string) {
+  let hash = 2166136261
+  for (let i = 0; i < classId.length; i++) hash = Math.imul(hash ^ classId.charCodeAt(i), 16777619)
+  return hash >>> 0
+}
+
+const classColor = (classId: string) => hashClassId(classId) % 1_000_001
+
+export function blockClassId(block: Block, classesByForm: ReadonlyMap<number, string>) {
+  // Older plans stored one ID for each library variant or calendar slot.
+  const libraryClass = /^scheduled:(\d+):(?:\d+|null):\d+:\d+$/.exec(block.classId)
+  if (libraryClass) return scheduledClassId(Number(libraryClass[1]))
+
+  const calendarForm = /^scheduled:(\d+):\d+$/.exec(block.classId)
+  if (calendarForm) {
+    return classesByForm.get(Number(calendarForm[1])) ?? classLabelId(block.program, block.name)
+  }
+
+  return block.classId
+}
+
+export function classPlacement(item: PlannerClass, day: number, locationId: string, start: number): Block {
+  const classId = item.classId ?? item.id
+  return {
+    id: randomUUID(), instanceId: randomUUID(), classId, name: item.name, program: item.program,
+    day, locationId, start, end: start + item.duration, color: classColor(classId), coaches: [...item.coaches],
+  }
+}
+
+const classHue = (classId: string) => (classColor(classId) * 137.508 + 210) % 360
+
+export function colorStyle(classId: string, custom?: string) {
+  if (custom) {
+    return { backgroundColor: `color-mix(in srgb, ${custom} 14%, white)`, borderColor: custom, color: '#1f2937' }
+  }
+  const hue = classHue(classId)
   return { backgroundColor: `hsl(${hue} 82% 94%)`, borderColor: `hsl(${hue} 62% 45%)`, color: `hsl(${hue} 65% 23%)` }
+}
+
+export function automaticClassColor(classId: string) {
+  // Match the automatic border color when opening the native color picker.
+  const hue = classHue(classId) / 30
+  const lightness = 0.45
+  const chroma = 0.62 * Math.min(lightness, 1 - lightness)
+  const channel = (offset: number) => {
+    const position = (offset + hue) % 12
+    const value = lightness - chroma * Math.max(-1, Math.min(position - 3, 9 - position, 1))
+    return Math.round(value * 255).toString(16).padStart(2, '0')
+  }
+  return `#${channel(0)}${channel(8)}${channel(4)}`
 }
 export function buildLibrary(rows: ClassSetupOverviewRow[], coaches: Coach[]): PlannerClass[] {
   return rows.filter((row) => !row.classArchived && !row.programArchived && row.classIsActive).flatMap((row) => {
@@ -40,7 +92,11 @@ export function buildLibrary(rows: ClassSetupOverviewRow[], coaches: Coach[]): P
       const existing = unique.get(key)
       const schedule = match ? `${line.days} · ${line.times}` : 'No schedule yet · 60 min default'
       if (existing) { if (!existing.schedule?.includes(schedule)) existing.schedule += `; ${schedule}` }
-      else unique.set(key, { id: `scheduled:${row.classId}:${row.formId}:${duration}:${line.timeSlotId ?? line.slotGroupId ?? unique.size}`, name: row.className, program: row.programName || 'Classes', duration, coaches: assigned, schedule })
+      else unique.set(key, {
+        id: `scheduled:${row.classId}:${row.formId}:${duration}:${line.timeSlotId ?? line.slotGroupId ?? unique.size}`,
+        classId: scheduledClassId(row.classId), formId: row.formId,
+        name: row.className, program: row.programName || 'Classes', duration, coaches: assigned, schedule,
+      })
     }
     return [...unique.values()]
   })
@@ -61,8 +117,9 @@ export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[],
   ]
   if (locations.length > 50) throw new Error('Remove a location to make room for the Unassigned row, then try again.')
   const seen = new Set<string>()
-  let color = nextColor(plan.blocks)
   const blocks: Block[] = []
+  const classesByForm = new Map<number, string>()
+  const signatureEntries: string[] = []
   let unsupportedTimes = 0
   for (const event of events) {
     // Enrollment visibility is separate from the admin calendar's active class status.
@@ -85,16 +142,17 @@ export function resetFromSchedule(plan: Plan, events: SchedulingCalendarEvent[],
       return a.programsId != null && Number(a.programsId) === event.programsId
     })).map((coach) => coach.name)
     const date = new Date(`${event.date}T12:00:00`)
-    blocks.push({
-      id: randomUUID(), instanceId: randomUUID(), classId: `scheduled:${event.formId}:${event.timeSlotId}`,
-      name: event.className, program: event.programName || 'Classes', day: (date.getDay() + 6) % 7,
-      locationId: UNASSIGNED_LOCATION, start, end, color: color++, coaches: assigned,
-    })
+    const program = event.programName || 'Classes'
+    const day = (date.getDay() + 6) % 7
+    const classId = event.classEventId == null ? classLabelId(program, event.className) : scheduledClassId(event.classEventId)
+    if (event.classEventId != null) classesByForm.set(event.formId, classId)
+    blocks.push(classPlacement({ id: classId, name: event.className, program, duration: end - start, coaches: assigned }, day, UNASSIGNED_LOCATION, start))
+    // Use the occurrence ID so a color change does not invalidate existing schedule drafts.
+    signatureEntries.push(JSON.stringify([`scheduled:${event.formId}:${event.timeSlotId}`, event.className, program, day, start, end]))
   }
   if (blocks.length > 3000) throw new Error('This schedule exceeds the 3,000-segment planning limit.')
-  const signature = JSON.stringify(blocks.map(({ classId, name, program, day, start, end }) => JSON.stringify([classId, name, program, day, start, end])).sort())
   return {
-    signature, unsupportedTimes,
+    classesByForm, signature: JSON.stringify(signatureEntries.sort()), unsupportedTimes,
     plan: {
       ...plan, locations, blocks,
       start: Math.min(plan.start, ...blocks.map((b) => Math.floor(b.start / plan.increment) * plan.increment)),
@@ -119,12 +177,11 @@ export function mergeAdjacent(blocks: Block[], instanceId: string): Block[] {
 }
 export function copyDay(plan: Plan, from: number, to: number, replace: boolean): Plan {
   const source = plan.blocks.filter((b) => b.day === from)
-  const instances = new Map<string, { id: string; color: number }>()
-  let color = nextColor(plan.blocks)
+  const instances = new Map<string, string>()
   const copied = source.map((b) => {
-    if (!instances.has(b.instanceId)) instances.set(b.instanceId, { id: randomUUID(), color: color++ })
-    const instance = instances.get(b.instanceId)!
-    return { ...b, id: randomUUID(), instanceId: instance.id, color: instance.color, coaches: [...b.coaches], day: to }
+    const instanceId = instances.get(b.instanceId) ?? randomUUID()
+    instances.set(b.instanceId, instanceId)
+    return { ...b, id: randomUUID(), instanceId, coaches: [...b.coaches], day: to }
   })
   return { ...plan, blocks: [...plan.blocks.filter((b) => !replace || b.day !== to), ...copied] }
 }

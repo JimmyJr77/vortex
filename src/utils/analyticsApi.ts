@@ -13,21 +13,15 @@ export function buildRangeFromPreset(
   customFrom?: string,
   customTo?: string,
 ): AnalyticsQuery {
-  const to = new Date()
-  to.setHours(23, 59, 59, 999)
-  const from = new Date()
   if (preset === 'custom' && customFrom && customTo) {
-    const f = new Date(customFrom)
-    const t = new Date(customTo)
-    f.setHours(0, 0, 0, 0)
-    t.setHours(23, 59, 59, 999)
-    return { from: f.toISOString(), to: t.toISOString() }
+    return { from: customFrom, to: customTo }
   }
-  if (preset === '7d') from.setDate(from.getDate() - 7)
-  else if (preset === '90d') from.setDate(from.getDate() - 90)
-  else from.setDate(from.getDate() - 30)
-  from.setHours(0, 0, 0, 0)
-  return { from: from.toISOString(), to: to.toISOString() }
+  const to = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(new Date())
+  const from = new Date(to + 'T00:00:00Z')
+  from.setUTCDate(from.getUTCDate() - (preset === '7d' ? 6 : preset === '90d' ? 89 : 29))
+  return { from: from.toISOString().slice(0, 10), to }
 }
 
 function queryString(q: AnalyticsQuery, extra?: Record<string, string>): string {
@@ -61,6 +55,13 @@ export interface OverviewData {
   }
   newsletterSignups: number
   newEnrollments: number
+  outcomes?: {
+    free_trials: number
+    other_drop_ins: number
+    enrollments: number
+    store_orders: number
+    store_order_value_cents: number
+  } | null
   sessions: number
   uncontactedOver48h: number
   capacityAlerts: Array<{
@@ -73,13 +74,46 @@ export interface OverviewData {
   }>
 }
 
+type SessionConversions = { sessions: number; conversions: number }
+type WebsitePage = { hostname: string; page_path: string }
+type ActionCounts = { event_name: string; events: number; sessions: number }
+type Vital = { metric: 'CLS' | 'LCP' | 'INP' | 'FCP' | 'TTFB'; p75: number; samples: number }
+
 export interface TrafficData {
-  pageViewsByDay: Array<{ day: string; page_views: number }>
-  topPages: Array<{ page_path: string; views: number }>
+  totals: {
+    sessions: number
+    page_views: number
+    visitors: number
+    returning_visitors: number
+    engaged_sessions: number
+    converting_sessions: number
+    timed_sessions: number
+    avg_active_seconds: number | null
+  }
+  pageViewsByDay: Array<{ day: string; page_views: number; sessions: number; visitors: number }>
+  topPages: Array<WebsitePage & { views: number; sessions: number }>
+  paths: Array<WebsitePage & { entrances: number; exits: number; conversions: number }>
+  devices: Array<SessionConversions & { device: string }>
+  channels: Array<SessionConversions & { channel: string }>
+  sources: Array<SessionConversions & { channel: string; source: string; medium: string | null; campaign: string | null }>
+}
+
+export interface EngagementData {
+  pageViews: number
+  timedViews: number
+  actions: ActionCounts[]
+  topActions: Array<ActionCounts & WebsitePage & { target: string }>
+  scroll: Array<{ percent: number; views: number }>
+  pages: Array<WebsitePage & { views: number; timed_views: number; avg_active_seconds: number | null; depth_75_views: number }>
+  vitals: Array<Vital & { device: string }>
+  vitalPages: Array<Vital & WebsitePage>
 }
 
 export interface FunnelData {
-  steps: Array<{ name: string; count: number; conversionFromPrevious: number }>
+  journeys: Array<{
+    name: string
+    steps: Array<{ name: string; count: number; conversionFromPrevious: number | null }>
+  }>
 }
 
 export interface ProgramsData {
@@ -129,15 +163,15 @@ export interface SeoData {
   keywords: Array<{
     query: string
     page: string
-    date: string
     impressions: number
     clicks: number
-    position: number
-    ctr: number
+    position: number | null
+    ctr: number | null
   }>
   inquiriesByLandingPage: Array<{ landing_page: string; inquiries: number }>
   dailyTraffic: Array<{
     date: string
+    hostname: string
     sessions: number
     users: number
     page_views: number
@@ -176,6 +210,8 @@ export const fetchOverview = (q: AnalyticsQuery) =>
   fetchJson<OverviewData>('/api/admin/analytics/overview', q)
 export const fetchTraffic = (q: AnalyticsQuery) =>
   fetchJson<TrafficData>('/api/admin/analytics/traffic', q)
+export const fetchEngagement = (q: AnalyticsQuery) =>
+  fetchJson<EngagementData>('/api/admin/analytics/engagement', q)
 export const fetchFunnel = (q: AnalyticsQuery) =>
   fetchJson<FunnelData>('/api/admin/analytics/funnel', q)
 export const fetchPrograms = (q: AnalyticsQuery) =>
@@ -189,7 +225,7 @@ export const fetchSeo = (q: AnalyticsQuery) =>
 
 export async function downloadAnalyticsExport(
   q: AnalyticsQuery,
-  reportType: 'inquiries' | 'programs' | 'funnel',
+  reportType: 'inquiries' | 'programs' | 'traffic' | 'engagement' | 'funnel',
 ): Promise<void> {
   const apiUrl = getApiUrl()
   const token = getAdminToken()

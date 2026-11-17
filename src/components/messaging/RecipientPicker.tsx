@@ -79,14 +79,14 @@ export default function RecipientPicker({
           {selected.map((r) => (
             <span
               key={r.key}
-              className="inline-flex items-center gap-1 bg-red-50 text-vortex-red border border-red-100 rounded-full px-2.5 py-1 text-xs font-semibold"
+              className="inline-flex items-center gap-1 !bg-slate-100 text-slate-700 border border-slate-200 rounded-full px-2.5 py-1 text-xs font-semibold"
             >
               {r.name}
               <button
                 type="button"
                 aria-label={`Remove ${r.name}`}
                 onClick={() => removeRecipient(r.key)}
-                className="hover:text-red-800"
+                className="hover:text-blue-800"
               >
                 <X className="w-3 h-3" />
               </button>
@@ -102,7 +102,7 @@ export default function RecipientPicker({
         loading={loading}
         placeholder={placeholder}
         ariaLabel={label}
-        inputClassName="w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm placeholder:text-slate-500 focus:border-red-400 focus:outline-none focus:ring-2 focus:ring-red-100"
+        inputClassName="w-full rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm placeholder:text-slate-500 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
         emptyMessage="No matches. Try another name."
         loadingMessage="Loading people…"
       />

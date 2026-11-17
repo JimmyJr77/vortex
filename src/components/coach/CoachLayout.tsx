@@ -1,3 +1,4 @@
+import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
 import { Suspense, useState, useEffect, useMemo } from 'react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { Activity, Home, Users, BookOpen, ScrollText, Dumbbell, Sparkles, CalendarRange, Trophy, ClipboardCheck, Send, BarChart3, Menu, X, Loader2, CalendarDays, GitBranch, MessageSquare, Video, Bell, CircleHelp } from 'lucide-react'
@@ -245,7 +246,7 @@ export default function CoachLayout({ coach, onLogout, availablePortals = ['coac
             >
               {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
-            <img className="portal-brand" src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" />
+            <img className="portal-brand" src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" />
             <div className="portal-header-heading">
               <h1 className="portal-title">Coach portal</h1>
               {coach.fullName && <p className="portal-subtitle">{coach.fullName}</p>}

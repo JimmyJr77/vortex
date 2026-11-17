@@ -216,6 +216,20 @@
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
     },
     {
+      "source": "/employee/payroll/:path*",
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/",
+      "has": [{ "type": "query", "key": "sport", "value": ".+" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
+      "source": "/:path*",
+      "has": [{ "type": "query", "key": "sport" }],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex, nofollow" }]
+    },
+    {
       "source": "/copy",
       "headers": [{ "key": "X-Robots-Tag", "value": "noindex, follow" }]
     },
@@ -268,12 +282,53 @@
   ],
   "rewrites": [
     {
+      "source": "/",
+      "has": [{ "type": "query", "key": "sport", "value": ".+" }],
+      "destination": "/_seo/spa.html"
+    },
+    {
+      "source": "/read-board",
+      "destination": "/read-board/index.html"
+    },
+    {
+      "source": "/enroll",
+      "destination": "/enroll/index.html"
+    },
+    {
+      "source": "/drop-in",
+      "destination": "/drop-in/index.html"
+    },
+    {
+      "source": "/contact",
+      "destination": "/contact/index.html"
+    },
+    {
+      "source": "/support",
+      "destination": "/support/index.html"
+    },
+    {
+      "source": "/store",
+      "destination": "/store/index.html"
+    },
+    {
+      "source": "/privacy-policy",
+      "destination": "/privacy-policy/index.html"
+    },
+    {
+      "source": "/terms-of-service",
+      "destination": "/terms-of-service/index.html"
+    },
+    {
+      "source": "/ninja",
+      "destination": "/ninja/index.html"
+    },
+    {
       "source": "/employee/payroll",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/employee/payroll/preparer",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/robots.txt",
@@ -331,43 +386,39 @@
     },
     {
       "source": "/copy",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/store",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/signup/family",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/signup/invite",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/signup/lead",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/verify-email",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/registration/receipt",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/waivers-memberships",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/camp_interest",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     },
     {
       "source": "/camp_interest/thank-you",
-      "destination": "/index.html"
+      "destination": "/_seo/spa.html"
     }
   ]
 }

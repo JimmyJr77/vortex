@@ -4,6 +4,8 @@ import test from 'node:test'
 import {
   cancelStoreOrder,
   createCardCheckout,
+  prepareStoreTerminalPayment,
+  settleStoreTerminalPayment,
   StoreStripeCheckoutBindingConflict,
 } from '../registerRoutes.js'
 
@@ -53,12 +55,14 @@ function checkoutSession(overrides = {}) {
   }
 }
 
-function cancellationPool({ row = databaseOrder(), items = [], onInventoryMutation = null } = {}) {
+function cancellationPool({ row = databaseOrder(), items = [], terminalPaymentOpen = false, onInventoryMutation = null } = {}) {
   const state = {
     row,
     items,
     locks: 0,
+    terminalLocks: [],
     restocks: 0,
+    discountUses: 0,
     cancellationUpdates: 0,
     paymentUpdates: 0,
     audits: [],
@@ -73,9 +77,20 @@ function cancellationPool({ row = databaseOrder(), items = [], onInventoryMutati
         state.rollbacks += 1
         return { rows: [] }
       }
+      if (text.includes('pg_advisory_xact_lock(hashtextextended')) {
+        state.terminalLocks.push(params[0])
+        return { rows: [] }
+      }
+      if (text.includes('FROM stripe_terminal_payment')) {
+        assert.deepEqual(state.terminalLocks, [`stripe-terminal:store:${state.row.id}`])
+        return { rows: terminalPaymentOpen ? [{ open: true }] : [] }
+      }
       if (text.includes('SELECT * FROM store_order WHERE id = $1 AND facility_id = $2 FOR UPDATE')) {
         state.locks += 1
         return { rows: [state.row] }
+      }
+      if (text.includes('SELECT * FROM store_order WHERE id = $1 AND facility_id = $2')) {
+        return { rows: Number(params[1]) === state.row.facility_id ? [state.row] : [] }
       }
       if (text.includes('SELECT * FROM store_order WHERE id = $1 FOR UPDATE')) {
         state.locks += 1
@@ -108,6 +123,10 @@ function cancellationPool({ row = databaseOrder(), items = [], onInventoryMutati
         state.restocks += 1
         return { rows: [] }
       }
+      if (text.includes('UPDATE store_discount_code')) {
+        state.discountUses += 1
+        return { rows: [] }
+      }
       if (text.includes('INSERT INTO store_inventory_adjustment')) return { rows: [] }
       if (text.includes('INSERT INTO store_action_audit')) {
         state.audits.push(params[2])
@@ -129,6 +148,72 @@ function cancellationPool({ row = databaseOrder(), items = [], onInventoryMutati
     },
   }
 }
+
+function terminalOrder(overrides = {}) {
+  return databaseOrder({
+    source: 'admin',
+    payment_method: 'terminal',
+    stripe_checkout_session_id: null,
+    stripe_checkout_session_url: null,
+    ...overrides,
+  })
+}
+
+test('Terminal preparation uses the pending order total in the authenticated facility', async () => {
+  const { pool } = cancellationPool({ row: terminalOrder() })
+  assert.deepEqual(await prepareStoreTerminalPayment(pool, { facilityId: 9, targetId: 71 }), {
+    amountCents: 5100,
+    customerId: null,
+    metadata: { storeOrderId: '71' },
+  })
+  await assert.rejects(prepareStoreTerminalPayment(pool, { facilityId: 5, targetId: 71 }), { statusCode: 404 })
+  const { pool: paidPool } = cancellationPool({ row: terminalOrder({ status: 'placed', payment_status: 'paid' }) })
+  await assert.rejects(prepareStoreTerminalPayment(paidPool, { facilityId: 9, targetId: 71 }), { statusCode: 409 })
+})
+
+test('Terminal settlement binds the exact intent and records the sale and discount once', async () => {
+  const { pool, state } = cancellationPool({ row: terminalOrder({ discount_code_id: 14 }) })
+  const client = await pool.connect()
+  const attempt = {
+    target_id: 71,
+    facility_id: 9,
+    actor_user_id: 3,
+    amount_cents: 5100,
+    stripe_payment_intent_id: 'pi_terminal',
+  }
+  await assert.rejects(settleStoreTerminalPayment(client, { attempt, intent: { id: 'pi_other' } }), {
+    code: 'store_terminal_payment_binding_conflict',
+  })
+  assert.equal(state.paymentUpdates, 0)
+
+  const result = await settleStoreTerminalPayment(client, { attempt, intent: { id: 'pi_terminal' } })
+  const replay = await settleStoreTerminalPayment(client, { attempt, intent: { id: 'pi_terminal' } })
+  assert.equal(result.paymentCompleted, true)
+  assert.equal(replay.paymentCompleted, false)
+  assert.equal(result.order.status, 'placed')
+  assert.equal(result.order.externalReference, 'pi_terminal')
+  assert.equal(state.discountUses, 1)
+  assert.equal(state.paymentUpdates, 1)
+  assert.equal(state.releases, 0, 'the Terminal workflow owns the provided connection')
+  assert.deepEqual(state.audits, ['sale_card_payment_completed'])
+})
+
+test('Terminal orders keep inventory reserved while a reader payment is open', async () => {
+  const item = { product_id: 18, quantity: 1 }
+  const blocked = cancellationPool({ row: terminalOrder(), items: [item], terminalPaymentOpen: true })
+  const allowed = cancellationPool({ row: terminalOrder(), items: [item] })
+  const staff = { orderId: 71, facilityId: 9, actorUserId: 3 }
+
+  await assert.rejects(cancelStoreOrder(blocked.pool, staff), { code: 'store_terminal_payment_open' })
+  assert.equal(blocked.state.restocks, 0)
+  assert.equal(blocked.state.cancellationUpdates, 0)
+
+  await assert.rejects(cancelStoreOrder(allowed.pool, { ...staff, terminalFacilityId: null }), { statusCode: 403 })
+  allowed.state.terminalLocks.length = 0
+  const cancelled = await cancelStoreOrder(allowed.pool, staff)
+  assert.equal(cancelled.status, 'cancelled')
+  assert.equal(allowed.state.restocks, 1)
+})
 
 test('card cancellation expires the exact bound Checkout Session before inventory is restored', async () => {
   let stripeExpired = false

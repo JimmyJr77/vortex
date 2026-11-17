@@ -2,6 +2,7 @@ import { adminApiRequest, getApiUrl } from './api'
 
 export type StoreCategory = 'clothing' | 'equipment' | 'food' | 'drink' | 'other'
 export type StorePaymentMethod = 'billing_account' | 'card' | 'cash' | 'check' | 'mobile'
+export type StoreOrderPaymentMethod = StorePaymentMethod | 'terminal'
 
 export interface StoreProduct {
   id: number
@@ -53,7 +54,7 @@ export interface StoreOrder {
   source: 'public' | 'member' | 'admin'
   status: 'awaiting_payment' | 'placed' | 'fulfilled' | 'cancelled'
   paymentStatus: 'pending' | 'billed_to_account' | 'paid' | 'external'
-  paymentMethod: StorePaymentMethod
+  paymentMethod: StoreOrderPaymentMethod
   externalReference: string | null
   subtotalCents: number
   discountCents: number
@@ -103,6 +104,15 @@ export async function fetchMemberStoreOrders(token: string): Promise<StoreOrder[
     headers: { Authorization: `Bearer ${token}` },
   })
   return parseResponse<StoreOrder[]>(response)
+}
+
+export async function fetchStoreOrderConfirmation(token: string, orderId: number, sessionId: string, signal: AbortSignal) {
+  const params = new URLSearchParams({ session_id: sessionId })
+  const response = await fetch(`${getApiUrl()}/api/members/store/orders/${orderId}/confirmation?${params}`, {
+    headers: { Authorization: `Bearer ${token}` },
+    signal,
+  })
+  return parseResponse<{ confirmed: boolean }>(response)
 }
 
 export async function checkoutMemberStoreOrder(
@@ -211,11 +221,11 @@ export async function adminSearchStoreMembers(query: string): Promise<StoreMembe
 
 export async function adminCreateStoreOrder(payload: {
   memberId?: number | null; purchaserEmail?: string | null
-  items: StoreCartLine[]; paymentMethod: StorePaymentMethod; discountCode?: string; externalReference?: string
-}) {
+  items: StoreCartLine[]; paymentMethod: StoreOrderPaymentMethod; discountCode?: string; externalReference?: string
+}, idempotencyKey = requestKey('admin-store')) {
   return adminRequest<StoreOrder>('/api/admin/store/orders', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': requestKey('admin-store') },
+    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
     body: JSON.stringify(payload),
   })
 }

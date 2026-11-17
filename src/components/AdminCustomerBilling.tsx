@@ -3,6 +3,7 @@ import SavedPaymentMethod from './customerBilling/SavedPaymentMethod'
 import { paymentMethodIsMissing } from './customerBilling/paymentMethodStatus'
 import AddCreditModal from './customerBilling/AddCreditModal'
 import TextInput from './common/TextInput'
+import StripeTerminalDialog from './billing/StripeTerminalDialog'
 import { Fragment, type FormEvent, useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Activity,
@@ -1108,6 +1109,7 @@ export default function AdminCustomerBilling({
   const [customChargeOpen, setCustomChargeOpen] = useState(false)
   const [addCreditOpen, setAddCreditOpen] = useState(false)
   const [balanceCollectionOpen, setBalanceCollectionOpen] = useState(false)
+  const [terminalFamilyId, setTerminalFamilyId] = useState<number | null>(null)
   const [externalPaymentOpen, setExternalPaymentOpen] = useState(false)
   const [passToAdjust, setPassToAdjust] = useState<CustomerBillingOverview['bundlePasses'][number] | null>(null)
   const [refundTarget, setRefundTarget] = useState<RefundTarget | null>(null)
@@ -1772,6 +1774,7 @@ export default function AdminCustomerBilling({
                 <button type="button" onClick={() => setAddCreditOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Add credit</button>
                 <button type="button" onClick={() => setCustomChargeOpen(true)} disabled={!canManage || saving} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40"><Plus className="h-4 w-4" /> Custom charge</button>
                 <button type="button" onClick={() => setBalanceCollectionOpen(true)} disabled={!canManage || saving || Boolean(processPaymentBlockReason)} className="portal-primary inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:opacity-40" aria-describedby={canManage && processPaymentBlockReason ? 'process-payment-unavailable' : undefined} title={processPaymentBlockReason ?? (unpaidMonthlyInvoice ? 'Pay the existing monthly invoice.' : 'Choose an amount and payment method.')}><CreditCard className="h-4 w-4" /> Process Payment</button>
+                {canManage ? <button type="button" onClick={() => setTerminalFamilyId(overview.account.familyId)} disabled={saving || loading} className="inline-flex items-center gap-2 rounded-lg border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Take in-person payment</button> : null}
                 {canManage && overview.summary.hasResumableBalanceCheckout ? <button type="button" onClick={() => void openExistingBalanceCheckout()} disabled={saving || loading} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><ExternalLink className="h-4 w-4" /> Open existing checkout</button> : null}
                 <button type="button" onClick={() => setExternalPaymentOpen(true)} disabled={!canManage || saving} title="Record cash, check, bank transfer, or another external payment" className="inline-flex items-center gap-2 rounded-lg border border-gray-900 px-4 py-2 text-sm font-semibold text-gray-900 disabled:opacity-40"><Banknote className="h-4 w-4" /> Record External Payment</button>
                 <button type="button" onClick={() => void openPaymentMethodLink()} disabled={!canManage || saving || !overview.paymentMethod.stripeEnabled} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-40"><CreditCard className="h-4 w-4" /> Update payment method</button>
@@ -1885,6 +1888,19 @@ export default function AdminCustomerBilling({
         setMembershipToTransfer({ membership, chargeId: chargeToModify.refId }); setChargeToModify(null)
       } : undefined} onClose={() => setChargeToModify(null)} onSaved={(message) => { setChargeToModify(null); handleSaved(message) }} /> : null}
       {balanceCollectionOpen && overview && (unpaidMonthlyInvoice || immediatePaymentMethod) ? <BalanceCollectionModal monthlyInvoiceAmount={unpaidMonthlyInvoice?.totalCents ?? null} familyId={overview.account.familyId} balanceCents={overview.summary.collectibleBalanceCents} outstandingBalanceCents={overview.summary.outstandingBalanceCents} paymentMethod={immediatePaymentMethod} onClose={() => setBalanceCollectionOpen(false)} onSaved={handleSaved} /> : null}
+      {canManage && overview && terminalFamilyId === overview.account.familyId ? (
+        <StripeTerminalDialog
+          key={terminalFamilyId}
+          kind="billing"
+          targetId={terminalFamilyId}
+          targetLabel={overview.account.familyName || `Family #${terminalFamilyId}`}
+          amountCents={overview.summary.collectibleBalanceCents}
+          newPaymentUnavailableReason={unpaidMonthlyInvoice ? 'Use the existing monthly invoice link to pay this balance.' : undefined}
+          onRefreshQuote={() => void refresh()}
+          onClose={() => setTerminalFamilyId(null)}
+          onSucceeded={() => void refresh()}
+        />
+      ) : null}
       {membershipToTransfer && overview ? <MembershipTransferModal familyId={overview.account.familyId} membership={membershipToTransfer.membership} chargeId={membershipToTransfer.chargeId} members={overview.members} memberships={overview.annualMemberships} onClose={() => setMembershipToTransfer(null)} onSaved={(message, memberId) => { setMembershipToTransfer(null); void loadFamily(overview.account.familyId, memberId).then(() => setSuccess(message)) }} /> : null}
       {addCreditOpen && overview ? <AddCreditModal familyId={overview.account.familyId} onClose={() => setAddCreditOpen(false)} onSaved={handleSaved} /> : null}
       {customChargeOpen && overview ? <CustomChargeModal familyId={overview.account.familyId} members={overview.members} selectedMemberId={selectedMemberId} savedCardAvailable={Boolean(immediatePaymentMethod)} onClose={() => setCustomChargeOpen(false)} onSaved={handleSaved} /> : null}

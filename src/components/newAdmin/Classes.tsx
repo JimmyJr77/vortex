@@ -150,7 +150,7 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
                       {index === 0 && <>
                         <td className={cell} rowSpan={schedules.length}>{row.programName || 'Unassigned'}</td>
                         <td className={cell} rowSpan={schedules.length}>
-                          <button className="font-semibold underline decoration-slate-300 underline-offset-4 hover:text-red-700" disabled={!canViewRoster} onClick={() => setId(row.id)}>{row.name}</button>
+                          <button className="text-left font-semibold underline decoration-slate-300 underline-offset-4 hover:text-red-700" disabled={!canViewRoster} onClick={() => setId(row.id)}>{row.name}</button>
                           <p className="mt-1 text-xs text-slate-500">Class #{row.id}</p>
                         </td>
                         <td className={cell} rowSpan={schedules.length}>

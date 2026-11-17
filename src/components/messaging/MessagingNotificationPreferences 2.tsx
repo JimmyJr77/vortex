@@ -1,0 +1,163 @@
+import { cleanPhoneNumber, formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
+import TextInput from '../common/TextInput'
+import { useCallback, useEffect, useState } from 'react'
+import { Loader2 } from 'lucide-react'
+import type { MessagingRole } from './types'
+
+type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
+
+interface NotificationPrefs {
+  allow_critical_email: boolean
+  allow_critical_sms: boolean
+  phone_e164?: string | null
+}
+
+interface MessagingNotificationPreferencesProps {
+  role: MessagingRole
+  fetcher: Fetcher
+  className?: string
+  variant?: 'compact' | 'page'
+}
+
+const PREFS_PATH: Record<MessagingRole, string> = {
+  coach: '/api/coach/preferences/notifications',
+  member: '/api/member/preferences/notifications',
+  admin: '/api/admin/preferences/notifications',
+}
+
+export default function MessagingNotificationPreferences({
+  role,
+  fetcher,
+  className = '',
+  variant = 'compact',
+}: MessagingNotificationPreferencesProps) {
+  const [prefs, setPrefs] = useState<NotificationPrefs>({
+    allow_critical_email: false,
+    allow_critical_sms: false,
+    phone_e164: '',
+  })
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const data = await fetcher(PREFS_PATH[role]) as NotificationPrefs
+      setPrefs({
+        allow_critical_email: Boolean(data.allow_critical_email),
+        allow_critical_sms: Boolean(data.allow_critical_sms),
+        phone_e164: data.phone_e164 ?? '',
+      })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load preferences')
+    } finally {
+      setLoading(false)
+    }
+  }, [fetcher, role])
+
+  useEffect(() => {
+    void load()
+  }, [load])
+
+  const save = async () => {
+    const phone = formatPhoneForDisplay(prefs.phone_e164)
+    if (phone && !isCompletePhoneNumber(phone)) {
+      setSaved(false)
+      setError(PHONE_FORMAT_ERROR)
+      return
+    }
+    setSaving(true)
+    setSaved(false)
+    setError(null)
+    try {
+      const data = await fetcher(PREFS_PATH[role], {
+        method: 'PATCH',
+        body: JSON.stringify({
+          allow_critical_email: prefs.allow_critical_email,
+          allow_critical_sms: prefs.allow_critical_sms,
+          phone_e164: phone ? `+1${cleanPhoneNumber(phone)}` : null,
+        }),
+      }) as NotificationPrefs
+      setPrefs({
+        allow_critical_email: Boolean(data.allow_critical_email),
+        allow_critical_sms: Boolean(data.allow_critical_sms),
+        phone_e164: data.phone_e164 ?? '',
+      })
+      setSaved(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save preferences')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className={`flex items-center gap-2 text-sm text-gray-500 ${className}`}>
+        <Loader2 className="w-4 h-4 animate-spin" /> Loading alert settings…
+      </div>
+    )
+  }
+
+  const isPage = variant === 'page'
+
+  return (
+    <div
+      className={`rounded-xl border border-gray-200 bg-white space-y-3 ${
+        isPage ? 'p-5 shadow-sm' : 'bg-gray-50 p-3'
+      } ${className}`}
+    >
+      <div className={isPage ? 'text-base font-semibold text-gray-900' : 'text-xs font-semibold text-gray-800'}>
+        Critical alerts (opt-in)
+      </div>
+      <p className={`text-gray-600 leading-snug ${isPage ? 'text-sm' : 'text-[11px]'}`}>
+        Email and SMS are sent only for urgent critical messages — never digests or routine chat.
+        If you use multiple Vortex portals, these choices stay in sync.
+      </p>
+      <label className={`flex items-center gap-2 text-gray-700 cursor-pointer ${isPage ? 'text-sm' : 'text-xs'}`}>
+        <input
+          type="checkbox"
+          checked={prefs.allow_critical_email}
+          onChange={(e) => setPrefs((p) => ({ ...p, allow_critical_email: e.target.checked }))}
+          className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+        />
+        Email for critical messages
+      </label>
+      <label className={`flex items-center gap-2 text-gray-700 cursor-pointer ${isPage ? 'text-sm' : 'text-xs'}`}>
+        <input
+          type="checkbox"
+          checked={prefs.allow_critical_sms}
+          onChange={(e) => setPrefs((p) => ({ ...p, allow_critical_sms: e.target.checked }))}
+          className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+        />
+        SMS for critical messages
+      </label>
+      {prefs.allow_critical_sms && (
+        <TextInput
+          type="tel"
+          value={prefs.phone_e164 ?? ''}
+          onChange={(e) => setPrefs((p) => ({ ...p, phone_e164: e.target.value }))}
+          aria-label="SMS phone number"
+          className={`w-full border border-gray-300 rounded-md px-3 py-2 ${isPage ? 'text-sm' : 'text-xs'}`}
+        />
+      )}
+      <div className="flex items-center gap-2 pt-1">
+        <button
+          type="button"
+          onClick={() => void save()}
+          disabled={saving}
+          className={`font-semibold bg-vortex-red text-white px-4 py-2 rounded-md disabled:opacity-60 ${
+            isPage ? 'text-sm' : 'text-xs'
+          }`}
+        >
+          {saving ? 'Saving…' : 'Save'}
+        </button>
+        {saved && <span className="text-[11px] text-green-700">Saved</span>}
+        {error && <span className="text-[11px] text-red-600">{error}</span>}
+      </div>
+    </div>
+  )
+}

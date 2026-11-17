@@ -12,7 +12,7 @@ interface Props {
 
 export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Props) {
   const [waivers, setWaivers] = useState<PublicWaiverTemplate[]>([])
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'complete'>('loading')
+  const [status, setStatus] = useState<'loading' | 'ready' | 'load-error' | 'finishing' | 'finish-error'>('loading')
   const [checkedIds, setCheckedIds] = useState<number[]>([])
   const [agreeAll, setAgreeAll] = useState(false)
   const [signature, setSignature] = useState('')
@@ -21,6 +21,25 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
   const [error, setError] = useState<string | null>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
   const apiUrl = getApiUrl()
+
+  const finishInitialCheck = useCallback(async (signal?: AbortSignal) => {
+    setStatus('finishing')
+    setError(null)
+    try {
+      const response = await fetch(`${apiUrl}/api/members/waivers/initial-check/complete`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        signal,
+      })
+      const result = await response.json()
+      if (!response.ok || result.success !== true) throw new Error()
+      if (!signal?.aborted) onContinue()
+    } catch {
+      if (signal?.aborted) return
+      setError('Unable to finish waiver setup. Please try again.')
+      setStatus('finish-error')
+    }
+  }, [apiUrl, onContinue, token])
 
   const loadWaivers = useCallback(async (signal?: AbortSignal) => {
     setStatus('loading')
@@ -36,14 +55,18 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
       }
       if (signal?.aborted) return
       const current = result.data as PublicWaiverTemplate[]
-      setWaivers(current)
-      setStatus(current.some(waiver => waiver.is_required !== false && waiver.acceptance_id == null) ? 'ready' : 'complete')
+      if (current.some(waiver => waiver.is_required !== false && waiver.acceptance_id == null)) {
+        setWaivers(current)
+        setStatus('ready')
+      } else {
+        await finishInitialCheck(signal)
+      }
     } catch {
       if (signal?.aborted) return
       setError('Unable to check your waivers. Please try again.')
-      setStatus('error')
+      setStatus('load-error')
     }
-  }, [apiUrl, token])
+  }, [apiUrl, finishInitialCheck, token])
 
   useEffect(() => {
     const controller = new AbortController()
@@ -52,9 +75,8 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
   }, [loadWaivers])
 
   useEffect(() => {
-    if (status === 'complete') onContinue()
-    if (status === 'ready' || status === 'error') headingRef.current?.focus()
-  }, [status, onContinue])
+    if (status === 'ready' || status === 'load-error' || status === 'finish-error') headingRef.current?.focus()
+  }, [status])
 
   const submit = async () => {
     const validationError = validateWaiverSigning({
@@ -101,9 +123,11 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
       <div className="portal-panel mx-auto max-w-3xl rounded-2xl border border-gray-200 bg-white p-5 shadow-lg md:p-8">
         <FileText className="mb-4 h-9 w-9 text-vortex-red" aria-hidden="true" />
         <h1 ref={headingRef} id="login-waivers-title" tabIndex={-1} className="text-2xl font-bold text-gray-950 outline-none md:text-3xl">
-          {status === 'ready' ? 'Please complete your waivers' : status === 'error' ? 'Unable to check your waivers' : 'Checking your waivers'}
+          {status === 'ready' ? 'Please complete your waivers'
+            : status === 'load-error' ? 'Unable to check your waivers'
+              : status === 'finish-error' ? 'Unable to finish waiver setup' : 'Checking your waivers'}
         </h1>
-        {status === 'loading' || status === 'complete' ? (
+        {status === 'loading' || status === 'finishing' ? (
           <p role="status" className="mt-4 text-gray-600">Checking that your required waivers are up to date…</p>
         ) : (
           <>
@@ -111,8 +135,11 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
               <p className="mb-6 mt-3 text-gray-600">You have required waivers that are missing or out of date. Review and sign them below to bring your account up to date.</p>
             )}
             {error && <p role="alert" className="my-4 rounded-lg bg-red-50 p-3 text-sm text-red-800">{error}</p>}
-            {status === 'error' ? (
-              <button type="button" onClick={() => void loadWaivers()} className="rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white">Try again</button>
+            {status === 'load-error' || status === 'finish-error' ? (
+              <button type="button" disabled={submitting} onClick={() => {
+                if (status === 'load-error') void loadWaivers()
+                else void finishInitialCheck()
+              }} className="rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white">Try again</button>
             ) : (
               <form onSubmit={event => { event.preventDefault(); if (!submitting) void submit() }}>
                 <fieldset disabled={submitting} className="min-w-0 space-y-5">
@@ -134,7 +161,9 @@ export default function MemberWaiverPrompt({ token, onContinue, onLogout }: Prop
               </form>
             )}
             <div className="mt-6 flex flex-wrap gap-5 border-t border-gray-100 pt-4 text-sm">
-              <button type="button" disabled={submitting} onClick={onContinue} className="font-semibold text-gray-600 underline disabled:opacity-60">Remind me next time</button>
+              {status === 'ready' && (
+                <button type="button" disabled={submitting} onClick={() => void finishInitialCheck()} className="font-semibold text-gray-600 underline disabled:opacity-60">Continue without signing</button>
+              )}
               <button type="button" disabled={submitting} onClick={onLogout} className="font-semibold text-gray-600 underline disabled:opacity-60">Log out</button>
             </div>
           </>

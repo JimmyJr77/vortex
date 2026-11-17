@@ -124,7 +124,7 @@ export default function FileUploadComposeModal({
             type="button"
             disabled={saving || !file || threadId == null}
             onClick={() => void handleUpload()}
-            className="px-4 py-2 text-sm portal-primary bg-vortex-red text-white rounded-lg font-semibold disabled:opacity-60"
+            className="px-4 py-2 text-sm portal-primary bg-blue-700 text-white rounded-lg font-semibold disabled:opacity-60"
           >
             {saving ? 'Uploading…' : 'Upload'}
           </button>

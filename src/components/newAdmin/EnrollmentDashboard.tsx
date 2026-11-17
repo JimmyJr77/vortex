@@ -157,9 +157,9 @@ function EnrollmentTrend({ data, population, setPopulation }: {
                 <Bar yAxisId="families" dataKey="canceledFamilies" name="Cancellations" fill="#d97706" radius={[4, 4, 0, 0]} maxBarSize={28} isAnimationActive={false} />
               </> : <>
                 <Line yAxisId="families" dataKey="newFamilies" name={`New ${noun}`} stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} connectNulls={false} isAnimationActive={false} />
-                <Line yAxisId="families" dataKey="canceledFamilies" name="Cancellations" stroke="#d97706" strokeDasharray="6 4" strokeWidth={2.5} dot={{ r: 3 }} connectNulls={false} isAnimationActive={false} />
+                <Line yAxisId="families" dataKey="canceledFamilies" name="Cancellations" stroke="#d97706" strokeWidth={2.5} dot={{ r: 3 }} connectNulls={false} isAnimationActive={false} />
               </>}
-              {!total && <Line yAxisId="rate" dataKey="lossRate" name="Loss rate" stroke="#dc2626" strokeWidth={3} dot={{ r: 4 }} connectNulls={false} isAnimationActive={false} />}
+              {!total && <Line yAxisId="rate" dataKey="lossRate" name="Loss rate" stroke="#dc2626" strokeDasharray="6 4" strokeWidth={3} dot={{ r: 4 }} connectNulls={false} isAnimationActive={false} />}
             </ComposedChart>
           </ResponsiveContainer>
         </div>

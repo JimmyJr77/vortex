@@ -17,7 +17,7 @@ import SchoolAutocompleteInput from '../scheduling/SchoolAutocompleteInput'
 import FamilySearchCombobox, { type FamilySearchOption } from './FamilySearchCombobox'
 import WaiverSigningBlock from './WaiverSigningBlock'
 import { validateWaiverSigning, type PublicWaiverTemplate } from './waiverSigningUtils'
-import { flushEvents, trackEvent } from '../../utils/analyticsClient'
+import { flushEvents, trackConfirmation, trackEvent } from '../../utils/analyticsClient'
 import type { ProgramPricingOptionKey } from '../../utils/programPricingOptions'
 import {
   clearPublicEnrollmentCart,
@@ -1346,6 +1346,7 @@ export default function FamilySignupWizard({
 
     setLoading(true)
     setError(null)
+    if (isFreeTrial && freeTrial) trackEvent('trial_confirm_submit', '/', { properties: { program_slug: freeTrial.program } })
     try {
       if (isAdminEdit) {
         await saveAdminEdit()
@@ -1403,10 +1404,12 @@ export default function FamilySignupWizard({
       if (isFreeTrial) {
         const booking = data.data?.completedDropIn
         if (booking?.status !== 'confirmed' || booking?.benefitType !== 'free_trial' || booking?.totalCents !== 0) {
+          trackEvent('trial_confirm_error', '/', { properties: { program_slug: freeTrial?.program } })
           setSuccessMessage('Your account was created, but we could not confirm the free trial. Please contact Vortex before attending.')
           setSuccessDestination('/?login=1')
           return
         }
+        trackConfirmation('trial_confirmed', '/', booking.id, { program_slug: freeTrial?.program })
         const login = await loginMemberWithCredentials(apiUrl, {
           emailOrUsername: primaryAdult.username, password: primaryAdult.password,
         }).catch(() => null)
@@ -1471,6 +1474,7 @@ export default function FamilySignupWizard({
       setSuccessMessage('Account created successfully!')
       onComplete?.(data.data)
     } catch (err) {
+      if (isFreeTrial && freeTrial) trackEvent('trial_confirm_error', '/', { properties: { program_slug: freeTrial.program } })
       setError(err instanceof Error ? err.message : 'Signup failed')
     } finally {
       setLoading(false)

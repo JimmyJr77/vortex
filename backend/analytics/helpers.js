@@ -2,46 +2,39 @@ import crypto from 'crypto'
 
 export const ANALYTICS_POLICY_VERSION = '2026-06-01'
 
-const PII_PROPERTY_KEYS = new Set([
-  'email',
-  'firstName',
-  'first_name',
-  'lastName',
-  'last_name',
-  'phone',
-  'message',
-  'childAge',
-  'child_age',
-  'childAges',
-  'child_ages',
-  'athleteAge',
-  'athlete_age',
-])
+const reportDay = new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+})
+const reportOffset = new Intl.DateTimeFormat('en-US', {
+  timeZone: 'America/New_York', timeZoneName: 'longOffset',
+})
+const calendarDate = /^\d{4}-\d{2}-\d{2}$/
+const DAY_MS = 86400000
 
-export function parseDateRange(query) {
-  const to = query.to ? new Date(query.to) : new Date()
-  const from = query.from
-    ? new Date(query.from)
-    : new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000)
-  if (Number.isNaN(from.getTime()) || Number.isNaN(to.getTime())) {
-    return null
-  }
-  to.setHours(23, 59, 59, 999)
-  from.setHours(0, 0, 0, 0)
-  return { from, to }
+function midnightAtFacility(day) {
+  const probe = new Date(day + 'T05:00:00Z')
+  if (!Number.isFinite(probe.getTime()) || probe.toISOString().slice(0, 10) !== day) return new Date(NaN)
+  // US daylight saving changes occur after midnight. 05:00 UTC is before either change.
+  const offset = reportOffset.formatToParts(probe).find(({ type }) => type === 'timeZoneName').value.slice(3)
+  return new Date(day + 'T00:00:00' + offset)
 }
 
-export function stripEventProperties(properties) {
-  if (!properties || typeof properties !== 'object' || Array.isArray(properties)) {
-    return {}
+export function parseDateRange(query) {
+  const toDay = typeof query.to === 'string' && calendarDate.test(query.to) ? query.to : null
+  let to = query.to ? new Date(query.to) : new Date()
+  if (!Number.isFinite(to.getTime())) return null
+  if (!query.to || toDay) {
+    const day = toDay || reportDay.format(to)
+    if (!Number.isFinite(midnightAtFacility(day).getTime())) return null
+    const tomorrow = new Date(Date.parse(day + 'T00:00:00Z') + DAY_MS).toISOString().slice(0, 10)
+    to = new Date(midnightAtFacility(tomorrow).getTime() - 1)
   }
-  const clean = {}
-  for (const [key, value] of Object.entries(properties)) {
-    if (PII_PROPERTY_KEYS.has(key)) continue
-    if (typeof value === 'string' && value.length > 500) continue
-    clean[key] = value
-  }
-  return clean
+
+  const fallbackFrom = new Date(Date.parse(reportDay.format(to) + 'T00:00:00Z') - 29 * DAY_MS)
+  const from = query.from
+    ? calendarDate.test(query.from) ? midnightAtFacility(query.from) : new Date(query.from)
+    : midnightAtFacility(fallbackFrom.toISOString().slice(0, 10))
+  return Number.isFinite(from.getTime()) && from <= to ? { from, to } : null
 }
 
 export function hashEmail(email) {
@@ -56,17 +49,6 @@ export function normalizeLeadStatus(row) {
   return 'new'
 }
 
-export function hostnameFilterClause(query, paramIndex, alias = '') {
-  const host = query.hostname
-  if (!host || host === 'all') return { clause: '', params: [], nextIndex: paramIndex }
-  const col = alias ? `${alias}hostname` : 'hostname'
-  return {
-    clause: ` AND ${col} = $${paramIndex}`,
-    params: [host],
-    nextIndex: paramIndex + 1,
-  }
-}
-
 export async function logAudit(pool, { adminUserId, action, details }) {
   try {
     await pool.query(
@@ -76,51 +58,6 @@ export async function logAudit(pool, { adminUserId, action, details }) {
   } catch (e) {
     console.warn('[audit_log]', e.message)
   }
-}
-
-export async function upsertVisitorSession(pool, event) {
-  const {
-    sessionId,
-    visitorId,
-    pagePath,
-    hostname,
-    referrer,
-    utm,
-    isStaff,
-    occurredAt,
-  } = event
-
-  const existing = await pool.query(
-    `SELECT id, landing_path, utm_source FROM visitor_sessions WHERE session_id = $1`,
-    [sessionId],
-  )
-
-  if (existing.rows.length === 0) {
-    await pool.query(
-      `INSERT INTO visitor_sessions (
-        session_id, visitor_id, started_at, landing_path, referrer,
-        utm_source, utm_medium, utm_campaign, hostname, is_staff
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
-      [
-        sessionId,
-        visitorId,
-        occurredAt,
-        pagePath,
-        referrer || null,
-        utm?.source || null,
-        utm?.medium || null,
-        utm?.campaign || null,
-        hostname || null,
-        !!isStaff,
-      ],
-    )
-    return
-  }
-
-  await pool.query(
-    `UPDATE visitor_sessions SET ended_at = $2, updated_at = now() WHERE session_id = $1`,
-    [sessionId, occurredAt],
-  )
 }
 
 export async function recordUtmAttribution(pool, {

@@ -24,6 +24,7 @@ const ACTIVE_ATTEMPT_PREDICATE = `(
 )`
 
 const TERMINAL_ATTEMPT_STATUSES = new Set(['succeeded', 'failed', 'expired', 'canceled'])
+export const TERMINAL_BILLING_ATTEMPT_TYPE = 'admin_balance_terminal'
 
 export class BillingPaymentAttemptMappingConflict extends Error {
   constructor(message) {
@@ -67,6 +68,7 @@ function normalizeAttemptType(value) {
     'admin_balance_saved_card',
     'charge_checkout',
     'charge_saved_card',
+    TERMINAL_BILLING_ATTEMPT_TYPE,
   ].includes(type)) {
     throw new Error('Payment attempt type is invalid.')
   }
@@ -511,8 +513,32 @@ function stripeObjectIdentifiers(object = {}) {
   }
 }
 
+export function assertTerminalBillingPaymentIntent(reservation, intent) {
+  if (
+    reservation?.attempt_type !== TERMINAL_BILLING_ATTEMPT_TYPE
+    || !String(intent?.id ?? '').startsWith('pi_')
+    || (reservation.stripe_payment_intent_id && intent.id !== reservation.stripe_payment_intent_id)
+    || String(intent.metadata?.billingPaymentAttemptId ?? '') !== String(reservation.id)
+    || String(intent.metadata?.familyBillingAccountId ?? '') !== String(reservation.family_billing_account_id)
+    || !reservation.metadata?.terminalAttemptId
+    || intent.metadata?.terminalAttemptId !== reservation.metadata?.terminalAttemptId
+    || !reservation.metadata?.stripeCustomerId
+    || stripeObjectId(intent.customer) !== reservation.metadata.stripeCustomerId
+    || intent.currency !== 'usd'
+    || intent.payment_method_types?.length !== 1
+    || intent.payment_method_types[0] !== 'card_present'
+    || intent.amount !== Number(reservation.amount_cents)
+    || (intent.status === 'succeeded' && intent.amount_received !== Number(reservation.amount_cents))
+  ) {
+    throw new BillingPaymentAttemptMappingConflict('Stripe Terminal payment does not match its billing reservation.')
+  }
+}
+
 function assertStripeObjectMatchesAttempt(attempt, object = {}) {
   if (!attempt) throw new BillingPaymentAttemptMappingConflict('Payment attempt was not found.')
+  if (attempt.attempt_type === TERMINAL_BILLING_ATTEMPT_TYPE) {
+    assertTerminalBillingPaymentIntent(attempt, object)
+  }
   const identifiers = stripeObjectIdentifiers(object)
   if (identifiers.metadataId != null && identifiers.metadataId !== Number(attempt.id)) {
     throw new BillingPaymentAttemptMappingConflict(
@@ -670,6 +696,12 @@ export async function releaseBillingPaymentAttempt(pool, {
     && !existing.stripe_payment_intent_id
     && !existing.stripe_checkout_session_id
   )
+  if (
+    existing.attempt_type === TERMINAL_BILLING_ATTEMPT_TYPE
+    && !verifiedPaymentIntentCancellation
+    && !(normalizedStatus === 'canceled' && remoteCreationDefinitelyNotStarted === true
+      && !existing.stripe_payment_intent_id)
+  ) return existing
   // A declined off-session PaymentIntent commonly returns to
   // requires_payment_method and can later be reconfirmed. Keep its immutable
   // reservation until Stripe proves cancellation. The only safe failed state
@@ -1129,6 +1161,12 @@ export async function reconcileActiveBillingPaymentAttempts(pool, stripe, {
         )
       } else if (attempt.stripe_payment_intent_id) {
         remote = await stripe.paymentIntents.retrieve(attempt.stripe_payment_intent_id)
+      } else if (attempt.attempt_type === TERMINAL_BILLING_ATTEMPT_TYPE) {
+        // Only the Terminal flow can bind a new intent and send it to a reader.
+        // An unattached intent could never have been sent, and a generic
+        // metadata search must not attach it behind an operator's cancellation.
+        summary.retained += 1
+        continue
       } else {
         remote = await findUnattachedStripeObject(stripe, attempt)
         if (remote) summary.recovered += 1
@@ -1143,6 +1181,10 @@ export async function reconcileActiveBillingPaymentAttempts(pool, stripe, {
           })
         }
         continue
+      }
+
+      if (attempt.attempt_type === TERMINAL_BILLING_ATTEMPT_TYPE) {
+        assertTerminalBillingPaymentIntent(attempt, remote)
       }
 
       const isCheckout = String(remote.object ?? '') === 'checkout.session'

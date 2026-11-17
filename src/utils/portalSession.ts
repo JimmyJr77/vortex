@@ -14,6 +14,7 @@ export interface PortalAccount {
   phone?: string
   username?: string
   mustChangePassword?: boolean
+  requiresInitialWaiverCheck?: boolean
   role?: string
   roles?: PortalRole[]
   availablePortals?: string[]

@@ -23,18 +23,8 @@ const CookieConsent = () => {
     }
   }, [])
 
-  const acceptAll = async () => {
-    await saveConsent({ analytics: true, marketing: true })
-    setVisible(false)
-  }
-
-  const acceptNecessary = async () => {
-    await saveConsent({ analytics: false, marketing: false })
-    setVisible(false)
-  }
-
-  const saveSettings = async () => {
-    await saveConsent({ analytics, marketing })
+  const applyConsent = (analytics: boolean, marketing: boolean) => {
+    void saveConsent({ analytics, marketing })
     setVisible(false)
   }
 
@@ -53,6 +43,7 @@ const CookieConsent = () => {
         onClick={openSettings}
         className="fixed bottom-3 right-3 z-[90] rounded-full border border-gray-600 bg-black/90 px-3 py-2 text-xs font-medium text-white shadow-lg hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-vortex-red"
         aria-label="Open cookie settings"
+        data-prerender-dynamic=""
       >
         Cookie settings
       </button>
@@ -64,6 +55,7 @@ const CookieConsent = () => {
       className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6 bg-black/95 border-t border-gray-700 text-white shadow-2xl"
       role="dialog"
       aria-label="Cookie consent"
+      data-prerender-dynamic=""
     >
       <div className="container-custom max-w-4xl mx-auto">
         {!showSettings ? (
@@ -93,14 +85,14 @@ const CookieConsent = () => {
               </button>
               <button
                 type="button"
-                onClick={acceptNecessary}
+                onClick={() => applyConsent(false, false)}
                 className="px-4 py-2 rounded-lg border border-gray-500 text-sm hover:bg-gray-800"
               >
                 Necessary only
               </button>
               <button
                 type="button"
-                onClick={acceptAll}
+                onClick={() => applyConsent(true, true)}
                 className="px-4 py-2 rounded-lg bg-vortex-red text-sm font-semibold hover:bg-red-700"
               >
                 Accept all
@@ -142,7 +134,7 @@ const CookieConsent = () => {
               </button>
               <button
                 type="button"
-                onClick={saveSettings}
+                onClick={() => applyConsent(analytics, marketing)}
                 className="px-4 py-2 rounded-lg bg-vortex-red text-sm font-semibold"
               >
                 Save preferences

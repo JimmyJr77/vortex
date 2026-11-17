@@ -82,6 +82,37 @@ export async function deleteFloorPlannerView(pool, facilityId, id, revision) {
   return { id: result.rows[0].id }
 }
 
+async function loadClassColors(pool, facilityId) {
+  const [colors, forms] = await Promise.all([
+    pool.query('SELECT class_id, color FROM public.floor_planner_class_color WHERE facility_id = $1', [facilityId]),
+    // Include inactive classes and soft-deleted forms for older saved views.
+    pool.query(`SELECT sf.id AS form_id, p.id AS class_id
+      FROM public.scheduling_form sf JOIN public.program p ON p.id = sf.program_id
+      WHERE p.facility_id = $1`, [facilityId]),
+  ])
+  return {
+    colors: Object.fromEntries(colors.rows.map(({ class_id, color }) => [class_id, color])),
+    classesByForm: Object.fromEntries(forms.rows.map(({ form_id, class_id }) => [form_id, `class:${class_id}`])),
+  }
+}
+
+async function saveClassColor(pool, facilityId, userId, classId, color) {
+  if (typeof classId !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._:-]{0,99}$/.test(classId)) {
+    throw invalid('Invalid class ID.')
+  }
+  if (color === null) {
+    await pool.query('DELETE FROM public.floor_planner_class_color WHERE facility_id = $1 AND class_id = $2', [facilityId, classId])
+    return { classId, color }
+  }
+  if (typeof color !== 'string' || !/^#[0-9a-f]{6}$/i.test(color)) throw invalid('Choose a six-digit hex color.')
+  const normalized = color.toLowerCase()
+  await pool.query(`INSERT INTO public.floor_planner_class_color (facility_id, class_id, color, updated_by)
+    VALUES ($1, $2, $3, $4) ON CONFLICT (facility_id, class_id) DO UPDATE
+    SET color = EXCLUDED.color, updated_by = EXCLUDED.updated_by, updated_at = now()`,
+    [facilityId, classId, normalized, userId])
+  return { classId, color: normalized }
+}
+
 export function registerFloorPlannerRoutes(app, pool, { jwtSecret, requirePermission }) {
   const can = (permission) => requirePermission(pool, jwtSecret, permission)
   const handle = (handler) => async (req, res) => {
@@ -114,6 +145,10 @@ export function registerFloorPlannerRoutes(app, pool, { jwtSecret, requirePermis
     saveFloorPlannerView(pool, req.platformAuth.user.facility_id, req.platformAuth.user.id, req.body, req.params.id)))
   app.delete('/api/admin/floor-planner/views/:id', ...can('scheduling.manage'), handle((req) =>
     deleteFloorPlannerView(pool, req.platformAuth.user.facility_id, req.params.id, req.body?.revision)))
+  app.get('/api/admin/floor-planner/class-colors', ...can('scheduling.view'), handle((req) =>
+    loadClassColors(pool, req.platformAuth.user.facility_id)))
+  app.put('/api/admin/floor-planner/class-colors/:classId', ...can('scheduling.manage'), handle((req) =>
+    saveClassColor(pool, req.platformAuth.user.facility_id, req.platformAuth.user.id, req.params.classId, req.body?.color)))
   app.get('/api/admin/floor-planner/coaches', ...can('scheduling.view'), handle(async (req) => {
     await ensureCoachClassAssignmentSchema(pool)
     const result = await pool.query(`SELECT au.id, au.full_name AS name,

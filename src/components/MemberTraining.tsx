@@ -1,3 +1,4 @@
+import MessagingResourceSidebar from './messaging/MessagingResourceSidebar'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import RecipientPicker from './messaging/RecipientPicker'
 import { recipientsToPayload } from './messaging/recipientPayload'
@@ -1389,6 +1390,10 @@ export function MemberMessagesTab({
 
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
+        preferenceRole="member"
+        preferenceFetcher={coachFetch}
+        preferenceAccountKey={viewer.userId ? `member:${viewer.userId}` : undefined}
+        resourcePanel={maximized ? (visibility) => <MessagingResourceSidebar {...visibility} role="member" fetcher={coachFetch} messages={messages} selectedThreadId={selectedId} loading={detailLoading} error={detailError} /> : undefined}
         selectedThreadId={selectedId}
         detailOpen={detailOpen}
         onBack={closeDetail}

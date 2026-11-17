@@ -1,3 +1,7 @@
+import { trackEvent } from '../../utils/analyticsClient'
+import { getActiveConsent } from '../../utils/consent'
+import { getSessionId, getVisitorId, isStaffSession } from '../../utils/visitorId'
+import { getAttributionPayload } from '../../utils/utmCapture'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowRight, Check, LoaderCircle } from 'lucide-react'
 import { TEAM_EMAIL } from '../../config/contact'
@@ -69,6 +73,8 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
       return
     }
 
+    const formProperties = { form_type: 'homepage_inquiry', program_slug: selectedProgram }
+    trackEvent('inquiry_form_submit', '/', { properties: formProperties })
     const controller = new AbortController()
     activeRequest.current = controller
     setError('')
@@ -79,6 +85,7 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
       const interests = INQUIRY_INTERESTS.filter((interest) => selectedProgram === 'gymnastics'
         ? interest === 'Gymnastics'
         : selectedProgram === 'fit-flip' && interest !== 'Gymnastics')
+      const allowAnalytics = getActiveConsent().analytics && !isStaffSession()
       const payload = {
         firstName,
         lastName,
@@ -87,7 +94,12 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
         submitterRole,
         newsletter: false,
         ...(interests.length ? { interests } : {}),
-        inquirySource: window.location.pathname,
+        inquirySource: '/',
+        ...(allowAnalytics ? {
+          ...getAttributionPayload(),
+          visitorId: getVisitorId(true),
+          sessionId: getSessionId(true),
+        } : {}),
         message: `Program interest: ${programLabels[selectedProgram]}${message ? `\n\n${message}` : ''}`,
       }
       const capabilities = await getRegistrationApiCapabilities()
@@ -105,6 +117,7 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
           : ''
         throw new Error(details || result.message || 'Your inquiry could not be saved. Please try again.')
       }
+      trackEvent('generate_lead', '/', { properties: formProperties })
       if (mounted.current) setStatus('success')
     } catch (failure) {
       if (mounted.current) {

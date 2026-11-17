@@ -74,6 +74,7 @@ async function invokeRoute(app, {
     const responseHeaders = {}
     const response = {
       status(code) { statusCode = Number(code); return this },
+      set(name, value) { responseHeaders[String(name).toLowerCase()] = value; return this },
       setHeader(name, value) { responseHeaders[String(name).toLowerCase()] = value },
       json(payload) { resolve({ status: statusCode, headers: responseHeaders, body: payload }); return this },
       send(payload) { resolve({ status: statusCode, headers: responseHeaders, body: payload }); return this },
@@ -104,6 +105,80 @@ function memberHeaders(extra = {}) {
   }
 }
 
+test('member portal sessions cannot look up readers or run Stripe Terminal payments', async () => {
+  const app = createPlatformApp({
+    async query(sql) {
+      const auth = authenticationRows(String(sql))
+      assert.ok(auth, 'member request must not reach Terminal payment data')
+      return auth
+    },
+  })
+  for (const [method, path] of [
+    ['GET', '/api/admin/stripe-terminal/readers'],
+    ['GET', '/api/admin/stripe-terminal/:kind/:targetId'],
+    ['POST', '/api/admin/stripe-terminal/:kind/:targetId'],
+    ['POST', '/api/admin/stripe-terminal/:kind/:targetId/cancel'],
+    ['POST', '/api/admin/stripe-terminal/:kind/:targetId/simulate'],
+  ]) {
+    const response = await invokeRoute(app, {
+      method, path, headers: memberHeaders(), params: { kind: 'billing', targetId: '999' },
+    })
+    assert.equal(response.status, 403, `${method} ${path}`)
+  }
+})
+
+test('store confirmation requires the purchaser, their facility and the matching paid checkout session', async () => {
+  const sessionId = 'cs_test_confirmedOrder123'
+  const orders = new Map([
+    [501, { status: 'placed', payment_status: 'paid' }],
+    [502, { status: 'fulfilled', payment_status: 'paid' }],
+    [503, { status: 'awaiting_payment', payment_status: 'pending' }],
+    [504, { status: 'cancelled', payment_status: 'paid' }],
+    [505, { status: 'placed', payment_status: 'billed_to_account' }],
+  ])
+  let viewer = {}
+  const lookup = []
+  const pool = {
+    async query(sql, params) {
+      const auth = authenticationRows(sql, viewer)
+      if (auth) return auth
+      assert.match(sql, /FROM store_order\s+WHERE id = \$1 AND facility_id = \$2 AND member_id = \$3\s+AND stripe_checkout_session_id = \$4/i)
+      lookup.push(params)
+      const [orderId, facilityId, memberId, checkoutSession] = params
+      const order = orders.get(orderId)
+      if (facilityId !== 3 || memberId !== 74 || checkoutSession !== sessionId || !order) return { rows: [] }
+      return { rows: [order] }
+    },
+  }
+  const app = createPlatformApp(pool)
+  const confirm = (id, options = {}) => invokeRoute(app, {
+    path: '/api/members/store/orders/:id/confirmation',
+    params: { id: String(id) },
+    query: { session_id: sessionId },
+    headers: memberHeaders(),
+    ...options,
+  })
+
+  assert.equal((await confirm(501, { headers: {} })).status, 401)
+  assert.equal((await confirm(501, { query: {} })).status, 400)
+  assert.deepEqual(lookup, [])
+
+  for (const [id, confirmed] of [[501, true], [502, true], [503, false], [504, false], [505, false]]) {
+    const response = await confirm(id)
+    assert.equal(response.status, 200)
+    assert.equal(response.headers['cache-control'], 'no-store')
+    assert.deepEqual(response.body, { success: true, data: { confirmed } })
+  }
+
+  const wrongSession = await confirm(501, { query: { session_id: 'cs_test_differentCheckout456' } })
+  assert.equal(wrongSession.status, 404)
+  assert.equal(wrongSession.headers['cache-control'], 'no-store')
+  viewer = { member_id: 75 }
+  assert.equal((await confirm(501)).status, 404)
+  viewer = { facility_id: 4 }
+  assert.equal((await confirm(501)).status, 404)
+})
+
 test('coach-only credentials reach the Coach Portal while Admin Portal access stays restricted', async () => {
   let account = { role: 'COACH', member_id: null }
   const pool = {
@@ -123,6 +198,50 @@ test('coach-only credentials reach the Coach Portal while Admin Portal access st
 
   account = { role: 'COACH', member_id: null, can_access_coach_portal: false }
   assert.equal((await invokeRoute(app, { path: '/api/coach/me', headers })).status, 403)
+})
+
+test('initial waiver completion is repeatable and uses the authenticated member link', async () => {
+  let viewer = {}
+  let linkedMemberStillActive = true
+  const updates = []
+  const app = createPlatformApp({
+    async query(sql, params) {
+      const auth = authenticationRows(sql, viewer)
+      if (auth) return auth
+      assert.match(sql, /UPDATE app_user AS account/)
+      updates.push({ sql, params })
+      return { rowCount: linkedMemberStillActive ? 1 : 0 }
+    },
+  })
+  const complete = (headers = memberHeaders()) => invokeRoute(app, {
+    method: 'POST',
+    path: '/api/members/waivers/initial-check/complete',
+    headers,
+    body: { userId: 80, facilityId: 15, memberId: 82 },
+  })
+
+  assert.equal((await complete({})).status, 401)
+  viewer = { role: 'COACH', member_id: null }
+  assert.equal((await complete()).status, 403)
+  viewer = { member_portal_status: 'suspended', can_access_member_portal: false }
+  assert.equal((await complete()).status, 403)
+  assert.equal(updates.length, 0)
+
+  viewer = {}
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const result = await complete()
+    assert.equal(result.status, 200)
+    assert.deepEqual(result.body, { success: true })
+  }
+  assert.deepEqual(updates.map(({ params }) => params), [[9, 3, 74], [9, 3, 74]])
+  assert.match(updates[0].sql, /COALESCE\(account\.initial_waiver_checked_at, now\(\)\)/)
+  assert.match(updates[0].sql, /account\.member_portal_access_active = TRUE/)
+  assert.match(updates[0].sql, /linked\.app_user_id = account\.id/)
+  assert.match(updates[0].sql, /linked\.facility_id = account\.facility_id/)
+  assert.match(updates[0].sql, /linked\.is_active = TRUE/)
+
+  linkedMemberStillActive = false
+  assert.equal((await complete()).status, 403)
 })
 
 test('canonical member HTTP endpoints remain available when the global rollout flag is off', { concurrency: false }, async () => {

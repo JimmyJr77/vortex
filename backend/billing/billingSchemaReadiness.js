@@ -41,6 +41,7 @@ export const DEPLOY_BILLING_MIGRATIONS = Object.freeze([
   '845_dated_enrollment_actions.sql',
   '846_lead_registration_invitations.sql',
   '864_household_collection_day.sql',
+  '870_billing_terminal_payment_attempt.sql',
 ])
 
 // Every migration previously executed lazily by a billing request is part of
@@ -105,6 +106,7 @@ export const REQUIRED_BILLING_MIGRATIONS = Object.freeze([
   '845_dated_enrollment_actions.sql',
   '846_lead_registration_invitations.sql',
   '864_household_collection_day.sql',
+  '870_billing_terminal_payment_attempt.sql',
 ])
 
 export const DEPLOY_BILLING_RELATIONS = Object.freeze([
@@ -355,6 +357,7 @@ export const DEPLOY_BILLING_FUNCTIONS = Object.freeze([
 
 export const DEPLOY_BILLING_CONSTRAINTS = Object.freeze([
   { tableName: 'family_billing_account', constraintName: 'family_billing_account_collection_day_check', constraintType: 'c' },
+  { tableName: 'billing_payment_attempt', constraintName: 'billing_payment_attempt_attempt_type_check', constraintType: 'c' },
   { tableName: 'stripe_pending_enrollment', constraintName: 'stripe_pending_enrollment_checkout_mode_check', constraintType: 'c' },
   { tableName: 'stripe_pending_enrollment', constraintName: 'stripe_pending_enrollment_status_check', constraintType: 'c' },
   { tableName: 'billing_migration_run', constraintName: 'billing_migration_run_target_month_first_check', constraintType: 'c' },

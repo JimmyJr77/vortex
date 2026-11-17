@@ -55,6 +55,11 @@ export async function initAnalyticsTables(pool) {
   `)
 
   await pool.query(`
+    CREATE INDEX IF NOT EXISTS idx_analytics_events_consented_time
+    ON analytics_events(occurred_at) WHERE consent_analytics IS TRUE AND is_staff IS NOT TRUE
+  `)
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS visitor_sessions (
       id BIGSERIAL PRIMARY KEY,
       session_id VARCHAR(64) NOT NULL UNIQUE,

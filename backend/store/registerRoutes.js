@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto'
+import { requireAdminFacilityScope } from '../billing/adminFacilityScope.js'
 import { checkoutFingerprint, checkoutIdempotencyConflict, normalizeCheckoutRequestKey, stripeCheckoutIdempotencyKey } from '../billing/checkoutIdempotency.js'
 import { getStripeClient, stripeEnabled } from '../billing/stripeBilling.js'
+import { terminalEnabledForFacility } from '../billing/stripeTerminalConfig.js'
 import { sendStoreOrderReceiptEmail } from '../email/storeReceiptEmail.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { createXlsxWorkbook } from './xlsxExport.js'
@@ -8,7 +10,7 @@ import { createXlsxWorkbook } from './xlsxExport.js'
 const PICKUP_NOTE = 'Pickup at Vortex Athletics. We do not ship store items.'
 const STORE_PRODUCT_CATEGORIES = new Set(['clothing', 'equipment', 'food', 'drink', 'other'])
 const MEMBER_PAYMENT_METHODS = new Set(['billing_account', 'card'])
-const ADMIN_PAYMENT_METHODS = new Set(['billing_account', 'card', 'cash', 'check', 'mobile'])
+const ADMIN_PAYMENT_METHODS = new Set(['billing_account', 'card', 'terminal', 'cash', 'check', 'mobile'])
 
 function normalizeProductTags(value, fallback = []) {
   const source = Array.isArray(value) ? value : value == null ? fallback : [value]
@@ -734,11 +736,12 @@ export async function sendReceiptIfNeeded(pool, orderId, {
   sendReceiptEmail = sendStoreOrderReceiptEmail,
 } = {}) {
   let order
-  const client = await pool.connect()
+  const usingPool = typeof pool.release !== 'function'
+  const client = usingPool ? await pool.connect() : pool
   try {
     order = await getOrder(client, orderId)
   } finally {
-    client.release()
+    if (usingPool) client.release()
   }
   if (
     !order
@@ -842,7 +845,7 @@ async function createStoreOrder(pool, {
     const name = purchaserName || (member ? `${member.first_name || ''} ${member.last_name || ''}`.trim() : null)
     const email = purchaserEmail || member?.email || null
     const preliminarySubtotal = 0
-    const awaitsPayment = paymentMethod === 'card'
+    const awaitsPayment = paymentMethod === 'card' || paymentMethod === 'terminal'
     const inserted = await client.query(
       `INSERT INTO store_order (
          facility_id, order_number, member_id, family_billing_account_id,
@@ -890,6 +893,12 @@ async function createStoreOrder(pool, {
     const subtotalCents = lines.reduce((sum, item) => sum + item.lineTotalCents, 0)
     const discount = await resolveDiscount(client, { facilityId, code: discountCode, subtotalCents })
     const totalCents = subtotalCents - discount.discountCents
+    if (paymentMethod === 'terminal' && totalCents > 0 && totalCents < 50) {
+      throw Object.assign(new Error('The order total must be at least $0.50 to pay by card reader.'), { statusCode: 400 })
+    }
+    if (paymentMethod === 'terminal' && totalCents > 0 && !terminalEnabledForFacility(facilityId)) {
+      throw Object.assign(new Error('Card reader payments are unavailable at this facility.'), { statusCode: 503 })
+    }
     for (const line of lines) {
       await client.query(
         `INSERT INTO store_order_item
@@ -1160,7 +1169,12 @@ export async function createCardCheckout(pool, order, { stripe: suppliedStripe =
 
 async function settleStoreStripeCheckoutLocked(client, row, session, { actorUserId = null } = {}) {
   const binding = assertStoreStripeCheckoutBinding(row, session)
+  return settleStoreStripePaymentLocked(client, row, { actorUserId, paymentIntentId: binding.paymentIntentId })
+}
+
+async function settleStoreStripePaymentLocked(client, row, { actorUserId, paymentIntentId }) {
   if (row.status !== 'awaiting_payment') return false
+  const orderId = Number(row.id)
   await client.query(
     `UPDATE store_order
         SET status = 'placed', payment_status = 'paid',
@@ -1168,7 +1182,7 @@ async function settleStoreStripeCheckoutLocked(client, row, session, { actorUser
             stripe_checkout_session_url = NULL,
             updated_at = now()
       WHERE id = $1`,
-    [binding.orderId, binding.paymentIntentId],
+    [orderId, paymentIntentId],
   )
   await consumeDiscount(client, row.discount_code_id)
   await recordStoreAudit(client, {
@@ -1176,12 +1190,12 @@ async function settleStoreStripeCheckoutLocked(client, row, session, { actorUser
     actorUserId,
     action: 'sale_card_payment_completed',
     entityType: 'sale',
-    entityId: binding.orderId,
+    entityId: orderId,
     details: {
       orderNumber: row.order_number,
       totalCents: Number(row.total_cents),
-      paymentMethod: 'card',
-      stripePaymentIntent: binding.paymentIntentId,
+      paymentMethod: row.payment_method,
+      stripePaymentIntent: paymentIntentId,
     },
   })
   return true
@@ -1217,9 +1231,73 @@ export async function completeStoreStripeCheckout(pool, session) {
   return { handled: true, paymentCompleted, order }
 }
 
+export async function prepareStoreTerminalPayment(db, { facilityId, targetId }) {
+  const { rows: [order] } = await db.query(
+    `SELECT * FROM store_order WHERE id = $1 AND facility_id = $2`,
+    [targetId, facilityId],
+  )
+  if (!order) throw Object.assign(new Error('Store order not found.'), { statusCode: 404 })
+  const amountCents = Number(order.total_cents)
+  if (
+    order.source !== 'admin' || order.payment_method !== 'terminal'
+    || order.status !== 'awaiting_payment' || order.payment_status !== 'pending'
+    || order.external_reference || order.stripe_checkout_session_id
+    || !Number.isSafeInteger(amountCents) || amountCents <= 0
+  ) {
+    throw Object.assign(new Error('This store order is not awaiting a reader payment.'), { statusCode: 409 })
+  }
+  return { amountCents, customerId: null, metadata: { storeOrderId: String(order.id) } }
+}
+
+export async function settleStoreTerminalPayment(pool, { attempt, intent }) {
+  const orderId = Number(attempt.target_id)
+  const paymentIntentId = stripeObjectId(intent)
+  const usingPool = typeof pool.release !== 'function'
+  const client = usingPool ? await pool.connect() : pool
+  let paymentCompleted
+  let order
+  try {
+    await client.query('BEGIN')
+    const current = await client.query(
+      `SELECT * FROM store_order WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
+      [orderId, attempt.facility_id],
+    )
+    const row = current.rows[0]
+    const pending = row?.status === 'awaiting_payment' && row.payment_status === 'pending' && !row.external_reference
+    const paid = ['placed', 'fulfilled'].includes(row?.status)
+      && row.payment_status === 'paid' && row.external_reference === paymentIntentId
+    if (
+      row?.source !== 'admin' || row.payment_method !== 'terminal' || row.stripe_checkout_session_id
+      || Number(row.total_cents) !== Number(attempt.amount_cents) || (!pending && !paid)
+      || !paymentIntentId || paymentIntentId !== attempt.stripe_payment_intent_id
+    ) {
+      throw Object.assign(new Error('The reader payment could not be matched to this store order.'), {
+        statusCode: 409,
+        code: 'store_terminal_payment_binding_conflict',
+      })
+    }
+    paymentCompleted = await settleStoreStripePaymentLocked(client, row, {
+      actorUserId: attempt.actor_user_id,
+      paymentIntentId,
+    })
+    order = await getOrder(client, orderId)
+    await client.query('COMMIT')
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {})
+    throw error
+  } finally {
+    if (usingPool) client.release()
+  }
+  await sendReceiptIfNeeded(pool, orderId).catch((error) => {
+    console.warn('[store] receipt email failed:', error?.message || error)
+  })
+  return { handled: true, paymentCompleted, order }
+}
+
 export async function cancelStoreOrder(pool, {
   orderId,
   facilityId,
+  terminalFacilityId = facilityId,
   actorUserId,
   stripe: suppliedStripe = null,
   sendReceipt: suppliedSendReceipt = sendReceiptIfNeeded,
@@ -1232,6 +1310,7 @@ export async function cancelStoreOrder(pool, {
   try {
     await client.query('BEGIN')
     transactionOpen = true
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [`stripe-terminal:store:${orderId}`])
     const current = await client.query(
       `SELECT * FROM store_order WHERE id = $1 AND facility_id = $2 FOR UPDATE`,
       [orderId, facilityId],
@@ -1241,6 +1320,11 @@ export async function cancelStoreOrder(pool, {
       const error = new Error('Store order not found.')
       error.statusCode = 404
       throw error
+    }
+    if (row.payment_method === 'terminal') {
+      if (requireAdminFacilityScope({ facilityId: terminalFacilityId }) !== Number(facilityId)) {
+        throw Object.assign(new Error('Store order not found.'), { statusCode: 404 })
+      }
     }
     if (row.status === 'cancelled') {
       order = await getOrder(client, orderId)
@@ -1252,6 +1336,18 @@ export async function cancelStoreOrder(pool, {
       const error = new Error('Paid orders require a recorded refund before they can be cancelled.')
       error.statusCode = 409
       throw error
+    }
+    if (row.payment_method === 'terminal') {
+      const activePayment = await client.query(
+        `SELECT 1 FROM stripe_terminal_payment WHERE kind = 'store' AND target_id = $1 AND state = 'open' LIMIT 1`,
+        [orderId],
+      )
+      if (activePayment.rows.length) {
+        throw Object.assign(new Error('Cancel the card reader payment before cancelling the store order.'), {
+          statusCode: 409,
+          code: 'store_terminal_payment_open',
+        })
+      }
     }
 
     if (row.payment_method === 'card' && row.stripe_checkout_session_id) {
@@ -1510,6 +1606,30 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
     }
   })
 
+  app.get('/api/members/store/orders/:id/confirmation', ...memberAuth, async (req, res) => {
+    res.set('Cache-Control', 'no-store')
+    try {
+      const sessionId = req.query.session_id
+      const orderId = integer(req.params.id, null)
+      const facilityId = await resolveFacilityId(pool, req.platformAuth)
+      const memberId = integer(req.platformAuth?.user?.member_id, null)
+      if (!facilityId || !memberId) return res.status(403).json({ success: false, message: 'Member account is required.' })
+      if (!orderId || orderId < 1 || typeof sessionId !== 'string' || !/^cs_(?:test|live)_[a-zA-Z0-9]{1,200}$/.test(sessionId)) {
+        return res.status(400).json({ success: false, message: 'Order and checkout session are required.' })
+      }
+      const result = await pool.query(
+        `SELECT payment_status, status FROM store_order
+         WHERE id = $1 AND facility_id = $2 AND member_id = $3 AND stripe_checkout_session_id = $4`,
+        [orderId, facilityId, memberId, sessionId],
+      )
+      const order = result.rows[0]
+      if (!order) return res.status(404).json({ success: false, message: 'Store order was not found.' })
+      res.json({ success: true, data: { confirmed: order.payment_status === 'paid' && ['placed', 'fulfilled'].includes(order.status) } })
+    } catch (error) {
+      handleRouteError(res, error, 'Could not confirm the store order.')
+    }
+  })
+
   app.post('/api/members/store/checkout', ...memberAuth, async (req, res) => {
     try {
       const facilityId = await resolveFacilityId(pool, req.platformAuth)
@@ -1565,7 +1685,14 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
             ORDER BY inventory_quantity ASC, name ASC`,
           [facilityId],
         ),
-        pool.query(`SELECT id FROM store_order WHERE facility_id = $1 ORDER BY created_at DESC LIMIT 30`, [facilityId]),
+        pool.query(
+          `SELECT id FROM store_order
+            WHERE facility_id = $1
+              AND ((status = 'awaiting_payment' AND payment_method = 'terminal')
+                OR id IN (SELECT id FROM store_order WHERE facility_id = $1 ORDER BY created_at DESC, id DESC LIMIT 30))
+            ORDER BY created_at DESC, id DESC`,
+          [facilityId],
+        ),
       ])
       const client = await pool.connect()
       try {
@@ -1946,8 +2073,10 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
 
   app.post('/api/admin/store/orders', ...requirePermission('billing.manage'), async (req, res) => {
     try {
-      const facilityId = await resolveFacilityId(pool, req.platformAuth)
       const paymentMethod = String(req.body?.paymentMethod ?? '')
+      const facilityId = paymentMethod === 'terminal'
+        ? requireAdminFacilityScope({ facilityId: req.platformAuth?.user?.facility_id })
+        : await resolveFacilityId(pool, req.platformAuth)
       const memberId = req.body?.memberId == null ? null : integer(req.body.memberId, null)
       if (!facilityId || !ADMIN_PAYMENT_METHODS.has(paymentMethod) || (paymentMethod === 'billing_account' && !memberId)) {
         return res.status(400).json({ success: false, message: 'Choose a valid payment method and member for monthly billing.' })
@@ -1965,14 +2094,14 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
         idempotencyKey: requestKey,
         purchaserName: String(req.body?.purchaserName ?? '').trim() || null,
         purchaserEmail: String(req.body?.purchaserEmail ?? '').trim() || null,
-        externalReference: String(req.body?.externalReference ?? '').trim() || null,
+        externalReference: paymentMethod === 'terminal' ? null : String(req.body?.externalReference ?? '').trim() || null,
         actorUserId: integer(req.platformAuth?.user?.id, null),
         allowInternal: true,
         requireBillingPayer: false,
       })
       if (paymentMethod === 'card' && result.order.status === 'awaiting_payment') {
         result.order.stripeCheckoutUrl = await createCardCheckout(pool, result.order)
-      } else {
+      } else if (result.order.status !== 'awaiting_payment') {
         await sendReceiptIfNeeded(pool, result.order.id).catch((error) => {
           console.warn('[store] receipt email failed:', error?.message || error)
         })
@@ -2014,7 +2143,12 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
         return res.json({ success: true, data: order })
       }
       if (status === 'cancelled') {
-        const order = await cancelStoreOrder(pool, { orderId, facilityId, actorUserId: integer(req.platformAuth?.user?.id, null) })
+        const order = await cancelStoreOrder(pool, {
+          orderId,
+          facilityId,
+          terminalFacilityId: req.platformAuth?.user?.facility_id ?? null,
+          actorUserId: integer(req.platformAuth?.user?.id, null),
+        })
         return res.json({ success: true, data: order })
       }
       const client = await pool.connect()

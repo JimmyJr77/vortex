@@ -13,13 +13,14 @@ import {
   initGoogleAnalyticsConsent,
   initGoogleAnalyticsLinker,
 } from './utils/googleAnalytics.ts'
-import { captureUtmFromLocation } from './utils/utmCapture.ts'
 import { updateGoogleConsent } from './utils/googleAnalytics.ts'
 import { captureConsentIdFromUrl } from './utils/crossDomainConsent.ts'
 import { getStoredConsent, initCrossDomainConsent } from './utils/consent.ts'
 import { ChunkLoadErrorBoundary } from './components/ChunkLoadErrorBoundary.tsx'
 import { clearChunkReloadFlag, initChunkLoadRecovery, lazyWithRetry } from './utils/chunkLoadRecovery.ts'
 
+const CookieConsent = lazyWithRetry(() => import('./components/CookieConsent.tsx'))
+const PublicSiteAnalytics = lazyWithRetry(() => import('./components/analytics/PublicSiteAnalytics.tsx'))
 const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage.tsx'))
 const ComingSoon = lazyWithRetry(() => import('./components/stub/ComingSoon.tsx'))
 const App = lazyWithRetry(() => import('./App.tsx'))
@@ -42,6 +43,7 @@ const clearPrerenderedSeoHead = () => {
     'head > meta[name^="twitter:"]',
     'head > link[rel="canonical"]',
     'head > link[rel="preload"][as="image"]',
+    'head > script[type="application/ld+json"]',
   ]
   document.querySelectorAll(selectors.join(',')).forEach((node) => node.remove())
 }
@@ -53,17 +55,12 @@ clearChunkReloadFlag()
 
 initGoogleAnalyticsConsent()
 initGoogleAnalyticsLinker()
-captureUtmFromLocation()
 captureConsentIdFromUrl()
 const storedConsent = getStoredConsent()
 if (storedConsent) {
   updateGoogleConsent(storedConsent.analytics, storedConsent.marketing)
 }
-void initCrossDomainConsent().then((merged) => {
-  if (merged) {
-    updateGoogleConsent(merged.analytics, merged.marketing)
-  }
-})
+void initCrossDomainConsent()
 
 // Optional CDN hint: dns-prefetch only (preconnect errors when the CDN host is not set up yet).
 const cdnBaseUrl = import.meta.env.VITE_CDN_BASE_URL
@@ -121,7 +118,7 @@ if (isLegacyGymnasticsHost) {
           <BrowserRouter>
             <Suspense fallback={appLoader}>
               <Routes>
-                <Route path="/enroll" element={<SchedulingPage />} />
+                <Route path="/enroll" element={<><PublicSiteAnalytics disabled={stubPreview} /><SchedulingPage />{!stubPreview && <CookieConsent />}</>} />
                 <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
                 <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
                 <Route path="*" element={<ComingSoon config={stubSite} isPreview={stubPreview} />} />

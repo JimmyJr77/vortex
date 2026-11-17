@@ -7,7 +7,6 @@ import MessageReactionBar from './MessageReactionBar'
 import MessagingFileChip from './MessagingFileChip'
 import { isOwnMessage, messageBubbleClassName, type MessageViewer } from './messageBubbleStyle'
 import { formatMessageSenderDisplayName, formatMessageTime } from './messageFormatting'
-import { viewerIsMentioned } from './messageMentions'
 import type { MessageReactionGroup, MessageRow, MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
@@ -15,7 +14,7 @@ type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 const LONG_PRESS_MS = 500
 const LONG_PRESS_MOVE_TOLERANCE_PX = 12
 const MENU_GUTTER_PX = 8
-const actionButtonClass = 'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-vortex-red'
+const actionButtonClass = 'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-700'
 
 type ActionMenuPosition = { x: number; y: number; anchorTop: number; followsTrigger?: boolean }
 
@@ -76,7 +75,6 @@ export default function MessageBubble({
   const isDeleted = Boolean(message.deleted_at)
   const isEdited = Boolean(message.edited_at) && !isDeleted
   const isCritical = Boolean(message.is_critical) && !isDeleted
-  const mentionedYou = !isDeleted && viewerIsMentioned(message, viewer)
   const files = message.files ?? []
   const reactions = message.reactions ?? []
   const actionId = useId()
@@ -218,16 +216,16 @@ export default function MessageBubble({
 
   return (
     <article className={`flex items-end gap-2 ${ownMessage ? 'flex-row-reverse' : ''}`}>
-      <div className="min-w-0 max-w-[calc(100%-2.75rem)] sm:max-w-[min(80%,40rem)]">
+      <div className="min-w-[min(12rem,80%,calc(100%-2.75rem))] lg:min-w-[min(20rem,80%,calc(100%-2.75rem))] max-w-[calc(100%-2.75rem)] sm:max-w-[min(80%,40rem)]">
         <div className={`mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-0.5 text-xs ${ownMessage ? 'justify-end' : ''}`}>
-          <span className="min-w-0 break-words font-semibold text-slate-700">{senderName}</span>
-          <time dateTime={message.created_at} className="shrink-0 tabular-nums text-slate-500">
+          <span className="min-w-0 break-words font-semibold !text-slate-800">{senderName}</span>
+          <time dateTime={message.created_at} className="shrink-0 tabular-nums font-medium !text-slate-600">
             {formatMessageTime(message.created_at)}
           </time>
-          {isEdited && <span className="text-slate-500">Edited</span>}
+          {isEdited && <span className="!text-slate-600">Edited</span>}
         </div>
         <div
-          className={`${messageBubbleClassName(message, ownMessage)}${pinSelected ? ' ring-2 ring-vortex-red ring-offset-1' : ''}${canSelect ? ' cursor-pointer' : ''}`}
+          className={`${messageBubbleClassName(message, ownMessage)}${pinSelected ? ' ring-2 ring-blue-700 ring-offset-1' : ''}${canSelect ? ' cursor-pointer' : ''}`}
           onClick={canSelect ? (event) => {
             if (!(event.target as HTMLElement).closest('a, button')) onPinSelectionToggle?.(message)
           } : undefined}
@@ -264,7 +262,7 @@ export default function MessageBubble({
             touchStart.current = null
           }}
         >
-          {(isCritical || mentionedYou) && (
+          {isCritical && (
             <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-red-800">
               {isCritical && (
                 <span className="inline-flex items-center gap-1">
@@ -272,7 +270,6 @@ export default function MessageBubble({
                 </span>
               )}
               {isCritical && message.requires_ack && <span className="font-medium">Acknowledgment required</span>}
-              {mentionedYou && <span className="rounded bg-red-100 px-1.5 py-0.5">Mentions you</span>}
             </div>
           )}
           {isDeleted ? (
@@ -309,7 +306,7 @@ export default function MessageBubble({
           aria-label={`Select message from ${senderName} to pin`}
           aria-pressed={pinSelected}
           onClick={() => onPinSelectionToggle?.(message)}
-          className={`mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vortex-red ${pinSelected ? 'border-vortex-red bg-vortex-red text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-vortex-red'}`}
+          className={`mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${pinSelected ? 'border-blue-700 bg-blue-700 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-blue-700'}`}
         >
           {pinSelected && <Check size={16} aria-hidden="true" />}
         </button>
@@ -323,7 +320,7 @@ export default function MessageBubble({
           aria-expanded={Boolean(openMenu)}
           aria-controls={openMenu ? actionId : undefined}
           onClick={() => openMenu ? closeMenu() : openAtTrigger()}
-          className="mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vortex-red aria-expanded:bg-slate-200/70 aria-expanded:text-slate-900"
+          className="mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 aria-expanded:bg-slate-200/70 aria-expanded:text-slate-900"
         >
           <Ellipsis size={18} aria-hidden="true" />
         </button>

@@ -9,7 +9,8 @@ import Login from '../Login'
 import StubHeader from './StubHeader'
 import { getStubSeo, type StubSiteConfig } from '../../config/stubSites'
 import { getHubSiteUrl } from '../../utils/crossDomainConsent'
-import { trackPageView } from '../../utils/analytics'
+import PublicSiteAnalytics from '../analytics/PublicSiteAnalytics'
+import CookieConsent from '../CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import {
   getAvailablePortals,
@@ -74,8 +75,10 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   )
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
-  const [waiversCheckedToken, setWaiversCheckedToken] = useState<string | null>(null)
-  const finishWaiverCheck = useCallback(() => setWaiversCheckedToken(memberToken), [memberToken])
+  const [pendingWaiverToken, setPendingWaiverToken] = useState<string | null>(null)
+  const finishWaiverCheck = useCallback(() => {
+    setPendingWaiverToken(pending => pending === memberToken ? null : pending)
+  }, [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const {
     highlights,
@@ -101,12 +104,8 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     }
   }, [])
 
-  useEffect(() => {
-    trackPageView(window.location.pathname, { googleAnalytics: !isPreview })
-  }, [isPreview])
-
   const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
-    setWaiversCheckedToken(null)
+    setPendingWaiverToken(accountData.requiresInitialWaiverCheck === true ? token : null)
     setSportSiteContext(config.key)
     localStorage.setItem('vortex_member_token', token)
     localStorage.setItem('vortex_member', JSON.stringify(accountData))
@@ -120,7 +119,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   }
 
   const handleMemberLogout = () => {
-    setWaiversCheckedToken(null)
+    setPendingWaiverToken(null)
     localStorage.removeItem('vortex_member_token')
     localStorage.removeItem('vortex_member')
     setMemberToken(null)
@@ -129,7 +128,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
   }
 
   const handleAdminLogout = () => {
-    setWaiversCheckedToken(null)
+    setPendingWaiverToken(null)
     localStorage.removeItem('vortex_admin')
     localStorage.removeItem('adminToken')
     localStorage.removeItem('vortex-admin-info')
@@ -137,7 +136,7 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
     setIsAdmin(false)
   }
 
-  if (memberToken && getAvailablePortals(member).includes('member') && waiversCheckedToken !== memberToken) {
+  if (memberToken && pendingWaiverToken === memberToken && getAvailablePortals(member).includes('member')) {
     return (
       <Suspense fallback={<AdminLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={() => { handleAdminLogout(); handleMemberLogout() }} />
@@ -171,6 +170,8 @@ const ComingSoon = ({ config, isPreview = false }: ComingSoonProps) => {
 
   return (
     <div className="min-h-screen bg-white text-gray-900">
+      <PublicSiteAnalytics disabled={isPreview} />
+      {!isPreview && <CookieConsent />}
       <SeoHead {...seo} />
       <StubHeader
         config={config}

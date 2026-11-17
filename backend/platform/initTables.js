@@ -79,6 +79,8 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '836_monthly_invoice_revisions.sql',
   '837_unpaid_enrollment_deletion.sql',
   '838_enrollment_deletion_stripe_reconciliation.sql',
+  '869_stripe_terminal_payments.sql',
+  '871_store_terminal_payment.sql',
 ])
 
 const REQUIRED_BILLING_MIGRATION_SET = new Set(REQUIRED_BILLING_MIGRATIONS)
@@ -952,6 +954,10 @@ export async function initPlatformTables(pool) {
     '818_coaching_athleticism_accelerator_library.sql',
     '821_floor_planner.sql',
     '822_floor_planner_views.sql',
+    '865_floor_planner_class_colors.sql',
+    '866_message_panel_preferences.sql',
+    '867_message_panel_widths.sql',
+    '868_initial_member_waiver_check.sql',
     // These additive migrations own columns and tables read directly by the
     // Admin runtime. Keep them in the boot set so an ordinary deploy cannot
     // expose newer route code against an older database contract.

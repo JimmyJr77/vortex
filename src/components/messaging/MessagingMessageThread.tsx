@@ -154,7 +154,7 @@ export default function MessagingMessageThread({
                 {!pinFilterActive && isFirstMessageOfDay(group.messages, index) && (
                   <div className="mb-4 flex items-center gap-3">
                     <span className="h-px flex-1 bg-slate-200" aria-hidden="true" />
-                    <time dateTime={message.created_at} className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium text-slate-600">
+                    <time dateTime={message.created_at} className="shrink-0 rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-medium !text-slate-700">
                       {formatMessageDayLabel(message.created_at)}
                     </time>
                     <span className="h-px flex-1 bg-slate-200" aria-hidden="true" />

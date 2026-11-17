@@ -41,8 +41,8 @@ export function isOwnMessage(message: MessageRow, viewer: MessageViewer): boolea
 export function messageBubbleClassName(message: MessageRow, ownMessage: boolean): string {
   const base = 'min-w-0 rounded-2xl border px-3.5 py-2.5 text-sm leading-relaxed'
   const corner = ownMessage ? 'rounded-tr-md' : 'rounded-tl-md'
-  if (message.deleted_at) return `${base} ${corner} border-slate-200 bg-slate-100 text-slate-600`
+  if (message.deleted_at) return `${base} ${corner} border-slate-200 !bg-slate-100 text-slate-600`
   if (message.is_critical) return `${base} ${corner} border-red-300 bg-red-50 text-slate-900`
-  if (ownMessage) return `${base} ${corner} border-red-100 bg-red-50/80 text-slate-900`
-  return `${base} ${corner} border-slate-200 bg-white text-slate-900`
+  if (ownMessage) return `${base} ${corner} border-blue-100 !bg-blue-50 text-slate-900`
+  return `${base} ${corner} border-slate-200 !bg-slate-100 text-slate-900`
 }

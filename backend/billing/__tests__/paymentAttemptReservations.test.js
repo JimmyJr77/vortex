@@ -5,6 +5,7 @@ import test from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 import {
+  TERMINAL_BILLING_ATTEMPT_TYPE,
   attachBillingPaymentAttemptStripeObject,
   cancelFailedSavedCardPaymentIntent,
   retireFailedBillingPaymentAttempt,
@@ -844,6 +845,54 @@ function activeAttemptReconciliationPool(attempts) {
     },
   }
 }
+
+test('an in-person decline retains the balance and reconciliation rejects a different Stripe customer', async () => {
+  const terminalAttemptId = '9698e18d-8d74-48f4-a6dd-58eee0c33418'
+  const attempt = {
+    id: 94,
+    family_billing_account_id: 7,
+    attempt_type: TERMINAL_BILLING_ATTEMPT_TYPE,
+    status: 'pending',
+    amount_cents: 5000,
+    stripe_payment_intent_id: 'pi_94',
+    metadata: { terminalAttemptId, stripeCustomerId: 'cus_7' },
+  }
+  const intent = {
+    id: 'pi_94',
+    status: 'requires_payment_method',
+    currency: 'usd',
+    amount: 5000,
+    amount_received: 0,
+    last_payment_error: { code: 'card_declined' },
+    customer: 'cus_7',
+    payment_method_types: ['card_present'],
+    metadata: { terminalAttemptId, familyBillingAccountId: '7', billingPaymentAttemptId: '94' },
+  }
+  const pool = activeAttemptReconciliationPool([attempt])
+  const attached = []
+  const options = {
+    attachFunction: async (_pool, details) => attached.push(details),
+    releaseFunction: async () => assert.fail('the verifier must retain the balance reservation'),
+    settleFunction: async () => assert.fail('the verifier must not settle an unpaid or mismatched intent'),
+  }
+  const declined = await reconcileActiveBillingPaymentAttempts(
+    pool,
+    { paymentIntents: { retrieve: async () => intent } },
+    options,
+  )
+  assert.equal(declined.retained, 1)
+  assert.equal(declined.errors.length, 0)
+  assert.equal(attached[0]?.paymentIntentId, intent.id)
+
+  const mismatched = await reconcileActiveBillingPaymentAttempts(
+    pool,
+    { paymentIntents: { retrieve: async () => ({ ...intent, customer: 'cus_other', status: 'succeeded', amount_received: 5000 }) } },
+    options,
+  )
+  assert.equal(mismatched.retained, 1)
+  assert.match(mismatched.errors[0]?.message, /does not match its billing reservation/)
+  assert.equal(attached.length, 1)
+})
 
 test('active-attempt reconciliation recovers an unattached retryable PaymentIntent and retains ownership', async () => {
   const attempt = {

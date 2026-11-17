@@ -30,17 +30,83 @@ test('concurrent first saves and stale updates return conflict rather than overw
   for (const revision of [0, 7]) await assert.rejects(() => saveFloorPlan(pool, 1, 2, { plan: plan(), revision }), (error) => error.status === 409)
 })
 
+function registerRoutes(pool) {
+  const routes = new Map()
+  const app = Object.fromEntries(['get', 'put', 'post', 'delete'].map((method) => [method,
+    (path, ...handlers) => routes.set(`${method} ${path}`, handlers),
+  ]))
+  registerFloorPlannerRoutes(app, pool, { jwtSecret: 'test', requirePermission: (_pool, _secret, permission) => [permission] })
+  return routes
+}
+
+async function callRoute(routes, route, req) {
+  const response = { status: 200 }
+  await routes.get(route).at(-1)(req, {
+    status(code) { response.status = code; return this },
+    json(body) { response.body = body },
+  })
+  return response
+}
+
 test('routes enforce view and manage permissions, with facility-scoped reads', async () => {
-  const routes = [], permissions = []
-  const app = { get: (path, ...handlers) => routes.push({ path, handlers }), put: (path, ...handlers) => routes.push({ path, handlers }), post: (path, ...handlers) => routes.push({ path, handlers }), delete: (path, ...handlers) => routes.push({ path, handlers }) }
   const queries = []
   const pool = { query: async (sql, args) => { queries.push({ sql, args }); return { rows: [] } } }
-  registerFloorPlannerRoutes(app, pool, { jwtSecret: 'test', requirePermission: (_pool, _secret, permission) => { permissions.push(permission); return [() => {}] } })
-  assert.deepEqual(permissions, ['scheduling.view', 'scheduling.manage', 'scheduling.view', 'scheduling.view', 'scheduling.manage', 'scheduling.manage', 'scheduling.manage', 'scheduling.view'])
-  let data
-  await routes[0].handlers.at(-1)({ platformAuth: { user: { facility_id: 9 } } }, { json: (body) => { data = body.data } })
-  assert.deepEqual(data, { plan: null, revision: 0, facilityId: 9 })
+  const routes = registerRoutes(pool)
+  for (const [route, [permission]] of routes) {
+    assert.equal(permission, route.startsWith('get ') ? 'scheduling.view' : 'scheduling.manage', route)
+  }
+  const response = await callRoute(routes, 'get /api/admin/floor-planner', { platformAuth: { user: { facility_id: 9 } } })
+  assert.deepEqual(response.body.data, { plan: null, revision: 0, facilityId: 9 })
   assert.deepEqual(queries[0].args, [9])
+})
+
+test('class colors and legacy form links load for the authenticated facility', async () => {
+  const queries = []
+  const pool = { query: async (sql, args) => {
+    queries.push({ sql, args })
+    const rows = sql.includes('floor_planner_class_color')
+      ? [{ class_id: 'class:71', color: '#8365ff' }]
+      : [{ form_id: '20', class_id: '71' }, { form_id: '28', class_id: '71' }]
+    return { rows }
+  } }
+  const req = { platformAuth: { user: { facility_id: 9 } }, query: { facilityId: 999 } }
+  const response = await callRoute(registerRoutes(pool), 'get /api/admin/floor-planner/class-colors', req)
+  assert.deepEqual(response.body, {
+    success: true,
+    data: { colors: { 'class:71': '#8365ff' }, classesByForm: { 20: 'class:71', 28: 'class:71' } },
+  })
+  assert.match(queries[0].sql, /WHERE facility_id = \$1/)
+  assert.match(queries[1].sql, /p\.id = sf\.program_id\s+WHERE p\.facility_id = \$1/)
+  assert.doesNotMatch(queries[1].sql, /is_active|deleted_at/)
+  assert.deepEqual(queries.map(({ args }) => args), [[9], [9]])
+})
+
+test('class color changes and resets update a single facility preference', async () => {
+  const queries = []
+  const pool = { query: async (sql, args) => { queries.push({ sql, args }); return { rows: [] } } }
+  const routes = registerRoutes(pool)
+  const route = 'put /api/admin/floor-planner/class-colors/:classId'
+  const req = { platformAuth: { user: { id: 42, facility_id: 9 } }, params: { classId: 'class:71' } }
+
+  const set = await callRoute(routes, route, { ...req, body: { color: '#83ABFF', facilityId: 999, updatedBy: 999 } })
+  assert.deepEqual(set.body, { success: true, data: { classId: 'class:71', color: '#83abff' } })
+  assert.match(queries[0].sql, /ON CONFLICT \(facility_id, class_id\)/)
+  assert.deepEqual(queries[0].args, [9, 'class:71', '#83abff', 42])
+
+  const reset = await callRoute(routes, route, { ...req, body: { color: null } })
+  assert.deepEqual(reset.body, { success: true, data: { classId: 'class:71', color: null } })
+  assert.match(queries[1].sql, /DELETE FROM public\.floor_planner_class_color WHERE facility_id = \$1 AND class_id = \$2/)
+  assert.deepEqual(queries[1].args, [9, 'class:71'])
+
+  for (const color of [undefined, '#123', '#12345678', 'red']) {
+    const response = await callRoute(routes, route, { ...req, body: { color } })
+    assert.equal(response.status, 400)
+  }
+  for (const classId of ['__proto__', 'class/71', 'a'.repeat(101)]) {
+    const response = await callRoute(routes, route, { ...req, params: { classId }, body: { color: '#123456' } })
+    assert.equal(response.status, 400)
+  }
+  assert.equal(queries.length, 2)
 })
 
 const namedId = '00000000-0000-4000-8000-000000000001'

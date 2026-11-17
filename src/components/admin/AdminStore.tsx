@@ -1,6 +1,8 @@
 import { confirmArchive } from '../../utils/confirmArchive'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Archive, Check, ClipboardList, Copy, Download, History, LoaderCircle, Mail, PackagePlus, Pencil, Plus, ReceiptText, RefreshCw, Search, ShoppingBag, Tag, X } from 'lucide-react'
+import StripeTerminalDialog from '../billing/StripeTerminalDialog'
+import { getStripeTerminalReaders } from '../../utils/stripeTerminalApi'
 import {
   adminAdjustStoreInventory,
   adminCollectStoreOrderPayment,
@@ -23,7 +25,7 @@ import {
   type StoreDiscountCode,
   type StoreMemberOption,
   type StoreOrder,
-  type StorePaymentMethod,
+  type StoreOrderPaymentMethod,
   type StoreProduct,
   type StoreCategory,
 } from '../../utils/storeApi'
@@ -232,7 +234,7 @@ function auditSummary(event: StoreActionAudit) {
   return [item, order, code].filter(Boolean).join(' · ') || 'Details saved in the audit record.'
 }
 
-export default function AdminStore() {
+export default function AdminStore({ canManage }: { canManage: boolean }) {
   const [products, setProducts] = useState<StoreProduct[]>([])
   const [discounts, setDiscounts] = useState<StoreDiscountCode[]>([])
   const [orders, setOrders] = useState<StoreOrder[]>([])
@@ -250,7 +252,7 @@ export default function AdminStore() {
   const [discountForm, setDiscountForm] = useState<DiscountForm>(emptyDiscount)
   const [saleCart, setSaleCart] = useState<Record<number, number>>({})
   const [productSearch, setProductSearch] = useState('')
-  const [salePayment, setSalePayment] = useState<StorePaymentMethod>('card')
+  const [salePayment, setSalePayment] = useState<StoreOrderPaymentMethod>('card')
   const [memberSearch, setMemberSearch] = useState('')
   const [memberOptions, setMemberOptions] = useState<StoreMemberOption[]>([])
   const [selectedMember, setSelectedMember] = useState<StoreMemberOption | null>(null)
@@ -258,6 +260,10 @@ export default function AdminStore() {
   const [receiptEmailDrafts, setReceiptEmailDrafts] = useState<Record<number, string>>({})
   const [saleReference, setSaleReference] = useState('')
   const [pendingCardEntryUrl, setPendingCardEntryUrl] = useState<string | null>(null)
+  const [terminalEnabled, setTerminalEnabled] = useState(false)
+  const [terminalOrder, setTerminalOrder] = useState<StoreOrder | null>(null)
+  const terminalOrderRequest = useRef<{ body: string; key: string } | null>(null)
+  const checkoutInProgress = useRef(false)
   const [auditActions, setAuditActions] = useState<StoreActionAudit[]>([])
   const [showAuditActions, setShowAuditActions] = useState(false)
   const [auditLoading, setAuditLoading] = useState(false)
@@ -300,6 +306,22 @@ export default function AdminStore() {
   }, [])
 
   useEffect(() => { void reload() }, [reload])
+
+  const refreshTerminalAvailability = useCallback(async (signal?: AbortSignal) => {
+    if (!canManage) return
+    try {
+      const configuration = await getStripeTerminalReaders(signal)
+      if (!signal?.aborted) setTerminalEnabled(configuration.enabled)
+    } catch {
+      if (!signal?.aborted) setTerminalEnabled(false)
+    }
+  }, [canManage])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    void refreshTerminalAvailability(controller.signal)
+    return () => controller.abort()
+  }, [refreshTerminalAvailability])
 
   useEffect(() => {
     if (showAuditActions) void loadAuditActions()
@@ -353,6 +375,7 @@ export default function AdminStore() {
     return quantity > 0 ? [{ product, quantity }] : []
   }), [activeProducts, saleCart])
   const saleSubtotal = saleLines.reduce((sum, line) => sum + line.product.priceCents * line.quantity, 0)
+  const terminalSubtotalTooSmall = salePayment === 'terminal' && saleSubtotal > 0 && saleSubtotal < 50
   const sortedAuditActions = useMemo(() => [...auditActions].sort((left, right) => {
     const direction = auditSortDirection === 'asc' ? 1 : -1
     if (auditSort === 'date') return direction * (new Date(left.occurredAt).getTime() - new Date(right.occurredAt).getTime())
@@ -364,13 +387,13 @@ export default function AdminStore() {
     [products, catalogSort, catalogSortDirection],
   )
 
-  const runSave = async (task: () => Promise<void>, success: string) => {
+  const runSave = async (task: () => Promise<void>, success?: string) => {
     setSaving(true)
     setError(null)
     setNotice(null)
     try {
       await task()
-      setNotice(success)
+      if (success) setNotice(success)
       await reload()
       if (showAuditActions) await loadAuditActions()
     } catch (cause) {
@@ -530,22 +553,43 @@ export default function AdminStore() {
     setMemberOptions([])
   }
 
-  const recordSale = () => void runSave(async () => {
-    const items: StoreCartLine[] = saleLines.map(({ product, quantity }) => ({ productId: product.id, quantity }))
-    const order = await adminCreateStoreOrder({
-      memberId: selectedMember?.id ?? null,
-      purchaserEmail: saleEmail.trim() || null,
-      paymentMethod: salePayment,
-      items,
-      externalReference: saleReference || undefined,
-    })
-    setPendingCardEntryUrl(order.stripeCheckoutUrl)
-    setSaleCart({})
-    setSaleReference('')
-    setSaleEmail('')
-    setSelectedMember(null)
-    setMemberSearch('')
-  }, salePayment === 'card' ? 'Secure card entry is ready. The sale will be marked paid after Stripe confirms it.' : 'Sale recorded.')
+  const recordSale = () => {
+    const terminal = salePayment === 'terminal'
+    if (checkoutInProgress.current || terminalSubtotalTooSmall || (terminal && (!canManage || !terminalEnabled))) return
+    checkoutInProgress.current = true
+    void runSave(async () => {
+      const items: StoreCartLine[] = saleLines.map(({ product, quantity }) => ({ productId: product.id, quantity }))
+      const payload = {
+        memberId: selectedMember?.id ?? null,
+        purchaserEmail: saleEmail.trim() || null,
+        paymentMethod: salePayment,
+        items,
+        externalReference: saleReference || undefined,
+      }
+      let idempotencyKey: string | undefined
+      if (terminal) {
+        const body = JSON.stringify(payload)
+        if (terminalOrderRequest.current?.body !== body) {
+          const key = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
+          terminalOrderRequest.current = { body, key: `admin-store-terminal-${key}` }
+        }
+        idempotencyKey = terminalOrderRequest.current.key
+      }
+      const order = await adminCreateStoreOrder(payload, idempotencyKey)
+      terminalOrderRequest.current = null
+      if (terminal) {
+        if (order.status === 'awaiting_payment') setTerminalOrder(order)
+        else setNotice(`Sale ${order.orderNumber} recorded.`)
+      }
+      setPendingCardEntryUrl(order.stripeCheckoutUrl)
+      setSaleCart({})
+      setSaleReference('')
+      setSaleEmail('')
+      setSelectedMember(null)
+      setMemberSearch('')
+    }, terminal ? undefined : salePayment === 'card' ? 'Secure card entry is ready. The sale will be marked paid after Stripe confirms it.' : 'Sale recorded.')
+      .finally(() => { checkoutInProgress.current = false })
+  }
 
   const emailOrderReceipt = (order: StoreOrder) => {
     const purchaserEmail = receiptEmailDrafts[order.id]?.trim() ?? ''
@@ -592,7 +636,7 @@ export default function AdminStore() {
     <div className="space-y-6 pb-8">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div><div className="flex items-center gap-2 text-sm font-bold tracking-wide text-vortex-red"><ShoppingBag className="h-4 w-4" /> STORE DESK</div><h2 className="mt-1 font-display text-3xl font-bold text-gray-950">Sales, pickup, and inventory.</h2><p className="mt-1 text-sm text-gray-600">Store discount codes live here. Apparel can be public; food and drink can stay front-desk only.</p></div>
-        <button type="button" onClick={() => void reload()} disabled={loading || saving} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60"><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />Refresh</button>
+        <button type="button" onClick={() => { void reload(); void refreshTerminalAvailability() }} disabled={loading || saving} className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-60"><RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />Refresh</button>
       </div>
       {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">{error}</div>}
       {notice && <div className="rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">{notice}</div>}
@@ -608,7 +652,7 @@ export default function AdminStore() {
               <ReceiptText className="h-5 w-5 text-vortex-red" />
               <h3 className="font-display text-xl font-bold text-gray-950">Checkout</h3>
             </div>
-            <p className="mt-1 text-sm text-gray-600">Record cash, check, or mobile payment, prepare secure card entry, or add the purchase to a member’s account.</p>
+            <p className="mt-1 text-sm text-gray-600">{canManage && terminalEnabled ? 'Use the card reader, enter card details securely, record cash, check, or mobile payment, or bill a member’s account.' : 'Record cash, check, or mobile payment, prepare secure card entry, or add the purchase to a member’s account.'}</p>
           </div>
           <div className="grid gap-5 p-5 lg:grid-cols-2">
             <div className="space-y-3">
@@ -637,9 +681,9 @@ export default function AdminStore() {
             <div className="space-y-3">
               <label className="block text-xs font-bold uppercase tracking-wide text-gray-500">
                 Payment method
-                <select value={salePayment} onChange={(event) => { const paymentMethod = event.target.value as StorePaymentMethod; setSalePayment(paymentMethod); if (paymentMethod !== 'card') setPendingCardEntryUrl(null) }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-black">
+                <select value={salePayment} onChange={(event) => { const paymentMethod = event.target.value as StoreOrderPaymentMethod; setSalePayment(paymentMethod); if (paymentMethod !== 'card') setPendingCardEntryUrl(null) }} className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-semibold outline-none focus:border-black">
                   <option value="card">Input credit/debit details</option>
-                  <option value="card_terminal" disabled>Card terminal (not available)</option>
+                  {canManage ? <option value="terminal" disabled={!terminalEnabled}>Stripe card reader{terminalEnabled ? '' : ' (unavailable)'}</option> : null}
                   <option value="billing_account">Bill monthly account</option>
                   <option value="cash">Cash</option>
                   <option value="check">Check</option>
@@ -708,7 +752,8 @@ export default function AdminStore() {
             {checkoutProductCount > 0 && (
               <p className="mt-2 text-xs text-gray-500">{checkoutProductCount} item{checkoutProductCount === 1 ? '' : 's'} shown across {checkoutProductSections.length} section{checkoutProductSections.length === 1 ? '' : 's'}.</p>
             )}
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-950"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || (salePayment === 'billing_account' && !selectedMember)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}{salePayment === 'card' ? 'Prepare secure card entry' : 'Record sale'}</button></div>
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-gray-950"><div><span className="text-xs font-semibold uppercase tracking-wide text-gray-400">Sale subtotal</span><strong className="ml-3 text-xl">{formatMoney(saleSubtotal)}</strong></div><button type="button" disabled={saving || saleLines.length === 0 || terminalSubtotalTooSmall || (salePayment === 'billing_account' && !selectedMember) || (salePayment === 'terminal' && !terminalEnabled)} onClick={recordSale} className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-bold text-white hover:bg-red-700 disabled:opacity-50">{saving && <LoaderCircle className="h-4 w-4 animate-spin" />}{salePayment === 'terminal' ? 'Pay with card reader' : salePayment === 'card' ? 'Prepare secure card entry' : 'Record sale'}</button></div>
+            {terminalSubtotalTooSmall ? <p className="mt-2 text-sm text-gray-600">Card reader payments start at $0.50.</p> : null}
             {pendingCardEntryUrl && <div className="mt-3 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-950"><div><strong className="block">Secure card entry is ready.</strong><span className="text-xs text-sky-800">Enter the customer’s card directly in Stripe. This sale stays pending until Stripe confirms payment.</span></div><a href={pendingCardEntryUrl} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-10 items-center rounded-lg bg-sky-700 px-3 py-2 text-sm font-bold text-white hover:bg-sky-800">Input credit/debit details</a></div>}
           </div>
         </section>
@@ -889,11 +934,12 @@ export default function AdminStore() {
                   <strong className="text-sm text-gray-950">{formatMoney(order.totalCents)}</strong>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{order.paymentMethod.replace('_', ' ')}</span>
+                  <span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{order.paymentMethod === 'terminal' ? 'Stripe card reader' : order.paymentMethod.replace('_', ' ')}</span>
                   <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${order.status === 'fulfilled' ? 'bg-green-100 text-green-800' : order.status === 'placed' ? 'bg-amber-100 text-amber-800' : 'bg-gray-100 text-gray-600'}`}>{order.status === 'fulfilled' ? 'Picked up' : order.status.replace('_', ' ')}</span>
                   {order.status === 'placed' && <button type="button" onClick={() => void runSave(async () => { await adminUpdateStoreOrder(order.id, 'fulfilled') }, 'Order marked picked up.')} className="ml-auto inline-flex items-center gap-1 rounded bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red"><Check className="h-3.5 w-3.5" />Picked up</button>}
                   {order.status === 'awaiting_payment' && ['cash', 'check', 'mobile'].includes(order.paymentMethod) && <button type="button" onClick={() => void runSave(async () => { await adminCollectStoreOrderPayment(order.id) }, 'Payment collected.')} className="ml-auto inline-flex items-center gap-1 rounded bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red"><Check className="h-3.5 w-3.5" />Collect payment</button>}
-                  {(order.status === 'awaiting_payment' || order.paymentStatus === 'billed_to_account') && <button type="button" onClick={() => void runSave(async () => { await adminUpdateStoreOrder(order.id, 'cancelled') }, 'Order cancelled and stock returned.')} className="rounded px-2.5 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancel</button>}
+                  {canManage && order.status === 'awaiting_payment' && order.paymentMethod === 'terminal' ? <button type="button" onClick={() => setTerminalOrder(order)} className="ml-auto inline-flex items-center gap-1 rounded bg-black px-2.5 py-1.5 text-xs font-bold text-white hover:bg-vortex-red">Open reader payment</button> : null}
+                  {(order.status === 'awaiting_payment' || order.paymentStatus === 'billed_to_account') && (order.paymentMethod !== 'terminal' || canManage) && <button type="button" onClick={() => void runSave(async () => { await adminUpdateStoreOrder(order.id, 'cancelled') }, 'Order cancelled and stock returned.')} className="rounded px-2.5 py-1.5 text-xs font-bold text-gray-500 hover:bg-gray-100">Cancel</button>}
                 </div>
                 {['placed', 'fulfilled'].includes(order.status) && (
                   <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -972,6 +1018,21 @@ export default function AdminStore() {
           </section>
         )}
       </div>
+      {terminalOrder && canManage ? (
+        <StripeTerminalDialog
+          key={terminalOrder.id}
+          kind="store"
+          targetId={terminalOrder.id}
+          targetLabel={`Store order ${terminalOrder.orderNumber}`}
+          amountCents={terminalOrder.totalCents}
+          onClose={() => setTerminalOrder(null)}
+          onSucceeded={() => {
+            setNotice(`Payment confirmed for order ${terminalOrder.orderNumber}.`)
+            void reload()
+            if (showAuditActions) void loadAuditActions()
+          }}
+        />
+      ) : null}
       {loading && <div className="fixed bottom-5 right-5 inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white shadow-lg"><LoaderCircle className="h-4 w-4 animate-spin" />Loading store</div>}
     </div>
   )

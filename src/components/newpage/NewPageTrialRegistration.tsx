@@ -1,3 +1,4 @@
+import { trackConfirmation, trackEvent } from '../../utils/analyticsClient'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowLeft, Check, Loader2, Plus } from 'lucide-react'
 import FamilySignupWizard, { type FreeTrialSignupSelection } from '../signup/FamilySignupWizard'
@@ -184,6 +185,7 @@ export default function NewPageTrialRegistration({ selection, onBack, onComplete
     }
     setLoading(true)
     try {
+      trackEvent('trial_confirm_submit', '/', { properties: { program_slug: selection.program } })
       const res = await fetch(`${apiUrl}/api/members/free-trials/register`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -209,8 +211,10 @@ export default function NewPageTrialRegistration({ selection, onBack, onComplete
       if (data.data?.status !== 'confirmed' || data.data?.benefitType !== 'free_trial' || data.data?.totalCents !== 0) {
         throw new Error('We could not verify this free trial. Please contact Vortex before attending.')
       }
+      trackConfirmation('trial_confirmed', '/', data.data.id, { program_slug: selection.program })
       complete()
     } catch (err) {
+      trackEvent('trial_confirm_error', '/', { properties: { program_slug: selection.program } })
       setError(err instanceof Error ? err.message : 'Unable to confirm your free trial.')
     } finally {
       setLoading(false)

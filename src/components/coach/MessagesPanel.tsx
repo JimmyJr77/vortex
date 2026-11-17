@@ -1,3 +1,4 @@
+import MessagingResourceSidebar from '../messaging/MessagingResourceSidebar'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Archive, CircleAlert, Loader2, MessageSquare, Plus, Search, UsersRound, X } from 'lucide-react'
 import { coachFetch } from '../../coach/api'
@@ -89,7 +90,7 @@ const EMPTY_REPLY: ReplyDraft = {
 }
 
 const CONTROL_CLASS = 'w-full rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-500 focus:border-vortex-red focus:outline-none focus:ring-1 focus:ring-vortex-red'
-const TEXT_ACTION_CLASS = 'rounded-md px-2.5 py-1.5 text-sm font-semibold text-vortex-red hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-vortex-red'
+const TEXT_ACTION_CLASS = 'rounded-md px-2.5 py-1.5 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600'
 
 export default function MessagesPanel({
   initialThreadId = null,
@@ -643,7 +644,7 @@ export default function MessagesPanel({
               <button
                 type="button"
                 onClick={handlePrimaryCreate}
-                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-vortex-red px-3.5 text-sm font-semibold text-white transition-colors hover:bg-red-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vortex-red"
+                className="inline-flex min-h-10 items-center justify-center gap-2 rounded-lg bg-blue-700 px-3.5 text-sm font-semibold text-white transition-colors hover:bg-blue-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
               >
                 <Plus className="h-4 w-4" aria-hidden="true" />
                 {primaryAction.mode === 'message' ? 'New message' : primaryAction.label}
@@ -670,7 +671,7 @@ export default function MessagesPanel({
                 type="button"
                 aria-pressed={memberScope === scope.id}
                 onClick={() => setMemberScope(scope.id)}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-vortex-red ${memberScope === scope.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600 ${memberScope === scope.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-600 hover:text-slate-900'}`}
               >
                 {scope.label}
               </button>
@@ -718,6 +719,10 @@ export default function MessagesPanel({
 
       <div className={messagingWorkspaceShell}>
       <MessagingMobileShell
+        preferenceRole="coach"
+        preferenceFetcher={coachFetch}
+        preferenceAccountKey={viewer.userId ? `coach:${viewer.userId}` : undefined}
+        resourcePanel={maximized ? (visibility) => <MessagingResourceSidebar {...visibility} role="coach" fetcher={coachFetch} messages={messages} selectedThreadId={selectedId} loading={detailLoading} error={detailError} /> : undefined}
         selectedThreadId={selectedId}
         detailOpen={detailOpen}
         onBack={dismissThread}
@@ -826,7 +831,7 @@ export default function MessagesPanel({
                         onClick={() => void openToCoachingCircle()}
                         aria-label="Share with coaching circle"
                         title="Share with coaching circle"
-                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-vortex-red hover:bg-red-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-vortex-red"
+                        className="inline-flex min-h-9 items-center justify-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-blue-700 hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-600"
                       >
                         <UsersRound className="h-4 w-4" aria-hidden="true" />
                         <span className="hidden xl:inline">Share</span>

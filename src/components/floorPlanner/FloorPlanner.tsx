@@ -3,8 +3,9 @@ import PortalOverlay from '../portal/PortalOverlay'
 import { AlertTriangle, Check, Clock3, Copy, GripVertical, LayoutGrid, Loader2, MapPin, Plus, Save, Scissors, Search, RotateCcw, Trash2, Undo2, Users, X } from 'lucide-react'
 import { fetchClassSetupOverview } from '../../utils/classSetupOverviewApi'
 import { randomUUID } from '../../utils/uuid'
-import { deleteView, isSavedView, listViews, loadCoaches, loadCurrentSchedule, loadPlan, loadView, savePlan, saveView, type ViewSummary } from './api'
-import { DAYS, LOCATION_OPTIONS, UNASSIGNED_LOCATION, BLOCK_HEIGHT, LANE_HEIGHT, resetFromSchedule, buildLibrary, colorStyle, conflicts, copyDay, layoutBlocks, mergeAdjacent, minutes, newPlan, nextColor, snap, timeLabel, timeValue, type Block, type Coach, type Plan, type PlannerClass } from './model'
+import { deleteView, isSavedView, listViews, loadClassColors, loadCoaches, loadCurrentSchedule, loadPlan, loadView, saveClassColor, savePlan, saveView, type ClassColors, type ViewSummary } from './api'
+import { DAYS, LOCATION_OPTIONS, UNASSIGNED_LOCATION, BLOCK_HEIGHT, LANE_HEIGHT, resetFromSchedule, blockClassId, buildLibrary, classPlacement, colorStyle, conflicts, copyDay, layoutBlocks, mergeAdjacent, minutes, newPlan, snap, timeLabel, timeValue, type Block, type Coach, type Plan, type PlannerClass } from './model'
+import ClassColorDialog from './ClassColorDialog'
 import PlannerDialog from './PlannerDialog'
 
 const CELL = 64
@@ -21,7 +22,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const [saved, setSaved] = useState('')
   const [revision, setRevision] = useState(0)
   const [viewId, setViewId] = useState('')
-  const [scheduleSource, setScheduleSource] = useState<{ startDate: string; endDate: string; signature: string; warning: string } | null>(null)
+  const [scheduleSource, setScheduleSource] = useState<{ startDate: string; endDate: string; signature: string; warning: string; classesByForm: ReadonlyMap<number, string> } | null>(null)
   const [activeView, setActiveView] = useState<ViewSummary | null>(null)
   const [views, setViews] = useState<ViewSummary[]>([])
   const [viewsError, setViewsError] = useState('')
@@ -34,6 +35,8 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const [error, setError] = useState('')
   const [notice, setNotice] = useState('')
   const [library, setLibrary] = useState<PlannerClass[]>([])
+  const [classColors, setClassColors] = useState<ClassColors | null>(null)
+  const [colorTarget, setColorTarget] = useState<{ classId: string; name: string } | null>(null)
   const [coaches, setCoaches] = useState<Coach[]>([])
   const [libraryError, setLibraryError] = useState('')
   const [libraryLoading, setLibraryLoading] = useState(true)
@@ -73,18 +76,20 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     setViewId(targetViewId); setLoading(true); setLoadError(''); setError(''); setDialog(null)
     try {
       const opensSavedView = targetViewId !== '' && targetViewId !== WEEKLY_PLAN
-      const [result, schedule] = await Promise.all([
+      const [result, schedule, colors] = await Promise.all([
         opensSavedView ? loadView(targetViewId) : loadPlan(),
         targetViewId === '' ? loadCurrentSchedule(coachesRequest) : null,
+        loadClassColors().catch(() => null),
       ])
       if (requestId !== loadRequest.current) return
+      setClassColors(colors)
       const base = result.plan || newPlan()
       const snapshot = schedule ? resetFromSchedule(base, schedule.events, schedule.coaches ?? [], schedule.range) : null
       const initial = snapshot?.plan ?? base
       const suffix = schedule ? ':current-schedule' : opensSavedView ? `:${targetViewId}` : ''
       const key = `vortex-floor-planner:${result.facilityId}:${userId ?? 'admin'}${suffix}`
       const source = schedule && snapshot ? {
-        ...schedule.range, signature: snapshot.signature,
+        ...schedule.range, signature: snapshot.signature, classesByForm: snapshot.classesByForm,
         warning: [
           snapshot.unsupportedTimes ? `${snapshot.unsupportedTimes} scheduled ${snapshot.unsupportedTimes === 1 ? 'class could' : 'classes could'} not be shown due to unsupported start or end times.` : '',
           schedule.coaches === null ? 'Coach assignments are unavailable for this schedule.' : '',
@@ -179,6 +184,15 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     commit({ ...plan, blocks }); setSelected(null)
   }
   const allClasses = useMemo(() => [...library, ...plan.classes], [library, plan.classes])
+  const classesByForm = useMemo(() => {
+    const ids = new Map(Object.entries(classColors?.classesByForm ?? {}).map(([formId, id]) => [Number(formId), id]))
+    for (const [formId, id] of scheduleSource?.classesByForm ?? []) ids.set(formId, id)
+    for (const item of library) {
+      if (item.formId != null && item.classId && !ids.has(item.formId)) ids.set(item.formId, item.classId)
+    }
+    return ids
+  }, [classColors?.classesByForm, library, scheduleSource])
+  const overrides = useMemo(() => new Map(Object.entries(classColors?.colors ?? {})), [classColors?.colors])
   const filtered = allClasses.filter((c) => `${c.name} ${c.program} ${c.coaches.join(' ')} ${c.schedule || ''}`.toLowerCase().includes(query.toLowerCase()))
   const dayBlocks = useMemo(() => plan.blocks.filter((b) => b.day === day), [plan.blocks, day])
   useEffect(() => {
@@ -194,9 +208,27 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
   const hiddenCount = dayBlocks.filter((b) => b.start < plan.start || b.end > plan.end).length
   const chooseDay = (next: number) => { setDay(next); setSelected(null); setContext(null); setDropPreview(null); setPendingClass(null) }
 
+  const changeClassColor = (block: Block) => {
+    setColorTarget({ classId: blockClassId(block, classesByForm), name: `${block.program} · ${block.name}` })
+  }
+
+  const updateClassColor = async (color: string | null) => {
+    if (!colorTarget || !editing) return
+    const result = await saveClassColor(colorTarget.classId, color)
+    setClassColors((current) => {
+      if (!current) return current
+      if (result.color !== null) return { ...current, colors: { ...current.colors, [result.classId]: result.color } }
+      const colors = { ...current.colors }
+      delete colors[result.classId]
+      return { ...current, colors }
+    })
+    setNotice(result.color ? `Color updated for ${colorTarget.name} in all views.` : `Automatic color restored for ${colorTarget.name}.`)
+    setColorTarget(null)
+  }
+
   const addClass = (item: PlannerClass, locationId: string, start: number) => {
     if (start + item.duration > 1440) { setError('This class would end after midnight. Choose an earlier start time.'); return }
-    const block: Block = { id: randomUUID(), instanceId: randomUUID(), classId: item.id, name: item.name, program: item.program, coaches: [...item.coaches], day, locationId, start, end: start + item.duration, color: nextColor(plan.blocks) }
+    const block = classPlacement(item, day, locationId, start)
     commit({ ...plan, blocks: [...plan.blocks, block], start: Math.min(plan.start, start), end: Math.max(plan.end, Math.ceil(block.end / plan.increment) * plan.increment) }, `${item.name} added to ${DAYS[day]}.`)
     setPendingClass(null); setSelected(block)
   }
@@ -310,6 +342,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
     {viewControls}
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/70 px-4 py-3 text-sm text-blue-900"><p>{isCurrentSchedule ? <><strong>This week’s class schedule.</strong>{canManage ? ' Drag a class from Unassigned to a floor location. Its scheduled time stays the same.' : ' Classes start in Unassigned at their scheduled times.'}</> : <><strong>Planning workspace</strong> · Changes here are saved separately from the live class schedule.</>}</p>{!canManage && <span className="font-semibold">View only</span>}</div>
     {scheduleSource?.warning && <p role="alert" className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">{scheduleSource.warning}</p>}
+    {!classColors && <p role="alert" className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-900">Custom class colors couldn’t load. <button className="font-semibold underline" onClick={() => void loadClassColors().then(setClassColors).catch(() => setClassColors(null))}>Retry class colors</button></p>}
     {error && <div role="alert" className="flex items-center justify-between gap-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-800"><span>{error}</span><button aria-label="Dismiss error" onClick={() => setError('')}><X size={16} /></button></div>}
     <p role="status" className="sr-only">{notice}</p>
     {notice && <p className="flex items-center gap-2 text-sm text-emerald-700"><Check size={15} />{notice}</p>}
@@ -347,13 +380,15 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
                 const clippedStart = Math.max(block.start, plan.start), clippedEnd = Math.min(block.end, plan.end)
                 if (clippedEnd <= clippedStart) return null
                 const warning = warnings.get(block.id)
-                return <div key={block.id} data-testid="floor-block" data-instance={block.instanceId} data-color={block.color} draggable={editing && !resizing} onDragStart={(e) => dragStart(e, { kind: 'block', id: block.id, offset: (e.clientX - e.currentTarget.getBoundingClientRect().left) / px + clippedStart - block.start })} onDragEnd={() => { drag.current = null; setDropPreview(null) }}
+                const classId = blockClassId(block, classesByForm)
+                const colors = colorStyle(classId, overrides.get(classId))
+                return <div key={block.id} data-testid="floor-block" data-instance={block.instanceId} data-color={colors.borderColor} draggable={editing && !resizing} onDragStart={(e) => dragStart(e, { kind: 'block', id: block.id, offset: (e.clientX - e.currentTarget.getBoundingClientRect().left) / px + clippedStart - block.start })} onDragEnd={() => { drag.current = null; setDropPreview(null) }}
                   role="button" tabIndex={0} aria-label={`${block.program} · ${block.name}, ${timeLabel(block.start)} to ${timeLabel(block.end)}, ${row.name}${warning ? ', conflict' : ''}`} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelected(block) } }}
                   onClick={(e) => { e.stopPropagation(); setSelected(block); setPendingClass(null) }}
                   onContextMenu={(e) => { e.preventDefault(); if (!editing) return; const minute = snap(clippedStart + (e.clientX - e.currentTarget.getBoundingClientRect().left) / px, plan.increment); setContext({ anchor: e.currentTarget, id: block.id, minute: Math.max(block.start + 5, Math.min(block.end - 5, minute)), x: Math.min(e.clientX, window.innerWidth - 250), y: Math.max(8, Math.min(e.clientY, window.innerHeight - 205)) }) }}
                   title={`${block.program} · ${block.name}\n${timeLabel(block.start)}–${timeLabel(block.end)} · ${block.end - block.start} min\n${block.coaches.join(', ') || 'Coach unassigned'}${warning ? `\n${[...warning].join('\n')}` : ''}`}
                   className={`absolute cursor-grab select-none overflow-hidden rounded-lg border border-l-[4px] px-3 py-2 shadow-sm outline-none focus:ring-2 focus:ring-vortex-red ${selected?.id === block.id ? 'ring-2 ring-vortex-red ring-offset-1' : ''}`}
-                  style={{ ...colorStyle(block.color), left: (clippedStart - plan.start) * px + 2, width: Math.max(16, (clippedEnd - clippedStart) * px - 4), top: lane * LANE_HEIGHT + 8, height: BLOCK_HEIGHT }}>
+                  style={{ ...colors, left: (clippedStart - plan.start) * px + 2, width: Math.max(16, (clippedEnd - clippedStart) * px - 4), top: lane * LANE_HEIGHT + 8, height: BLOCK_HEIGHT }}>
                   <div className="flex items-center gap-1"><span className="line-clamp-2 text-xs font-bold">{block.program} · {block.name}</span>{warning && <AlertTriangle size={13} className="shrink-0" />}</div><p className="mt-0.5 truncate text-[10px] font-medium">{timeLabel(block.start)}–{timeLabel(block.end)}</p><p className="mt-1 flex items-center gap-1 truncate text-[10px]"><Users size={10} className="shrink-0" /><span className="truncate">{block.coaches.join(', ') || 'Assign coach'}</span></p>
                   {editing && (['start', 'end'] as const).map((edge) => <span key={edge} data-testid={`resize-${edge}`} title={`Resize ${edge} time`} onPointerDown={(e) => startResize(e, original, edge)} onClick={(e) => e.stopPropagation()} draggable={false} onDragStart={(e) => { e.preventDefault(); e.stopPropagation() }} className={`absolute top-0 h-full w-2 cursor-ew-resize touch-none hover:bg-black/10 ${edge === 'start' ? 'left-0' : 'right-0'}`} />)}
                 </div>
@@ -366,7 +401,13 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
       <div className="flex flex-wrap items-center justify-between gap-3 bg-gray-50/50 px-5 py-3"><button className="inline-flex items-center gap-2 text-sm font-semibold text-vortex-red disabled:opacity-40" disabled={!editing || plan.locations.length >= 50} onClick={() => setDialog('location')}><Plus size={16} />Add location</button><span className="flex items-center gap-2 text-xs text-gray-500">{dayBlocks.some((b) => b.locationId === UNASSIGNED_LOCATION) && <span className="mr-2 font-semibold text-amber-700">{dayBlocks.filter((b) => b.locationId === UNASSIGNED_LOCATION).length} awaiting location</span>}{warnings.size ? <><AlertTriangle size={14} className="text-amber-600" />{warnings.size} segments with location or coach overlaps</> : <><Check size={14} className="text-emerald-600" />No location or coach overlaps</>}</span></div>
     </section>
     {selected && <section key={`${selected.id}:${selected.start}:${selected.end}`} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm" aria-label="Class details">
-      <div className="mb-4 flex items-center justify-between"><h3 className="font-bold">{plan.blocks.some((b) => b.id === selected.id) ? 'Edit class placement' : 'Place class'} · {selected.program} · {selected.name}</h3><button aria-label="Close class details" onClick={() => setSelected(null)}><X size={18} /></button></div>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <h3 className="font-bold">{plan.blocks.some((b) => b.id === selected.id) ? 'Edit class placement' : 'Place class'} · {selected.program} · {selected.name}</h3>
+        <div className="flex items-center gap-3">
+          {canManage && <button className={button} type="button" disabled={!editing || !classColors} onClick={() => changeClassColor(selected)}>Change class color</button>}
+          <button aria-label="Close class details" onClick={() => setSelected(null)}><X size={18} /></button>
+        </div>
+      </div>
       <form onSubmit={(e) => {
         e.preventDefault(); const form = new FormData(e.currentTarget)
         const start = minutes(String(form.get('start'))), end = form.get('end') === '24:00' ? 1440 : minutes(String(form.get('end')))
@@ -395,10 +436,13 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
       {libraryError && <p role="alert" className="mt-3 text-sm text-amber-700">{libraryError} <button className="font-bold underline" onClick={() => void reloadLibrary()}>Retry</button></p>}
       {libraryLoading && <p className="mt-4 text-sm text-gray-500">Loading scheduled classes…</p>}
       <div className="mt-4 grid max-h-[420px] gap-3 overflow-y-auto sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">{filtered.map((item) => <div key={item.id} draggable={editing} onDragStart={(e) => dragStart(e, { kind: 'class', id: item.id, offset: 0 })} onDragEnd={() => { drag.current = null; setDropPreview(null) }} className={`group rounded-xl border p-4 ${pendingClass?.id === item.id ? 'border-vortex-red bg-red-50/50' : 'border-gray-200 bg-white hover:border-gray-400'}`} data-testid="library-class">
-        <div className="flex items-start gap-2"><GripVertical size={16} className="mt-0.5 shrink-0 cursor-grab text-gray-300" /><button disabled={!editing} onClick={() => setPendingClass(item)} className="min-w-0 flex-1 text-left"><span className="line-clamp-2 text-sm font-bold" title={`${item.program} · ${item.name}`}>{item.program} · {item.name}</span></button>{item.idea && <span className="rounded bg-violet-50 px-2 py-1 text-[10px] font-semibold text-violet-700">Idea</span>}</div>
+        <div className="flex items-start gap-2"><GripVertical size={16} className="mt-0.5 shrink-0 cursor-grab text-gray-300" /><button disabled={!editing} onClick={() => setPendingClass(item)} className="flex min-w-0 flex-1 items-start gap-2 text-left"><span aria-hidden="true" data-testid="class-color-swatch" className="mt-1 h-3 w-3 shrink-0 rounded-full border border-black/15" style={{ backgroundColor: colorStyle(item.classId ?? item.id, overrides.get(item.classId ?? item.id)).borderColor }} /><span className="line-clamp-2 text-sm font-bold" title={`${item.program} · ${item.name}`}>{item.program} · {item.name}</span></button>{item.idea && <span className="rounded bg-violet-50 px-2 py-1 text-[10px] font-semibold text-violet-700">Idea</span>}</div>
         <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-gray-500"><span className="flex items-center gap-1"><Clock3 size={12} />{item.duration} min</span><span className="flex items-center gap-1"><Users size={12} />{item.coaches.join(', ') || 'Unassigned'}</span></div>
         <p className="mt-2 line-clamp-2 min-h-8 text-[11px] text-gray-400" title={item.schedule}>{item.schedule || 'For planning and scheduling ideas'}</p>
-        <div className="mt-3 flex justify-between"><button className="inline-flex items-center gap-1 text-xs font-bold text-vortex-red disabled:opacity-40" disabled={!editing || !plan.locations.length} onClick={() => { setPendingClass(null); setSelected({ id: randomUUID(), instanceId: randomUUID(), classId: item.id, name: item.name, program: item.program, coaches: [...item.coaches], color: nextColor(plan.blocks), day, locationId: plan.locations[0].id, start: Math.min(plan.start, 1440 - item.duration), end: Math.min(plan.start + item.duration, 1440) }) }}><Plus size={13} />Add to {DAYS[day].slice(0, 3)}</button>{item.idea && <button aria-label={`Delete idea ${item.name}`} disabled={!editing} onClick={() => { commit({ ...plan, classes: plan.classes.filter((c) => c.id !== item.id) }, 'Idea removed from the library. Existing placements are kept.'); if (pendingClass?.id === item.id) setPendingClass(null) }} className="text-gray-400 hover:text-red-600"><Trash2 size={13} /></button>}</div>
+        <div className="mt-3 flex justify-between"><button className="inline-flex items-center gap-1 text-xs font-bold text-vortex-red disabled:opacity-40" disabled={!editing || !plan.locations.length} onClick={() => {
+          setPendingClass(null)
+          setSelected(classPlacement(item, day, plan.locations[0].id, Math.min(plan.start, 1440 - item.duration)))
+        }}><Plus size={13} />Add to {DAYS[day].slice(0, 3)}</button>{item.idea && <button aria-label={`Delete idea ${item.name}`} disabled={!editing} onClick={() => { commit({ ...plan, classes: plan.classes.filter((c) => c.id !== item.id) }, 'Idea removed from the library. Existing placements are kept.'); if (pendingClass?.id === item.id) setPendingClass(null) }} className="text-gray-400 hover:text-red-600"><Trash2 size={13} /></button>}</div>
       </div>)}</div>
       {!libraryLoading && !filtered.length && <p className="py-8 text-center text-sm text-gray-500">{query ? 'No classes match your search.' : 'No scheduled classes yet. Create an idea class to start planning.'}</p>}
     </section>
@@ -408,6 +452,7 @@ export default function FloorPlanner({ canManage, userId }: { canManage: boolean
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm hover:bg-gray-50" onClick={() => { setSelected(plan.blocks.find((b) => b.id === context.id) || null); setContext(null) }}><Clock3 size={15} />Edit time / coaches</button>
       <button role="menuitem" className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-sm text-red-600 hover:bg-red-50" onClick={() => { commit({ ...plan, blocks: plan.blocks.filter((b) => b.id !== context.id) }, 'Class segment removed.'); setSelected(null); setContext(null) }}><Trash2 size={15} />Remove segment</button>
     </div></PortalOverlay>}
+    {colorTarget && <ClassColorDialog {...colorTarget} currentColor={overrides.get(colorTarget.classId)} onClose={() => setColorTarget(null)} onSave={updateClassColor} />}
     {movingBlock && <PlannerDialog title="Move to location" onClose={() => setMovingBlock(null)}>
       <form className="space-y-4" onSubmit={(event) => {
         event.preventDefault()

@@ -37,7 +37,7 @@ export default function MessagingThreadListHeaderActions({
           disabled={primaryAction.disabled}
           title={primaryAction.disabled ? primaryAction.disabledReason : primaryAction.label}
           aria-label={primaryAction.label}
-          className="inline-flex items-center justify-center size-9 rounded-lg bg-red-50 text-red-700 hover:bg-red-100 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="inline-flex items-center justify-center size-9 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <Plus className="size-4" aria-hidden />
         </button>

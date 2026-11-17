@@ -14,7 +14,7 @@ export default function PortalPreferencesPanel({ role, fetcher }: PortalPreferen
     <div className="space-y-6 max-w-2xl">
       <div>
         <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-          <Settings className="w-7 h-7 text-vortex-red" />
+          <Settings className="w-7 h-7 text-blue-700" />
           Preferences
         </h2>
         <p className="text-sm text-gray-500 mt-1">

@@ -13,7 +13,7 @@ The page brings Gymnastics and Fit & Flip together around Strength, Explosivenes
 
 ## Media
 
-`public/newpage/training-loop.mp4` is a muted, 24-second, approximately 1.7 MB version of the existing Vortex training footage. The background loads only when visible, pauses offscreen or behind a dialog, and respects reduced-motion and data-saving preferences. A poster remains available if playback fails.
+`public/newpage/training-loop.mp4` is a muted, 24-second, approximately 1.2 MB version of the existing Vortex training footage. The background starts loading after the visible poster paints, pauses offscreen or behind a dialog, and respects reduced-motion and data-saving preferences. A poster remains available if playback fails.
 
 Optional frontend environment variables in `.env.local` (restart Vite after changing them):
 

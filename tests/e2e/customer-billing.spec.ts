@@ -992,6 +992,55 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.balanceCollectionKeys?.[0]).toBe(captured.balanceCollections?.[0].requestKey)
   })
 
+  test('takes a reader payment for a family without a saved card and refreshes the balance', async ({ page }) => {
+    await openCustomerBilling(page, {
+      searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0,
+    })
+    const reader = { id: 'tmr_billing', label: 'Front desk', status: 'online', simulated: true }
+    const starts: unknown[] = []
+    let status: 'awaiting_card' | 'processing' | 'succeeded' | null = null
+    const snapshot = () => status === null ? null : { id: 'attempt-billing', readerId: reader.id, amountCents: 14500, status, simulated: true }
+    await page.route('**/api/admin/stripe-terminal/readers', (route) => route.fulfill({ json: {
+      success: true, data: { enabled: true, readers: [reader], testMode: true },
+    } }))
+    await page.route('**/api/admin/stripe-terminal/billing/42', (route) => {
+      if (route.request().method() === 'POST') {
+        starts.push(route.request().postDataJSON())
+        status = 'awaiting_card'
+      } else if (status === 'processing') {
+        status = 'succeeded'
+      }
+      return route.fulfill({ json: { success: true, data: snapshot() } })
+    })
+    await page.route('**/api/admin/stripe-terminal/billing/42/simulate', (route) => {
+      expect(route.request().postDataJSON()).toEqual({ attemptId: 'attempt-billing', outcome: 'approved' })
+      status = 'processing'
+      return route.fulfill({ json: { success: true, data: snapshot() } })
+    })
+    await page.route('**/api/admin/customer-billing/families/42/overview*', (route) => route.fulfill({ json: {
+      success: true,
+      data: {
+        ...overview,
+        paymentMethod: { ...overview.paymentMethod, available: false, paymentMethod: null },
+        summary: status === 'succeeded'
+          ? { ...overview.summary, balanceCents: 0, outstandingBalanceCents: 0, collectibleBalanceCents: 0 }
+          : overview.summary,
+      },
+    } }))
+
+    await findRiveraAccount(page)
+    await expect(page.getByRole('button', { name: 'Process Payment' })).toBeDisabled()
+    await page.getByRole('button', { name: 'Take in-person payment' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Pay with Stripe card reader' })
+    await dialog.getByRole('button', { name: 'Send $145.00 to reader' }).click()
+    await expect(dialog.getByRole('status')).toContainText('Ask the customer to tap')
+    await dialog.getByRole('button', { name: 'Simulate payment', exact: true }).click()
+    await expect(dialog.getByText('Payment confirmed.', { exact: true })).toBeVisible()
+    await dialog.getByRole('button', { name: 'Close Pay with Stripe card reader' }).click()
+    await expect(page.getByText('Account balance', { exact: true }).locator('..').getByText('$0.00', { exact: true })).toBeVisible()
+    expect(starts).toEqual([{ readerId: reader.id, expectedAmountCents: 14500 }])
+  })
+
   test('keeps external payment recording available for a household credit balance', async ({ page }) => {
     const captured: CapturedRequests = {
       searchQueries: [],

@@ -21,7 +21,7 @@ export default function MessageMentionBody({
       {segments.map((segment, index) => {
         if (segment.kind === 'quote') {
           return (
-            <blockquote key={index} className="my-1.5 rounded-r-md border-l-2 border-slate-300 bg-slate-100/70 py-1.5 pl-2.5 pr-2 text-sm text-slate-600">
+            <blockquote key={index} className="my-1.5 rounded-r-md border-l-2 !border-blue-200 !bg-slate-100 py-1.5 pl-2.5 pr-2 text-sm text-slate-600">
               <YoutubeLinkifiedText text={segment.text.replace(/^> /gm, '').replace(/\n$/, '')} />
             </blockquote>
           )
@@ -32,7 +32,7 @@ export default function MessageMentionBody({
               key={index}
               className={
                 segment.isSelfMention
-                  ? 'rounded bg-red-100 px-0.5 font-semibold text-red-800'
+                  ? 'rounded bg-blue-100 px-0.5 font-semibold text-blue-800'
                   : 'font-semibold text-blue-700'
               }
             >

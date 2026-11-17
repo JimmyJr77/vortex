@@ -1,3 +1,4 @@
+import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
@@ -8,7 +9,7 @@ import './NewPage.css'
 import './PublicSiteChrome.css'
 
 function PublicBrand() {
-  return <Link className="np-brand" to="/" aria-label="Vortex Athletics, home"><img src="/vortex-athletics-gymnastics-logo.png" width="2172" height="342" alt="Vortex Athletics & Gymnastics" /></Link>
+  return <Link className="np-brand" to="/" aria-label="Vortex Athletics, home"><img src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" /></Link>
 }
 
 export function PublicSiteHeader({ isLoggedIn, onLogin }: { isLoggedIn: boolean; onLogin: () => void }) {
@@ -27,8 +28,8 @@ export function PublicSiteHeader({ isLoggedIn, onLogin }: { isLoggedIn: boolean;
           <PublicNavigationLinks />
         </nav>
         <div className="np-nav-actions">
-          <button type="button" className="np-login" onClick={login}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button>
-          <Link className="np-button np-nav-cta" to="/#free-trial" onClick={closeMenu}>Try a free class <ArrowUpRight size={16} /></Link>
+          <button type="button" className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={login}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button>
+          <Link className="np-button np-nav-cta" to="/#free-trial" data-analytics-cta="free_trial_section" data-analytics-section="navigation" onClick={closeMenu}>Try a free class <ArrowUpRight size={16} /></Link>
           <button type="button" className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-public-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
         </div>
       </div>

@@ -1,0 +1,389 @@
+# Instructions
+
+- Following Playwright test failed.
+- Explain why, be concise, respect Playwright best practices.
+- Provide a snippet of code with the fix, if possible.
+
+# Test info
+
+- Name: message-panel-preferences.spec.ts >> coach panels sync between open browsers and recover after reconnect
+- Location: tests/e2e/message-panel-preferences.spec.ts:4:3
+
+# Error details
+
+```
+Test timeout of 30000ms exceeded.
+```
+
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - generic [ref=e5]:
+    - link "Skip to content" [ref=e6] [cursor=pointer]:
+      - /url: "#main"
+    - banner [ref=e7]:
+      - generic [ref=e8]:
+        - link "Vortex Athletics, back to top" [ref=e9] [cursor=pointer]:
+          - /url: "#top"
+          - img "Vortex Athletics & Gymnastics" [ref=e10]
+        - navigation "Main navigation" [ref=e11]:
+          - link "Our programs" [ref=e12] [cursor=pointer]:
+            - /url: /#programs
+            - generic [ref=e14]: Our programs
+          - link "Free trial" [ref=e15] [cursor=pointer]:
+            - /url: /#free-trial
+            - generic [ref=e17]: Free trial
+          - link "The triad" [ref=e18] [cursor=pointer]:
+            - /url: /#triad
+            - generic [ref=e20]: The triad
+          - link "Our approach" [ref=e21] [cursor=pointer]:
+            - /url: /#approach
+            - generic [ref=e23]: Our approach
+          - link "Schedule" [ref=e24] [cursor=pointer]:
+            - /url: /read-board#schedule
+            - generic [ref=e25]:
+              - img [ref=e26]
+              - generic [ref=e28]: Schedule
+        - generic [ref=e29]:
+          - button "My portal" [ref=e30] [cursor=pointer]:
+            - text: My portal
+            - img [ref=e31]
+          - button "Try a free class" [ref=e34] [cursor=pointer]:
+            - text: Try a free class
+            - img [ref=e35]
+    - main [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]:
+          - generic [ref=e41]:
+            - paragraph [ref=e42]: GYMNASTICS + ATHLETIC DEVELOPMENT
+            - heading "Built for more." [level=1] [ref=e44]:
+              - text: Built for
+              - text: more.
+            - paragraph [ref=e45]:
+              - text: Stronger athletes.
+              - text: Greater possibilities.
+            - paragraph [ref=e46]: From their first handstand to their next competitive edge. Purposeful gymnastics and athletic development that build strength, explosiveness, and body control.
+            - generic [ref=e47]:
+              - link "Explore programs" [ref=e48] [cursor=pointer]:
+                - /url: "#programs"
+                - text: Explore programs
+                - img [ref=e49]
+              - button "See us in motion" [ref=e51] [cursor=pointer]:
+                - img [ref=e53]
+                - text: See us in motion
+            - generic [ref=e57]: BOWIE, MARYLAND · BUILT FOR EVERY ATHLETE.
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - img "A young Vortex athlete in flight, practicing a flip on a trampoline" [ref=e60]
+              - generic "Vortex training film" [ref=e61]
+              - generic [ref=e62]: THE WORK. THE PROGRESS. THE POSSIBILITY.
+              - generic [ref=e64]:
+                - generic [ref=e65]:
+                  - generic [ref=e66]: THIS IS VORTEX.
+                  - strong [ref=e67]:
+                    - text: A higher standard
+                    - text: of development.
+                - button "Pause background video" [ref=e68] [cursor=pointer]:
+                  - img [ref=e69]
+            - generic [ref=e72]:
+              - img [ref=e74]
+              - generic [ref=e77]:
+                - text: Big goals.
+                - strong [ref=e78]: Built from the ground up.
+              - generic [ref=e79]: 01—03
+        - generic [ref=e80]:
+          - generic [ref=e81]: BUILT HERE. APPLIED EVERYWHERE.
+          - generic [ref=e82]:
+            - text: Gymnastics
+            - generic [ref=e83]: ✳
+            - text: Cheer & acro
+            - generic [ref=e84]: ✳
+            - text: Dance
+            - generic [ref=e85]: ✳
+            - text: Field & court
+            - generic [ref=e86]: ✳
+            - text: Your sport
+          - link "Scroll to our programs" [ref=e87] [cursor=pointer]:
+            - /url: "#programs"
+            - img [ref=e88]
+      - generic [ref=e90]:
+        - generic [ref=e91]:
+          - generic [ref=e92]:
+            - paragraph [ref=e93]: 01 / FIND YOUR PATH
+            - heading "Two programs. One higher standard." [level=2] [ref=e94]:
+              - text: Two programs.
+              - text: One higher standard.
+          - paragraph [ref=e95]: "Different goals. The same belief: every athlete deserves purposeful coaching and the opportunity to grow."
+        - generic [ref=e96]:
+          - article [ref=e97]:
+            - button "Explore Gymnastics" [ref=e98] [cursor=pointer]:
+              - img "Young gymnasts learning together with a coach at Vortex" [ref=e99]
+              - generic [ref=e100]: "01"
+              - img [ref=e102]
+            - generic [ref=e105]:
+              - paragraph [ref=e106]: THE FOUNDATION. THE FINESSE. THE FLIGHT.
+              - heading "Gymnastics" [level=3] [ref=e107]
+              - paragraph [ref=e108]: Real gymnastics. Real development. Build the technique, strength, and confidence to keep moving forward.
+              - paragraph [ref=e109]: For athletes learning and progressing in gymnastics.
+              - generic [ref=e110]:
+                - generic [ref=e111]: Foundational skills
+                - generic [ref=e112]: Developmental & team
+              - button "Explore Gymnastics" [ref=e113] [cursor=pointer]:
+                - text: Explore Gymnastics
+                - img [ref=e114]
+          - article [ref=e117]:
+            - button "Explore Fit & Flip" [ref=e118] [cursor=pointer]:
+              - img "A Vortex athlete developing aerial body control on a trampoline" [ref=e119]
+              - generic [ref=e120]: "02"
+              - img [ref=e122]
+            - generic [ref=e125]:
+              - paragraph [ref=e126]: ATHLETIC DEVELOPMENT. WITH AN EDGE.
+              - heading "Fit & Flip" [level=3] [ref=e127]
+              - paragraph [ref=e128]: Get stronger. Become more explosive. Learn to own your movement—on the floor, in the air, and in your sport.
+              - paragraph [ref=e129]: For cheer, acro, dance, gymnasts, and all-sport athletes.
+              - generic [ref=e130]:
+                - generic [ref=e131]: Strength & explosiveness
+                - generic [ref=e132]: Tumbling & body control
+              - button "Explore Fit & Flip" [ref=e133] [cursor=pointer]:
+                - text: Explore Fit & Flip
+                - img [ref=e134]
+        - generic [ref=e137]:
+          - generic [ref=e138]: Not sure where to begin? Start with your athlete’s goals.
+          - button "Find your fit" [ref=e139] [cursor=pointer]:
+            - text: Find your fit
+            - img [ref=e140]
+      - region "Their next chapter. First class on us." [ref=e142]:
+        - generic [ref=e143]:
+          - generic [ref=e144]:
+            - paragraph [ref=e145]: A FIRST STEP. A NEW POSSIBILITY.
+            - heading "Their next chapter. First class on us." [level=2] [ref=e146]:
+              - text: Their next chapter.
+              - text: First class on us.
+            - paragraph [ref=e147]: Experience Gymnastics or Fit & Flip with a free trial class. Choose the right age group, find a day that works, and come see what your athlete can do.
+            - button "Book a free trial" [ref=e148] [cursor=pointer]:
+              - text: Book a free trial
+              - img [ref=e149]
+            - paragraph [ref=e152]:
+              - text: Already used your free trial? Join us for a drop-in class.
+              - link "Book a drop-in class" [ref=e153] [cursor=pointer]:
+                - /url: /drop-in
+                - text: Book a drop-in class
+                - img [ref=e154]
+          - generic [ref=e157]:
+            - generic [ref=e158]:
+              - generic [ref=e159]: "01"
+              - generic [ref=e160]:
+                - strong [ref=e161]: Find their fit.
+                - paragraph [ref=e162]: Choose Gymnastics or Fit & Flip and enter your child’s age.
+            - generic [ref=e163]:
+              - generic [ref=e164]: "02"
+              - generic [ref=e165]:
+                - strong [ref=e166]: Choose their first day.
+                - paragraph [ref=e167]: See available classes, enrolled athletes, and open places.
+            - generic [ref=e168]:
+              - generic [ref=e169]: "03"
+              - generic [ref=e170]:
+                - strong [ref=e171]: Register. Then come train.
+                - paragraph [ref=e172]: Complete the family details and waivers. Your one-time trial is $0.
+      - generic [ref=e174]:
+        - generic [ref=e175]:
+          - generic [ref=e176]:
+            - paragraph [ref=e177]: 02 / THE TRIAD OF ATHLETICISM
+            - heading "Strong. Explosive. In control." [level=2] [ref=e178]:
+              - text: Strong. Explosive.
+              - text: In control.
+          - paragraph [ref=e179]: Three connected qualities. One complete athlete. The foundation of Fit & Flip—and the physical qualities we develop in our gymnasts.
+        - tablist "The Triad of Athleticism" [ref=e180]:
+          - tab "01 Strength" [selected] [ref=e181] [cursor=pointer]:
+            - generic [ref=e182]: "01"
+            - text: Strength
+            - img [ref=e183]
+          - tab "02 Explosiveness" [ref=e186] [cursor=pointer]:
+            - generic [ref=e187]: "02"
+            - text: Explosiveness
+            - img [ref=e188]
+          - tab "03 Body Control" [ref=e191] [cursor=pointer]:
+            - generic [ref=e192]: "03"
+            - text: Body Control
+            - img [ref=e193]
+        - tabpanel "01 Strength" [ref=e196]:
+          - generic [ref=e197]:
+            - img "A young Vortex athlete practicing a barbell lift" [ref=e198]
+            - generic [ref=e199]: 01 / 03
+          - generic [ref=e200]:
+            - paragraph [ref=e201]: THE STRENGTH ELEMENT
+            - heading "Build the engine." [level=3] [ref=e202]
+            - paragraph [ref=e203]: Develop the physical capacity behind better movement. Build a strong foundation through progressive, coached strength work that meets athletes where they are.
+            - generic [ref=e204]:
+              - generic [ref=e205]:
+                - img [ref=e206]
+                - text: Progressive resistance
+              - generic [ref=e208]:
+                - img [ref=e209]
+                - text: Full-body strength
+              - generic [ref=e211]:
+                - img [ref=e212]
+                - text: Strong foundations
+            - paragraph [ref=e214]: From holding a handstand to holding your ground.
+        - generic [ref=e215]:
+          - generic [ref=e216]: Strength
+          - img [ref=e217]
+          - generic [ref=e218]: Explosiveness
+          - img [ref=e219]
+          - generic [ref=e220]: Body control
+          - img [ref=e221]
+          - strong [ref=e223]: Athleticism.
+      - generic [ref=e224]:
+        - generic [ref=e225]:
+          - paragraph [ref=e226]: 03 / DEVELOPMENT WITH INTENTION
+          - heading "More than going through the motions." [level=2] [ref=e227]:
+            - text: More than
+            - text: going through
+            - text: the motions.
+          - paragraph [ref=e228]: We believe elite development is an approach to training. It starts with purposeful work, clear progressions, and a commitment to helping every athlete grow.
+          - button "Meet your next step" [ref=e229] [cursor=pointer]:
+            - text: Meet your next step
+            - img [ref=e230]
+        - generic [ref=e233]:
+          - article [ref=e234]:
+            - generic [ref=e235]: "01"
+            - generic [ref=e236]:
+              - heading "Skills with a strong foundation." [level=3] [ref=e237]
+              - paragraph [ref=e238]: Gymnastics technique and physical development work together. Athletes build the strength and power to support the skills they are learning.
+          - article [ref=e239]:
+            - generic [ref=e240]: "02"
+            - generic [ref=e241]:
+              - heading "Purpose in every progression." [level=3] [ref=e242]
+              - paragraph [ref=e243]: Start where the athlete is. Develop movement quality, reinforce the fundamentals, and work toward the next challenge with intention.
+          - article [ref=e244]:
+            - generic [ref=e245]: "03"
+            - generic [ref=e246]:
+              - heading "Development for everyone." [level=3] [ref=e247]
+              - paragraph [ref=e248]: Team or developmental, the focus is real growth. Competition belongs to the team pathway. High-quality coaching belongs to every athlete.
+      - generic [ref=e250]:
+        - generic [ref=e251]:
+          - paragraph [ref=e252]: THE VORTEX DIFFERENCE
+          - heading "Power is only part of the picture." [level=2] [ref=e253]:
+            - text: Power is only
+            - text: part of the picture.
+          - paragraph [ref=e254]: What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.
+          - button "Discover Fit & Flip" [ref=e255] [cursor=pointer]:
+            - text: Discover Fit & Flip
+            - img [ref=e256]
+        - generic [ref=e259]:
+          - img "An athlete practicing a controlled handstand at Vortex" [ref=e260]
+          - generic [ref=e261]: CONTROL CHANGES EVERYTHING.
+      - generic [ref=e262]:
+        - generic [ref=e263]:
+          - paragraph [ref=e264]: A LITTLE CLARITY
+          - heading "Good questions. Clear answers." [level=2] [ref=e265]:
+            - text: Good questions.
+            - text: Clear answers.
+          - paragraph [ref=e266]:
+            - text: Choosing a program should feel simple.
+            - text: We’re here to help you find the right fit.
+          - button "Talk to our team" [ref=e267] [cursor=pointer]:
+            - text: Talk to our team
+            - img [ref=e268]
+        - generic [ref=e271]:
+          - group [ref=e272]:
+            - generic "What is the difference between Gymnastics and Fit & Flip?" [ref=e273] [cursor=pointer]:
+              - text: What is the difference between Gymnastics and Fit & Flip?
+              - img [ref=e274]
+          - group [ref=e275]:
+            - generic "Does my child have to compete to train seriously?" [ref=e276] [cursor=pointer]:
+              - text: Does my child have to compete to train seriously?
+              - img [ref=e277]
+          - group [ref=e278]:
+            - generic "Is Fit & Flip only for gymnasts?" [ref=e279] [cursor=pointer]:
+              - text: Is Fit & Flip only for gymnasts?
+              - img [ref=e280]
+          - group [ref=e281]:
+            - generic "Can an athlete do both programs?" [ref=e282] [cursor=pointer]:
+              - text: Can an athlete do both programs?
+              - img [ref=e283]
+          - group [ref=e284]:
+            - generic "Where should a beginner start?" [ref=e285] [cursor=pointer]:
+              - text: Where should a beginner start?
+              - img [ref=e286]
+      - generic [ref=e287]:
+        - img "Strength training at Vortex" [ref=e289]
+        - heading "THE COMPLETE ATHLETE" [level=2] [ref=e291]
+        - paragraph [ref=e292]: NEEDS A COMPLETE GYM
+      - generic [ref=e294]:
+        - paragraph [ref=e295]: YOUR NEXT LEVEL STARTS HERE
+        - heading "Let’s build what’s next." [level=2] [ref=e296]:
+          - text: Let’s build
+          - text: what’s next.
+        - paragraph [ref=e297]:
+          - text: A first skill. A stronger takeoff. A more complete athlete.
+          - text: Find the right path at Vortex.
+        - generic [ref=e298]:
+          - button "Find your program" [ref=e299] [cursor=pointer]:
+            - text: Find your program
+            - img [ref=e300]
+          - button "Talk to our team" [ref=e303] [cursor=pointer]:
+            - text: Talk to our team
+            - img [ref=e304]
+        - link "4961 Tesla Dr Suite E · Bowie, MD 20715" [ref=e306] [cursor=pointer]:
+          - /url: https://www.google.com/maps?cid=15262285316302188709
+          - text: 4961 Tesla Dr Suite E · Bowie, MD 20715
+          - img [ref=e307]
+    - contentinfo [ref=e310]:
+      - generic [ref=e311]:
+        - generic [ref=e312]:
+          - link "Vortex Athletics, back to top" [ref=e313] [cursor=pointer]:
+            - /url: "#top"
+            - img "Vortex Athletics & Gymnastics" [ref=e314]
+          - paragraph [ref=e315]:
+            - text: Gymnastics. Athletic development.
+            - text: Built for more.
+        - generic [ref=e316]:
+          - generic [ref=e317]: COME TRAIN WITH US
+          - link "Class enrollment" [ref=e318] [cursor=pointer]:
+            - /url: /enroll
+          - link "Contact & location" [ref=e319] [cursor=pointer]:
+            - /url: /contact
+          - link "443-422-4794" [ref=e320] [cursor=pointer]:
+            - /url: tel:+14434224794
+          - link "team@vortexathletics.com" [ref=e321] [cursor=pointer]:
+            - /url: mailto:team@vortexathletics.com
+        - generic [ref=e322]:
+          - generic [ref=e323]: STAY CONNECTED
+          - link "Vortex store" [ref=e324] [cursor=pointer]:
+            - /url: /store
+          - link "Instagram" [ref=e325] [cursor=pointer]:
+            - /url: https://www.instagram.com/vortexathletics.usa/
+            - text: Instagram
+            - img [ref=e326]
+          - link "YouTube" [ref=e329] [cursor=pointer]:
+            - /url: https://www.youtube.com/@VortexAthleticsUSA
+            - text: YouTube
+            - img [ref=e330]
+        - link "Back to top" [ref=e333] [cursor=pointer]:
+          - /url: "#top"
+          - text: Back to top
+          - img [ref=e334]
+      - generic [ref=e337]:
+        - generic [ref=e338]: © 2026 Vortex Athletics and Gymnastics
+        - generic [ref=e339]:
+          - link "Privacy" [ref=e340] [cursor=pointer]:
+            - /url: /privacy-policy
+          - link "Terms" [ref=e341] [cursor=pointer]:
+            - /url: /terms-of-service
+          - button "Pause motion" [ref=e342] [cursor=pointer]
+  - dialog "Cookie consent" [ref=e343]:
+    - generic [ref=e345]:
+      - generic [ref=e346]:
+        - paragraph [ref=e347]: Privacy & cookies
+        - paragraph [ref=e348]:
+          - text: We use necessary cookies to run the site. With your permission we use analytics cookies to improve our programs and marketing cookies for relevant ads. We do not use cookies to build advertising audiences from children's information. See our
+          - link "Privacy Policy" [ref=e349] [cursor=pointer]:
+            - /url: https://vortexathletics.com/privacy-policy
+          - text: .
+      - generic [ref=e350]:
+        - button "Settings" [ref=e351] [cursor=pointer]
+        - button "Necessary only" [ref=e352] [cursor=pointer]
+        - button "Accept all" [ref=e353] [cursor=pointer]
+```

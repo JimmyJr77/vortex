@@ -7241,6 +7241,7 @@ app.post('/api/members/login', async (req, res) => {
       isAdmin: isAdminUser,
       isCoach: isCoachUser,
       hasMemberPortal,
+      requiresInitialWaiverCheck: hasMemberPortal && linkedMember !== null && user.initial_waiver_checked_at == null,
       availablePortals: [
         ...(hasMemberPortal ? ['member'] : []),
         ...(isCoachUser ? ['coach'] : []),

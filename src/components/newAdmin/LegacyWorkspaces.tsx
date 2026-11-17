@@ -61,7 +61,7 @@ export default function LegacyWorkspaces({ section, access, threadId, onThreadOp
       case 'calendar': return <Calendar />
       case 'floorPlanner': return <FloorPlanner canManage={allowed(access, 'scheduling.manage')} userId={access.user?.id ?? null} />
       case 'messages': return <Messages initialThreadId={threadId} onInitialThreadOpened={onThreadOpened} maximized={maximized} onMaximizedChange={onMaximizedChange} />
-      case 'store': return <Store />
+      case 'store': return <Store canManage={allowed(access, 'billing.manage')} />
       case 'specialPages': return <Pages />
       case 'highlights': return <Popups />
       case 'events': return <EventsWorkspace />

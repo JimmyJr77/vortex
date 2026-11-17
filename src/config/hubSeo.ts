@@ -1,11 +1,10 @@
 import { buildCanonical, HUB_ORIGIN, type SeoMeta } from '../utils/seo'
-import { TEAM_PHONE } from './contact'
+import { BUSINESS_NAP, TEAM_EMAIL, TEAM_PHONE } from './contact'
 
 export interface HubRouteSeo {
   path: string
   title: string
   description: string
-  priority?: number
   ogImage?: string
   ogImageAlt?: string
   robots?: string
@@ -16,7 +15,6 @@ export const HUB_HOME_SEO: HubRouteSeo = {
   title: 'Gymnastics & Athletic Development in Bowie, MD | Vortex',
   description:
     'Purposeful gymnastics and Fit & Flip athletic training in Bowie, MD. Build strength, explosiveness, and body control. Book a free trial class.',
-  priority: 1.0,
   ogImage: `${HUB_ORIGIN}/vortex-athletics-og.jpg`,
   ogImageAlt: 'Vortex Athletics gymnastics and athletic development in Bowie, Maryland',
 }
@@ -28,57 +26,55 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     title: 'Kids Ninja Classes in Bowie, MD | Vortex',
     description:
       'Vortex Ninja classes in Bowie, MD are temporarily on hold. Explore current youth athletic training, gymnastics, and Fit & Flip programs.',
-    priority: 0.8,
     robots: 'noindex, follow',
   },
   {
     path: '/read-board',
-    title: 'Classes, Camps & Events | Vortex Athletics Bowie',
+    title: 'Class Schedules, Camps & Events in Bowie, MD | Vortex',
     description:
-      'See upcoming classes, camps, open gyms, and events at Vortex Athletics in Bowie, MD. Register your athlete today.',
-    priority: 0.8,
+      'Explore youth gymnastics and Fit & Flip classes, training schedules, camps, and events at Vortex Athletics in Bowie, MD.',
   },
   {
     path: '/enroll',
-    title: 'Enroll | Vortex Athletics Bowie',
+    title: 'Enroll in Gymnastics & Fit & Flip in Bowie, MD | Vortex',
     description:
-      'Reserve your spot with Vortex Athletics enrollment in Bowie, MD. Choose your category, day, and time.',
-    priority: 0.8,
+      'Browse gymnastics and Fit & Flip classes in Bowie, MD. Choose a program, review class times and pricing, and enroll with your family account.',
   },
   {
     path: '/drop-in',
     title: 'Drop-In Youth Classes in Bowie, MD | Vortex',
     description:
       'Book a single gymnastics, fitness, or youth athletic training class in Bowie, MD without monthly enrollment. Browse live drop-in openings.',
-    priority: 0.8,
   },
   {
     path: '/contact',
     title: 'Contact Vortex Athletics | Bowie, MD Gym & Training',
     description:
-      `Visit Vortex Athletics at 4961 Tesla Dr in Bowie, MD. Call ${TEAM_PHONE} or ask about gymnastics, youth training, trials, and enrollment.`,
-    priority: 0.7,
+      `Visit Vortex Athletics at ${BUSINESS_NAP.streetAddress} in Bowie, MD. Call ${TEAM_PHONE} to ask about gymnastics, Fit & Flip, free trials, and enrollment.`,
   },
   {
     path: '/support',
     title: 'Customer Support | Vortex Athletics',
     description:
-      `Contact Vortex Athletics in Bowie, MD for enrollment, billing, and program support. Email team@vortexathletics.com or call ${TEAM_PHONE}.`,
-    priority: 0.5,
+      `Contact Vortex Athletics in Bowie, MD for enrollment, billing, and program support. Email ${TEAM_EMAIL} or call ${TEAM_PHONE}.`,
+  },
+  {
+    path: '/store',
+    title: 'Vortex Athletics Store | Training Gear in Bowie, MD',
+    description:
+      'Shop training gear and essentials for Vortex athletes. Order online and pick up at Vortex Athletics and Gymnastics in Bowie, MD.',
   },
   {
     path: '/privacy-policy',
     title: 'Privacy Policy | Vortex Athletics',
     description:
       'How Vortex Athletics collects, uses, discloses, and protects personal information for enrollment, billing, and member services.',
-    priority: 0.3,
   },
   {
     path: '/terms-of-service',
     title: 'Terms of Service | Vortex Athletics',
     description:
       'Terms governing use of Vortex Athletics websites, enrollment, billing, and program participation in Bowie, MD.',
-    priority: 0.3,
   },
 ]
 
@@ -103,5 +99,3 @@ export const getHubSeoForPath = (pathname: string): SeoMeta => {
     robots: route.robots,
   }
 }
-
-export const HUB_SITEMAP_PATHS = HUB_ROUTES.map((route) => route.path)

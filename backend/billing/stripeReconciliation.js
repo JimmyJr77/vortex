@@ -1,6 +1,7 @@
 import { reconcileDeletedEnrollmentInvoices } from './customerBillingEnrollmentDeletion.js'
 import { reconcileStripeCustomerProjections } from './stripeCustomerProjection.js'
 import { retryStripeStateWebhooks } from './stripeStateWebhookRetry.js'
+import { reconcileTerminalIntent, terminalKind } from './stripeTerminal.js'
 import { createHash } from 'crypto'
 import { completeBalanceCheckoutAutopay } from './balanceCheckoutAutopay.js'
 import {
@@ -2191,6 +2192,20 @@ export async function runStripeReconciliation(pool, { lookbackHours = 168 } = {}
     })) {
       if (intent.status !== 'succeeded') continue
       summary.stripePaymentsChecked += 1
+      if (terminalKind(intent)) {
+        try {
+          await reconcileTerminalIntent(pool, stripe, intent)
+        } catch (error) {
+          if (error.code === 'stripe_terminal_busy') {
+            summary.paymentsDeferred += 1
+            continue
+          }
+          summary.mismatchesFound += 1
+          await createReconciliationAlert(pool, `${intent.id}:terminal`, 'reconciliation_mismatch',
+            'critical', error.message, intent.id, { terminalAttemptId: intent.metadata.terminalAttemptId })
+        }
+        continue
+      }
       try {
         assertStripeUsdCurrency(intent, {
           source: 'PaymentIntent',

@@ -27,14 +27,10 @@ export async function syncGa4Daily(pool) {
   })
   const analyticsData = google.analyticsdata({ version: 'v1beta', auth })
 
-  const end = new Date()
-  const start = new Date(end.getTime() - 28 * 24 * 60 * 60 * 1000)
-  const format = (d) => d.toISOString().slice(0, 10).replace(/-/g, '')
-
   const response = await analyticsData.properties.runReport({
     property: `properties/${propertyId}`,
     requestBody: {
-      dateRanges: [{ startDate: format(start), endDate: format(end) }],
+      dateRanges: [{ startDate: '28daysAgo', endDate: 'today' }],
       dimensions: [{ name: 'date' }, { name: 'hostName' }],
       metrics: [
         { name: 'sessions' },

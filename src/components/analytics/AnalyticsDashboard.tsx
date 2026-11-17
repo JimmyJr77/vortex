@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import {
   BarChart,
@@ -10,7 +10,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Cell,
 } from 'recharts'
 import {
   RefreshCw,
@@ -23,12 +22,14 @@ import {
   Target,
 } from 'lucide-react'
 import DateRangeFilter from './DateRangeFilter'
+import { EngagementReport, FunnelReport, TrafficReport } from './WebsiteReports'
 import {
   buildRangeFromPreset,
   type AnalyticsQuery,
   type DatePreset,
   fetchOverview,
   fetchTraffic,
+  fetchEngagement,
   fetchFunnel,
   fetchPrograms,
   fetchInquiries,
@@ -43,6 +44,7 @@ import {
   createMarketingCampaign,
   type OverviewData,
   type TrafficData,
+  type EngagementData,
   type FunnelData,
   type ProgramsData,
   type InquiryRow,
@@ -55,6 +57,7 @@ import {
 type TabId =
   | 'overview'
   | 'traffic'
+  | 'engagement'
   | 'funnel'
   | 'programs'
   | 'inquiries'
@@ -64,8 +67,9 @@ type TabId =
 
 const TABS: { id: TabId; label: string }[] = [
   { id: 'overview', label: 'Overview' },
-  { id: 'traffic', label: 'Traffic' },
-  { id: 'funnel', label: 'Lead Funnel' },
+  { id: 'traffic', label: 'Traffic & Acquisition' },
+  { id: 'engagement', label: 'Engagement & Speed' },
+  { id: 'funnel', label: 'Website Funnels' },
   { id: 'programs', label: 'Programs & Capacity' },
   { id: 'inquiries', label: 'Inquiries & Attribution' },
   { id: 'conversion', label: 'Conversion' },
@@ -74,6 +78,7 @@ const TABS: { id: TabId; label: string }[] = [
 ]
 
 const CHART_RED = '#dc2626'
+const FILTERED_TABS: TabId[] = ['overview', 'traffic', 'engagement', 'funnel', 'seo']
 
 function StatCard({
   label,
@@ -100,7 +105,7 @@ function StatCard({
 
 function formatDay(d: string) {
   try {
-    return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+    return new Date(d).toLocaleDateString(undefined, { month: 'short', day: 'numeric', timeZone: 'UTC' })
   } catch {
     return d
   }
@@ -115,11 +120,17 @@ export default function AnalyticsDashboard() {
   const [query, setQuery] = useState<AnalyticsQuery>(() =>
     buildRangeFromPreset('30d'),
   )
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const requestId = useRef(0)
+  const selectedReport = useRef({ tab, query })
+  const invalidateRequest = useCallback(() => { ++requestId.current }, [])
+  const [loaded, setLoaded] = useState<{ tab: TabId; query: AnalyticsQuery } | null>(null)
+  const reportReady = !loading && loaded?.tab === tab && loaded.query === query
   const [error, setError] = useState<string | null>(null)
 
   const [overview, setOverview] = useState<OverviewData | null>(null)
   const [traffic, setTraffic] = useState<TrafficData | null>(null)
+  const [engagement, setEngagement] = useState<EngagementData | null>(null)
   const [funnel, setFunnel] = useState<FunnelData | null>(null)
   const [programs, setPrograms] = useState<ProgramsData | null>(null)
   const [inquiries, setInquiries] = useState<InquiryRow[] | null>(null)
@@ -136,53 +147,64 @@ export default function AnalyticsDashboard() {
   }, [preset, customFrom, customTo, hostname])
 
   const loadTab = useCallback(async () => {
+    if (selectedReport.current.tab !== tab || selectedReport.current.query !== query) return
+    const thisRequest = ++requestId.current
+    const current = () => thisRequest === requestId.current
+    const commit = <T,>(setter: (value: T) => void, value: T) => {
+      if (current()) setter(value)
+    }
+
     setLoading(true)
     setError(null)
     try {
       switch (tab) {
         case 'overview':
-          setOverview(await fetchOverview(query))
+          commit(setOverview, await fetchOverview(query))
           break
         case 'traffic':
-          setTraffic(await fetchTraffic(query))
+          commit(setTraffic, await fetchTraffic(query))
+          break
+        case 'engagement':
+          commit(setEngagement, await fetchEngagement(query))
           break
         case 'funnel':
-          setFunnel(await fetchFunnel(query))
+          commit(setFunnel, await fetchFunnel(query))
           break
         case 'programs':
-          setPrograms(await fetchPrograms(query))
+          commit(setPrograms, await fetchPrograms(query))
           break
         case 'inquiries':
-          setInquiries(await fetchInquiries(query))
+          commit(setInquiries, await fetchInquiries(query))
           break
         case 'conversion':
-          setConversion(await fetchConversion(query))
+          commit(setConversion, await fetchConversion(query))
           break
         case 'seo': {
-          const [s, c] = await Promise.all([
-            fetchSeo(query),
-            listMarketingCampaigns(),
-          ])
-          setSeo(s)
-          setCampaigns(c)
+          const [s, c] = await Promise.all([fetchSeo(query), listMarketingCampaigns()])
+          commit(setSeo, s)
+          commit(setCampaigns, c)
           break
         }
         case 'competitors':
-          setCompetitors(await listCompetitors())
+          commit(setCompetitors, await listCompetitors())
           break
       }
+      commit(setLoaded, { tab, query })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load analytics')
+      commit(setLoaded, null)
+      commit(setError, e instanceof Error ? e.message : 'Failed to load analytics')
     } finally {
-      setLoading(false)
+      commit(setLoading, false)
     }
   }, [tab, query])
 
   useEffect(() => {
-    loadTab()
-  }, [loadTab])
+    selectedReport.current = { tab, query }
+    void loadTab()
+    return invalidateRequest
+  }, [invalidateRequest, loadTab, tab, query])
 
-  const handleExport = async (reportType: 'inquiries' | 'programs') => {
+  const handleExport = async (reportType: 'inquiries' | 'programs' | 'traffic' | 'engagement' | 'funnel') => {
     try {
       await downloadAnalyticsExport(query, reportType)
     } catch (e) {
@@ -223,6 +245,7 @@ export default function AnalyticsDashboard() {
             key={t.id}
             type="button"
             onClick={() => setTab(t.id)}
+            aria-pressed={tab === t.id}
             className={`px-3 py-2 text-sm font-medium rounded-t ${
               tab === t.id
                 ? 'bg-vortex-red text-white'
@@ -246,6 +269,7 @@ export default function AnalyticsDashboard() {
           onHostnameChange={setHostname}
           onApply={applyRange}
           loading={loading}
+          showHostname={FILTERED_TABS.includes(tab)}
         />
       )}
 
@@ -261,16 +285,15 @@ export default function AnalyticsDashboard() {
           <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
           Refresh
         </motion.button>
-        {(tab === 'inquiries' || tab === 'programs') && (
+        {(tab === 'inquiries' || tab === 'programs' || tab === 'traffic' || tab === 'engagement' || tab === 'funnel') && (
           <button
             type="button"
-            onClick={() =>
-              handleExport(tab === 'programs' ? 'programs' : 'inquiries')
-            }
+            onClick={() => void handleExport(tab)}
+            disabled={!reportReady}
             className="flex items-center gap-2 bg-gray-800 text-white px-3 py-2 rounded-lg text-sm font-semibold hover:bg-gray-700"
           >
             <Download className="w-4 h-4" />
-            Export CSV
+            {tab === 'traffic' ? 'Export sources CSV' : tab === 'engagement' ? 'Export actions CSV' : 'Export CSV'}
           </button>
         )}
         {tab === 'seo' && (
@@ -286,19 +309,20 @@ export default function AnalyticsDashboard() {
       </div>
 
       {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
+        <div role="alert" className="mb-4 p-3 bg-red-50 border border-red-200 text-red-800 rounded-lg text-sm">
           {error}
         </div>
       )}
 
-      {loading && !overview && !traffic && !funnel && (
-        <div className="bg-white p-8 rounded-lg border text-center text-gray-600">
+      {loading && (
+        <div role="status" className="bg-white p-8 rounded-lg border text-center text-gray-600">
           Loading…
         </div>
       )}
 
-      {tab === 'overview' && overview && (
+      {reportReady && tab === 'overview' && overview && (
         <div className="space-y-6">
+          <p className="text-sm text-gray-600">The website filter applies to consented sessions. Inquiries and newsletter totals cover all websites.</p>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               label="Inquiries"
@@ -309,13 +333,8 @@ export default function AnalyticsDashboard() {
             <StatCard
               label="Sessions"
               value={overview.sessions}
-              sub="excludes staff"
+              sub="Consented public visits"
               icon={Users}
-            />
-            <StatCard
-              label="New enrollments"
-              value={overview.newEnrollments}
-              icon={TrendingUp}
             />
             <StatCard
               label="Newsletter signups"
@@ -323,6 +342,20 @@ export default function AnalyticsDashboard() {
               icon={Target}
             />
           </div>
+          {overview.outcomes && (
+            <section aria-label="Business outcomes" className="space-y-3">
+              <h3 className="font-bold text-black">Business outcomes</h3>
+              <p className="text-sm text-gray-600">Facility records created in the selected dates that are currently confirmed, completed, or placed. Counts include customers who did not share website analytics.</p>
+              <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <StatCard label="Free trial bookings" value={overview.outcomes.free_trials} icon={Target} />
+                <StatCard label="Other drop-in bookings" value={overview.outcomes.other_drop_ins} icon={Target} />
+                <StatCard label="Class enrollments" value={overview.outcomes.enrollments} icon={Users} />
+                <StatCard label="Online store orders" value={overview.outcomes.store_orders}
+                  sub={new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(overview.outcomes.store_order_value_cents / 100) + ' order value'}
+                  icon={TrendingUp} />
+              </div>
+            </section>
+          )}
           {overview.uncontactedOver48h > 0 && (
             <div className="flex items-start gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
               <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
@@ -367,89 +400,11 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      {tab === 'traffic' && traffic && (
-        <div className="space-y-6">
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h3 className="font-bold text-black mb-4">Page views by day</h3>
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart
-                data={traffic.pageViewsByDay.map((r) => ({
-                  day: formatDay(String(r.day)),
-                  views: r.page_views,
-                }))}
-              >
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Line type="monotone" dataKey="views" stroke={CHART_RED} strokeWidth={2} />
-              </LineChart>
-            </ResponsiveContainer>
-          </div>
-          <div className="bg-white p-4 rounded-lg border border-gray-200">
-            <h3 className="font-bold text-black mb-4">Top pages</h3>
-            <div className="space-y-2">
-              {traffic.topPages.map((p, i) => (
-                <div
-                  key={p.page_path}
-                  className="flex justify-between bg-gray-50 p-3 rounded border text-sm"
-                >
-                  <span>
-                    {i + 1}. {p.page_path || '/'}
-                  </span>
-                  <span className="font-semibold text-vortex-red">{p.views}</span>
-                </div>
-              ))}
-              {traffic.topPages.length === 0 && (
-                <p className="text-gray-500 text-center py-4">No page views in range</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      {reportReady && tab === 'traffic' && traffic && <TrafficReport data={traffic} />}
+      {reportReady && tab === 'engagement' && engagement && <EngagementReport data={engagement} />}
+      {reportReady && tab === 'funnel' && funnel && <FunnelReport data={funnel} />}
 
-      {tab === 'funnel' && funnel && (
-        <div className="bg-white p-4 rounded-lg border border-gray-200">
-          <h3 className="font-bold text-black mb-4">Conversion funnel</h3>
-          <ResponsiveContainer width="100%" height={320}>
-            <BarChart
-              data={funnel.steps}
-              layout="vertical"
-              margin={{ left: 120 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" allowDecimals={false} />
-              <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 11 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill={CHART_RED}>
-                {funnel.steps.map((_, i) => (
-                  <Cell key={i} fill={CHART_RED} />
-                ))}
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-          <table className="w-full mt-4 text-sm">
-            <thead>
-              <tr className="text-left text-gray-600 border-b">
-                <th className="py-2">Step</th>
-                <th className="py-2">Count</th>
-                <th className="py-2">From previous</th>
-              </tr>
-            </thead>
-            <tbody>
-              {funnel.steps.map((s) => (
-                <tr key={s.name} className="border-b border-gray-100">
-                  <td className="py-2">{s.name}</td>
-                  <td className="py-2 font-medium">{s.count}</td>
-                  <td className="py-2">{s.conversionFromPrevious}%</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {tab === 'programs' && programs && (
+      {reportReady && tab === 'programs' && programs && (
         <div className="space-y-6">
           <div className="bg-white p-4 rounded-lg border border-gray-200">
             <h3 className="font-bold text-black mb-4">Inquiries by interest</h3>
@@ -491,7 +446,7 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      {tab === 'inquiries' && inquiries && (
+      {reportReady && tab === 'inquiries' && inquiries && (
         <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
           <table className="w-full text-sm min-w-[800px]">
             <thead>
@@ -531,7 +486,7 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      {tab === 'conversion' && conversion && (
+      {reportReady && tab === 'conversion' && conversion && (
         <div className="space-y-6">
           <StatCard
             label="New families"
@@ -574,7 +529,7 @@ export default function AnalyticsDashboard() {
         </div>
       )}
 
-      {tab === 'seo' && (
+      {reportReady && tab === 'seo' && (
         <SeoTab
           seo={seo}
           campaigns={campaigns}
@@ -583,7 +538,7 @@ export default function AnalyticsDashboard() {
         />
       )}
 
-      {tab === 'competitors' && (
+      {reportReady && tab === 'competitors' && (
         <CompetitorsTab
           competitors={competitors}
           onReload={loadTab}
@@ -644,7 +599,8 @@ function SeoTab({
         </pre>
       )}
       <div className="bg-white p-4 rounded-lg border border-gray-200">
-        <h3 className="font-bold text-black mb-4">Inquiries by landing page</h3>
+        <h3 className="font-bold text-black mb-2">Inquiries by reported page</h3>
+        <p className="mb-4 text-sm text-gray-600">Includes attributed inquiries across all websites.</p>
         <table className="w-full text-sm">
           <thead>
             <tr className="text-left text-gray-600 border-b">
@@ -669,23 +625,53 @@ function SeoTab({
             <thead>
               <tr className="text-left text-gray-600 border-b">
                 <th className="p-2">Query</th>
+                <th className="p-2">Landing page</th>
                 <th className="p-2">Clicks</th>
                 <th className="p-2">Impressions</th>
-                <th className="p-2">Position</th>
+                <th className="p-2">CTR</th>
+                <th className="p-2">Average position</th>
               </tr>
             </thead>
             <tbody>
-              {seo.keywords.slice(0, 50).map((k, i) => (
-                <tr key={i} className="border-b">
+              {seo.keywords.slice(0, 50).map((k) => (
+                <tr key={k.query + k.page} className="border-b">
                   <td className="p-2">{k.query}</td>
+                  <td className="p-2 break-all">{k.page}</td>
                   <td className="p-2">{k.clicks}</td>
                   <td className="p-2">{k.impressions}</td>
-                  <td className="p-2">{Number(k.position).toFixed(1)}</td>
+                  <td className="p-2">{k.ctr == null ? '—' : (k.ctr * 100).toFixed(1) + '%'}</td>
+                  <td className="p-2">{k.position == null ? '—' : k.position.toFixed(1)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
+      )}
+      {seo.dailyTraffic.length > 0 && (
+        <details className="rounded-lg border border-gray-200 bg-white p-4">
+          <summary className="cursor-pointer font-bold text-black">Recently synced traffic</summary>
+          <div className="mt-3 overflow-x-auto">
+            <table className="min-w-[580px] w-full text-left text-sm">
+              <thead>
+                <tr className="border-b text-gray-600">
+                  {['Date', 'Website', 'Source', 'Sessions', 'Visitors', 'Page views'].map(label => <th key={label} className="px-2 py-2" scope="col">{label}</th>)}
+                </tr>
+              </thead>
+              <tbody>
+                {seo.dailyTraffic.slice(0, 20).map(row => (
+                  <tr key={`${row.date}:${row.source}:${row.hostname}`} className="border-b border-gray-100">
+                    <td className="px-2 py-2">{formatDay(row.date)}</td>
+                    <td className="px-2 py-2">{row.hostname || 'Unknown'}</td>
+                    <td className="px-2 py-2">{row.source === 'ga4' ? 'GA4' : 'First party'}</td>
+                    <td className="px-2 py-2">{row.sessions}</td>
+                    <td className="px-2 py-2">{row.users}</td>
+                    <td className="px-2 py-2">{row.page_views}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </details>
       )}
       <div className="bg-white p-4 rounded-lg border border-gray-200">
         <h3 className="font-bold text-black mb-4">Marketing campaigns</h3>

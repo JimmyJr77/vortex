@@ -6,8 +6,8 @@ import GymnasticsSeo from './GymnasticsSeo'
 import ContactForm from '../../components/ContactForm'
 import Footer from '../../components/Footer'
 import Login from '../../components/Login'
-import { trackPageView, trackEngagement } from '../../utils/analytics'
-import { captureUtmFromLocation } from '../../utils/utmCapture'
+import { trackEngagement } from '../../utils/analytics'
+import PublicSiteAnalytics from '../../components/analytics/PublicSiteAnalytics'
 import CookieConsent from '../../components/CookieConsent'
 import { setSportSiteContext } from '../../utils/sportSite'
 import { useSiteHighlights } from '../../hooks/useSiteHighlights'
@@ -90,8 +90,10 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   )
   const [member, setMember] = useState<PortalAccount | null>(null)
   const [memberToken, setMemberToken] = useState<string | null>(null)
-  const [waiversCheckedToken, setWaiversCheckedToken] = useState<string | null>(null)
-  const finishWaiverCheck = useCallback(() => setWaiversCheckedToken(memberToken), [memberToken])
+  const [pendingWaiverToken, setPendingWaiverToken] = useState<string | null>(null)
+  const finishWaiverCheck = useCallback(() => {
+    setPendingWaiverToken(pending => pending === memberToken ? null : pending)
+  }, [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
   const [activePortal, setActivePortal] = useState<PortalId>(() =>
     localStorage.getItem('vortex_admin') === 'true' ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website',
@@ -123,9 +125,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
       }
     }
 
-    captureUtmFromLocation()
-    trackPageView(location.pathname, { googleAnalytics: !isPreview })
-  }, [location.pathname, isPreview])
+  }, [])
 
   // Restore admin session when switching into Admin from a shared member login.
   useEffect(() => {
@@ -142,7 +142,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
   }
 
   const handleAccountLoginSuccess = (token: string, accountData: PortalAccount) => {
-    setWaiversCheckedToken(null)
+    setPendingWaiverToken(accountData.requiresInitialWaiverCheck === true ? token : null)
     setSportSiteContext('gymnastics')
     persistMemberSession(token, accountData)
     if (getAvailablePortals(accountData).includes('admin')) {
@@ -157,7 +157,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   const handleAdminLogout = () => {
     clearPortalSession()
-    setWaiversCheckedToken(null)
+    setPendingWaiverToken(null)
     setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
@@ -167,7 +167,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   const handleMemberLogout = () => {
     clearPortalSession()
-    setWaiversCheckedToken(null)
+    setPendingWaiverToken(null)
     setIsAdmin(false)
     setMemberToken(null)
     setMember(null)
@@ -207,7 +207,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
     setShowMemberDashboard(true)
   }
 
-  if (memberToken && getAvailablePortals(member).includes('member') && waiversCheckedToken !== memberToken) {
+  if (memberToken && pendingWaiverToken === memberToken && getAvailablePortals(member).includes('member')) {
     return (
       <Suspense fallback={<PageLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
@@ -262,6 +262,7 @@ function GymnasticsApp({ isPreview = false }: GymnasticsAppProps) {
 
   return (
     <div className="min-h-screen bg-white relative">
+      <PublicSiteAnalytics disabled={isPreview} />
       <GymnasticsSeo isPreview={isPreview} />
       <GymnasticsHeader
         onContactClick={handleContactClick}

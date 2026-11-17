@@ -137,6 +137,13 @@ test('release deploy includes application content migrations without broadening 
     '818_coaching_athleticism_accelerator_library.sql',
     '821_floor_planner.sql',
     '822_floor_planner_views.sql',
+    '865_floor_planner_class_colors.sql',
+    '866_message_panel_preferences.sql',
+    '867_message_panel_widths.sql',
+    '868_initial_member_waiver_check.sql',
+    '806_storefront.sql',
+    '869_stripe_terminal_payments.sql',
+    '871_store_terminal_payment.sql',
     '840_staff_legal_signatures.sql',
   ])
   assert.deepEqual(DEPLOY_RELEASE_MIGRATION_FILES, [
