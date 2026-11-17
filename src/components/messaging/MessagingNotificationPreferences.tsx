@@ -122,7 +122,7 @@ export default function MessagingNotificationPreferences({
           type="checkbox"
           checked={prefs.allow_critical_email}
           onChange={(e) => setPrefs((p) => ({ ...p, allow_critical_email: e.target.checked }))}
-          className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+          className="rounded border-gray-300 text-blue-700 focus:ring-blue-700"
         />
         Email for critical messages
       </label>
@@ -131,7 +131,7 @@ export default function MessagingNotificationPreferences({
           type="checkbox"
           checked={prefs.allow_critical_sms}
           onChange={(e) => setPrefs((p) => ({ ...p, allow_critical_sms: e.target.checked }))}
-          className="rounded border-gray-300 text-vortex-red focus:ring-vortex-red"
+          className="rounded border-gray-300 text-blue-700 focus:ring-blue-700"
         />
         SMS for critical messages
       </label>
@@ -149,7 +149,7 @@ export default function MessagingNotificationPreferences({
           type="button"
           onClick={() => void save()}
           disabled={saving}
-          className={`font-semibold bg-vortex-red text-white px-4 py-2 rounded-md disabled:opacity-60 ${
+          className={`font-semibold bg-blue-700 text-white px-4 py-2 rounded-md disabled:opacity-60 ${
             isPage ? 'text-sm' : 'text-xs'
           }`}
         >

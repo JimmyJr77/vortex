@@ -274,7 +274,7 @@ function SignupParticipateCard({
                         type="button"
                         disabled={signup.is_closed}
                         onClick={() => void unclaim(index)}
-                        className="text-xs font-semibold text-vortex-red hover:underline disabled:opacity-50"
+                        className="text-xs font-semibold text-blue-700 hover:underline disabled:opacity-50"
                       >
                         Unclaim
                       </button>
@@ -300,7 +300,7 @@ function SignupParticipateCard({
                       type="button"
                       disabled={signup.is_closed}
                       onClick={() => void claim(index)}
-                      className="shrink-0 text-xs font-semibold text-vortex-red hover:underline disabled:opacity-50"
+                      className="shrink-0 text-xs font-semibold text-blue-700 hover:underline disabled:opacity-50"
                     >
                       {type === 'support' ? 'I’ll help' : 'I’ll do this'}
                     </button>
@@ -427,7 +427,7 @@ export default function SignupSheetPanel({
             <button
               type="button"
               onClick={() => setItemRows([...itemRows, { id: String(Date.now()), text: '' }])}
-              className="text-xs font-semibold text-vortex-red hover:underline"
+              className="text-xs font-semibold text-blue-700 hover:underline"
             >
               Add item
             </button>

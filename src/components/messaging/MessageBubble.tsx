@@ -15,7 +15,7 @@ type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
 const LONG_PRESS_MS = 500
 const LONG_PRESS_MOVE_TOLERANCE_PX = 12
 const MENU_GUTTER_PX = 8
-const actionButtonClass = 'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-vortex-red'
+const actionButtonClass = 'flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-left text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-700'
 
 type ActionMenuPosition = { x: number; y: number; anchorTop: number; followsTrigger?: boolean }
 
@@ -227,7 +227,7 @@ export default function MessageBubble({
           {isEdited && <span className="text-slate-500">Edited</span>}
         </div>
         <div
-          className={`${messageBubbleClassName(message, ownMessage)}${pinSelected ? ' ring-2 ring-vortex-red ring-offset-1' : ''}${canSelect ? ' cursor-pointer' : ''}`}
+          className={`${messageBubbleClassName(message, ownMessage)}${pinSelected ? ' ring-2 ring-blue-700 ring-offset-1' : ''}${canSelect ? ' cursor-pointer' : ''}`}
           onClick={canSelect ? (event) => {
             if (!(event.target as HTMLElement).closest('a, button')) onPinSelectionToggle?.(message)
           } : undefined}
@@ -272,7 +272,7 @@ export default function MessageBubble({
                 </span>
               )}
               {isCritical && message.requires_ack && <span className="font-medium">Acknowledgment required</span>}
-              {mentionedYou && <span className="rounded bg-red-100 px-1.5 py-0.5">Mentions you</span>}
+              {mentionedYou && <span className="rounded !bg-blue-100 px-1.5 py-0.5 !text-blue-800">Mentions you</span>}
             </div>
           )}
           {isDeleted ? (
@@ -309,7 +309,7 @@ export default function MessageBubble({
           aria-label={`Select message from ${senderName} to pin`}
           aria-pressed={pinSelected}
           onClick={() => onPinSelectionToggle?.(message)}
-          className={`mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vortex-red ${pinSelected ? 'border-vortex-red bg-vortex-red text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-vortex-red'}`}
+          className={`mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg border focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 ${pinSelected ? 'border-blue-700 bg-blue-700 text-white' : 'border-slate-300 bg-white text-slate-600 hover:border-blue-700'}`}
         >
           {pinSelected && <Check size={16} aria-hidden="true" />}
         </button>
@@ -323,7 +323,7 @@ export default function MessageBubble({
           aria-expanded={Boolean(openMenu)}
           aria-controls={openMenu ? actionId : undefined}
           onClick={() => openMenu ? closeMenu() : openAtTrigger()}
-          className="mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-vortex-red aria-expanded:bg-slate-200/70 aria-expanded:text-slate-900"
+          className="mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 aria-expanded:bg-slate-200/70 aria-expanded:text-slate-900"
         >
           <Ellipsis size={18} aria-hidden="true" />
         </button>

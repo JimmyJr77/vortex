@@ -204,7 +204,7 @@ export default function MessagingFaqMasterPanel({
                       type="button"
                       disabled={saving}
                       onClick={() => void saveEdit(item.id)}
-                      className="text-xs font-semibold text-vortex-red disabled:opacity-50"
+                      className="text-xs font-semibold text-blue-700 disabled:opacity-50"
                     >
                       Save
                     </button>
@@ -241,7 +241,7 @@ export default function MessagingFaqMasterPanel({
                       type="button"
                       aria-label="Delete FAQ"
                       onClick={() => void removeFaq(item.id)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50"
+                      className="p-1.5 rounded-lg text-gray-400 hover:text-slate-700 hover:bg-slate-100"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -298,7 +298,7 @@ export default function MessagingFaqMasterPanel({
           type="button"
           onClick={() => void createFaq()}
           disabled={saving || !question.trim() || !answer.trim()}
-          className="inline-flex items-center gap-1 text-sm font-semibold text-vortex-red disabled:opacity-50"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-blue-700 disabled:opacity-50"
         >
           <Plus className="w-3.5 h-3.5" /> Add FAQ
         </button>

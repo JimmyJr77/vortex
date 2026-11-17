@@ -176,7 +176,7 @@ export default function PollSheetPanel({
         </div>
         <div className="flex items-center gap-2">
           {options.length < 6 && (
-            <button type="button" onClick={() => setOptions([...options, ''])} className="text-xs font-semibold text-vortex-red hover:underline">
+            <button type="button" onClick={() => setOptions([...options, ''])} className="text-xs font-semibold text-blue-700 hover:underline">
               Add option
             </button>
           )}

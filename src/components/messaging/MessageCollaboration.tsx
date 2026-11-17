@@ -84,7 +84,7 @@ export function MessagePollBlock({
               </div>
               {totalVotes > 0 && (
                 <div className="mt-1 h-1 rounded-full bg-gray-100 overflow-hidden">
-                  <div className="h-full bg-vortex-red/70" style={{ width: `${pct}%` }} />
+                  <div className="h-full bg-blue-700/70" style={{ width: `${pct}%` }} />
                 </div>
               )}
             </button>
@@ -172,7 +172,7 @@ export function MessageChecklistBlock({
                 <button
                   type="button"
                   onClick={() => void claimItem(index)}
-                  className="shrink-0 text-xs font-semibold text-vortex-red hover:underline"
+                  className="shrink-0 text-xs font-semibold text-blue-700 hover:underline"
                 >
                   I&apos;ll do this
                 </button>

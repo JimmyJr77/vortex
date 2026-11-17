@@ -34,7 +34,7 @@ export default function MessagingContextBanner({
         <button
           type="button"
           onClick={() => onJump(threadId)}
-          className="shrink-0 text-xs font-semibold text-vortex-red hover:underline"
+          className="shrink-0 text-xs font-semibold text-blue-700 hover:underline"
         >
           Open
         </button>
