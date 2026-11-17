@@ -78,6 +78,38 @@ async function signTestWaivers(page: Page) {
   await page.getByLabel('Full Name (signature)', { exact: true }).fill('Test Parent')
 }
 
+test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path after an empty result', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const requests: string[] = []
+  await page.route('**/api/public/free-trials?*', route => {
+    const query = new URL(route.request().url()).searchParams
+    requests.push(query.toString())
+    return route.fulfill({ json: {
+      success: true,
+      data: { program: 'fit-flip', age: Number(query.get('age')), ageBand: null, classes: [], sessions: [] },
+    } })
+  })
+
+  for (const age of [5, 6, 7, 8, 16]) {
+    await page.goto('/fit-and-flip')
+    await page.locator('.np-program-hero').getByRole('button', { name: 'Find a free Fit & Flip trial' }).click()
+    const dialog = page.getByRole('dialog')
+    await dialog.getByLabel('Your child’s age').fill(String(age))
+    await dialog.getByRole('button', { name: 'Find available classes' }).click()
+    const availability = page.getByRole('dialog', { name: 'Pick a day to try it.' })
+    await expect(availability.getByRole('heading', { name: 'No trial dates available right now.' })).toBeVisible()
+    const gymnastics = availability.getByRole('link', { name: 'Find a beginner gymnastics trial' })
+    if (age === 6 || age === 7) {
+      await gymnastics.click()
+      await expect(page).toHaveURL('/gymnastics#first-visit')
+      await expect(availability).toHaveCount(0)
+    } else {
+      await expect(gymnastics).toHaveCount(0)
+    }
+  }
+  expect(requests).toEqual([5, 6, 7, 8, 16].map(age => `program=fit-flip&age=${age}`))
+})
+
 test('mobile new-family trial requires waivers and registers the child without checkout', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const submitted = await mockTrialApi(page)

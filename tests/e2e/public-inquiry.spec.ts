@@ -1,5 +1,31 @@
 import { expect, test } from '@playwright/test'
 
+test('gymnastics discipline links carry an editable topic into the public inquiry', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const topics = [
+    { hash: 'rhythmic', topic: 'rhythmic-gymnastics', link: 'Ask about rhythmic gymnastics coaching', message: 'I’d like to ask about rhythmic gymnastics coaching.' },
+    { hash: 'acro', topic: 'acrobatic-gymnastics', link: 'Ask about partner and group acro', message: 'I’d like to ask about partner and group acro.' },
+    { hash: 'aerobic', topic: 'aerobic-gymnastics', link: 'Ask about aerobic gymnastics routines', message: 'I’d like to ask about aerobic gymnastics routines.' },
+  ]
+  const heading = page.getByRole('heading', { name: 'Athlete Inquiry' })
+  const messageBox = page.getByRole('textbox', { name: 'Leave a comment or ask any questions' })
+  for (const { hash, topic, link, message } of topics) {
+    await page.goto(`/gymnastics#${hash}`)
+    await page.getByRole('link', { name: link }).click()
+    await expect(page).toHaveURL(`/contact?topic=${topic}#inquiry`)
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://vortexathletics.com/contact')
+    await expect(heading).toHaveCount(0)
+    await page.locator('#inquiry').getByRole('button', { name: 'Ask Our Team' }).click()
+    await expect(heading).toBeVisible()
+    await expect(messageBox).toHaveValue(message)
+    await expect(messageBox).toBeEditable()
+  }
+
+  await page.goto('/contact?topic=unrecognized#inquiry')
+  await page.locator('#inquiry').getByRole('button', { name: 'Ask Our Team' }).click()
+  await expect(messageBox).toHaveValue('')
+})
+
 test('the public inquiry form confirms success only after the server saves the inquiry', async ({ page }) => {
   let attempts = 0
   const errors: string[] = []

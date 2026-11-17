@@ -240,7 +240,35 @@ export default function NewPageFreeTrial({
     {step === 'classes' && <>
       <div className="np-trial-results-heading"><p className="np-trial-intro"><strong>{programName}</strong> · Age {age}{availability?.ageBand && <> · Ages {availability.ageBand.min}–{availability.ageBand.max} group</>}</p><button className="np-trial-refresh" aria-label="Refresh class availability" disabled={loading} onClick={() => setRefresh(value => value + 1)}><RefreshCw size={17} /></button></div>
       {gymnasticsAnswers.gymnasticsTrack === 'experienced' && <div className="np-trial-placement-note"><p>Experienced athletes start with a Trial Assessment so our coaches can find the right class. Choose from the current assessment schedule below, or call to arrange a trial.</p><a href={`tel:${TEAM_PHONE_E164}`}>Call for placement · {TEAM_PHONE}<ArrowUpRight size={16} /></a></div>}
-      {loading ? <div className="np-trial-loading" role="status"><LoaderCircle size={27} /><p>Finding their next opportunity…</p></div> : error ? <div className="np-trial-empty"><p className="np-trial-error" role="alert">{error}</p><button className="np-button" onClick={() => setRefresh(value => value + 1)}>Try again <RefreshCw size={16} /></button></div> : sessions.length === 0 ? <div className="np-trial-empty"><CalendarDays size={30} /><h3>No trial dates available right now.</h3><p>{program === 'fit-flip' && age !== null && (age < 8 || age > 15) ? 'The Cyclones trial groups cover ages 8–11 and 12–15. Our team can help find an option for your athlete.' : `There aren’t any published ${programName} trial dates for this age in the current schedule. Contact us and we’ll help you find their starting point.`}</p><a className="np-button" href={`mailto:${TEAM_EMAIL}?subject=${encodeURIComponent(`${programName} free trial for age ${age}`)}`}>Ask about a trial <ArrowUpRight size={17} /></a><a className="np-trial-phone" href={`tel:${TEAM_PHONE_E164}`}>{TEAM_PHONE}</a></div> : <>
+      {loading ? <div className="np-trial-loading" role="status"><LoaderCircle size={27} /><p>Finding their next opportunity…</p></div> : error ? <div className="np-trial-empty"><p className="np-trial-error" role="alert">{error}</p><button className="np-button" onClick={() => setRefresh(value => value + 1)}>Try again <RefreshCw size={16} /></button></div> : sessions.length === 0 ? (
+        <div className="np-trial-empty">
+          <CalendarDays size={30} />
+          <h3>No trial dates available right now.</h3>
+          <p>
+            {program === 'fit-flip' && age !== null && (age < 8 || age > 15)
+              ? 'The Cyclones trial groups cover ages 8–11 and 12–15. Our team can help find an option for your athlete.'
+              : `There aren’t any published ${programName} trial dates for this age in the current schedule. Contact us and we’ll help you find their starting point.`}
+          </p>
+          {availability && program === 'fit-flip' && (age === 6 || age === 7) && (
+            <p>
+              Ages 6–7 can try Tornadoes, a beginner gymnastics class that teaches rolls, cartwheels, and controlled landings.{' '}
+              <Link
+                className="font-semibold underline underline-offset-4"
+                to="/gymnastics#first-visit"
+                onClick={onDone}
+                data-analytics-cta="read_first_visit"
+                data-analytics-section="trial"
+              >
+                Find a beginner gymnastics trial
+              </Link>.
+            </p>
+          )}
+          <a className="np-button" href={`mailto:${TEAM_EMAIL}?subject=${encodeURIComponent(`${programName} free trial for age ${age}`)}`}>
+            Ask about a trial <ArrowUpRight size={17} />
+          </a>
+          <a className="np-trial-phone" href={`tel:${TEAM_PHONE_E164}`}>{TEAM_PHONE}</a>
+        </div>
+      ) : <>
         {offeredClasses.length > 1 && <label className="np-trial-class-filter">Class<select value={classFilter} onChange={event => { setClassFilter(event.target.value); setDayFilter(null); setVisibleCount(8) }}><option value="all">All age-appropriate classes</option>{offeredClasses.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>}
         <div className="np-trial-days" aria-label="Filter classes by day"><button aria-pressed={dayFilter === null} onClick={() => { setDayFilter(null); setVisibleCount(8) }}>All days</button>{days.map(day => <button key={day} aria-pressed={dayFilter === day} onClick={() => { setDayFilter(day); setVisibleCount(8) }}>{WEEKDAYS[day]}</button>)}</div>
         <p className="np-trial-availability-note">All times Eastern. Enrollment counts are current as of {loadedAt?.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })} ET.</p>

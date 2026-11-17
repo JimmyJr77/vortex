@@ -1,7 +1,7 @@
 import TextInput from './common/TextInput'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Mail, Phone, MapPin, Send, Plus, Trash2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { getApiUrl } from '../utils/api'
 import {
   adaptRegistrationPayloadForApi,
@@ -32,6 +32,7 @@ interface ContactFormProps {
   inquiryVariant?: InquiryVariant
   /** Pathname when the user opened the inquire modal. */
   inquirySource?: string
+  initialMessage?: string
   /** Render inline (not as a modal) for embedding directly in a page. */
   embedded?: boolean
 }
@@ -46,6 +47,7 @@ const ContactForm = ({
   title = 'Inquire',
   inquiryVariant = 'athletics',
   inquirySource,
+  initialMessage = '',
   embedded = false,
 }: ContactFormProps) => {
   const [formData, setFormData] = useState({
@@ -53,8 +55,11 @@ const ContactForm = ({
     lastName: '',
     email: '',
     phone: '',
-    message: '',
   })
+  // Keep edits separate when a visitor opens a different inquiry topic.
+  const [messageDrafts, setMessageDrafts] = useState<Record<string, string>>({})
+  const message = messageDrafts[initialMessage] ?? initialMessage
+  const messageFieldId = useId()
   const [submitterRole, setSubmitterRole] = useState<SubmitterRole | ''>('')
   const [athletes, setAthletes] = useState<AthleteRow[]>([])
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
@@ -167,7 +172,7 @@ const ContactForm = ({
       if (selectedInterests.length > 0) payload.interests = selectedInterests
       if (selectedClassTypes.length > 0) payload.classTypes = selectedClassTypes
       if (completedAthletes.length > 0) payload.campers = completedAthletes
-      if (formData.message) payload.message = formData.message
+      if (message) payload.message = message
       if (inquirySource) payload.inquirySource = inquirySource
 
       Object.assign(payload, getInquiryAttributionPayload())
@@ -218,7 +223,8 @@ const ContactForm = ({
   }
 
   const resetForm = () => {
-    setFormData({ firstName: '', lastName: '', email: '', phone: '', message: '' })
+    setFormData({ firstName: '', lastName: '', email: '', phone: '' })
+    setMessageDrafts({})
     setSubmitterRole('')
     setAthletes([])
     setSelectedInterests([])
@@ -481,13 +487,17 @@ const ContactForm = ({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor={messageFieldId} className="block text-sm font-semibold text-gray-700 mb-2">
                 Leave a comment or ask any questions
               </label>
               <textarea
+                id={messageFieldId}
                 name="message"
-                value={formData.message}
-                onChange={handleChange}
+                value={message}
+                onChange={event => {
+                  const nextMessage = event.target.value
+                  setMessageDrafts(drafts => ({ ...drafts, [initialMessage]: nextMessage }))
+                }}
                 rows={4}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-vortex-red focus:border-transparent transition-colors resize-none"
                 placeholder="Tell us about your athletic goals, experience level, or ask any questions you have..."

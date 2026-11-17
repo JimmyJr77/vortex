@@ -10,6 +10,24 @@ export const TEAM_PHONE_E164 = `+1${TEAM_PHONE.replaceAll('-', '')}`
 export const CONTACT_INQUIRY_ID = 'inquiry'
 export const CONTACT_INQUIRY_PATH = `/contact#${CONTACT_INQUIRY_ID}`
 
+const contactInquiryMessages = {
+  'rhythmic-gymnastics': 'I’d like to ask about rhythmic gymnastics coaching.',
+  'acrobatic-gymnastics': 'I’d like to ask about partner and group acro.',
+  'aerobic-gymnastics': 'I’d like to ask about aerobic gymnastics routines.',
+} as const
+
+type ContactInquiryTopic = keyof typeof contactInquiryMessages
+
+export function contactInquiryHref(topic: ContactInquiryTopic) {
+  return `/contact?topic=${topic}#${CONTACT_INQUIRY_ID}`
+}
+
+export function getContactInquiryMessage(topic: string | null) {
+  return topic && Object.hasOwn(contactInquiryMessages, topic)
+    ? contactInquiryMessages[topic as ContactInquiryTopic]
+    : ''
+}
+
 /** Jackrabbit Parent Portal (member account login). */
 export const JACKRABBIT_PARENT_PORTAL_URL =
   'https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920'

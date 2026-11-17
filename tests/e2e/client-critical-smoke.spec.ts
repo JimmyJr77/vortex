@@ -107,6 +107,11 @@ test.describe('Client-critical smoke flows', () => {
   test('Fit & Flip links families to fitness alternatives by age', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/fit-and-flip#fit-flip-trial-age')
+    await page.getByRole('link', { name: 'Find a beginner gymnastics trial for ages 6–7' }).click()
+    await expect(page).toHaveURL('/gymnastics#first-visit')
+    await expect(page.locator('#first-visit').getByRole('heading', { level: 2 })).toBeInViewport()
+
+    await page.goto('/fit-and-flip#fit-flip-trial-age')
     await page.getByRole('link', { name: 'Compare Bowie fitness options by age' }).click()
 
     await expect(page).toHaveURL('/blog/youth-sports-bowie#fitness-without-a-team')
@@ -717,7 +722,7 @@ test.describe('Client-critical smoke flows', () => {
     expect(priceRequests.every(({ authorization }) => authorization === undefined)).toBe(true)
   })
 
-  test('Day view keeps an eligible class time and date in the enrollment link', async ({ page }) => {
+  test('Day view labels full classes and preserves the selected date and time', async ({ page }) => {
     await page.clock.setFixedTime(new Date(`${classDate}T12:00:00`))
     const events = [
       cyclones,
@@ -741,15 +746,18 @@ test.describe('Client-critical smoke flows', () => {
     await expect(calendar.getByText('Fit & Flip · Trial Assessment', { exact: true })).toBeVisible()
 
     const signup = calendar.getByRole('link', { name: 'Sign Up', exact: true })
-    await expect(signup).toHaveCount(2)
-    await expect(signup.nth(0)).toHaveAttribute('href',
+    const waitlist = calendar.getByRole('link', { name: 'Check waitlist', exact: true })
+    await expect(signup).toHaveCount(1)
+    await expect(signup).toHaveAttribute('href',
       `/enroll?form=30&offeringId=18&slotGroupId=98&timeSlotId=107&enrollmentStartDate=${classDate}`)
-    await expect(signup.nth(1)).toHaveAttribute('href',
+    await expect(waitlist).toHaveCount(1)
+    await expect(waitlist).toHaveAttribute('href',
       `/enroll?form=30&offeringId=18&slotGroupId=99&timeSlotId=108&enrollmentStartDate=${classDate}`)
 
     await calendar.getByRole('button', { name: 'Previous period', exact: true }).click()
     await expect(calendar.getByText('Fit & Flip · Earlier Cyclones', { exact: true })).toBeVisible()
     await expect(signup).toHaveCount(0)
+    await expect(waitlist).toHaveCount(0)
   })
 
   test('Day view keeps the selected date when an older calendar request finishes last', async ({ page }) => {

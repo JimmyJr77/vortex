@@ -2,6 +2,7 @@ import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
+import { getContactInquiryMessage } from './config/contact'
 import {
   loadHomePage, loadPublicProgramPage, loadSiteHeader, loadSiteFooter, publicGuideLoaders, publicPageLoaders,
   type PublicSnapshotPage,
@@ -94,7 +95,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   const TermsOfServicePage = pageSnapshot?.path === publicPageLoaders.termsOfService.path ? pageSnapshot.Component : LazyTermsOfServicePage
   // Mount on first use, then retain each dialog's state across close and reopen.
   const [isContactFormOpen, setIsContactFormOpen] = useState<boolean | null>(null)
-  const [inquirySourcePath, setInquirySourcePath] = useState('')
+  const [inquiryContext, setInquiryContext] = useState({ sourcePath: '', initialMessage: '' })
   const [isLoginOpen, setIsLoginOpen] = useState<boolean | null>(null)
   const [isAdmin, setIsAdmin] = useState(() => hasAdminSession())
   const [member, setMember] = useState<PortalAccount | null>(null)
@@ -206,7 +207,12 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
 
   const handleContactClick = () => {
     trackEngagement('form_open', 'Contact Form', location.pathname)
-    setInquirySourcePath(location.pathname)
+    setInquiryContext({
+      sourcePath: location.pathname,
+      initialMessage: location.pathname === publicPageLoaders.contact.path
+        ? getContactInquiryMessage(new URLSearchParams(location.search).get('topic'))
+        : '',
+    })
     setIsContactFormOpen(true)
   }
 
@@ -443,7 +449,8 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
         onClose={() => setIsContactFormOpen(false)}
         title="Athlete Inquiry"
         inquiryVariant="athletics"
-        inquirySource={inquirySourcePath}
+        inquirySource={inquiryContext.sourcePath}
+        initialMessage={inquiryContext.initialMessage}
       /></Suspense>}
       {isModernPublicPage && <PublicSiteFooter />}
       {!isLandingPage && !isModernPublicPage && <Suspense fallback={null}><Footer

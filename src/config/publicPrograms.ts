@@ -1,7 +1,7 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from './bowieYouthSportsGuide'
-import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from './contact'
+import { BUSINESS_FACILITY_PHOTO, contactInquiryHref, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from './contact'
 import { FIT_AND_FLIP_PUBLIC_COPY } from './fitAndFlipCopy'
 import { GYMNASTICS_TEAM_PUBLIC_DESCRIPTION } from './publicCatalog'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
@@ -257,19 +257,19 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'rhythmic',
             heading: 'Rhythmic gymnastics',
             description: 'Rhythmic routines combine dance and balance with hand apparatus such as a hoop or ribbon. Tell us which apparatus your child wants to use and what experience they have so we can check coaching and evaluation options.',
-            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask about rhythmic gymnastics coaching', analyticsKey: 'inquire_rhythmic_gymnastics' },
+            link: { href: contactInquiryHref('rhythmic-gymnastics'), label: 'Ask about rhythmic gymnastics coaching', analyticsKey: 'inquire_rhythmic_gymnastics' },
           },
           {
             id: 'acro',
             heading: 'Acrobatic gymnastics',
             description: 'Pairs and groups practice partner balances and dynamic skills. Tell us what gymnastics or partner work your child has done and which skills they can repeat so we can check coaching and evaluation options.',
-            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask about partner and group acro', analyticsKey: 'inquire_acrobatic_gymnastics' },
+            link: { href: contactInquiryHref('acrobatic-gymnastics'), label: 'Ask about partner and group acro', analyticsKey: 'inquire_acrobatic_gymnastics' },
           },
           {
             id: 'aerobic',
             heading: 'Aerobic gymnastics',
             description: 'Aerobic routines combine continuous movement to music with jumps, balance, and strength. Tell us whether your child wants to learn a routine or compete so we can check which options are available.',
-            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask about aerobic gymnastics routines', analyticsKey: 'inquire_aerobic_gymnastics' },
+            link: { href: contactInquiryHref('aerobic-gymnastics'), label: 'Ask about aerobic gymnastics routines', analyticsKey: 'inquire_aerobic_gymnastics' },
           },
           {
             id: 'trampoline-tumbling',
@@ -414,8 +414,9 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'fit-flip-trial-age',
             heading: 'Which Cyclones age group should I choose?',
-            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. Families outside the Cyclones age range can compare nearby options by age and training goal.',
+            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. Children ages 6–7 who want a coached movement class can try beginner gymnastics with Tornadoes and work on balance, rolls, and controlled landings.',
             links: [
+              { href: '/gymnastics#first-visit', label: 'Find a beginner gymnastics trial for ages 6–7', analyticsKey: 'read_gymnastics_first_visit' },
               { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#fitness-without-a-team`, label: 'Compare Bowie fitness options by age', analyticsKey: 'read_bowie_youth_sports_guide' },
               { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#high-school-sports-training`, label: 'Compare sports training for ages 16–17', analyticsKey: 'read_high_school_sports_training' },
             ],

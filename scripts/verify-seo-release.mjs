@@ -786,6 +786,10 @@ const verifyHtml = (
         assert(firstClassLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}${hash}`),
           `${label}: Fit & Flip age guidance must link to the local options at ${hash}`)
       }
+      const ageOptions = firstClass.match(/<article\b[^>]*\sid=["']fit-flip-trial-age["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(/ages 6–7.*Tornadoes/.test(ageOptions) &&
+        anchorUrls(ageOptions).some(url => url.href === `${HUB_ORIGIN}/gymnastics#first-visit`),
+        `${label}: missing the beginner gymnastics trial path for ages 6–7`)
       assert(tags(firstClass, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
         `${label}: missing the Fit & Flip trial finder button`)
       assert(anchorUrls(firstClass).some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-class-pricing`),
@@ -1153,9 +1157,9 @@ const verifyHtml = (
       `${label}: youth gymnastics must link adult readers to the Typhoons trial path`)
     const disciplineLinks = [
       ['artistic', [`${canonical}#choose-a-class`, `${tumblingGuideCanonical}#boys-gymnastics`]],
-      ['rhythmic', [`${HUB_ORIGIN}/contact#inquiry`]],
-      ['acro', [`${HUB_ORIGIN}/contact#inquiry`]],
-      ['aerobic', [`${HUB_ORIGIN}/contact#inquiry`]],
+      ['rhythmic', [`${HUB_ORIGIN}/contact?topic=rhythmic-gymnastics#inquiry`]],
+      ['acro', [`${HUB_ORIGIN}/contact?topic=acrobatic-gymnastics#inquiry`]],
+      ['aerobic', [`${HUB_ORIGIN}/contact?topic=aerobic-gymnastics#inquiry`]],
       ['trampoline-tumbling', [`${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`]],
     ]
     for (const [id, targets] of disciplineLinks) {
