@@ -290,6 +290,16 @@ const verifyHtml = (
     }
   }
 
+  if (shouldIndex && ['/contact', '/drop-in'].includes(pagePath)) {
+    const introduction = [...html.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
+      .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
+    const links = anchorUrls(introduction)
+    for (const path of HUB_PROGRAM_PATHS) {
+      assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: missing a crawlable program link to ${path} near the main heading`)
+    }
+  }
+
   if (shouldIndex && (pagePath === '/' || HUB_PROGRAM_PATHS.includes(pagePath))) {
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
