@@ -205,7 +205,7 @@ test('records trial decision points without collecting age, class dates, or a fa
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await grantAnalyticsOnly(page)
 
-  await page.getByRole('button', { name: 'Book a free trial' }).click()
+  await page.getByRole('link', { name: 'Book a free trial' }).click()
   await page.getByRole('button', { name: /Choose Fit & Flip/ }).click()
   await page.getByLabel('Your child’s age').fill('10')
   await page.getByRole('button', { name: 'Find available classes' }).click()
@@ -219,6 +219,33 @@ test('records trial decision points without collecting age, class dates, or a fa
   expect(JSON.stringify(trial.map(event => event.properties))).not.toMatch(/age|2027-01-12|cyclones|potty|slotGroupId|memberId/i)
 })
 
+test('homepage trial links keep the original source when opened by fragment', async ({ page }) => {
+  const events = await mockSite(page)
+  const base = '/?utm_source=homepage-trial'
+  await page.goto(`${base}#free-trial`)
+  const chooser = page.getByRole('dialog', { name: 'Find their first class.' })
+  await expect(chooser).toHaveCount(0)
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await grantAnalyticsOnly(page)
+
+  const expectedSections: string[] = []
+  for (const [name, hash, section] of [
+    ['Try a free class', '#open-free-trial-from-navigation', 'navigation'],
+    ['Book a free trial', '#open-free-trial', 'free_trial'],
+  ]) {
+    await expect(page.getByRole('link', { name, exact: true })).toHaveAttribute('href', hash)
+    await page.goto(base + hash)
+    await expect(chooser.getByRole('button', { name: /Choose Gymnastics/ })).toBeVisible()
+    await expect(chooser.getByRole('button', { name: /Choose Fit & Flip/ })).toBeVisible()
+    await expect(page).toHaveURL(base + hash)
+    expectedSections.push(section)
+    await expect.poll(() => events.filter(event => event.eventName === 'trial_start')
+      .map(event => [event.pagePath, event.properties.section])).toEqual(expectedSections.map(source => ['/', source]))
+    await chooser.getByRole('button', { name: 'Close dialog' }).click()
+    await expect(page.locator('#np-free-trial-heading')).toBeFocused()
+  }
+})
+
 test('offers adult trials from the youth chooser without requesting youth availability', async ({ page }) => {
   await mockSite(page)
   await page.setViewportSize({ width: 390, height: 844 })
@@ -228,7 +255,7 @@ test('offers adult trials from the youth chooser without requesting youth availa
   })
 
   await page.goto('/')
-  const chooseTrial = page.getByRole('button', { name: 'Book a free trial' })
+  const chooseTrial = page.getByRole('link', { name: 'Book a free trial' })
   await chooseTrial.click()
   const chooser = page.getByRole('dialog', { name: 'Find their first class.' })
   const adultTrials = 'See Typhoons adult gymnastics trials'

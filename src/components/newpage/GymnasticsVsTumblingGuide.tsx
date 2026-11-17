@@ -138,6 +138,13 @@ export default function GymnasticsVsTumblingGuide() {
           <p>Compare the starting skills and class format, especially if your child is trying tumbling for the first time.</p>
           <ul>
             <li>
+              <strong>Train For Greatness in Bowie.</strong> At its Woodcliff Court facility, the Novice group is for
+              ages 3–4 and Level 1 Intro is for ages 5 and up. Both welcome first-time tumblers. Families looking for
+              individual coaching can request a private tumbling lesson separately.{' '}
+              <a href="https://www.trainforgreatnessmd.com/tumbling">Compare Train For Greatness tumbling levels</a> ·{' '}
+              <a href="https://www.trainforgreatnessmd.com/private-lessons">See private tumbling lessons</a>
+            </li>
+            <li>
               <strong>Marlboro Cheer in Upper Marlboro.</strong> It lists preschool tumbling for ages 3–5 and a Level 1
               class for ages 5–8 that teaches skills such as rolls and cartwheels. It also lists open tumbling for extra practice.
               {' '}<a href="https://www.marlborocheer.org/tumbling.php">Compare Marlboro Cheer classes and open tumbling</a>

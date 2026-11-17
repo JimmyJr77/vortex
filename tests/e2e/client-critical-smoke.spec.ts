@@ -209,6 +209,17 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('button', { name: 'Play this scene from 0:12', exact: true })).toBeInViewport()
   })
 
+  test('the Fit & Flip landing example links to sourced growth-spurt guidance', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/fit-and-flip#fit-flip-class-example')
+    await page.getByRole('link', { name: 'See how coaches can adapt a landing during a growth spurt' }).click()
+    await expect(page).toHaveURL('/blog/athletic-development-young-athletes#balance-during-a-growth-spurt')
+    const guidance = page.locator('#balance-during-a-growth-spurt')
+    await expect(guidance.getByRole('heading', { name: 'What if my child’s balance changes during a growth spurt?' })).toBeInViewport()
+    await expect(guidance.getByRole('link', { name: 'Read the American Academy of Pediatrics’ sports-readiness guidance' }))
+      .toHaveAttribute('href', 'https://www.healthychildren.org/english/healthy-living/sports/pages/is-your-child-ready-for-sports.aspx')
+  })
+
   test('families can compare weekly gymnastics times for siblings', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/blog/preschool-gymnastics-what-toddlers-learn')
@@ -264,7 +275,7 @@ test.describe('Client-critical smoke flows', () => {
     const visit = page.getByRole('region', { name: 'Visit Vortex in Bowie, MD' })
     await expect(visit.getByText('4961 Tesla Dr Suite E', { exact: false })).toBeVisible()
     await expect(visit.getByRole('link', { name: 'See the class schedule' })).toHaveAttribute('href', '/read-board#schedule')
-    await expect(page.getByRole('button', { name: 'Book a free trial', exact: true })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Book a free trial', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('href', '/read-board#schedule')
     await page.setViewportSize({ width: 360, height: 740 })
     await page.getByRole('link', { name: 'Explore programs', exact: true }).click()
@@ -314,6 +325,10 @@ test.describe('Client-critical smoke flows', () => {
     await expect(nearbyTumbling.getByRole('heading')).toBeInViewport()
     await expect(nearbyTumbling.getByRole('link', { name: /county’s current guide/ }))
       .toHaveAttribute('href', 'https://www.pgparks.com/your-guide')
+    await expect(nearbyTumbling.getByRole('link', { name: 'Compare Train For Greatness tumbling levels' }))
+      .toHaveAttribute('href', 'https://www.trainforgreatnessmd.com/tumbling')
+    await expect(nearbyTumbling.getByRole('link', { name: 'See private tumbling lessons' }))
+      .toHaveAttribute('href', 'https://www.trainforgreatnessmd.com/private-lessons')
 
     await page.goto('/fit-and-flip')
     await page.getByRole('link', { name: 'Compare youth athletic training in Bowie' }).click()

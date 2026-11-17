@@ -15,6 +15,7 @@ const sections = [
   { id: 'movement-examples', label: 'Eight qualities of athleticism' },
   { id: 'speed-vs-agility', label: 'Speed, direction changes, and reacting' },
   { id: 'movement-progression', label: 'How coaches progress a movement' },
+  { id: 'balance-during-a-growth-spurt', label: 'Balance during a growth spurt' },
   { id: 'strength-training-readiness', label: 'When to start strength training' },
   { id: 'first-class', label: 'What to watch for in class' },
   { id: 'progress', label: 'How coaches check progress' },
@@ -199,6 +200,16 @@ export default function AthleticDevelopmentGuide() {
             children of the same age may practice different versions at the same station based on what each can
             do consistently.
           </p>
+          <div id="balance-during-a-growth-spurt" className="scroll-mt-24">
+            <h3 className="athletic-guide-subheading">What if my child’s balance changes during a growth spurt?</h3>
+            <p>
+              The American Academy of Pediatrics notes that a growth spurt can affect balance and coordination.
+              If your child has trouble with a landing they usually control, tell the coach which movement
+              changed. The coach might switch to a smaller hop and ask your child to pause on two feet after
+              landing before increasing the height.{' '}
+              <a href="https://www.healthychildren.org/english/healthy-living/sports/pages/is-your-child-ready-for-sports.aspx">Read the American Academy of Pediatrics’ sports-readiness guidance</a>.
+            </p>
+          </div>
         </section>
 
         <section id="strength-training-readiness">

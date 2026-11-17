@@ -24,7 +24,9 @@
   cursor: pointer;
 }
 .np-page section[id],
-.np-page article[id] {
+.np-page article[id],
+.np-page #open-free-trial,
+.np-page #open-free-trial-from-navigation {
   scroll-margin-top: 92px;
 }
 .np-hero {

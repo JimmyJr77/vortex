@@ -367,7 +367,10 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           { id: 'strength-practice', heading: 'Build strength for the same movement', description: 'A bodyweight squat lets an athlete practice lowering and standing with control. When they can repeat the movement consistently, the coach can decide whether light resistance is appropriate.' },
           { id: 'jump-practice', heading: 'Apply it to a jump', description: 'The coach might ask the athlete to land and hold their balance after a small two-foot jump. A steady finish gives the coach something to check before changing the height or difficulty.' },
         ],
-        links: [{ href: trainingFilm.path, label: 'Watch strength and movement training at Vortex', analyticsKey: 'watch_training_film' }],
+        links: [
+          { href: trainingFilm.path, label: 'Watch strength and movement training at Vortex', analyticsKey: 'watch_training_film' },
+          { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#balance-during-a-growth-spurt`, label: 'See how coaches can adapt a landing during a growth spurt', analyticsKey: 'read_youth_growth_spurt_balance' },
+        ],
       },
       {
         id: 'choose-a-class',

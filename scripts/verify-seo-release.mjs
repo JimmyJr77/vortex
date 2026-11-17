@@ -582,7 +582,14 @@ const verifyHtml = (
   if (pagePath === '/' && shouldIndex) {
     assert(h1s[0] === 'Gymnastics & youth athletic training in Bowie, MD',
       `${label}: the homepage heading must identify the programs and Bowie location`)
-    assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
+    const freeTrial = html.match(/<section\b[^>]*\sid=["']free-trial["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const trialLinks = tags(html, 'a').filter(tag => attribute(tag, 'data-analytics-cta') === 'free_trial')
+    for (const [anchor, source] of [['open-free-trial-from-navigation', 'navigation'], ['open-free-trial', 'free_trial']]) {
+      assert(trialLinks.some(tag => attribute(tag, 'href') === `#${anchor}` &&
+        attribute(tag, 'aria-haspopup') === 'dialog' && attribute(tag, 'data-analytics-section') === source) &&
+        new RegExp(`\\sid=["']${anchor}["']`).test(freeTrial),
+        `${label}: the homepage trial link from ${source} must work before JavaScript starts`)
+    }
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
     const startingClasses = html.match(/<section\b[^>]*\sid=["']starting-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     assert(tags(html, 'a').some(tag => attribute(tag, 'data-analytics-cta') === 'explore_programs' &&
@@ -1007,7 +1014,7 @@ const verifyHtml = (
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
       if (canonical === fitAndFlipCanonical) {
-        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility', '#youth-performance-assessment']) {
+        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility', '#youth-performance-assessment', '#balance-during-a-growth-spurt']) {
           assert(links.some((url) => url.href === `${guideCanonical}${hash}`),
             `${label}: missing the link to the parent guide at ${hash}`)
         }
@@ -1036,10 +1043,14 @@ const verifyHtml = (
         `${label}: missing the crawlable youth soccer example, sources, or Cyclones schedule link`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
-      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress', '#youth-performance-assessment']) {
+      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress', '#youth-performance-assessment', '#balance-during-a-growth-spurt']) {
         assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === hash),
           `${label}: missing the link to ${hash} in the guide outline`)
       }
+      const growth = progression.match(/<div\b[^>]*\sid=["']balance-during-a-growth-spurt["'][^>]*>[\s\S]*?<\/div>/i)?.[0] ?? ''
+      assert(/smaller hop/.test(growth) &&
+        anchorUrls(growth).some(url => url.href === 'https://www.healthychildren.org/english/healthy-living/sports/pages/is-your-child-ready-for-sports.aspx'),
+        `${label}: missing the growth-spurt balance example or American Academy of Pediatrics source`)
       assert(tags(sportsSeason, 'li').length === 2 &&
         anchorUrls(sportsSeason).some((url) => url.href === `${fitAndFlipCanonical}#fit-flip-class-example`),
         `${label}: missing the examples for training around the season or link to the public class example`)
@@ -1279,6 +1290,8 @@ const verifyHtml = (
     const nearbyTumbling = content.match(/<section\b[^>]*\sid=["']nearby-tumbling-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const nearbyTumblingLinks = anchorUrls(nearbyTumbling)
     for (const provider of [
+      'https://www.trainforgreatnessmd.com/tumbling',
+      'https://www.trainforgreatnessmd.com/private-lessons',
       'https://www.marlborocheer.org/tumbling.php',
       'https://www.mga-gymnastics.com/tumbling.html',
       'https://www.platinumforceathletics.com/tumbling-classes',

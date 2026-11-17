@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
 import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
@@ -26,6 +26,10 @@ import './NewPageFreeTrial.css'
 
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
 const NewPageInquiry = lazyWithRetry(() => import('./NewPageInquiry'))
+const TRIAL_ANCHORS = {
+  navigation: 'open-free-trial-from-navigation',
+  free_trial: 'open-free-trial',
+} as const
 
 type Program = 'gymnastics' | 'fit-flip'
 type Overlay = Program | 'finder' | 'inquiry' | 'video' | 'live' | 'trial' | null
@@ -188,7 +192,7 @@ function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, poster, fu
 }
 
 export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; isLoggedIn: boolean }) {
-  const { hash } = useLocation()
+  const { hash, key } = useLocation()
   useEffect(() => {
     if (!hash) return
     const frame = requestAnimationFrame(() => {
@@ -202,6 +206,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [inquiryProgram, setInquiryProgram] = useState<Program | undefined>()
   const [trialProgram, setTrialProgram] = useState<Program | undefined>()
+  const handledTrialLocation = useRef<string | null>(null)
   const [selectedGoal, setSelectedGoal] = useState<number | null>(null)
   const [activeTriad, setActiveTriad] = useState(0)
   const [motionPaused, setMotionPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData))
@@ -245,10 +250,35 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
     setOverlay('inquiry')
   }
 
-  function openTrial(section: string, program?: Program) {
+  const openTrial = useCallback((section: string, program?: Program) => {
     trackEvent('trial_start', '/', { properties: { section, program_slug: program } })
     setTrialProgram(program)
     setOverlay('trial')
+  }, [])
+
+  useEffect(() => {
+    const source = hash === `#${TRIAL_ANCHORS.navigation}` ? 'navigation'
+      : hash === `#${TRIAL_ANCHORS.free_trial}` ? 'free_trial' : null
+    if (!source) {
+      if (handledTrialLocation.current !== null) {
+        handledTrialLocation.current = null
+        setOverlay(current => current === 'trial' ? null : current)
+      }
+      return
+    }
+
+    // A native click can set the fragment before React replaces the snapshot.
+    const trialLocation = `${key}:${source}`
+    if (handledTrialLocation.current === trialLocation) return
+    handledTrialLocation.current = trialLocation
+    document.getElementById('np-free-trial-heading')?.focus({ preventScroll: true })
+    openTrial(source)
+  }, [hash, key, openTrial])
+
+  function activateTrialLink(event: MouseEvent<HTMLAnchorElement>, section: keyof typeof TRIAL_ANCHORS) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
+    event.preventDefault()
+    openTrial(section)
   }
 
   function openProgram(program: Program, target: string) {
@@ -277,7 +307,14 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         <div className="np-container np-nav">
           <Brand />
           <nav className="np-desktop-nav" aria-label="Main navigation"><PublicNavigationLinks /></nav>
-          <div className="np-nav-actions"><button className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button><button className="np-button np-nav-cta" data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={() => openTrial('navigation')}>Try a free class <ArrowUpRight size={16} /></button><button ref={menuToggle} className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
+          <div className="np-nav-actions">
+            <button className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button>
+            <a className="np-button np-nav-cta" href={`#${TRIAL_ANCHORS.navigation}`} aria-haspopup="dialog"
+              data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={event => activateTrialLink(event, 'navigation')}>
+              Try a free class <ArrowUpRight size={16} aria-hidden="true" />
+            </a>
+            <button ref={menuToggle} className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
+          </div>
         </div>
         {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation"><PublicNavigationLinks mobile onNavigate={() => setMenuOpen(false)} /><button data-analytics-cta="member_login" data-analytics-section="navigation" onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
       </header>
@@ -351,12 +388,15 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         </section>
 
         <section className="np-container np-trial-section" id="free-trial" aria-labelledby="np-free-trial-heading">
-          <div className="np-trial-invitation">
-            <div>
+          <div className="np-trial-invitation" id={TRIAL_ANCHORS.navigation}>
+            <div id={TRIAL_ANCHORS.free_trial}>
               <p className="np-eyebrow">A FIRST STEP. A NEW POSSIBILITY.</p>
-              <h2 id="np-free-trial-heading">Their next chapter.<br /><span>First class on us.</span></h2>
+              <h2 id="np-free-trial-heading" tabIndex={-1}>Their next chapter.<br /><span>First class on us.</span></h2>
               <p>Experience Gymnastics or Fit & Flip with a free trial class. Choose the right age group, find a day that works, and come see what your athlete can do.</p>
-              <button className="np-button" data-analytics-cta="free_trial" data-analytics-section="free_trial" onClick={() => openTrial('free_trial')}>Book a free trial <ArrowUpRight size={18} /></button>
+              <a className="np-button" href={`#${TRIAL_ANCHORS.free_trial}`} aria-haspopup="dialog"
+                data-analytics-cta="free_trial" data-analytics-section="free_trial" onClick={event => activateTrialLink(event, 'free_trial')}>
+                Book a free trial <ArrowUpRight size={18} aria-hidden="true" />
+              </a>
               <p className="np-trial-drop-in">Already used your free trial? Join us for a drop-in class.<Link to="/drop-in" data-analytics-cta="book_drop_in" data-analytics-section="free_trial">Book a drop-in class <ArrowUpRight size={16} /></Link></p>
             </div>
             <div className="np-trial-invitation-points">
