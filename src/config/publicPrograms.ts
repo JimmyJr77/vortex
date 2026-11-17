@@ -8,6 +8,7 @@ import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
 import type { FreeTrialProgram } from '../utils/freeTrialApi'
 import {
   ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
+  DEVELOPMENTAL_GYMNASTICS_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM,
   FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
   type RecurringBookingProgram,
 } from '../utils/publicBookingPrograms'
@@ -52,7 +53,6 @@ type PublicProgram = {
   relatedPaths: readonly PublicProgramPath[]
 }
 
-const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
 const GYMNASTICS_TRIAL_LABEL = 'Find a free gymnastics trial'
 const FIT_AND_FLIP_TRIAL_LABEL = 'Find a free Fit & Flip trial'
 const TUMBLING_GUIDE_ACTION = {
@@ -67,7 +67,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Youth gymnastics classes',
     path: '/gymnastics',
     title: 'Youth Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Choose a starting class, see what to wear, and book a free trial.',
+    description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Compare weekly class times and starting levels, or find a free trial.',
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: '/gymnastics-hero.webp',
@@ -77,6 +77,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageHeight: 1200,
     primaryAction: { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
     trial: { program: 'gymnastics', label: GYMNASTICS_TRIAL_LABEL },
+    recurringSchedule: {
+      id: 'youth-gymnastics-schedule',
+      heading: 'Weekly youth gymnastics class schedule',
+      description: 'Open a class to see the weekly times for Mommy & Me, preschool, and school-age developmental gymnastics. For a first visit, check the class ages and placement guidance below, then use the free trial finder.',
+      programName: DEVELOPMENTAL_GYMNASTICS_PROGRAM,
+    },
     sections: [
       {
         id: 'choose-a-class',
@@ -106,7 +112,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
         links: [
           { href: '/gymnastics#first-visit', label: 'Prepare for your first visit', analyticsKey: 'read_first_visit' },
-          { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse developmental gymnastics classes', analyticsKey: 'browse_classes' },
+          { href: '/gymnastics#youth-gymnastics-schedule', label: 'See weekly gymnastics class times', analyticsKey: 'read_youth_gymnastics_schedule' },
         ],
       },
       {

@@ -448,6 +448,12 @@ const verifyHtml = (
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
     if (pagePath === '/gymnastics') {
+      const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me, preschool/.test(schedule),
+        `${label}: missing the crawlable youth gymnastics schedule and age-group guidance`)
+      assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
+        url.searchParams.get('program') === 'Developmental Gymnastics'),
+        `${label}: the youth gymnastics schedule must link to developmental enrollment`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']first-visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>What to expect at your child’s first gymnastics class<\/h2>/i.test(firstVisit),
         `${label}: missing the first gymnastics visit section`)
@@ -617,7 +623,7 @@ const verifyHtml = (
     assert(/<h2\b[^>]*>Class schedule in Bowie, MD<\/h2>/i.test(schedule),
       `${label}: missing the static class schedule heading`)
     const bookingLinks = anchorUrls(schedule)
-    for (const path of ['/#free-trial', '/enroll', '/drop-in', '/adult-gymnastics']) {
+    for (const path of ['/#free-trial', '/enroll', '/gymnastics#youth-gymnastics-schedule', '/drop-in', '/adult-gymnastics']) {
       assert(bookingLinks.some((url) => url.href === `${HUB_ORIGIN}${path}`),
         `${label}: missing a static schedule link to ${path}`)
     }
@@ -626,7 +632,7 @@ const verifyHtml = (
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
     for (const path of [
-      '/gymnastics', '/gymnastics#first-visit', '/fit-and-flip', '/read-board',
+      '/gymnastics', '/gymnastics#first-visit', '/gymnastics#youth-gymnastics-schedule', '/fit-and-flip', '/read-board',
       YOUTH_ATHLETIC_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
     ]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),

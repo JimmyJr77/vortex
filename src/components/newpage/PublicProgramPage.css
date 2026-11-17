@@ -109,6 +109,32 @@
   font-weight: 400;
 }
 
+.np-program-schedule .np-recurring-schedule > .np-recurring-schedule-groups {
+  grid-template-columns: 1fr;
+  gap: 0;
+  max-width: 36rem;
+  border-top: 1px solid var(--np-line);
+}
+
+.np-recurring-schedule-groups details {
+  border-bottom: 1px solid var(--np-line);
+}
+
+.np-recurring-schedule-groups summary {
+  padding-block: 0.65rem;
+  cursor: pointer;
+}
+
+.np-recurring-schedule-groups summary span {
+  margin-inline-start: 0.4rem;
+  font-weight: 400;
+}
+
+.np-recurring-schedule-groups details ul {
+  padding: 0 0.75rem 0.75rem;
+  font-weight: 400;
+}
+
 .np-adult-pricing {
   margin-top: 16px;
   padding: 12px 16px;

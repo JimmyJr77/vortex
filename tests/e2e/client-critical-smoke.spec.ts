@@ -79,6 +79,52 @@ test.describe('Client-critical smoke flows', () => {
     await expect(calendar).toBeVisible()
   })
 
+  test('the youth gymnastics page lists published weekly times and keeps class levels distinct', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.clock.setFixedTime(new Date('2027-01-12T18:00:00Z'))
+    const developmentalProgram = 2
+    const enrollmentClass = (formId: number, displayName: string, skillLevel: string, enrollVisible = true) =>
+      ({ id: formId, formId, displayName, skillLevel, enrollVisible })
+    const classes = [
+      enrollmentClass(9, 'Tornadoes', 'BEGINNER'), enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'),
+      enrollmentClass(14, 'Hidden class', 'ADVANCED', false), enrollmentClass(15, 'Expired class', 'ADVANCED'),
+      enrollmentClass(16, 'Different program form', 'ADVANCED'),
+    ]
+    await page.route('**/api/public/classes-offered', (route) => route.fulfill({ json: {
+      success: true, data: { programs: [
+        { id: developmentalProgram, displayName: 'Development Gymnastics', classes },
+        { id: 9, displayName: 'Fit & Flip', classes: [enrollmentClass(30, 'Cyclones (8–11)', 'BEGINNER')] },
+        { id: 13, displayName: 'Vortex Gymnastics Team', classes: [enrollmentClass(31, 'Team', 'ADVANCED')] },
+      ] },
+    } }))
+    const requestedForms = new Set<number>()
+    await page.route(/\/api\/scheduling\/forms\/\d+(?:\/offerings)?$/, (route) => {
+      const [, id, offerings] = new URL(route.request().url()).pathname.match(/\/(\d+)(\/offerings)?$/)!
+      const formId = Number(id)
+      requestedForms.add(formId)
+      const offeringId = formId + 100
+      const slot = { formId, isActive: true, scheduleMode: 'day', dayOfWeek: 2,
+        dayName: 'Tuesday', startTime: '16:00', endTime: '17:30' }
+      const data = offerings ? [{ id: offeringId, formId, endDate: formId === 15 ? '2026-12-31' : null }] : {
+        id: formId, isActive: true, programsId: formId === 16 ? 9 : developmentalProgram,
+        slotGroups: [{ id: formId, formId, offeringId, isActive: true, scheduleMode: 'day', occurrences: [slot] }],
+      }
+      return route.fulfill({ json: { success: true, data } })
+    })
+
+    await page.goto('/gymnastics#youth-gymnastics-schedule')
+    const schedule = page.getByRole('region', { name: 'Weekly youth gymnastics class schedule' })
+    await expect(schedule.getByRole('heading')).toBeInViewport()
+    await expect(schedule.locator('summary')).toHaveText(['Tornadoes Beginner', 'Cyclones Intermediate'])
+    const times = schedule.getByText('Tuesday · 4:00 PM – 5:30 PM', { exact: true })
+    await expect(times.first()).toBeHidden()
+    await schedule.getByText('Tornadoes Beginner', { exact: true }).click()
+    await expect(times.first()).toBeVisible()
+    await expect(schedule.getByRole('link', { name: 'Check dates and availability' }))
+      .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics')
+    expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])
+  })
+
   test('Day view keeps an eligible class time and date in the enrollment link', async ({ page }) => {
     await page.clock.setFixedTime(new Date(`${classDate}T12:00:00`))
     const events = [

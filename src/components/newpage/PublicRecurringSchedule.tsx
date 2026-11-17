@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { ADULT_BOOKING_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
+import { formatSkillLevel } from '../../utils/classDisplayUtils'
+import { ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
 import {
   fetchPublicSchedulingForm,
@@ -10,7 +11,7 @@ import {
 import { sortOccurrences } from '../../utils/slotSort'
 import AdultGymnasticsPricing, { type RecurringPriceClass } from './AdultGymnasticsPricing'
 
-type ClassTimes = RecurringPriceClass & { name: string; times: string[] }
+type ClassTimes = RecurringPriceClass & { name: string; skillLevel: string | null; times: string[] }
 type ScheduleState =
   | { status: 'loading' | 'unavailable' }
   | { status: 'loaded'; classes: ClassTimes[] }
@@ -31,7 +32,7 @@ async function loadClassTimes(programName: RecurringBookingProgram): Promise<Cla
 
   const dateParts = easternDate.formatToParts(new Date())
   const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type)?.value).join('-')
-  const classes = await Promise.allSettled(program.classes.map(async ({ id: classId, formId, displayName }) => {
+  const classes = await Promise.allSettled(program.classes.map(async ({ id: classId, formId, displayName, skillLevel }) => {
     const [form, offerings] = await Promise.all([
       fetchPublicSchedulingForm(formId), fetchPublicSchedulingOfferings(formId),
     ])
@@ -55,7 +56,7 @@ async function loadClassTimes(programName: RecurringBookingProgram): Promise<Cla
     const includeWeek = slotGroupHasMultipleWeekLetters(slots)
     const times = Array.from(new Set(sortOccurrences(slots).map((slot) =>
       formatSchedulingOccurrenceLabel(slot, { includeWeek }))))
-    return times.length ? { classId, formId, name: displayName, times, groups } : null
+    return times.length ? { classId, formId, name: displayName, skillLevel, times, groups } : null
   }))
 
   return classes.flatMap((result) => result.status === 'fulfilled' && result.value ? [result.value] : [])
@@ -65,6 +66,7 @@ export default function PublicRecurringSchedule({ programName }: {
   programName: RecurringBookingProgram
 }) {
   const [schedule, setSchedule] = useState<ScheduleState>({ status: 'loading' })
+  const isDevelopmentalGymnastics = programName === DEVELOPMENTAL_GYMNASTICS_PROGRAM
 
   useEffect(() => {
     let current = true
@@ -82,13 +84,20 @@ export default function PublicRecurringSchedule({ programName }: {
         <p>Checking recurring class times…</p>
       ) : schedule.status === 'loaded' && schedule.classes.length ? (
         <>
-          <ul>
-            {schedule.classes.map(({ formId, name, times }) => (
-              <li key={formId}>
-                {name}
-                <ul>{times.map((time) => <li key={time}>{time}</li>)}</ul>
-              </li>
-            ))}
+          <ul className={isDevelopmentalGymnastics ? 'np-recurring-schedule-groups' : undefined}>
+            {schedule.classes.map(({ formId, name, times, skillLevel }) => {
+              const timeList = <ul>{times.map((time) => <li key={time}>{time}</li>)}</ul>
+              return (
+                <li key={formId}>
+                  {isDevelopmentalGymnastics ? (
+                    <details>
+                      <summary>{name} {skillLevel && <span>{formatSkillLevel(skillLevel)}</span>}</summary>
+                      {timeList}
+                    </details>
+                  ) : <>{name}{timeList}</>}
+                </li>
+              )
+            })}
           </ul>
           <p>All times Eastern. Check enrollment for dates and availability.</p>
         </>

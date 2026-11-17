@@ -88,7 +88,8 @@ export default function BowieYouthSportsGuide() {
           <p>
             If they keep talking about tumbling or learning a cartwheel, look for a gymnastics class matched to
             their age and experience. <Link to="/gymnastics">Explore youth gymnastics at Vortex</Link> and see{' '}
-            <Link to="/gymnastics#first-visit">what to expect at their first class</Link>.
+            <Link to="/gymnastics#first-visit">what to expect at their first class</Link>. Compare{' '}
+            <Link to="/gymnastics#youth-gymnastics-schedule">weekly youth gymnastics times</Link> before choosing a class.
             For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what children learn in preschool gymnastics</Link>.
           </p>
           <p>
