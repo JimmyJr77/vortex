@@ -20,6 +20,7 @@ export type PublicYouthBooking = {
     times: { days: string; startTime: string; endTime: string }[]
     monthlyTuition: [number, number] | null
     dropIn: [number, number] | null
+    dropInDays: string[]
     dropInExcluded: boolean
   }[]
 }

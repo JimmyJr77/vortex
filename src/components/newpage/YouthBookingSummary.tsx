@@ -4,6 +4,7 @@ import { formatCents } from '../../utils/money'
 
 const calendarDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' })
 const clockTime = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
+const dayList = new Intl.ListFormat('en-US', { style: 'long', type: 'conjunction' })
 
 function formatTime(time: string) {
   return clockTime.format(new Date(`1970-01-01T${time}Z`))
@@ -25,7 +26,7 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
         <p>All times Eastern.</p>
       </header>
       <ul className="np-youth-booking-classes">
-        {booking.classes.map(({ formId, name, times, monthlyTuition, dropIn, dropInExcluded }) => (
+        {booking.classes.map(({ formId, name, times, monthlyTuition, dropIn, dropInDays, dropInExcluded }) => (
           <li key={formId}>
             <h4>
               <Link to={`${enrollmentHref}&form=${formId}`} data-analytics-cta="browse_classes" data-analytics-section="youth_booking_summary">{name}</Link>
@@ -46,6 +47,7 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
                 )}
               </dl>
             )}
+            {dropInDays.length > 0 && <p className="mt-2 text-sm text-gray-600">Listed drop-ins include dates on {dayList.format(dropInDays)}.</p>}
           </li>
         ))}
       </ul>

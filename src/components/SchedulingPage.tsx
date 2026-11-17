@@ -1,6 +1,7 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Calendar, Loader2 } from 'lucide-react'
+import { PARKING_AND_ACCESSIBILITY_PATH } from '../config/contact'
 import {
   saveSchedulingMemberEmail,
   type SchedulingSignupCompleteDetail,
@@ -18,10 +19,12 @@ import {
   isAdultBookingProgram,
 } from '../utils/publicBookingPrograms'
 import { getApiUrl } from '../utils/api'
-import SchedulingSignupEmbed from './SchedulingSignupEmbed'
+import { lazyWithRetry } from '../utils/chunkLoadRecovery'
 import PublicClassesOfferedEnroll from './enroll/PublicClassesOfferedEnroll'
 import EnrollmentOrderEditor from './enroll/EnrollmentOrderEditor'
 import './enroll/PublicEnrollment.css'
+
+const SchedulingSignupEmbed = lazyWithRetry(() => import('./SchedulingSignupEmbed'))
 
 function parseOptionalInt(raw: string | null): number | null | undefined {
   if (raw == null || raw === '') return undefined
@@ -68,7 +71,10 @@ function EnrollmentHero({ mode = 'browse' }: { mode?: keyof typeof enrollmentHer
             <Link to={ADULT_BOOKING_HREF} className="font-semibold text-vortex-red underline underline-offset-4"
               data-analytics-cta="browse_classes" data-analytics-section="adult_enrollment_entry">
               see adult gymnastics class times
-            </Link>.
+            </Link>.{' '}
+            <Link to={PARKING_AND_ACCESSIBILITY_PATH} className="font-semibold text-vortex-red underline underline-offset-4">
+              Check parking and accessibility
+            </Link> before your first visit.
           </>}
         </p>
         {mode === 'browse' && (
@@ -193,17 +199,24 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
                 <ArrowLeft className="w-4 h-4" /> {backLabel}
               </button>
             )}
-            <SchedulingSignupEmbed
-              key={`${signupFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}:${urlEnrollmentStartDate ?? 'none'}`}
-              formId={signupFormId}
-              initialOfferingId={urlOfferingId}
-              initialSlotGroupId={urlSlotGroupId}
-              initialTimeSlotId={urlTimeSlotId}
-              initialAuthToken={urlAuthToken}
-              initialEmail={urlEmail ?? getLoggedInMemberEmail()}
-              initialEnrollmentStartDate={urlEnrollmentStartDate}
-              onSignupComplete={handleSignupComplete}
-            />
+            <Suspense fallback={
+              <div className="np-enrollment-state" role="status">
+                <Loader2 className="w-8 h-8 animate-spin text-vortex-red" aria-hidden="true" />
+                <p>Loading registration…</p>
+              </div>
+            }>
+              <SchedulingSignupEmbed
+                key={`${signupFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}:${urlEnrollmentStartDate ?? 'none'}`}
+                formId={signupFormId}
+                initialOfferingId={urlOfferingId}
+                initialSlotGroupId={urlSlotGroupId}
+                initialTimeSlotId={urlTimeSlotId}
+                initialAuthToken={urlAuthToken}
+                initialEmail={urlEmail ?? getLoggedInMemberEmail()}
+                initialEnrollmentStartDate={urlEnrollmentStartDate}
+                onSignupComplete={handleSignupComplete}
+              />
+            </Suspense>
           </div>
         </section>
       </div>

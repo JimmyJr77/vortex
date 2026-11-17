@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { Suspense, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
+import { PARKING_AND_ACCESSIBILITY_PATH } from '../config/contact'
 import { trackEvent } from '../utils/analyticsClient'
 import { lazyWithRetry } from '../utils/chunkLoadRecovery'
 import ReadBoardClassesTab from './readBoard/ReadBoardClassesTab'
@@ -57,7 +58,8 @@ const ReadBoard = () => {
             <p className="np-browse-eyebrow">Find your next step</p>
             <h1>Classes &amp; schedules.</h1>
             <p className="np-browse-description">
-              Browse class times, camps, and events at our Bowie gym.
+              Browse class times, camps, and events at our Bowie gym.{' '}
+              <Link className="underline" to={PARKING_AND_ACCESSIBILITY_PATH}>See parking and accessibility</Link>.
               {' '}For competition, see <Link className="underline" to="/gymnastics#competitive-gymnastics-team">how gymnastics team placement works</Link>.
               {' '}If you’re still choosing an activity, <Link className="underline" to={BOWIE_YOUTH_SPORTS_GUIDE.path}>compare youth sports in Bowie</Link>.
             </p>

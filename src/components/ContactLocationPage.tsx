@@ -67,7 +67,12 @@ function InsideTheGym() {
       className="section-padding scroll-mt-[calc(var(--site-header-height,90px)_+_1rem)] bg-gray-50">
       <div className="container-custom">
         <h2 id="inside-the-gym-heading" className="text-3xl font-display font-bold md:text-4xl">Inside the Bowie gym</h2>
-        <p className="mt-4 max-w-2xl text-gray-700">Before your first visit, confirm your class time and complete any required waivers. The photos show the training spaces at our Tesla Drive location.</p>
+        <p className="mt-4 max-w-2xl text-gray-700">
+          Before your first visit,{' '}
+          <Link className="font-semibold underline underline-offset-4 hover:text-vortex-red" to="/read-board#schedule">check the class schedule</Link>
+          {' '}and complete any waivers requested during registration. Trying one class?{' '}
+          <Link className="font-semibold underline underline-offset-4 hover:text-vortex-red" to="/drop-in">See available drop-in dates</Link>.
+        </p>
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {trainingSpaces.map(({ photo, heading, detail, href, label }) => (
             <article key={photo.src} className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white">
@@ -190,6 +195,13 @@ export default function ContactLocationPage({ onInquireClick }: ContactLocationP
           <a className="font-semibold underline underline-offset-4 hover:text-vortex-red" href={`tel:${TEAM_PHONE_E164}`}>
             call us at {TEAM_PHONE}
           </a> before your visit.
+        </p>
+        <p className="mt-2 max-w-2xl text-gray-700">
+          Melford Town Center is in the free Bowie PGC Link service area. Check the{' '}
+          <a className="font-semibold underline underline-offset-4 hover:text-vortex-red"
+            href="https://www.princegeorgescountymd.gov/departments-offices/public-works-transportation/metro-and-transportation/gopgc/microtransit-pgc-link">
+            county’s pickup area and service hours
+          </a>{' '}for both directions before booking a ride.
         </p>
       </section>
       <p className="container-custom mt-6 text-sm text-gray-700">

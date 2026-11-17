@@ -562,6 +562,11 @@ const verifyHtml = (
     }
   }
 
+  if (shouldIndex && ['/read-board', '/enroll', '/drop-in'].includes(pagePath)) {
+    assert(anchorUrls(html).some(url => url.href === accessibilityUrl),
+      label + ': the public booking page must link to parking and accessibility')
+  }
+
   if (shouldIndex && ['/contact', '/drop-in'].includes(pagePath)) {
     const introduction = [...html.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
       .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
@@ -584,6 +589,9 @@ const verifyHtml = (
         accessLinks.some(url => url.href === 'https://www.google.com/maps?cid=15262285316302188709') &&
         accessLinks.some(url => url.href === 'tel:+14434224794') && /Melford Town Center/.test(html),
         `${label}: missing the facility arrival details, verified Maps listing, or contact number`)
+      assert(/Melford Town Center/.test(accessibility) && /Bowie PGC Link/.test(accessibility) &&
+        accessLinks.some(url => url.hostname === 'www.princegeorgescountymd.gov' && url.pathname.endsWith('/microtransit-pgc-link')),
+        label + ': the arrival section must link to the county transit details for Melford')
       const gallery = html.match(/<section\b[^>]*\sid=["']inside-the-gym["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const galleryPhotos = tags(gallery, 'img')
       assert(/<h2\b[^>]*>Inside the Bowie gym<\/h2>/i.test(gallery) && galleryPhotos.length === 5 &&
@@ -591,6 +599,8 @@ const verifyHtml = (
           attribute(tag, 'sizes').startsWith('auto, ') && /\b640w\b/.test(attribute(tag, 'srcset'))),
         `${label}: the facility gallery must render five labelled, responsive, lazy-loaded photos`)
       const galleryLinks = anchorUrls(gallery)
+      assert(['/read-board#schedule', '/drop-in'].every(path => galleryLinks.some(url => url.href === HUB_ORIGIN + path)),
+        label + ': the facility gallery must link to the class schedule and drop-in dates')
       assert(pageIds.has('gymnastics-equipment') && tags(gallery, 'figcaption').length === 2 &&
         galleryLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
         `${label}: missing the equipment captions or where to ask about class equipment`)
@@ -1209,6 +1219,11 @@ const verifyHtml = (
         }
       }
       if (pagePath === '/contact') {
+        const contactPage = parsed.find(item => item?.['@type'] === 'ContactPage')
+        assert(contactPage?.['@id'] === canonical && contactPage?.url === canonical && contactPage?.name === h1s[0] &&
+          contactPage?.isPartOf?.['@id'] === website?.['@id'] && contactPage?.mainEntity?.['@id'] === locationId &&
+          contactPage?.primaryImageOfPage === location?.image,
+          label + ': ContactPage must identify the same Bowie facility as the site and visible contact information')
         assert(tags(html, 'img').some((tag) => `${HUB_ORIGIN}${attribute(tag, 'src')}` === location?.image && attribute(tag, 'alt')),
           `${label}: the facility photo in structured data must be visible on Contact`)
         assert(ogImages[0] === location?.image, `${label}: the contact page preview must use the Bowie facility photo`)

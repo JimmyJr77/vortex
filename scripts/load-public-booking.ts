@@ -187,9 +187,12 @@ async function loadYouthBooking(program: CatalogProgram | undefined, dropIns: Dr
     const times = weeklyTimes(options)
     const monthlyTuition = showTuition && catalog?.costUnit === 'per_month' ? priceRange(options.map(option => option.priceCents)) : null
     const dropInExcluded = (classItem.excludeFromDropIns ?? program.excludeFromDropIns) === true
-    const dropIn = dropInExcluded ? null : priceRange(datesForClass(dropIns, program.id, classItem, checkedOn).map(session => session.totalCents))
+    const dropInDates = dropInExcluded ? [] : datesForClass(dropIns, program.id, classItem, checkedOn)
+    const dropIn = priceRange(dropInDates.map(session => session.totalCents))
+    const utcDays = new Set(dropInDates.map(({ date }) => new Date(date).getUTCDay()))
+    const dropInDays = weekdays.filter((_, index) => utcDays.has((index + 1) % weekdays.length))
     if (times.length === 0 && monthlyTuition === null && dropIn === null) return null
-    return { formId: classItem.formId, name: classItem.displayName, times, monthlyTuition, dropIn, dropInExcluded }
+    return { formId: classItem.formId, name: classItem.displayName, times, monthlyTuition, dropIn, dropInDays, dropInExcluded }
   }))
   const verified = rows.flatMap(row => row.status === 'fulfilled' && row.value ? [row.value] : [])
   return verified.length ? { checkedOn, classes: verified } : null

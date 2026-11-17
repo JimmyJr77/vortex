@@ -15,6 +15,7 @@ import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatPublicAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
+import { PARKING_AND_ACCESSIBILITY_PATH } from '../config/contact'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 import './DropInPage.css'
 
@@ -294,7 +295,10 @@ export default function DropInPage() {
             <Link className="inline-flex min-h-11 items-center" to={ADULT_DROP_IN_HREF} data-analytics-cta="browse_typhoons_drop_ins" data-analytics-section="drop_in_programs">Typhoons drop-in dates</Link>
           </nav>
         </>}
-        <p className="np-drop-in-hero-note">Look for <strong>Accepts free trials</strong> when you choose a time. Registration checks whether the selected athlete has an unused one-time trial.</p>
+        <p className="np-drop-in-hero-note">
+          Look for <strong>Accepts free trials</strong> when you choose a time. Registration checks whether the selected athlete has an unused one-time trial.{' '}
+          <Link className="font-semibold underline underline-offset-4" to={PARKING_AND_ACCESSIBILITY_PATH}>See parking and accessibility</Link>.
+        </p>
       </div>
     </section>
 

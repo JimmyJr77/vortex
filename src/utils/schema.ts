@@ -327,6 +327,20 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     )
   }
 
+  if (pathname === '/contact') {
+    schema.push({
+      '@context': 'https://schema.org',
+      '@type': 'ContactPage',
+      '@id': url,
+      url,
+      name: 'Contact Vortex Athletics in Bowie, MD',
+      isPartOf: { '@id': `${HUB_ORIGIN}/#website` },
+      mainEntity: { '@id': locationId },
+      primaryImageOfPage: `${HUB_ORIGIN}${BUSINESS_FACILITY_PHOTO.src}`,
+      inLanguage: 'en-US',
+    })
+  }
+
   if (pathname === guideIndex.path) {
     schema.push({
       '@context': 'https://schema.org',
