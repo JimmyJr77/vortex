@@ -20,6 +20,7 @@ const PublicSchedulingCalendar = ({ theme = 'dark' }: PublicSchedulingCalendarPr
   const [calendar, setCalendar] = useState<SchedulingCalendarMonth | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [retryVersion, setRetryVersion] = useState(0)
 
   const dateRange = useMemo(
     () => dateRangeForView(nav.view, nav.year, nav.month, nav.focusDate),
@@ -35,32 +36,31 @@ const PublicSchedulingCalendar = ({ theme = 'dark' }: PublicSchedulingCalendarPr
     }
   }, [])
 
-  const loadCalendar = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const data = await fetchPublicSchedulingCalendar({
-        startDate: dateRange.startDate,
-        endDate: dateRange.endDate,
-        programId:
-          nav.view === 'byClass' && classFilterId !== 'none' ? classFilterId : null,
-      })
-      setCalendar(data)
-    } catch (e) {
-      setCalendar(null)
-      setError(e instanceof Error ? e.message : 'Failed to load calendar')
-    } finally {
-      setLoading(false)
-    }
-  }, [dateRange.startDate, dateRange.endDate, nav.view, classFilterId])
-
   useEffect(() => {
     loadClassOptions()
   }, [loadClassOptions])
 
+  const classId = nav.view === 'byClass' && classFilterId !== 'none' ? classFilterId : null
   useEffect(() => {
-    loadCalendar()
-  }, [loadCalendar])
+    const controller = new AbortController()
+    setLoading(true)
+    setError(null)
+    void fetchPublicSchedulingCalendar({
+      startDate: dateRange.startDate,
+      endDate: dateRange.endDate,
+      programId: classId,
+      signal: controller.signal,
+    }).then((data) => {
+      if (!controller.signal.aborted) setCalendar(data)
+    }).catch((reason: unknown) => {
+      if (controller.signal.aborted) return
+      setCalendar(null)
+      setError(reason instanceof Error ? reason.message : 'Failed to load calendar')
+    }).finally(() => {
+      if (!controller.signal.aborted) setLoading(false)
+    })
+    return () => controller.abort()
+  }, [dateRange.startDate, dateRange.endDate, classId, retryVersion])
 
   return (
     <SchedulingCalendarView
@@ -84,7 +84,7 @@ const PublicSchedulingCalendar = ({ theme = 'dark' }: PublicSchedulingCalendarPr
       onProgramFilterChange={() => {}}
       onFormActiveFilterChange={() => {}}
       onClassFilterChange={setClassFilterId}
-      onRetry={loadCalendar}
+      onRetry={() => setRetryVersion((version) => version + 1)}
       theme={theme}
     />
   )

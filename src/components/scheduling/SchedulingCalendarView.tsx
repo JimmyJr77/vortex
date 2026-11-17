@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { formatDateForDisplay } from '../../utils/dateUtils'
 import {
   formatSchedulingOccurrenceLabel,
+  schedulingEnrollPath,
   schedulingSignupPath,
   type CalendarFormActiveFilter,
   type PublicSchedulingClassOption,
@@ -323,19 +324,22 @@ const SchedulingCalendarView = ({
     </PortalOverlay>
   }
 
-  const renderSignupButton = (event: SchedulingCalendarEvent, compact = false) => {
-    if (mode !== 'public' || !event.enrollVisible || event.isCancelled) return null
-    const url = schedulingSignupPath(event.formId)
+  const renderSignupButton = (event: SchedulingCalendarEvent) => {
+    if (mode !== 'public' || event.date < today || !event.enrollVisible || event.isCancelled || event.isTrialAssessment ||
+      !event.formActive || !event.classActive || !event.slotGroupActive || !event.slotActive) return null
+    const url = schedulingEnrollPath({
+      formId: event.formId,
+      offeringId: event.offeringId,
+      slotGroupId: event.slotGroupId,
+      timeSlotId: event.timeSlotId,
+      enrollmentStartDate: event.date,
+    })
     return (
-      <Link
-        to={url}
-        className={`inline-flex items-center justify-center rounded-lg font-semibold text-white bg-vortex-red hover:bg-red-700 transition-colors ${
-          compact ? 'text-xs px-2 py-1' : 'text-sm px-4 py-2'
-        }`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        Sign Up
-      </Link>
+      <div className="mt-3 flex justify-end">
+        <Link to={url} className="inline-flex items-center justify-center rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700">
+          Sign Up
+        </Link>
+      </div>
     )
   }
 
@@ -409,9 +413,7 @@ const SchedulingCalendarView = ({
             </p>
           )}
         </button>
-        {showSignup && (
-          <div className="mt-3 flex justify-end">{renderSignupButton(event)}</div>
-        )}
+        {showSignup && renderSignupButton(event)}
       </div>
     )
   }

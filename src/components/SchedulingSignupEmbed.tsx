@@ -14,6 +14,7 @@ import {
   loginSchedulingAuthFromMemberSession,
   memberSignupSlotKey,
   requestSchedulingMagicLink,
+  schedulingEnrollPath,
   schedulingHasMultipleWeeks,
   submitSchedulingSignupBatch,
   createEnrollmentCheckoutSession,
@@ -38,22 +39,6 @@ import OrderPricingSummary from './pricing/OrderPricingSummary'
 import { compareScheduleOptions, daySortIndex, sortSlotGroups } from '../utils/slotSort'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 import { formatDateShort } from '../utils/dateUtils'
-
-function buildSchedulingReturnUrl(
-  formId: number,
-  offeringId?: number | null | undefined,
-  slotGroupId?: number | null,
-  timeSlotId?: number | null,
-  enrollmentStartDate?: string | null,
-) {
-  const params = new URLSearchParams()
-  params.set('form', String(formId))
-  if (offeringId != null) params.set('offeringId', String(offeringId))
-  if (slotGroupId != null) params.set('slotGroupId', String(slotGroupId))
-  if (timeSlotId != null) params.set('timeSlotId', String(timeSlotId))
-  if (enrollmentStartDate) params.set('enrollmentStartDate', enrollmentStartDate)
-  return `/enroll?${params.toString()}`
-}
 
 function formatTimeLabel(time: string) {
   const [h, m] = time.split(':').map(Number)
@@ -1002,13 +987,7 @@ const SchedulingSignupEmbed = ({
           setMagicLinkSent(true)
         }
       } else {
-        const returnTo = buildSchedulingReturnUrl(
-          formId,
-          offeringId,
-          slotGroupId,
-          timeSlotId,
-          enrollmentStartDate,
-        )
+        const returnTo = schedulingEnrollPath({ formId, offeringId, slotGroupId, timeSlotId, enrollmentStartDate })
         window.location.assign(`/signup/family?return=${encodeURIComponent(returnTo)}`)
       }
     } catch (err) {

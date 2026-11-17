@@ -714,6 +714,7 @@ export function schedulingEnrollPath(options?: {
   offeringId?: number | null
   slotGroupId?: number | null
   timeSlotId?: number | null
+  enrollmentStartDate?: string | null
 }): string {
   if (!options?.formId && options?.programsId == null) {
     return ENROLL_PATH
@@ -732,6 +733,9 @@ export function schedulingEnrollPath(options?: {
   }
   if (options.timeSlotId != null) {
     params.set('timeSlotId', String(options.timeSlotId))
+  }
+  if (options.enrollmentStartDate) {
+    params.set('enrollmentStartDate', options.enrollmentStartDate)
   }
   return `${ENROLL_PATH}?${params.toString()}`
 }
@@ -2076,6 +2080,7 @@ export async function fetchPublicSchedulingCalendar(params: {
   endDate?: string
   programsId?: number | null
   programId?: number | null
+  signal?: AbortSignal
 }): Promise<SchedulingCalendarMonth> {
   const qs = new URLSearchParams()
   if (params.startDate && params.endDate) {
@@ -2091,7 +2096,7 @@ export async function fetchPublicSchedulingCalendar(params: {
   if (params.programId != null) {
     qs.set('programId', String(params.programId))
   }
-  const res = await fetch(`${getApiUrl()}/api/scheduling/calendar?${qs.toString()}`)
+  const res = await fetch(`${getApiUrl()}/api/scheduling/calendar?${qs.toString()}`, { signal: params.signal })
   return parseJson(res)
 }
 
