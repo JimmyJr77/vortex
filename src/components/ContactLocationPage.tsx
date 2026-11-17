@@ -6,9 +6,11 @@ import {
   BUSINESS_HOURS,
   BUSINESS_NAP,
   CONTACT_INQUIRY_ID,
+  CONTACT_INQUIRY_PATH,
   GOOGLE_DIRECTIONS_URL,
   GOOGLE_MAPS_URL,
   GOOGLE_REVIEW_URL,
+  GYMNASTICS_EQUIPMENT_ID,
   INSIDE_THE_GYM_ID,
   INSIDE_THE_GYM_PATH,
   PARKING_AND_ACCESSIBILITY_ID,
@@ -20,6 +22,7 @@ import {
 import searchPhotos from '../config/publicSearchPhotos.json'
 
 const { springFloor, trampoline, strengthEquipment } = searchPhotos.homepageGallery
+const { balanceBeams, trainingRings } = searchPhotos.facilityApparatus
 const trainingSpaces = [
   {
     photo: springFloor,
@@ -62,6 +65,26 @@ function InsideTheGym() {
               </div>
             </article>
           ))}
+        </div>
+        <div id={GYMNASTICS_EQUIPMENT_ID} role="region" aria-labelledby="gymnastics-equipment-heading"
+          className="mt-10 scroll-mt-[calc(var(--site-header-height,90px)_+_1rem)]">
+          <h3 id="gymnastics-equipment-heading" className="text-2xl font-bold">Balance beams and training rings</h3>
+          <div className="mt-4 grid gap-6 sm:grid-cols-2">
+            <figure className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+              <img {...balanceBeams} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
+              <figcaption className="p-4 text-gray-700">Low practice beams beside the tumbling track.</figcaption>
+            </figure>
+            <figure className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
+              <img {...trainingRings} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
+              <figcaption className="p-4 text-gray-700">Suspended wooden rings above the padded training area.</figcaption>
+            </figure>
+          </div>
+          <p className="mt-4 text-gray-700">
+            Interested in specific apparatus?{' '}
+            <Link to={CONTACT_INQUIRY_PATH} className="font-semibold underline underline-offset-4 hover:text-vortex-red">
+              Ask which equipment your class uses
+            </Link>.
+          </p>
         </div>
         <p className="mt-6 text-gray-700">Visiting for an adult class?{' '}
           <Link to="/adult-gymnastics#class-format" className="font-semibold underline underline-offset-4 hover:text-vortex-red">See what to expect in Typhoons</Link>.

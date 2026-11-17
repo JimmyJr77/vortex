@@ -5,6 +5,10 @@
   "plyometrics": "/plyometrics-1600.webp",
   "preschoolGymnastics": "/campaign_early_dev_hero-1600.webp",
   "tumbling": "/tramp-tumble-hero-1600.webp",
+  "facilityApparatus": {
+    "balanceBeams": { "src": "/gym-DSC02690-1600.webp", "alt": "Two low balance beams beside the tumbling track at Vortex Athletics" },
+    "trainingRings": { "src": "/gym-DSC02672-1600.webp", "alt": "Wooden training rings hanging above red and blue mats at Vortex Athletics" }
+  },
   "homepageGallery": {
     "strengthTraining": { "src": "/strength-1600.webp", "alt": "Strength training at Vortex" },
     "agilityDrills": { "src": "/agility-1600.webp", "alt": "Agility drills at Vortex" },

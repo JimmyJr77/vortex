@@ -547,10 +547,13 @@ const verifyHtml = (
         `${label}: missing the facility arrival details, verified Maps listing, or contact number`)
       const gallery = html.match(/<section\b[^>]*\sid=["']inside-the-gym["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const galleryPhotos = tags(gallery, 'img')
-      assert(/<h2\b[^>]*>Inside the Bowie gym<\/h2>/i.test(gallery) && galleryPhotos.length === 3 &&
+      assert(/<h2\b[^>]*>Inside the Bowie gym<\/h2>/i.test(gallery) && galleryPhotos.length === 5 &&
         galleryPhotos.every((tag) => attribute(tag, 'alt') && attribute(tag, 'loading') === 'lazy'),
-        `${label}: the facility gallery must render three labelled, lazy-loaded photos`)
+        `${label}: the facility gallery must render five labelled, lazy-loaded photos`)
       const galleryLinks = anchorUrls(gallery)
+      assert(pageIds.has('gymnastics-equipment') && tags(gallery, 'figcaption').length === 2 &&
+        galleryLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
+        `${label}: missing the equipment captions or where to ask about class equipment`)
       for (const path of ['/gymnastics#choose-a-class', '/fit-and-flip#body-control', '/fit-and-flip#strength', '/adult-gymnastics#class-format']) {
         assert(galleryLinks.some((url) => url.href === `${HUB_ORIGIN}${path}`),
           `${label}: missing facility gallery link to ${path}`)
@@ -899,6 +902,7 @@ const verifyHtml = (
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const artistic = html.match(/<article\b[^>]*\sid=["']artistic["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const disciplines = html.match(/<section\b[^>]*\sid=["']disciplines["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const homeschool = html.match(/<section\b[^>]*\sid=["']homeschool["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const teamLinks = anchorUrls(team)
@@ -912,6 +916,8 @@ const verifyHtml = (
       `${label}: missing the placement link for experienced and returning gymnasts`)
     assert(anchorUrls(artistic).some(url => url.href === `${tumblingGuideCanonical}#boys-gymnastics`),
       `${label}: artistic gymnastics must link to the local boys’ apparatus comparison`)
+    assert(anchorUrls(disciplines).some(url => url.href === `${HUB_ORIGIN}/contact#gymnastics-equipment`),
+      `${label}: gymnastics disciplines must link to the equipment photos`)
     assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones/.test(placement) && /Advanced Vortex A4 Elite/.test(placement) &&
       /front limber/.test(placement) && /front or back handspring/.test(placement) && /finish in balance/.test(placement) &&
       /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&

@@ -207,7 +207,7 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page).toHaveURL('/contact#inside-the-gym')
     const gym = page.getByRole('region', { name: 'Inside the Bowie gym' })
     await expect(gym.getByRole('heading', { level: 2 })).toBeInViewport()
-    await expect(gym.getByRole('img')).toHaveCount(3)
+    await expect(gym.getByRole('img')).toHaveCount(5)
     await expect(gym.getByRole('img', { name: /Padded trampoline/ })).toHaveAttribute('src', '/gym-DSC02700-1600.webp')
     const directions = new URL(await page.getByRole('link', { name: 'Get directions to Vortex', exact: true }).getAttribute('href') ?? '')
     expect(directions.origin + directions.pathname).toBe('https://www.google.com/maps/dir/')
@@ -217,6 +217,23 @@ test.describe('Client-critical smoke flows', () => {
     await gym.getByRole('link', { name: 'Find a youth gymnastics starting class' }).click()
     await expect(page).toHaveURL('/gymnastics#choose-a-class')
     await expect(page.getByRole('heading', { name: 'Find the right starting class' })).toBeInViewport()
+
+    await page.getByRole('link', { name: 'See Vortex’s practice beams and training rings' }).click()
+    await expect(page).toHaveURL('/contact#gymnastics-equipment')
+    const equipment = page.getByRole('region', { name: 'Balance beams and training rings' })
+    await expect(equipment.getByRole('heading')).toBeInViewport()
+    for (const [name, src] of [
+      ['Two low balance beams beside the tumbling track at Vortex Athletics', '/gym-DSC02690-1600.webp'],
+      ['Wooden training rings hanging above red and blue mats at Vortex Athletics', '/gym-DSC02672-1600.webp'],
+    ]) {
+      const photo = equipment.getByRole('img', { name })
+      await expect(photo).toHaveAttribute('src', src)
+      await photo.scrollIntoViewIfNeeded()
+      await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+    }
+    await equipment.getByRole('link', { name: 'Ask which equipment your class uses' }).click()
+    await expect(page).toHaveURL('/contact#inquiry')
+    await expect(page.getByRole('heading', { name: 'What to include in your inquiry' })).toBeInViewport()
   })
 
   test('homepage previews and recommendations preserve the chosen enrollment program', async ({ page }) => {

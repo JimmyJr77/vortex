@@ -69,6 +69,8 @@ export const BUSINESS_FACILITY_PHOTO = {
 
 export const INSIDE_THE_GYM_ID = 'inside-the-gym'
 export const INSIDE_THE_GYM_PATH = `/contact#${INSIDE_THE_GYM_ID}`
+export const GYMNASTICS_EQUIPMENT_ID = 'gymnastics-equipment'
+export const GYMNASTICS_EQUIPMENT_PATH = `/contact#${GYMNASTICS_EQUIPMENT_ID}`
 export const PARKING_AND_ACCESSIBILITY_ID = 'parking-and-accessibility'
 export const PARKING_AND_ACCESSIBILITY_PATH = `/contact#${PARKING_AND_ACCESSIBILITY_ID}`
 

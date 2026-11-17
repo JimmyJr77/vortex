@@ -1,7 +1,7 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from './bowieYouthSportsGuide'
-import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH } from './contact'
+import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from './contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
@@ -230,7 +230,10 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             link: { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
           },
         ],
-        links: [{ href: trainingFilm.path, label: 'Watch gymnastics and athletic training at Vortex', analyticsKey: 'watch_training_film' }],
+        links: [
+          { href: GYMNASTICS_EQUIPMENT_PATH, label: 'See Vortex’s practice beams and training rings', analyticsKey: 'see_inside_the_gym' },
+          { href: trainingFilm.path, label: 'Watch gymnastics and athletic training at Vortex', analyticsKey: 'watch_training_film' },
+        ],
       },
       {
         id: 'homeschool',

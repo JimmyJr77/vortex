@@ -61,6 +61,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17', images: [
     searchPhotos.facility, searchPhotos.homepageGallery.springFloor.src,
     searchPhotos.homepageGallery.trampoline.src, searchPhotos.homepageGallery.strengthEquipment.src,
+    ...Object.values(searchPhotos.facilityApparatus).map(photo => photo.src),
   ] },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
