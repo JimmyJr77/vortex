@@ -4,6 +4,7 @@ const adultName = 'Typhoons (Adult)'
 const adultFormId = 405
 const adultProgram = 'Adult Fitness & Acrobatics'
 const adultBookingPath = `/enroll?program=${encodeURIComponent(adultProgram)}`
+const adultDropInPath = `/drop-in?program=${encodeURIComponent(adultProgram)}`
 const scheduleHeading = 'Recurring adult gymnastics class times'
 const slot = {
   id: 501,
@@ -148,6 +149,72 @@ test('the adult hero stays in place while recurring times load on mobile', async
   if (before === undefined || after === undefined) throw new Error('The adult hero image must stay visible')
   expect(Math.abs(before - after)).toBeLessThanOrEqual(1)
   await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', adultBookingPath)
+})
+
+test('adults can compare live monthly and nonmember drop-in rates on demand', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockClasses(page)
+  const pricingRequests: { type: string; authorization?: string }[] = []
+  await page.route('**/api/signup/catalog/classes/20/offerings', route => {
+    pricingRequests.push({ type: 'monthly' })
+    return route.fulfill({ json: { success: true, data: {
+      formId: adultFormId, costUnit: 'per_month', scheduleOptions: [
+        { scheduleMode: 'day', slotGroupId: slot.slotGroupId, offeringId: 700, priceCents: 12000 },
+        { scheduleMode: 'day', slotGroupId: slot.slotGroupId, offeringId: 701, priceCents: 15000 },
+      ],
+    } } })
+  })
+  await page.route('**/api/public/drop-ins', route => {
+    const authorization = route.request().headers().authorization
+    pricingRequests.push({ type: 'drop-in', authorization })
+    return route.fulfill({ json: { success: true, data: { sessions: [
+      { programName: adultProgram, totalCents: authorization ? 3750 : 5000, isFull: false },
+      { programName: adultProgram, totalCents: 2500, isFull: true },
+      { programName: adultProgram, totalCents: 1000, excludedFromDropIns: true },
+      { programName: 'Fit & Flip', totalCents: 2000, isFull: false },
+    ] } } })
+  })
+  await page.goto('/blog/returning-to-gymnastics-as-an-adult')
+  await page.getByRole('link', { name: 'Compare monthly enrollment and drop-in prices' }).click()
+  await expect(page).toHaveURL('/adult-gymnastics#adult-class-pricing')
+  await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
+  const pricing = page.locator('#adult-class-pricing')
+  await expect(pricing).not.toHaveAttribute('open', '')
+  expect(pricingRequests).toEqual([])
+  await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
+  await pricing.getByText('Compare adult gymnastics prices', { exact: true }).click()
+  await expect(pricing.getByText('$150.00 per month', { exact: true })).toBeVisible()
+  await expect(pricing.getByText('$50.00 per class', { exact: true })).toBeVisible()
+  await expect(pricing.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
+  await expect(pricing.getByRole('link', { name: 'Review monthly enrollment' })).toHaveAttribute('href', adultBookingPath)
+  await expect(pricing.getByRole('link', { name: 'Review available drop-in dates' })).toHaveAttribute('href', adultDropInPath)
+  expect(pricingRequests).toEqual(expect.arrayContaining([{ type: 'monthly' }, { type: 'drop-in', authorization: undefined }]))
+})
+
+test('pricing keeps current drop-in rates and booking links when monthly tuition cannot be verified', async ({ page }) => {
+  let releaseCatalog!: () => void
+  const catalogGate = new Promise<void>(resolve => { releaseCatalog = resolve })
+  await mockClasses(page, { catalogGate })
+  await page.route('**/api/signup/catalog/classes/20/offerings', route => route.fulfill({ json: {
+    success: true, data: { formId: adultFormId, costUnit: 'per_class', scheduleOptions: [
+      { scheduleMode: 'day', slotGroupId: slot.slotGroupId, offeringId: 701, priceCents: 12000 },
+    ] },
+  } }))
+  await page.route('**/api/public/drop-ins', route => route.fulfill({ json: { success: true, data: { sessions: [
+    { programName: adultProgram, totalCents: 5250, isFull: false },
+  ] } } }))
+  await page.goto('/adult-gymnastics')
+  const pricing = page.locator('#adult-class-pricing')
+  try {
+    await pricing.getByText('Compare adult gymnastics prices', { exact: true }).click()
+    await expect(pricing.getByText('$52.50 per class', { exact: true })).toBeVisible()
+    await expect(pricing.getByText('Checking current tuition…')).toBeVisible()
+  } finally {
+    releaseCatalog()
+  }
+  await expect(pricing.getByText('See current tuition in enrollment.')).toBeVisible()
+  await expect(pricing.getByRole('link', { name: 'Review monthly enrollment' })).toHaveAttribute('href', adultBookingPath)
+  await expect(pricing.getByRole('link', { name: 'Review available drop-in dates' })).toHaveAttribute('href', adultDropInPath)
 })
 
 for (const [scenario, mockOptions, expectsFormRequest] of [

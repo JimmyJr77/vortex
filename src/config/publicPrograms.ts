@@ -245,7 +245,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Adult gymnastics and acrobatics classes',
     path: '/adult-gymnastics',
     title: 'Adult Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Try coach-led adult gymnastics and acrobatics in Bowie, MD. Typhoons welcomes ages 18 and up. See drop-in dates, trial eligibility, and recurring classes.',
+    description: 'Compare monthly tuition and drop-in prices for coach-led adult gymnastics in Bowie, MD. See Typhoons class times and free-trial eligibility for ages 18 and up.',
     heading: 'Adult gymnastics and acrobatics in Bowie, MD',
     intro: 'Typhoons is a 90-minute, coach-led gymnastics and acrobatics class for ages 18 and up. Beginners and returning gymnasts can book one drop-in or enroll in a recurring class.',
     image: BUSINESS_FACILITY_PHOTO.src,

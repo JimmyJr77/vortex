@@ -40,8 +40,23 @@ export interface SignupClassCatalog {
   formId: number | null
   offerings: SignupOfferingOption[]
   scheduleOptions: SignupScheduleOption[]
+  costUnit?: string | null
   priceLabel?: string | null
   classActiveDates?: string | null
+}
+
+export async function fetchSignupClassCatalog(apiUrl: string, classId: number, signal?: AbortSignal): Promise<SignupClassCatalog> {
+  const response = await fetch(`${apiUrl}/api/signup/catalog/classes/${classId}/offerings`, { signal })
+  const body = await response.json()
+  if (!response.ok || !body.success) throw new Error(body.message || 'Failed to load class schedule')
+  return {
+    formId: body.data?.formId ?? null,
+    offerings: body.data?.offerings ?? [],
+    scheduleOptions: body.data?.scheduleOptions ?? [],
+    costUnit: body.data?.costUnit ?? null,
+    priceLabel: body.data?.priceLabel ?? null,
+    classActiveDates: body.data?.classActiveDates ?? null,
+  }
 }
 
 export interface SignupEnrollmentRow {

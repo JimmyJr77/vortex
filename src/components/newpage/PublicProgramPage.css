@@ -109,12 +109,47 @@
   font-weight: 400;
 }
 
+.np-adult-pricing {
+  margin-top: 16px;
+  padding: 12px 16px;
+  border: 1px solid var(--np-line);
+  border-radius: 8px;
+  max-width: 68ch;
+}
+
+.np-adult-pricing summary {
+  color: var(--np-red);
+  cursor: pointer;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.np-adult-pricing p,
+.np-adult-pricing dl {
+  margin-top: 10px;
+}
+
+.np-adult-pricing dl {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 28px;
+}
+
+.np-adult-pricing dt {
+  color: var(--np-muted);
+  font-size: 14px;
+}
+
+.np-adult-pricing dd {
+  font-weight: 650;
+}
+
 .np-program-section {
   padding-block: clamp(32px, 5vw, 64px);
   border-bottom: 1px solid var(--np-line);
 }
 
-.np-program-page :is(section[id], article[id]) {
+.np-program-page :is(section[id], article[id], details[id]) {
   scroll-margin-top: calc(var(--site-header-height, 90px) + 18px);
 }
 

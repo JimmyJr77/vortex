@@ -57,12 +57,20 @@ function authHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
-export async function fetchDropIns(memberId?: number): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
+async function fetchDropInCatalog(memberId: number | undefined, options: RequestInit): Promise<{ classes: DropInClass[]; sessions: DropInSession[]; benefits: DropInBenefits }> {
   const query = memberId == null ? '' : `?memberId=${encodeURIComponent(String(memberId))}`
-  const response = await fetch(`${getApiUrl()}/api/public/drop-ins${query}`, { headers: authHeaders() })
+  const response = await fetch(`${getApiUrl()}/api/public/drop-ins${query}`, options)
   const body = await response.json()
   if (!response.ok || !body.success) throw new Error(body.message || 'Failed to load drop-in classes')
   return body.data
+}
+
+export function fetchDropIns(memberId?: number) {
+  return fetchDropInCatalog(memberId, { headers: authHeaders() })
+}
+
+export function fetchNonmemberDropIns(signal?: AbortSignal) {
+  return fetchDropInCatalog(undefined, { credentials: 'omit', signal })
 }
 
 export async function registerDropIn(input: {

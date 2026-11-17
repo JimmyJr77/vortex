@@ -95,6 +95,9 @@ export default function ReturningToGymnasticsGuide() {
             <Link className="np-button" to="/adult-gymnastics" data-analytics-cta="explore_adult_gymnastics" data-analytics-section="returning_to_gymnastics_guide">
               Explore adult gymnastics <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
+            <Link className="athletic-guide-trial" to="/adult-gymnastics#adult-class-pricing" data-analytics-cta="compare_adult_class_prices" data-analytics-section="returning_to_gymnastics_guide">
+              Compare monthly enrollment and drop-in prices <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
           </div>
         </aside>
       </div>

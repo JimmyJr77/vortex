@@ -481,6 +481,11 @@ const verifyHtml = (
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
         url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
         `${label}: the recurring adult schedule must link to Typhoons enrollment`)
+      const pricing = schedule.match(/<details\b[^>]*\sid=["']adult-class-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
+      assert(/Compare adult gymnastics prices/i.test(pricing) && /Paid monthly enrollment requires an active annual membership/i.test(pricing) &&
+        hasDropInProgramLink(anchorUrls(pricing), 'Adult Fitness & Acrobatics') &&
+        anchorUrls(pricing).some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
+        `${label}: missing the adult price comparison and its crawlable booking links`)
       assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']adult-availability["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Plan your first adult gymnastics class<\/h2>/i.test(firstVisit) && /select yourself as the participant/i.test(firstVisit),
@@ -510,6 +515,8 @@ const verifyHtml = (
     const guideLinks = anchorUrls(html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? '')
     assert(guideLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, '/adult-gymnastics')),
       `${label}: the guide must link to the adult gymnastics program`)
+    assert(guideLinks.some((url) => url.href === `${canonicalFor(HUB_ORIGIN, '/adult-gymnastics')}#adult-class-pricing`),
+      `${label}: the guide must link to the adult price comparison`)
   }
 
   if (shouldIndex) {

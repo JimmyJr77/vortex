@@ -31,6 +31,7 @@ import {
   type SignupOrderPreview,
 } from '../../utils/schedulingApi'
 import {
+  fetchSignupClassCatalog,
   slotOptionKey,
   type SignupClassCatalog,
 } from '../signup/signupEnrollmentUtils'
@@ -236,24 +237,8 @@ export default function PublicClassesOfferedEnroll({
       ? current
       : { ...current, [classEventId]: 'loading' })
     try {
-      const response = await fetch(
-        `${apiUrl}/api/signup/catalog/classes/${classEventId}/offerings`,
-      )
-      const body = await response.json()
-      if (!response.ok || !body.success) {
-        throw new Error(body.message || 'Failed to load class schedule')
-      }
-      const catalog = body.data ?? { formId: null, offerings: [], scheduleOptions: [] }
-      setCatalogs((current) => ({
-        ...current,
-        [classEventId]: {
-          formId: catalog.formId ?? null,
-          offerings: catalog.offerings ?? [],
-          scheduleOptions: catalog.scheduleOptions ?? [],
-          priceLabel: catalog.priceLabel ?? null,
-          classActiveDates: catalog.classActiveDates ?? null,
-        },
-      }))
+      const catalog = await fetchSignupClassCatalog(apiUrl, classEventId)
+      setCatalogs((current) => ({ ...current, [classEventId]: catalog }))
     } catch {
       setCatalogs((current) => ({ ...current, [classEventId]: 'error' }))
     }

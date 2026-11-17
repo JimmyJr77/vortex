@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
 import {
   fetchPublicSchedulingForm,
@@ -8,8 +8,9 @@ import {
   slotGroupHasMultipleWeekLetters,
 } from '../../utils/schedulingApi'
 import { sortOccurrences } from '../../utils/slotSort'
+import AdultGymnasticsPricing, { type RecurringPriceClass } from './AdultGymnasticsPricing'
 
-type ClassTimes = { formId: number; name: string; times: string[] }
+type ClassTimes = RecurringPriceClass & { name: string; times: string[] }
 type ScheduleState =
   | { status: 'loading' | 'unavailable' }
   | { status: 'loaded'; classes: ClassTimes[] }
@@ -17,6 +18,7 @@ type ScheduleState =
 const easternDate = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
 })
+const NO_CLASSES: readonly ClassTimes[] = []
 
 function includesDate(date: string, start?: string | null, end?: string | null) {
   return (!start || start <= date) && (!end || end >= date)
@@ -29,7 +31,7 @@ async function loadClassTimes(programName: RecurringBookingProgram): Promise<Cla
 
   const dateParts = easternDate.formatToParts(new Date())
   const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type)?.value).join('-')
-  const classes = await Promise.allSettled(program.classes.map(async ({ formId, displayName }) => {
+  const classes = await Promise.allSettled(program.classes.map(async ({ id: classId, formId, displayName }) => {
     const [form, offerings] = await Promise.all([
       fetchPublicSchedulingForm(formId), fetchPublicSchedulingOfferings(formId),
     ])
@@ -39,18 +41,21 @@ async function loadClassTimes(programName: RecurringBookingProgram): Promise<Cla
     const currentOfferingIds = new Set(offerings
       .filter((offer) => offer.formId === formId && includesDate(today, offer.startDate, offer.endDate))
       .map((offer) => offer.id))
-    const slots = form.slotGroups
+    const groups = form.slotGroups
       .filter((group) => group.formId === formId && group.isActive && !group.datesTbd &&
         group.scheduleMode === 'day' && includesDate(today, group.activeStart, group.activeEnd) &&
         (group.offeringId == null ? offerings.length === 0 : currentOfferingIds.has(group.offeringId)))
-      .flatMap((group) => group.occurrences)
-      .filter((slot) => slot.formId === formId && slot.isActive && !slot.datesTbd &&
-        slot.scheduleMode === 'day' && includesDate(today, slot.activeStart, slot.activeEnd) &&
-        (slot.dayName || slot.dayOfWeek != null) && slot.startTime && slot.endTime)
+      .map(({ id, offeringId, occurrences }) => ({
+        id, offeringId,
+        slots: occurrences.filter(slot => slot.formId === formId && slot.isActive && !slot.datesTbd &&
+          slot.scheduleMode === 'day' && includesDate(today, slot.activeStart, slot.activeEnd) &&
+          (slot.dayName || slot.dayOfWeek != null) && slot.startTime && slot.endTime),
+      })).filter(group => group.slots.length > 0)
+    const slots = groups.flatMap(group => group.slots)
     const includeWeek = slotGroupHasMultipleWeekLetters(slots)
     const times = Array.from(new Set(sortOccurrences(slots).map((slot) =>
       formatSchedulingOccurrenceLabel(slot, { includeWeek }))))
-    return times.length ? { formId, name: displayName, times } : null
+    return times.length ? { classId, formId, name: displayName, times, groups } : null
   }))
 
   return classes.flatMap((result) => result.status === 'fulfilled' && result.value ? [result.value] : [])
@@ -71,7 +76,7 @@ export default function PublicRecurringSchedule({ programName }: {
     return () => { current = false }
   }, [programName])
 
-  return (
+  return (<>
     <div className="np-recurring-schedule" data-prerender-dynamic="" aria-live="polite">
       {schedule.status === 'loading' ? (
         <p>Checking recurring class times…</p>
@@ -91,5 +96,8 @@ export default function PublicRecurringSchedule({ programName }: {
         <p>Check enrollment for current class times or contact Vortex for help.</p>
       )}
     </div>
-  )
+    {programName === ADULT_BOOKING_PROGRAM && (
+      <AdultGymnasticsPricing classes={schedule.status === 'loaded' ? schedule.classes : schedule.status === 'loading' ? null : NO_CLASSES} />
+    )}
+  </>)
 }
