@@ -31,6 +31,7 @@ type DropInSession = {
   startTime: string
   endTime: string
   totalCents: number
+  maxParticipants?: number | null
   excludedFromDropIns?: boolean
   allowsFreeTrial?: boolean
   isFull: boolean
@@ -113,6 +114,9 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime))
 
   const first = sessions[0]
+  const capacity = first?.maxParticipants
+  const maxParticipants = typeof capacity === 'number' && Number.isSafeInteger(capacity) && capacity > 0 &&
+    sessions.every(session => session.maxParticipants === capacity) ? capacity : null
   // Give a weekly range only when every published session in it has the same terms.
   const sameWeeklyListing = first && sessions.every((session, index) =>
     Date.parse(session.date) === Date.parse(first.date) + index * millisecondsPerWeek &&
@@ -126,6 +130,7 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     endTime: first.endTime,
     priceCents: first.totalCents,
     freeTrial: first.allowsFreeTrial === true,
+    maxParticipants,
   } : null
 
   return monthlyTuitionCents || dropIn ? { checkedOn, monthlyTuitionCents, dropIn } : null

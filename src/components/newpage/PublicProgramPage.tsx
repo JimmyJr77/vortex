@@ -48,6 +48,7 @@ function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
             {bookingTime.format(new Date(`1970-01-01T${dropIn.startTime}:00Z`))}–{bookingTime.format(new Date(`1970-01-01T${dropIn.endTime}:00Z`))} Eastern
             {weekly ? ' from ' : ' on '}<BookingDate date={dropIn.firstDate} />
             {weekly && <> through <BookingDate date={dropIn.lastDate} /></>}.
+            {dropIn.maxParticipants != null && ` Up to ${dropIn.maxParticipants} participants per listed drop-in.`}
             {dropIn.freeTrial && ' These dates accept eligible one-time free trials.'}{' '}
             <Link to={ADULT_DROP_IN_HREF} data-analytics-cta="browse_drop_ins" data-analytics-section="adult_booking_summary">Check drop-in dates</Link>.
           </li>

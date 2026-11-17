@@ -8,6 +8,7 @@ export type PublicAdultBooking = {
     endTime: string
     priceCents: number
     freeTrial: boolean
+    maxParticipants: number | null
   } | null
 }
 
