@@ -135,7 +135,7 @@
   font-weight: 400;
 }
 
-.np-adult-pricing {
+.np-class-pricing {
   margin-top: 16px;
   padding: 12px 16px;
   border: 1px solid var(--np-line);
@@ -143,30 +143,30 @@
   max-width: 68ch;
 }
 
-.np-adult-pricing summary {
+.np-class-pricing summary {
   color: var(--np-red);
   cursor: pointer;
   font-weight: 650;
   line-height: 1.6;
 }
 
-.np-adult-pricing p,
-.np-adult-pricing dl {
+.np-class-pricing p,
+.np-class-pricing dl {
   margin-top: 10px;
 }
 
-.np-adult-pricing dl {
+.np-class-pricing dl {
   display: flex;
   flex-wrap: wrap;
   gap: 12px 28px;
 }
 
-.np-adult-pricing dt {
+.np-class-pricing dt {
   color: var(--np-muted);
   font-size: 14px;
 }
 
-.np-adult-pricing dd {
+.np-class-pricing dd {
   font-weight: 650;
 }
 

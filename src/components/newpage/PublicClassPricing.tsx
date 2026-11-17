@@ -3,7 +3,11 @@ import { Link } from 'react-router-dom'
 import { getApiUrl } from '../../utils/api'
 import { fetchNonmemberDropIns } from '../../utils/dropInApi'
 import { formatCents } from '../../utils/money'
-import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, isAdultBookingProgram } from '../../utils/publicBookingPrograms'
+import {
+  ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
+  FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
+  getScopedDropInProgram,
+} from '../../utils/publicBookingPrograms'
 import { fetchSignupClassCatalog } from '../signup/signupEnrollmentUtils'
 
 export type RecurringPriceClass = {
@@ -11,6 +15,21 @@ export type RecurringPriceClass = {
   formId: number
   groups: { id: number; offeringId?: number | null }[]
 }
+
+type PricingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_AND_FLIP_BOOKING_PROGRAM
+
+const PRICING_DETAILS = {
+  [ADULT_BOOKING_PROGRAM]: {
+    id: 'adult-class-pricing', label: 'Compare adult gymnastics prices',
+    comparisonKey: 'compare_adult_class_prices', scheduleSection: 'adult_class_schedule',
+    bookingHref: ADULT_BOOKING_HREF, dropInHref: ADULT_DROP_IN_HREF,
+  },
+  [FIT_AND_FLIP_BOOKING_PROGRAM]: {
+    id: 'fit-flip-class-pricing', label: 'Compare Fit & Flip prices',
+    comparisonKey: 'compare_fit_flip_class_prices', scheduleSection: 'fit_flip_schedule',
+    bookingHref: FIT_AND_FLIP_BOOKING_HREF, dropInHref: FIT_AND_FLIP_DROP_IN_HREF,
+  },
+} as const
 
 function isPositivePrice(value: unknown): value is number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value > 0
@@ -29,9 +48,9 @@ async function fetchMonthlyTuition({ classId, formId, groups }: RecurringPriceCl
   return isPositivePrice(price) && prices.every(amount => amount === price) ? price : null
 }
 
-async function fetchDropInPrices(signal: AbortSignal) {
+async function fetchDropInPrices(program: PricingProgram, signal: AbortSignal) {
   const { sessions } = await fetchNonmemberDropIns(signal)
-  return sessions.filter(session => isAdultBookingProgram(session.programName) &&
+  return sessions.filter(session => getScopedDropInProgram(session.programName) === program &&
     !session.isFull && !session.excludedFromDropIns).map(session => session.totalCents).filter(isPositivePrice)
 }
 
@@ -61,7 +80,12 @@ function describePrices(prices: number[], unit: string, fallback: string) {
   return `${formatCents(low)}${low === high ? '' : `–${formatCents(high)}`} ${unit}`
 }
 
-export default function AdultGymnasticsPricing({ classes }: { classes: readonly RecurringPriceClass[] | null }) {
+export default function PublicClassPricing({ program, classes }: {
+  program: PricingProgram
+  classes: readonly RecurringPriceClass[] | null
+}) {
+  const { id, label, comparisonKey, scheduleSection, bookingHref, dropInHref } = PRICING_DETAILS[program]
+  const analyticsSection = id.replaceAll('-', '_')
   const [requested, setRequested] = useState(false)
   const [monthly, setMonthly] = useState<number[] | null>(null)
   const [dropIn, setDropIn] = useState<number[] | null>(null)
@@ -71,15 +95,15 @@ export default function AdultGymnasticsPricing({ classes }: { classes: readonly 
   }, [classes, requested])
 
   useEffect(() => {
-    if (requested) return requestPrices(fetchDropInPrices, setDropIn)
-  }, [requested])
+    if (requested) return requestPrices(signal => fetchDropInPrices(program, signal), setDropIn)
+  }, [program, requested])
 
   return (
-    <details className="np-adult-pricing" id="adult-class-pricing" onToggle={event => {
+    <details className="np-class-pricing" id={id} onToggle={event => {
       if (event.currentTarget.open) setRequested(true)
     }}>
-      <summary data-analytics-cta="compare_adult_class_prices" data-analytics-section="adult_class_schedule">
-        Compare adult gymnastics prices
+      <summary data-analytics-cta={comparisonKey} data-analytics-section={scheduleSection}>
+        {label}
       </summary>
       <p>Paid monthly enrollment requires an active annual membership. Membership is optional for drop-ins and eligible free trials. Review fees, first-month adjustments, and any benefits during booking.</p>
       {requested && (
@@ -92,11 +116,20 @@ export default function AdultGymnasticsPricing({ classes }: { classes: readonly 
             <dt>Nonmember drop-in</dt>
             <dd>{dropIn ? describePrices(dropIn, 'per class', 'See prices for available dates.') : 'Checking current drop-in prices…'}</dd>
           </div>
+          {program === FIT_AND_FLIP_BOOKING_PROGRAM && (
+            <div>
+              <dt>Eligible first trial</dt>
+              <dd>$0 on qualifying dates</dd>
+            </div>
+          )}
         </dl>
       )}
       <div className="np-program-page-actions">
-        <Link to={ADULT_BOOKING_HREF} className="np-program-plain-link" data-analytics-cta="browse_classes" data-analytics-section="adult_class_pricing">Review monthly enrollment</Link>
-        <Link to={ADULT_DROP_IN_HREF} className="np-program-plain-link" data-analytics-cta="browse_drop_ins" data-analytics-section="adult_class_pricing">Review available drop-in dates</Link>
+        <Link to={bookingHref} className="np-program-plain-link" data-analytics-cta="browse_classes" data-analytics-section={analyticsSection}>Review monthly enrollment</Link>
+        <Link to={dropInHref} className="np-program-plain-link" data-analytics-cta="browse_drop_ins" data-analytics-section={analyticsSection}>Review available drop-in dates</Link>
+        {program === FIT_AND_FLIP_BOOKING_PROGRAM && (
+          <Link to="/fit-and-flip#training-fit" className="np-program-plain-link" data-analytics-cta="free_trial_section" data-analytics-section={analyticsSection}>Find a free Fit &amp; Flip trial</Link>
+        )}
       </div>
     </details>
   )

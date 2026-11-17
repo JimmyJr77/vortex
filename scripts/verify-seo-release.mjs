@@ -482,10 +482,19 @@ const verifyHtml = (
         `${label}: missing the crawlable Fit & Flip schedule heading or age groups`)
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
+      const pricing = schedule.match(/<details\b[^>]*\sid=["']fit-flip-class-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
+      const priceLinks = anchorUrls(pricing)
+      assert(/Compare Fit &amp; Flip prices/i.test(pricing) && /Paid monthly enrollment requires an active annual membership/i.test(pricing) &&
+        hasDropInProgramLink(priceLinks, 'Fit & Flip') &&
+        priceLinks.some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') &&
+        priceLinks.some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#training-fit`),
+        `${label}: missing the Fit & Flip price comparison and its crawlable booking and trial links`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
       const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(tags(firstClass, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
         `${label}: missing the Fit & Flip trial finder button`)
+      assert(anchorUrls(firstClass).some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-class-pricing`),
+        `${label}: missing the price comparison link from the Fit & Flip first-class options`)
     }
     if (pagePath === '/adult-gymnastics') {
       const hero = mainHtml.match(/<section\b[^>]*\bclass=["']np-program-hero["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -641,7 +650,7 @@ const verifyHtml = (
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
     for (const path of [
-      '/gymnastics', '/gymnastics#first-visit', '/gymnastics#youth-gymnastics-schedule', '/fit-and-flip', '/read-board',
+      '/gymnastics', '/gymnastics#first-visit', '/gymnastics#youth-gymnastics-schedule', '/fit-and-flip', '/fit-and-flip#fit-flip-class-pricing', '/read-board',
       YOUTH_ATHLETIC_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
     ]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),

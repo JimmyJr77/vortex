@@ -187,7 +187,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Youth fitness and sports performance training',
     path: '/fit-and-flip',
     title: 'Youth Fitness & Sports Performance Training in Bowie, MD | Vortex',
-    description: 'Fit & Flip offers coached youth fitness, strength training, and tumbling in Bowie, MD. Find a Cyclones trial, drop-in, or recurring class for ages 8–15.',
+    description: 'Fit & Flip offers coached youth fitness, strength training, and tumbling in Bowie, MD. Compare Cyclones prices, weekly times, and trials for ages 8–15.',
     heading: 'Youth athletic training in Bowie, MD',
     intro: 'Fit & Flip is a coached fitness class for ages 8–15. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
     image: '/fit-and-flip-card.webp',
@@ -266,6 +266,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             heading: 'Find a first class',
             description:
               'Fit & Flip’s 90-minute Cyclones classes are grouped by age, 8–11 and 12–15. Choose one available date for a trial or drop-in, or browse recurring classes if you’re ready for a weekly class. Contact Vortex if your child falls outside those age groups.',
+            link: { href: '/fit-and-flip#fit-flip-class-pricing', label: 'Compare monthly and drop-in prices', analyticsKey: 'compare_fit_flip_class_prices' },
           },
         ],
         links: [

@@ -125,6 +125,72 @@ test.describe('Client-critical smoke flows', () => {
     expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])
   })
 
+  test('Fit & Flip compares current prices by program without using member benefits', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const program = 'Fit & Flip'
+    const groups = [
+      { id: 41, formId: 30, displayName: 'Cyclones (8–11)', ageMin: 8, priceCents: 15000 },
+      { id: 42, formId: 31, displayName: 'Cyclones (12–15)', ageMin: 12, priceCents: 16000 },
+    ]
+    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: { success: true, data: {
+      programs: [{ id: 9, displayName: program, classes: groups.map(group => ({ ...group, enrollVisible: true })) }],
+    } } }))
+    const priceRequests: { path: string; authorization?: string }[] = []
+    for (const { id, formId, priceCents } of groups) {
+      const offeringId = formId + 100
+      const groupId = formId + 200
+      const slot = { formId, isActive: true, scheduleMode: 'day', dayOfWeek: 2,
+        dayName: 'Tuesday', startTime: '18:00', endTime: '19:30' }
+      await page.route(`**/api/scheduling/forms/${formId}`, route => route.fulfill({ json: { success: true, data: {
+        id: formId, isActive: true, programsId: 9,
+        slotGroups: [{ id: groupId, formId, offeringId, isActive: true, scheduleMode: 'day', occurrences: [slot] }],
+      } } }))
+      await page.route(`**/api/scheduling/forms/${formId}/offerings`, route => route.fulfill({ json: { success: true, data: [{ id: offeringId, formId }] } }))
+      await page.route(`**/api/signup/catalog/classes/${id}/offerings`, route => {
+        const request = route.request()
+        priceRequests.push({ path: new URL(request.url()).pathname, authorization: request.headers().authorization })
+        return route.fulfill({ json: { success: true, data: {
+          formId, costUnit: 'per_month', scheduleOptions: [
+            { scheduleMode: 'day', slotGroupId: groupId, offeringId, priceCents },
+            { scheduleMode: 'day', slotGroupId: groupId, offeringId: 999, priceCents: 1000 },
+          ],
+        } } })
+      })
+    }
+    await page.route('**/api/public/drop-ins', route => {
+      const request = route.request()
+      priceRequests.push({ path: new URL(request.url()).pathname, authorization: request.headers().authorization })
+      return route.fulfill({ json: { success: true, data: { sessions: [
+        { programName: program, totalCents: 5000, isFull: false },
+        { programName: program, totalCents: 6000, isFull: false },
+        { programName: program, totalCents: 2000, isFull: true },
+        { programName: program, totalCents: 1000, excludedFromDropIns: true },
+        { programName: 'Adult Fitness & Acrobatics', totalCents: 2500, isFull: false },
+      ] } } })
+    })
+
+    await page.goto('/blog/youth-sports-bowie')
+    await page.getByRole('link', { name: 'Compare Fit & Flip prices', exact: true }).click()
+    await expect(page).toHaveURL('/fit-and-flip#fit-flip-class-pricing')
+    const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
+    await expect(schedule.locator('.np-recurring-schedule > ul > li')).toContainText(['Cyclones (8–11)', 'Cyclones (12–15)'])
+    expect(priceRequests).toEqual([])
+    await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
+    const pricing = page.locator('#fit-flip-class-pricing')
+    await pricing.locator('summary').click()
+    await expect(pricing.getByText('$150.00–$160.00 per month', { exact: true })).toBeVisible()
+    await expect(pricing.getByText('$50.00–$60.00 per class', { exact: true })).toBeVisible()
+    await expect(pricing.getByText('$0 on qualifying dates', { exact: true })).toBeVisible()
+    await expect(pricing.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
+    await expect(pricing.getByRole('link', { name: 'Review monthly enrollment' })).toHaveAttribute('href', '/enroll?program=Fit%20%26%20Flip')
+    await expect(pricing.getByRole('link', { name: 'Review available drop-in dates' })).toHaveAttribute('href', '/drop-in?program=Fit%20%26%20Flip')
+    await expect(pricing.getByRole('link', { name: 'Find a free Fit & Flip trial' })).toHaveAttribute('href', '/fit-and-flip#training-fit')
+    expect(priceRequests.map(({ path }) => path).sort()).toEqual([
+      '/api/public/drop-ins', '/api/signup/catalog/classes/41/offerings', '/api/signup/catalog/classes/42/offerings',
+    ])
+    expect(priceRequests.every(({ authorization }) => authorization === undefined)).toBe(true)
+  })
+
   test('Day view keeps an eligible class time and date in the enrollment link', async ({ page }) => {
     await page.clock.setFixedTime(new Date(`${classDate}T12:00:00`))
     const events = [

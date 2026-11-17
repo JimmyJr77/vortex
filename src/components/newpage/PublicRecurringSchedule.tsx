@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { formatSkillLevel } from '../../utils/classDisplayUtils'
-import { ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
+import { DEVELOPMENTAL_GYMNASTICS_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
 import {
   fetchPublicSchedulingForm,
@@ -9,7 +9,7 @@ import {
   slotGroupHasMultipleWeekLetters,
 } from '../../utils/schedulingApi'
 import { sortOccurrences } from '../../utils/slotSort'
-import AdultGymnasticsPricing, { type RecurringPriceClass } from './AdultGymnasticsPricing'
+import PublicClassPricing, { type RecurringPriceClass } from './PublicClassPricing'
 
 type ClassTimes = RecurringPriceClass & { name: string; skillLevel: string | null; times: string[] }
 type ScheduleState =
@@ -105,8 +105,8 @@ export default function PublicRecurringSchedule({ programName }: {
         <p>Check enrollment for current class times or contact Vortex for help.</p>
       )}
     </div>
-    {programName === ADULT_BOOKING_PROGRAM && (
-      <AdultGymnasticsPricing classes={schedule.status === 'loaded' ? schedule.classes : schedule.status === 'loading' ? null : NO_CLASSES} />
+    {programName !== DEVELOPMENTAL_GYMNASTICS_PROGRAM && (
+      <PublicClassPricing program={programName} classes={schedule.status === 'loaded' ? schedule.classes : schedule.status === 'loading' ? null : NO_CLASSES} />
     )}
   </>)
 }
