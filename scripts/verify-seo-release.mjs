@@ -312,9 +312,23 @@ const verifyHtml = (
     }
   }
 
+  if (shouldIndex && pagePath === '/enroll') {
+    const classSelection = html.match(/<section\b[^>]*\baria-labelledby=["']enrollment-class-selection["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const links = anchorUrls(classSelection)
+    for (const path of HUB_PROGRAM_PATHS) {
+      assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
+        `${label}: expected one crawlable class-selection link to ${path}`)
+    }
+  }
+
   if (shouldIndex && (pagePath === '/' || HUB_PROGRAM_PATHS.includes(pagePath))) {
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
+    if (pagePath === '/fit-and-flip') {
+      const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(/<h3\b[^>]*>Speed and agility for youth sports<\/h3>/i.test(speedAgility),
+        `${label}: missing the crawlable speed and agility heading at #speed-agility`)
+    }
     if (pagePath === '/') {
       for (const path of HUB_PROGRAM_PATHS) {
         assert(mainLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),

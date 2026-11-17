@@ -41,20 +41,30 @@ export default function BowieYouthSportsGuide() {
           <p>Start with the organization that runs the program. It can confirm age groups, locations, and registration.</p>
           <ul>
             <li>
-              <strong>Bowie Boys &amp; Girls Club.</strong> Start here for organized sports such as soccer, basketball,
-              and recreational baseball. The club also has a track and field program for children who want to run,
-              jump, or try field events. <a href="https://www.bbgc.com/programs">View club programs</a> ·{' '}
+              <strong>Bowie Boys &amp; Girls Club.</strong> Look here for team sports such as soccer, basketball, and
+              recreational baseball. The club’s track and field program serves ages 5–18, with indoor and outdoor
+              seasons. Check each program’s practice location before registering.{' '}
+              <a href="https://www.bbgc.com/programs">View club programs</a> ·{' '}
               <a href="https://www.bbgc.com/programs/track-and-field">View track and field</a>
             </li>
             <li>
-              <strong>City of Bowie Municipal Gymnasium.</strong> Check the gym for organized recreation and open
-              gym. Review membership and supervision rules before taking a child to an open session.{' '}
-              <a href="https://www.cityofbowie.org/104/Gymnasium">Check City gym programs and hours</a>
+              <strong>City of Bowie Municipal Gymnasium.</strong> Check for basketball, volleyball, and other court
+              activities. Membership is limited to residents within Bowie’s city limits. Guests need to come with a
+              member. Check youth supervision rules before visiting.{' '}
+              <a href="https://www.cityofbowie.org/104/Gymnasium">Check city gym membership and rules</a>
             </li>
             <li>
-              <strong>Prince George’s County Parks and Recreation.</strong> The county lists leagues, skills classes,
-              and camps across several sports. Check the location on the individual listing because the catalog covers
-              the whole county. <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a>
+              <strong>Bowie Ice Arena.</strong> A public skate gives beginners a chance to try the ice before committing
+              to group lessons. Check the public session schedule and skate rental details, or look for a Learn-to-Skate
+              group that fits your child.{' '}
+              <a href="https://www.cityofbowie.org/650/Public-Skating-Sessions">Check public skating</a> ·{' '}
+              <a href="https://www.cityofbowie.org/485/Lessons-Camps">View skating lessons</a>
+            </li>
+            <li>
+              <strong>Prince George’s County Parks and Recreation.</strong> Compare leagues, skills classes, and camps
+              across sports such as soccer, swimming, and tennis. Check the facility on each listing before you register,
+              since the catalog covers the whole county.{' '}
+              <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a>
             </li>
           </ul>
         </section>

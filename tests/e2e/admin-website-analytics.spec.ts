@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test'
 test('analytics admins can filter reports and check Google search visibility', async ({ page }) => {
   const reportRequests: URL[] = []
   let topicRequests = 0
+  let programPageRequests = 0
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
     localStorage.setItem('adminToken', 'analytics-test-token')
@@ -74,6 +75,23 @@ test('analytics admins can filter reports and check Google search visibility', a
         }
         break
       }
+      case '/api/admin/analytics/seo/program-pages': {
+        programPageRequests += 1
+        const failed = programPageRequests === 2
+        data = {
+          status: failed ? 'partial' : 'ok',
+          timeZone: 'America/Los_Angeles',
+          current: failed
+            ? { startDate: '2026-10-17', endDate: '2026-11-13', status: 'error', reason: 'access_denied' }
+            : { startDate: '2026-10-17', endDate: '2026-11-13', status: 'ok' },
+          previous: { startDate: '2026-09-19', endDate: '2026-10-16', status: 'ok' },
+          pages: [
+            { page: 'https://vortexathletics.com/gymnastics', label: 'Youth Gymnastics', currentImpressions: failed ? null : 31, previousImpressions: 12 },
+            { page: 'https://vortexathletics.com/adult-gymnastics', label: 'Adult Gymnastics', currentImpressions: failed ? null : 0, previousImpressions: null },
+          ],
+        }
+        break
+      }
       case '/api/admin/analytics/funnel':
         data = { journeys: [{ name: 'Free trial', steps: [
           { name: 'Trial opened', count: 3, conversionFromPrevious: null },
@@ -140,4 +158,23 @@ test('analytics admins can filter reports and check Google search visibility', a
   await expect(pageTable.getByRole('cell', { name: 'Unlisted page' })).toBeVisible()
   const pageRequests = reportRequests.filter(url => url.searchParams.get('view') === 'pages')
   expect(pageRequests.map(url => url.searchParams.get('scope'))).toEqual(['without_vortex', 'without_vortex'])
+
+  await page.getByLabel('Report type').selectOption('program-pages')
+  await expect(page.getByRole('heading', { name: 'Google search visibility by program page' })).toBeVisible()
+  await expect(page.getByLabel('Search queries')).toHaveCount(0)
+  await expect(pageTable).toHaveCount(0)
+  expect(programPageRequests).toBe(0)
+  await checkVisibility.click()
+  const programTable = page.getByRole('table', { name: 'Google impressions by program page' })
+  await expect(programTable.getByRole('columnheader', { name: /Latest 28 days.*Oct 17, 2026 to Nov 13, 2026/ })).toBeVisible()
+  await expect(programTable.getByRole('columnheader', { name: /Previous 28 days.*Sep 19, 2026 to Oct 16, 2026/ })).toBeVisible()
+  const youth = programTable.getByRole('row', { name: /Youth Gymnastics/ })
+  const adult = programTable.getByRole('row', { name: /Adult Gymnastics/ })
+  await expect(youth.getByRole('cell')).toHaveText(['31', '12', '+19'])
+  await expect(adult.getByRole('cell')).toHaveText(['0', 'No data reported', '—'])
+  await checkVisibility.click()
+  await expect(page.getByRole('status').filter({ hasText: 'One date range could not be loaded.' })).toBeVisible()
+  await expect(youth.getByRole('cell')).toHaveText(['Property access denied', '12', '—'])
+  expect(reportRequests.filter(url => url.pathname.endsWith('/seo/program-pages')).map(url => url.search)).toEqual(['', ''])
+  expect(topicRequests).toBe(6)
 })

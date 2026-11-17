@@ -84,7 +84,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   '/fit-and-flip': {
     name: 'Fit & Flip Youth Athletic Training',
     path: '/fit-and-flip',
-    title: 'Youth Sports Performance Training in Bowie, MD | Vortex',
+    title: 'Youth Fitness & Sports Performance Training in Bowie, MD | Vortex',
     description: 'Fit & Flip offers youth fitness and sports performance training in Bowie, MD. Beginners and young athletes build strength, power, and body control.',
     heading: 'Youth athletic training in Bowie, MD',
     intro: 'Fit & Flip is a coached fitness class for kids and teens. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
@@ -109,6 +109,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         id: 'choose-a-class',
         heading: 'Who Fit & Flip is for',
         description: 'Field and court athletes can use Fit & Flip to complement their youth sports practice. Cheer, acro, dance, and tumbling athletes can work on the strength and takeoff behind their skills. Gymnasts can add more time for strength and power alongside their gymnastics classes.',
+        topics: [
+          {
+            id: 'speed-agility',
+            heading: 'Speed and agility for youth sports',
+            description: 'Coaches can use short starts to practice the first few steps and stopping drills to teach athletes how to slow down with control. As athletes get comfortable, a coach might cue them to start toward a cone or change direction on the move.',
+          },
+        ],
       },
       {
         id: 'training-fit',

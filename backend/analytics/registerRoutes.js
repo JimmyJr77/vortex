@@ -29,6 +29,7 @@ export function registerAnalyticsRoutes(app, pool) {
   app.get('/api/admin/analytics/export', admin.exportReport)
   app.get('/api/admin/analytics/seo', admin.getSeo)
   app.get('/api/admin/analytics/seo/topics', admin.getSeoTopics)
+  app.get('/api/admin/analytics/seo/program-pages', admin.getSeoProgramPages)
   app.post('/api/admin/analytics/sync', admin.postSync)
 
   app.get('/api/admin/competitors', admin.listCompetitors)

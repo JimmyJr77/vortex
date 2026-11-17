@@ -7,7 +7,7 @@ import {
   recordUtmAttribution,
 } from './helpers.js'
 import { syncExternalAnalytics } from './syncExternal.js'
-import { getSearchConsoleTopics, isSearchConsoleConfigured } from './gscClient.js'
+import { getSearchConsoleProgramPages, getSearchConsoleTopics, isSearchConsoleConfigured } from './gscClient.js'
 import { getBusinessOutcomes } from './businessOutcomes.js'
 import { countWebsiteSessions, getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from './websiteReports.js'
 import { publicPaths, sanitizeAnalyticsId, sanitizeAnalyticsPath, sanitizeCampaign, sanitizeHostname } from './eventContract.js'
@@ -453,6 +453,16 @@ export function createAdminAnalyticsHandlers(pool) {
     }
   }
 
+  const getSeoProgramPages = async (_req, res) => {
+    res.set('Cache-Control', 'no-store')
+    try {
+      res.json({ success: true, data: await getSearchConsoleProgramPages() })
+    } catch {
+      console.error('[analytics/seo/program-pages] Unexpected report failure')
+      res.status(500).json({ success: false, message: 'Could not load the Search Console program page report' })
+    }
+  }
+
   const postSync = async (req, res) => {
     try {
       const result = await syncExternalAnalytics(pool)
@@ -622,6 +632,7 @@ export function createAdminAnalyticsHandlers(pool) {
     exportReport,
     getSeo,
     getSeoTopics,
+    getSeoProgramPages,
     postSync,
     listCompetitors,
     createCompetitor,

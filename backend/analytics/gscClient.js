@@ -2,6 +2,17 @@ import { sanitizeAnalyticsPath } from './eventContract.js'
 
 const SEARCH_CONSOLE_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
 const SEARCH_PAGES_PER_TOPIC = 5
+const REPORT_DAYS = 28
+
+const PROGRAM_PAGES = [
+  { label: 'Youth Gymnastics', page: 'https://vortexathletics.com/gymnastics' },
+  { label: 'Fit & Flip Youth Training', page: 'https://vortexathletics.com/fit-and-flip' },
+  { label: 'Adult Gymnastics', page: 'https://vortexathletics.com/adult-gymnastics' },
+  { label: 'Bowie Youth Sports Guide', page: 'https://vortexathletics.com/blog/youth-sports-bowie' },
+  { label: 'Youth Athletic Development Guide', page: 'https://vortexathletics.com/blog/athletic-development-young-athletes' },
+]
+const PROGRAM_PAGE_URLS = new Set(PROGRAM_PAGES.map(({ page }) => page))
+const PROGRAM_PAGE_EXPRESSION = `^(?:${[...PROGRAM_PAGE_URLS].map(page => page.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`
 
 function searchConsoleConfigurationIssue(env) {
   if (!env.GSC_SITE_URL?.trim()) return 'missing_property'
@@ -142,14 +153,14 @@ const pacificDate = new Intl.DateTimeFormat('en-US', {
   timeZone: TIME_ZONE, year: 'numeric', month: 'numeric', day: 'numeric',
 })
 
-function topicDateWindow(now) {
+function reportDateWindow(now, daysAgo = 0) {
   const fields = Object.fromEntries(pacificDate.formatToParts(now).map(({ type, value }) => [type, value]))
   const date = new Date(Date.UTC(Number(fields.year), Number(fields.month) - 1, Number(fields.day)))
   // Use the Pacific calendar for the three-day reporting delay.
-  date.setUTCDate(date.getUTCDate() - 3)
+  date.setUTCDate(date.getUTCDate() - 3 - daysAgo)
   const endDate = date.toISOString().slice(0, 10)
-  date.setUTCDate(date.getUTCDate() - 27)
-  return { startDate: date.toISOString().slice(0, 10), endDate, timeZone: TIME_ZONE }
+  date.setUTCDate(date.getUTCDate() - (REPORT_DAYS - 1))
+  return { startDate: date.toISOString().slice(0, 10), endDate }
 }
 
 function searchConsoleErrorReason(error) {
@@ -160,6 +171,21 @@ function searchConsoleErrorReason(error) {
   return httpStatus === 401 || httpStatus === 403 || providerStatus === 'UNAUTHENTICATED' || providerStatus === 'PERMISSION_DENIED'
     ? 'access_denied'
     : 'provider_error'
+}
+
+async function connectSearchConsoleReport() {
+  const missing = searchConsoleConfigurationIssue(process.env)
+  if (missing) return { status: 'unconfigured', reason: missing }
+  try {
+    const google = await loadSearchConsoleGoogle()
+    if (!google) return { status: 'error', reason: 'provider_error' }
+    return {
+      searchconsole: createSearchConsoleClient(google),
+      siteUrl: process.env.GSC_SITE_URL.trim(),
+    }
+  } catch (error) {
+    return { status: 'error', reason: searchConsoleErrorReason(error) }
+  }
 }
 
 function topicMetrics({ clicks, impressions, position }) {
@@ -221,25 +247,15 @@ async function fetchTopic(searchconsole, siteUrl, { startDate, endDate, scope, v
 
 /** Fetch totals or reported pages for each search topic independently. */
 export async function getSearchConsoleTopics(now = new Date(), scope = 'all', view = 'totals') {
-  const window = { ...topicDateWindow(now), scope, view }
-  const unavailable = (status, reason) => ({
-    ...window, status, reason,
-    topics: SEARCH_TOPICS.map(({ id, label }) => ({ id, label, status: 'unavailable', metrics: null })),
-  })
-
-  const missing = searchConsoleConfigurationIssue(process.env)
-  if (missing) return unavailable('unconfigured', missing)
-
-  let searchconsole
-  try {
-    const google = await loadSearchConsoleGoogle()
-    if (!google) return unavailable('error', 'provider_error')
-    searchconsole = createSearchConsoleClient(google)
-  } catch (error) {
-    return unavailable('error', searchConsoleErrorReason(error))
+  const window = { ...reportDateWindow(now), timeZone: TIME_ZONE, scope, view }
+  const { searchconsole, siteUrl, status, reason } = await connectSearchConsoleReport()
+  if (!searchconsole) {
+    return {
+      ...window, status, reason,
+      topics: SEARCH_TOPICS.map(({ id, label }) => ({ id, label, status: 'unavailable', metrics: null })),
+    }
   }
 
-  const siteUrl = process.env.GSC_SITE_URL.trim()
   const topics = await Promise.all(SEARCH_TOPICS.map(topic => fetchTopic(searchconsole, siteUrl, window, topic)))
   const failures = topics.filter(topic => topic.status === 'error')
   if (failures.length === topics.length) {
@@ -247,4 +263,70 @@ export async function getSearchConsoleTopics(now = new Date(), scope = 'all', vi
     return { ...window, status: 'error', reason, topics }
   }
   return { ...window, status: failures.length ? 'partial' : 'ok', topics }
+}
+
+async function fetchProgramPageWindow(searchconsole, siteUrl, dates) {
+  try {
+    const { data } = await searchconsole.searchanalytics.query({
+      siteUrl,
+      requestBody: {
+        ...dates,
+        type: 'web',
+        dataState: 'final',
+        aggregationType: 'auto',
+        dimensions: ['page'],
+        dimensionFilterGroups: [{ groupType: 'and', filters: [
+          { dimension: 'page', operator: 'includingRegex', expression: PROGRAM_PAGE_EXPRESSION },
+        ] }],
+        rowLimit: PROGRAM_PAGE_URLS.size,
+      },
+    }, { timeout: 10000, retry: false })
+
+    const rows = data.rows ?? []
+    if (!Array.isArray(rows) || rows.length > PROGRAM_PAGE_URLS.size) throw new Error('Unexpected Search Console rows')
+    const impressions = new Map()
+    for (const row of rows) {
+      const page = row.keys?.[0]
+      if (!PROGRAM_PAGE_URLS.has(page) || impressions.has(page) || !Number.isFinite(row.impressions) || row.impressions < 0) {
+        throw new Error('Unexpected Search Console page metrics')
+      }
+      impressions.set(page, row.impressions)
+    }
+    return { window: { ...dates, status: 'ok' }, impressions }
+  } catch (error) {
+    return { window: { ...dates, status: 'error', reason: searchConsoleErrorReason(error) } }
+  }
+}
+
+export async function getSearchConsoleProgramPages(now = new Date()) {
+  const currentDates = reportDateWindow(now)
+  const previousDates = reportDateWindow(now, REPORT_DAYS)
+  const { searchconsole, siteUrl, status, reason } = await connectSearchConsoleReport()
+  if (!searchconsole) {
+    return {
+      timeZone: TIME_ZONE,
+      status,
+      reason,
+      current: { ...currentDates, status: 'unavailable' },
+      previous: { ...previousDates, status: 'unavailable' },
+      pages: PROGRAM_PAGES.map(page => ({ ...page, currentImpressions: null, previousImpressions: null })),
+    }
+  }
+
+  const [current, previous] = await Promise.all([
+    fetchProgramPageWindow(searchconsole, siteUrl, currentDates),
+    fetchProgramPageWindow(searchconsole, siteUrl, previousDates),
+  ])
+  const failedWindows = [current, previous].filter(({ window }) => window.status === 'error')
+  return {
+    timeZone: TIME_ZONE,
+    status: failedWindows.length === 2 ? 'error' : failedWindows.length ? 'partial' : 'ok',
+    current: current.window,
+    previous: previous.window,
+    pages: PROGRAM_PAGES.map(page => ({
+      ...page,
+      currentImpressions: current.impressions?.get(page.page) ?? null,
+      previousImpressions: previous.impressions?.get(page.page) ?? null,
+    })),
+  }
 }
