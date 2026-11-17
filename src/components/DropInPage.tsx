@@ -13,10 +13,11 @@ import {
 } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getMemberSessionToken } from '../utils/portalSession'
-import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatPublicAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
+import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, classMatchesPublicAge, formatPublicAgeRange, formatSkillLevel, parsePublicClassAge, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
 import { PARKING_AND_ACCESSIBILITY_PATH } from '../config/contact'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
+import ParticipantAgeField from './enroll/ParticipantAgeField'
 import './DropInPage.css'
 
 const DropInSignup = lazy(() => import('./signup/DropInSignup'))
@@ -101,6 +102,8 @@ export default function DropInPage() {
   const [catalogVersion, setCatalogVersion] = useState(0)
   const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
+  const [ageInput, setAgeInput] = useState('')
+  const participantAge = parsePublicClassAge(ageInput)
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [dropInDate, setDropInDate] = useState('')
@@ -196,6 +199,7 @@ export default function DropInPage() {
     const filtered = classes.filter((row) =>
       (scopedProgram || programFilter === 'all' || row.programId === programFilter) &&
       (levelFilter === 'all' || row.skillLevel == null || row.skillLevel === levelFilter) &&
+      classMatchesPublicAge(participantAge, row.ageMin, row.ageMax) &&
       (!dropInDate || sessions.some(
         (session) => session.classId === row.classId && session.date === dropInDate,
       )) &&
@@ -204,7 +208,7 @@ export default function DropInPage() {
     const grouped = new Map<number, DropInClass[]>()
     for (const row of filtered) grouped.set(row.programId, [...(grouped.get(row.programId) ?? []), row])
     return [...grouped.values()]
-  }, [classes, dropInDate, levelFilter, programFilter, scopedProgram, searchQuery, sessions])
+  }, [classes, dropInDate, levelFilter, participantAge, programFilter, scopedProgram, searchQuery, sessions])
 
   const { onSelectedDate, alternatives } = useMemo(
     () => getDropInDateOptions(sessions, selectedClassId, dropInDate),
@@ -213,8 +217,13 @@ export default function DropInPage() {
 
   const selectedClass = classes.find((row) => row.classId === selectedClassId) ?? null
   const selectedProgram = scopedProgram ? undefined : programOptions.find((program) => program.id === programFilter)
-  const hasFilters = searchQuery !== '' || (!scopedProgram && programFilter !== 'all') || levelFilter !== 'all'
-  const clearFilters = () => { setSearchQuery(''); setProgramFilter('all'); setLevelFilter('all') }
+  const hasFilters = searchQuery !== '' || ageInput !== '' || (!scopedProgram && programFilter !== 'all') || levelFilter !== 'all'
+  const clearFilters = () => {
+    setSearchQuery('')
+    setAgeInput('')
+    setProgramFilter('all')
+    setLevelFilter('all')
+  }
   const selectSession = (session: DropInSession) => {
     trackEvent('drop_in_start', '/drop-in')
     setError(null)
@@ -352,7 +361,7 @@ export default function DropInPage() {
           <div className="np-drop-in-filters rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div className="flex items-start justify-between gap-4"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><LayoutGrid className="h-7 w-7 text-vortex-red" /> Browse classes</h2><p className="mt-1 text-sm text-gray-600">Select a class to see its upcoming single-day openings.</p></div>{hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="h-4 w-4" /> Clear</button>}</div>
             <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" aria-label="Search drop-in classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" /></div>
-            {isAdultBookingSearch(searchQuery) && (
+            {(isAdultBookingSearch(searchQuery) || (participantAge != null && participantAge >= 18)) && (
               <p className="text-sm">
                 <Link className="font-semibold text-vortex-red underline underline-offset-4" to={ADULT_DROP_IN_HREF}>
                   See Typhoons adult gymnastics drop-ins
@@ -374,6 +383,10 @@ export default function DropInPage() {
               helpText="Choose the date you want to attend this drop-in class."
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <ParticipantAgeField value={ageInput} onChange={(value) => {
+                setAgeInput(value)
+                setSelectedClassId(null)
+              }} />
               {!scopedProgram && <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select aria-label="Program" value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((program) => <option key={program.id} value={program.id}>{program.displayName}</option>)}</select></label>}
               <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Experience level</span><select aria-label="Experience level" value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             </div>

@@ -84,6 +84,7 @@ const PublicSchedulingCalendar = ({ theme = 'dark' }: PublicSchedulingCalendarPr
       onProgramFilterChange={() => {}}
       onFormActiveFilterChange={() => {}}
       onClassFilterChange={setClassFilterId}
+      onEventClick={(event) => nav.openDay(event.date)}
       onRetry={() => setRetryVersion((version) => version + 1)}
       theme={theme}
     />

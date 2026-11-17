@@ -9,6 +9,16 @@ export function formatPublicAgeRange(ageMin: number | null, ageMax: number | nul
   return formatAgeRange(ageMin, ageMax)
 }
 
+export function parsePublicClassAge(value: string): number | null {
+  if (!value.trim()) return null
+  const age = Number(value)
+  return Number.isSafeInteger(age) && age >= 0 ? age : null
+}
+
+export function classMatchesPublicAge(age: number | null, ageMin: number | null, ageMax: number | null): boolean {
+  return age == null || ((ageMin == null || age >= ageMin) && (ageMax == null || age <= ageMax))
+}
+
 /** Skill level enum values — order matches admin ClassEventModal skill level dropdown. */
 export const CLASS_SKILL_LEVEL_CHOICES = [
   { value: 'EARLY_STAGE' as const, label: 'Early stage' },

@@ -602,8 +602,8 @@ test.describe('Client-critical smoke flows', () => {
     await page.goto('/read-board#schedule')
     const calendar = page.locator('section#schedule')
     await calendar.getByRole('button', { name: /^day$/i }).click()
-    await expect(calendar.getByRole('button', { name: /Cancelled Cyclones/ })).toBeVisible()
-    await expect(calendar.getByRole('button', { name: /Trial Assessment/ })).toBeVisible()
+    await expect(calendar.getByText('Fit & Flip · Cancelled Cyclones', { exact: true })).toBeVisible()
+    await expect(calendar.getByText('Fit & Flip · Trial Assessment', { exact: true })).toBeVisible()
 
     const signup = calendar.getByRole('link', { name: 'Sign Up', exact: true })
     await expect(signup).toHaveCount(2)
@@ -613,7 +613,7 @@ test.describe('Client-critical smoke flows', () => {
       `/enroll?form=30&offeringId=18&slotGroupId=99&timeSlotId=108&enrollmentStartDate=${classDate}`)
 
     await calendar.getByRole('button', { name: 'Previous period', exact: true }).click()
-    await expect(calendar.getByRole('button', { name: /Earlier Cyclones/ })).toBeVisible()
+    await expect(calendar.getByText('Fit & Flip · Earlier Cyclones', { exact: true })).toBeVisible()
     await expect(signup).toHaveCount(0)
   })
 
@@ -658,7 +658,7 @@ test.describe('Client-critical smoke flows', () => {
       await calendar.getByRole('button', { name: /^day$/i }).click()
       await todayRequest
       await calendar.getByRole('button', { name: 'Previous period', exact: true }).click()
-      const earlierClass = calendar.getByRole('button', { name: /Earlier Cyclones/ })
+      const earlierClass = calendar.getByText('Fit & Flip · Earlier Cyclones', { exact: true })
       await expect(earlierClass).toBeVisible()
       releaseToday()
       await todayFinished

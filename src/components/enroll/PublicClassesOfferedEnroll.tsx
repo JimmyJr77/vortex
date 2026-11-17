@@ -5,8 +5,10 @@ import type { PublicProgramOffered } from '../../utils/publicClassesApi'
 import { ADULT_BOOKING_HREF, isAdultBookingSearch, matchesPublicBookingSearch } from '../../utils/publicBookingPrograms'
 import {
   CLASS_SKILL_LEVEL_FILTER_OPTIONS,
+  classMatchesPublicAge,
   formatPublicAgeRange,
   formatSkillLevel,
+  parsePublicClassAge,
   type ClassSkillLevelFilter,
 } from '../../utils/classDisplayUtils'
 import {
@@ -38,6 +40,7 @@ import {
 import ScheduleOptionCheckboxGrid from '../signup/ScheduleOptionCheckboxGrid'
 import { groupScheduleOptions } from '../signup/scheduleOptionGrouping'
 import EnrollmentStartDateField from './EnrollmentStartDateField'
+import ParticipantAgeField from './ParticipantAgeField'
 
 type CatalogState = SignupClassCatalog | 'loading' | 'error'
 
@@ -180,6 +183,8 @@ export default function PublicClassesOfferedEnroll({
   const [catalogs, setCatalogs] = useState<Record<number, CatalogState>>({})
   const [cart, setCart] = useState<PublicEnrollmentCartItem[]>(loadPublicEnrollmentCart)
   const [searchQuery, setSearchQuery] = useState('')
+  const [ageInput, setAgeInput] = useState('')
+  const participantAge = parsePublicClassAge(ageInput)
   const [programFilter, setProgramFilter] = useState<number | 'all'>(
     initialProgramId ?? 'all',
   )
@@ -273,6 +278,7 @@ export default function PublicClassesOfferedEnroll({
     for (const program of programs) {
       const programClasses = classesWithForm
         .filter((classItem) => classItem.programsId === program.id)
+        .filter((classItem) => classMatchesPublicAge(participantAge, classItem.ageMin, classItem.ageMax))
         .filter((classItem) => matchesPublicBookingSearch(query, program.displayName, [
           classItem.label, classItem.description, classItem.programName, classItem.skillLevel, program.primarySportName,
         ]))
@@ -303,7 +309,7 @@ export default function PublicClassesOfferedEnroll({
       filteredProgramSections: filteredSections,
       acrossFilterProgramSections: acrossFilterSections,
     }
-  }, [classesWithForm, levelFilter, programFilter, programs, searchQuery])
+  }, [classesWithForm, levelFilter, participantAge, programFilter, programs, searchQuery])
 
   const cartByProgram = useMemo(() => {
     const result = new Map<number, PublicEnrollmentCartItem[]>()
@@ -456,6 +462,7 @@ export default function PublicClassesOfferedEnroll({
 
   const clearFilters = () => {
     setSearchQuery('')
+    setAgeInput('')
     setProgramFilter('all')
     setLevelFilter('all')
   }
@@ -482,7 +489,7 @@ export default function PublicClassesOfferedEnroll({
   }
 
   const hasFilters =
-    searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
+    searchQuery !== '' || ageInput !== '' || programFilter !== 'all' || levelFilter !== 'all'
   const displayedProgramSections = [
     ...filteredProgramSections.map((section) => ({ ...section, resultGroup: 'filtered' as const })),
     ...acrossFilterProgramSections.map((section) => ({ ...section, resultGroup: 'across' as const })),
@@ -527,7 +534,7 @@ export default function PublicClassesOfferedEnroll({
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input type="search" aria-label="Search classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
         </div>
-        {isAdultBookingSearch(searchQuery) && (
+        {(isAdultBookingSearch(searchQuery) || (participantAge != null && participantAge >= 18)) && (
           <p className="text-sm">
             <Link className="font-semibold text-vortex-red underline underline-offset-4" to={ADULT_BOOKING_HREF}>
               See Typhoons adult gymnastics classes
@@ -536,6 +543,7 @@ export default function PublicClassesOfferedEnroll({
         )}
         {!hasLinkedClass && startDateField}
         <div className="np-enrollment-filter-fields flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <ParticipantAgeField value={ageInput} onChange={setAgeInput} />
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
             <span className="text-xs font-semibold text-gray-600">Program</span>
             <select aria-label="Program" value={programFilter === 'all' ? 'all' : String(programFilter)} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">

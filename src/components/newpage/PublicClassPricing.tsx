@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { getApiUrl } from '../../utils/api'
 import { fetchNonmemberDropIns } from '../../utils/dropInApi'
 import { formatCents } from '../../utils/money'
@@ -135,6 +136,13 @@ export default function PublicClassPricing({ program, classes, usesClassTuition,
         <p>Compare base tuition for a weekly class and the nonmember price for a single visit. Check the right level for your child before choosing a time.</p>
       )}
       <p>Paid monthly enrollment requires an active annual membership. Membership is optional for drop-ins and eligible free trials. Review fees, first-month adjustments, and any benefits during booking.</p>
+      <p>
+        To request cancellation of a recurring class, open <strong>Classes</strong> in your Vortex account.
+        Under <strong>Enrollments</strong>, choose <strong>Manage enrollment</strong> for the class, then{' '}
+        <strong>Request cancellation</strong>. Your enrollment and billing stay active while Billing reviews
+        the request. See the <Link to="/terms-of-service" className="underline">Terms of Service</Link> or{' '}
+        <Link to={CONTACT_INQUIRY_PATH} className="underline">contact Vortex with questions</Link>.
+      </p>
       {isYouthGymnastics && requested && (
         <div aria-live="polite" data-prerender-dynamic="">
           {classes === null ? <p>Checking current class prices…</p> : classes.length ? (

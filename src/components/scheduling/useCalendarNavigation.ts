@@ -17,6 +17,14 @@ export function useCalendarNavigation(initialView: CalendarView = 'month') {
     }
   }
 
+  const openDay = (date: string) => {
+    const day = parseDateString(date)
+    setFocusDate(date)
+    setYear(day.getFullYear())
+    setMonth(day.getMonth() + 1)
+    setView('day')
+  }
+
   const goBack = () => {
     if (view === 'month' || view === 'byClass') {
       if (month === 1) {
@@ -73,6 +81,7 @@ export function useCalendarNavigation(initialView: CalendarView = 'month') {
     month,
     focusDate,
     handleViewChange,
+    openDay,
     goBack,
     goForward,
   }

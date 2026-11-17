@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import PortalOverlay from '../portal/PortalOverlay'
 import { ChevronLeft, ChevronRight, Ellipsis, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
@@ -153,6 +153,15 @@ const SchedulingCalendarView = ({
   } | null>(null)
   const eventPreviewId = useId()
   const isDark = theme === 'dark'
+  const periodHeading = useRef<HTMLHeadingElement>(null)
+  const focusDayAfterEvent = useRef(false)
+
+  useEffect(() => {
+    if (view !== 'day' || !focusDayAfterEvent.current) return
+    focusDayAfterEvent.current = false
+    periodHeading.current?.focus({ preventScroll: true })
+    periodHeading.current?.scrollIntoView({ block: 'start', behavior: 'instant' })
+  }, [view])
 
   useEffect(() => {
     if (!eventPreview) return
@@ -266,6 +275,7 @@ const SchedulingCalendarView = ({
 
   const handleEventAction = (event: SchedulingCalendarEvent) => {
     setEventPreview(null)
+    if (mode === 'public') focusDayAfterEvent.current = true
     onEventClick?.(event)
   }
 
@@ -347,6 +357,7 @@ const SchedulingCalendarView = ({
     const inactive = event.isCancelled || isScheduleInactive(event)
     const timeLabel = `${formatTime12(event.startTime)}–${formatTime12(event.endTime)}`
     const name = formatCalendarEventClassLabel(event)
+    const label = `${name}, ${formatDateForDisplay(event.date)}, ${timeLabel}${event.isCancelled ? ', Cancelled' : ''}`
     return (
       <button
         key={event.id}
@@ -356,7 +367,7 @@ const SchedulingCalendarView = ({
         onMouseLeave={() => setEventPreview(null)}
         onFocus={(e) => showEventPreview(event, e.currentTarget)}
         onBlur={() => setEventPreview(null)}
-        aria-label={mode === 'admin' ? `${name}, ${formatDateForDisplay(event.date)}, ${timeLabel}${event.isCancelled ? ', Cancelled' : ''}` : undefined}
+        aria-label={mode === 'public' ? `${label}. View day schedule.` : label}
         aria-describedby={eventPreview?.event.id === event.id ? eventPreviewId : undefined}
         className={`w-full text-left rounded px-1.5 py-0.5 text-[11px] leading-tight border transition-colors cursor-pointer ${
           inactive
@@ -378,6 +389,27 @@ const SchedulingCalendarView = ({
   const renderDayListItem = (event: SchedulingCalendarEvent, showSignup = false) => {
     const inactive = event.isCancelled || isScheduleInactive(event)
     const timeLabel = `${formatTime12(event.startTime)} – ${formatTime12(event.endTime)}`
+    const details = (
+      <>
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <span className="font-semibold text-vortex-red">{timeLabel}</span>
+          <span className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
+            {formatCalendarEventClassLabel(event)}
+          </span>
+          {event.isCancelled && <span className="text-sm font-semibold text-red-700">Cancelled</span>}
+        </div>
+        {event.classDescription && (
+          <p
+            className={`mt-2 text-sm whitespace-pre-wrap leading-relaxed ${
+              isDark ? 'text-gray-300' : 'text-gray-700'
+            }`}
+          >
+            {event.classDescription}
+          </p>
+        )}
+      </>
+    )
+
     return (
       <div
         key={event.id}
@@ -391,28 +423,11 @@ const SchedulingCalendarView = ({
               : 'border-gray-200 bg-white hover:border-vortex-red/40 hover:bg-red-50/30'
         }`}
       >
-        <button
-          type="button"
-          onClick={() => handleEventAction(event)}
-          className="w-full text-left"
-        >
-          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-            <span className="font-semibold text-vortex-red">{timeLabel}</span>
-            <span className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
-              {formatCalendarEventClassLabel(event)}
-            </span>
-            {event.isCancelled && <span className="text-sm font-semibold text-red-700">Cancelled</span>}
-          </div>
-          {event.classDescription && (
-            <p
-              className={`mt-2 text-sm whitespace-pre-wrap leading-relaxed ${
-                isDark ? 'text-gray-300' : 'text-gray-700'
-              }`}
-            >
-              {event.classDescription}
-            </p>
-          )}
-        </button>
+        {mode === 'admin' ? (
+          <button type="button" onClick={() => handleEventAction(event)} className="w-full text-left">
+            {details}
+          </button>
+        ) : details}
         {showSignup && renderSignupButton(event)}
       </div>
     )
@@ -585,6 +600,7 @@ const SchedulingCalendarView = ({
                 <button
                   key={v}
                   type="button"
+                  aria-pressed={mode === 'public' ? view === v : undefined}
                   onClick={() => {
                     onViewChange(v)
                     if (v === 'week' || v === 'day') {
@@ -623,6 +639,8 @@ const SchedulingCalendarView = ({
                 <ChevronLeft className="w-5 h-5 text-vortex-red" />
               </button>
               <h2
+                ref={periodHeading}
+                tabIndex={mode === 'public' && view === 'day' ? -1 : undefined}
                 className={`text-xl font-display font-bold min-w-[200px] text-center ${
                   isDark ? 'text-white' : 'text-black'
                 }`}

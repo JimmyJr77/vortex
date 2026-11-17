@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 import type { SchedulingCalendarEvent } from '../../src/utils/schedulingApi'
+import { ANALYTICS_POLICY_VERSION, CONSENT_STORAGE_KEY } from '../../src/config/analyticsPolicy'
 
 const date = '2026-11-16'
 const followingWeek = '2026-11-23'
@@ -41,6 +42,52 @@ function eventFor(slotId: number, sessionDate: string, isTrialAssessment = false
     isTrialAssessment,
   }
 }
+
+test.describe('public mobile calendar', () => {
+  test.use({ viewport: { width: 360, height: 740 }, isMobile: true, hasTouch: true })
+
+  test('month and week class taps open the scheduled day with its signup link', async ({ page }) => {
+    const selectedDate = '2026-11-19'
+    const events = [
+      { ...eventFor(31, selectedDate), enrollVisible: true },
+      { ...eventFor(32, selectedDate, true), formActive: true, enrollVisible: true },
+    ]
+    await page.clock.setFixedTime(new Date('2026-11-16T15:00:00Z'))
+    await page.addInitScript(({ key, policyVersion }) => {
+      localStorage.setItem(key, JSON.stringify({
+        necessary: true, analytics: false, marketing: false, policyVersion, updatedAt: new Date().toISOString(),
+      }))
+    }, { key: CONSENT_STORAGE_KEY, policyVersion: ANALYTICS_POLICY_VERSION })
+    await page.route('**/api/**', route => {
+      const request = route.request()
+      const url = new URL(request.url())
+      expect(request.method()).toBe('GET')
+      const startDate = url.searchParams.get('startDate')
+      const endDate = url.searchParams.get('endDate')
+      const data = url.pathname === '/api/scheduling/calendar' && startDate && endDate
+        ? { year: 2026, month: 11, startDate, endDate, events: events.filter(event => event.date >= startDate && event.date <= endDate), tbdPatterns: [] }
+        : []
+      return route.fulfill({ json: { success: true, data } })
+    })
+    await page.goto('/read-board#schedule')
+    const calendar = page.locator('#schedule [data-prerender-dynamic]')
+    const heading = calendar.getByRole('heading', { name: 'Thursday, November 19, 2026', exact: true })
+    const signUp = calendar.getByRole('link', { name: 'Sign Up', exact: true })
+
+    for (const view of ['month', 'week']) {
+      await calendar.getByRole('button', { name: view, exact: true }).tap()
+      const classChip = calendar.getByRole('button', { name: /Tumbling/ })
+      await classChip.tap()
+      await expect(heading).toBeFocused()
+      await expect(heading).toBeInViewport()
+      await expect(calendar.getByRole('button', { name: 'day', exact: true })).toHaveAttribute('aria-pressed', 'true')
+      await expect(signUp).toHaveCount(1)
+      await expect(signUp).toHaveAttribute('href', '/enroll?form=41&slotGroupId=51&timeSlotId=31&enrollmentStartDate=' + selectedDate)
+      await expect(calendar.getByRole('button', { name: /Tumbling/ })).toHaveCount(0)
+      await expect(page).toHaveURL('/read-board#schedule')
+    }
+  })
+})
 
 async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDates: string[] = []) {
   await page.clock.setFixedTime(new Date('2026-11-16T15:00:00Z'))

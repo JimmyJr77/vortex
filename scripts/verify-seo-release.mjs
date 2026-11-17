@@ -679,6 +679,12 @@ const verifyHtml = (
       const visitLinks = anchorUrls(visit)
       assert([galleryUrl, accessibilityUrl].every(destination => visitLinks.some(url => url.href === destination)),
         `${label}: the program visit section must link to the Bowie gym photos and accessibility details`)
+      const pricing = mainHtml.match(/<details\b[^>]*\bclass=["']np-class-pricing\b[^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
+      const pricingLinks = anchorUrls(pricing)
+      assert(/Request cancellation/.test(pricing) &&
+        pricingLinks.some(url => url.href === `${HUB_ORIGIN}/terms-of-service`) &&
+        pricingLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
+        `${label}: missing the published recurring enrollment cancellation path or terms and contact links`)
     }
     if (pagePath === '/gymnastics') {
       const schoolAge = mainHtml.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''

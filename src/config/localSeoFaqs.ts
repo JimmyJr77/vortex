@@ -19,7 +19,7 @@ export const DROP_IN_FAQS: Faq[] = [
   {
     question: 'Which activities offer drop-in classes?',
     answer:
-      'The live catalog shows available youth gymnastics, Fit & Flip youth fitness, and adult gymnastics drop-ins. Select a program to see its class times and review the class age group before choosing.',
+      'The live catalog shows youth gymnastics, Fit & Flip youth fitness, and adult gymnastics drop-ins. In the general catalog, enter the participant’s age on the class date to narrow results by the published age ranges.',
   },
   {
     question: 'Where are Vortex drop-in classes held?',
