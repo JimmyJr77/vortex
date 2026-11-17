@@ -9,6 +9,7 @@ import {
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../config/athleticDevelopmentGuide'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -268,6 +269,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/drop-in': 'Drop-In Classes',
     '/contact': 'Contact & Location',
     [ATHLETIC_DEVELOPMENT_GUIDE.path]: 'Youth Athletic Development Guide',
+    [BOWIE_YOUTH_SPORTS_GUIDE.path]: 'Bowie Youth Sports Guide',
     '/support': 'Customer Support',
     '/store': 'Vortex Athletics Store',
     '/privacy-policy': 'Privacy Policy',
@@ -328,14 +330,15 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   if (pathname === '/contact') {
     schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
   }
-  if (pathname === ATHLETIC_DEVELOPMENT_GUIDE.path) {
+  const guide = [ATHLETIC_DEVELOPMENT_GUIDE, BOWIE_YOUTH_SPORTS_GUIDE].find(({ path }) => path === pathname)
+  if (guide) {
     schema.push({
       '@context': 'https://schema.org',
       '@type': 'Article',
       mainEntityOfPage: url,
-      headline: ATHLETIC_DEVELOPMENT_GUIDE.heading,
-      description: ATHLETIC_DEVELOPMENT_GUIDE.description,
-      image: `${HUB_ORIGIN}${ATHLETIC_DEVELOPMENT_GUIDE.image}`,
+      headline: guide.heading,
+      description: guide.description,
+      image: `${HUB_ORIGIN}${guide.image}`,
       author: { '@id': `${HUB_ORIGIN}/#organization` },
       publisher: { '@id': `${HUB_ORIGIN}/#organization` },
       inLanguage: 'en-US',

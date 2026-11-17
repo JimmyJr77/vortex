@@ -5,6 +5,7 @@
 export const SEO_CONTENT_LASTMOD = '2026-11-16'
 
 export const YOUTH_ATHLETIC_GUIDE_PATH = '/blog/athletic-development-young-athletes'
+export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = '/blog/youth-sports-bowie'
 
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
@@ -23,6 +24,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
   { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
+  { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
 ]
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']

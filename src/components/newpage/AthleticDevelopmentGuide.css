@@ -87,8 +87,8 @@
 
 .athletic-guide-index a,
 .athletic-guide-breadcrumb a,
+.athletic-guide-body > section a,
 .athletic-guide-next p a,
-.athletic-guide-sources a,
 .athletic-guide-trial {
   text-decoration: underline;
   text-underline-offset: 0.2em;

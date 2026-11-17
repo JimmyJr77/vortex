@@ -4,6 +4,7 @@ export const publicPaths = new Set([
   '/copy',
   '/camp_interest', '/camp_interest/thank-you',
   '/blog/athletic-development-young-athletes',
+  '/blog/youth-sports-bowie',
   '/schedule', '/scheduling', '/store', '/store/success',
   '/signup/family', '/signup/invite', '/signup/lead',
   '/verify-email', '/registration/receipt', '/waivers-memberships',

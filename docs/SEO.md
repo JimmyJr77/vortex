@@ -174,6 +174,7 @@ These actions require access to Google and cannot be completed by a code build.
    - `https://vortexathletics.com/fit-and-flip`
    - `https://vortexathletics.com/adult-gymnastics`
    - `https://vortexathletics.com/blog/athletic-development-young-athletes`
+   - `https://vortexathletics.com/blog/youth-sports-bowie`
    - `https://vortexathletics.com/`
 4. Confirm Google-selected canonical equals the declared canonical after the
    next crawl. Monitor Page Indexing, Core Web Vitals, and non-brand queries.
