@@ -9,7 +9,7 @@ import {
   DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM,
   FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
   getPublicBookingDescription, getPublicBookingPrograms, getScopedDropInProgram,
-  isAdultBookingProgram, matchesPublicBookingSearch,
+  isAdultBookingProgram, isAdultBookingSearch, matchesPublicBookingSearch,
 } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getMemberSessionToken } from '../utils/portalSession'
@@ -352,6 +352,13 @@ export default function DropInPage() {
           <div className="np-drop-in-filters rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div className="flex items-start justify-between gap-4"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><LayoutGrid className="h-7 w-7 text-vortex-red" /> Browse classes</h2><p className="mt-1 text-sm text-gray-600">Select a class to see its upcoming single-day openings.</p></div>{hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="h-4 w-4" /> Clear</button>}</div>
             <div className="relative"><Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" /><input type="search" aria-label="Search drop-in classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" /></div>
+            {isAdultBookingSearch(searchQuery) && (
+              <p className="text-sm">
+                <Link className="font-semibold text-vortex-red underline underline-offset-4" to={ADULT_DROP_IN_HREF}>
+                  See Typhoons adult gymnastics drop-ins
+                </Link>
+              </p>
+            )}
             <EnrollmentStartDateField
               id="drop-in-date"
               label="Drop-in date"

@@ -451,6 +451,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             link: { href: `${trainingFilm.path}#strength-and-handstand`, label: 'Watch a handstand in the Vortex training film', analyticsKey: 'watch_training_film' },
           },
           {
+            id: 'adult-tumbling',
+            heading: 'Working toward a tumbling skill as an adult?',
+            description: 'If you want to work toward a cartwheel or another floor skill, tell your Typhoons coach and ask what to practice first. If you’re looking for a class focused on floor tumbling, compare nearby options and check their age and skill requirements.',
+            link: {
+              href: `${RETURNING_TO_GYMNASTICS_GUIDE.path}#nearby-adult-gymnastics`,
+              label: 'Compare adult tumbling, gymnastics, and open gym near Bowie',
+              analyticsKey: 'compare_adult_gymnastics_formats',
+            },
+          },
+          {
             id: 'returning-gymnasts',
             heading: 'Returning to gymnastics',
             description: 'Tell your coach what you used to practice and what you’d like to work toward now. Start with movements you can repeat comfortably and ask what to practice before revisiting a previous skill.',
@@ -463,7 +473,6 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
         links: [
           { href: '/adult-gymnastics#adult-availability', label: 'Plan your first Typhoons class', analyticsKey: 'read_adult_first_visit' },
-          { href: `${RETURNING_TO_GYMNASTICS_GUIDE.path}#nearby-adult-gymnastics`, label: 'Compare adult classes and open gym near Bowie', analyticsKey: 'compare_adult_gymnastics_formats' },
         ],
       },
       {

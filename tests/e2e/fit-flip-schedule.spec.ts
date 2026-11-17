@@ -38,6 +38,7 @@ async function mockSchedule(page: Page, unavailableForms: number[] = []) {
         ] },
         { id: 2, displayName: 'Development Gymnastics', classes: [
           { id: 64, displayName: 'Tornadoes', ageMin: 6, formId: 5, enrollVisible: true },
+          { id: 65, displayName: 'Dirt Devils (Mommy & Me)', ageMin: 2, ageMax: 3, formId: 11, enrollVisible: true },
         ] },
         { id: 13, displayName: teamName, description: staleTeamProgramDescription, classes: [{
           id: 40, displayName: teamName, description: staleTeamClassDescription, ageMin: 6, ageMax: null,
@@ -219,7 +220,7 @@ for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', '
     await expect(page.getByText(staleDescription)).toHaveCount(0)
     await expect(page.getByText(/Fit & Flip is a coached fitness class for ages 8–15/)).toBeVisible()
 
-    for (const term of ['youth fitness', 'athletic training', 'strength training', 'sports performance', 'Cyclones']) {
+    for (const term of ['youth fitness', 'athletic training', 'strength training', 'sports performance', 'Cyclones', 'Fit and Flip', 'fit-and-flip']) {
       await search.fill(term)
       await expect(fitAndFlipHeading).toBeVisible()
       await expect(page.getByText(younger, { exact: true })).toBeVisible()
@@ -227,5 +228,25 @@ for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', '
       await expect(gymnasticsHeading).toHaveCount(0)
       await expect(page.getByText('Typhoons', { exact: true })).toHaveCount(0)
     }
+
+    for (const term of ['8-11', '8–11']) {
+      await search.fill(term)
+      await expect(page.getByText(younger, { exact: true })).toBeVisible()
+      await expect(page.getByText(older, { exact: true })).toHaveCount(0)
+    }
+
+    await search.fill('Mommy and Me')
+    await expect(page.getByRole('heading', { name: 'Dirt Devils (Mommy & Me)', exact: true })).toBeVisible()
+    await expect(fitAndFlipHeading).toHaveCount(0)
+
+    const adultLink = page.getByRole('link', { name: /^See Typhoons adult gymnastics/ })
+    await expect(adultLink).toHaveCount(0)
+    for (const term of ['adult gymnastics', 'gymnastics for adults', 'Typhoons']) {
+      await search.fill(term)
+      await expect(adultLink).toHaveAttribute('href', path + '?program=Adult%20Fitness%20%26%20Acrobatics')
+    }
+
+    await search.fill('adulthood')
+    await expect(adultLink).toHaveCount(0)
   })
 }

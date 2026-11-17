@@ -170,7 +170,9 @@ test.describe('Client-critical smoke flows', () => {
   test('adult gymnasts can compare nearby formats and reach Typhoons dates', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/adult-gymnastics')
-    await page.getByRole('link', { name: 'Compare adult classes and open gym near Bowie' }).click()
+    const tumbling = page.locator('#adult-tumbling')
+    await expect(tumbling.getByRole('heading', { name: 'Working toward a tumbling skill as an adult?' })).toBeVisible()
+    await tumbling.getByRole('link', { name: 'Compare adult tumbling, gymnastics, and open gym near Bowie' }).click()
     await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult#nearby-adult-gymnastics')
     const comparison = page.locator('#nearby-adult-gymnastics')
     await expect(comparison.getByRole('heading')).toBeInViewport()

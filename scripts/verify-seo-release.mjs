@@ -769,6 +769,9 @@ const verifyHtml = (
         `${label}: missing the beginner answer or a concrete example of a starting exercise`)
       assert(anchorUrls(format).some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#adult-availability`),
         `${label}: missing the first-visit link from the adult class format section`)
+      const adultTumbling = format.match(/<article\b[^>]*\sid=["']adult-tumbling["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(anchorUrls(adultTumbling).some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#nearby-adult-gymnastics`),
+        `${label}: missing adult tumbling guidance and the link to compare nearby options`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']adult-availability["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Plan your first adult gymnastics class<\/h2>/i.test(firstVisit) && /select yourself as the participant/i.test(firstVisit),
         `${label}: missing adult registration and first-visit guidance`)
@@ -956,6 +959,15 @@ const verifyHtml = (
     assert(links.some(url => url.href === 'https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/') &&
       /Sharks Squirts group introduces ages 5–8/.test(content),
       `${label}: missing the sourced South Bowie introductory basketball group`)
+    const winterSports = content.match(/<section\b[^>]*\sid=["']indoor-winter-sports["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const winterLinks = anchorUrls(winterSports)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#indoor-winter-sports') &&
+      winterLinks.some(url => url.href === 'https://www.marksmenelite.com/marksmen-jr-academy--ages-6-10') &&
+      winterLinks.some(url => url.href === 'https://bowiesoccer.com/programs/') &&
+      winterLinks.some(url => url.href === 'https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/') &&
+      winterLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
+      hasDropInProgramLink(winterLinks, 'Fit & Flip'),
+      `${label}: missing crawlable links to the winter youth sports options`)
     const training = content.match(/<section\b[^>]*\sid=["']compare-athletic-training["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const trainingLinks = anchorUrls(training)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#compare-athletic-training') &&

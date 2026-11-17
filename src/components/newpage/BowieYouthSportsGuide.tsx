@@ -45,6 +45,7 @@ export default function BowieYouthSportsGuide() {
         <nav className="athletic-guide-index" aria-label="In this guide">
           <ul>
             <li><a href="#local-programs">Where to look</a></li>
+            <li><a href="#indoor-winter-sports">Indoor winter sports</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
             <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
             <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
@@ -116,6 +117,31 @@ export default function BowieYouthSportsGuide() {
               age and location. Try Bowie Community Center or South Bowie Community Center for nearby options.{' '}
               <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a> ·{' '}
               <a href="https://help.pgparksdirect.com/a/1416705-how-to-register-for-an-activity">Find and register for a county activity</a>
+            </li>
+          </ul>
+        </section>
+
+        <section id="indoor-winter-sports">
+          <h2>Indoor winter sports for kids near Bowie</h2>
+          <ul>
+            <li>
+              <strong>Soccer skills and small-sided games.</strong> DMV Marksmen’s indoor junior academy serves ages
+              4–10 at Holy Trinity’s Reiber Center in Glenn Dale. Bowie FC’s winter futsal is part of its Academy
+              County and Travel team programs.{' '}
+              <a href="https://www.marksmenelite.com/marksmen-jr-academy--ages-6-10">Check indoor soccer training</a> ·{' '}
+              <a href="https://bowiesoccer.com/programs/">See the Bowie FC futsal pathway</a>
+            </li>
+            <li>
+              <strong>Winter basketball league.</strong> South Bowie Sharks teams practice and play league games.
+              Check registration and ask where your child’s team will play.{' '}
+              <a href="https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/">Check Sharks winter basketball</a>
+            </li>
+            <li>
+              <strong>Indoor fitness and athletic development.</strong> Fit &amp; Flip’s Cyclones classes in Bowie
+              combine strength work, jumps, and tumbling for ages 8–11 and 12–15. Check dates for a single class
+              or compare times for weekly enrollment.{' '}
+              <Link to={FIT_AND_FLIP_DROP_IN_HREF}>Check Cyclones drop-in dates</Link> ·{' '}
+              <Link to="/fit-and-flip#fit-flip-schedule">See weekly Fit &amp; Flip times</Link>
             </li>
           </ul>
         </section>

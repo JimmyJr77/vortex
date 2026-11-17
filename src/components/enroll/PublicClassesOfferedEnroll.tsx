@@ -1,8 +1,8 @@
 import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { LayoutGrid, Loader2, Search, ShoppingCart, Trash2, X } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
-import { matchesPublicBookingSearch } from '../../utils/publicBookingPrograms'
+import { ADULT_BOOKING_HREF, isAdultBookingSearch, matchesPublicBookingSearch } from '../../utils/publicBookingPrograms'
 import {
   CLASS_SKILL_LEVEL_FILTER_OPTIONS,
   formatPublicAgeRange,
@@ -527,6 +527,13 @@ export default function PublicClassesOfferedEnroll({
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input type="search" aria-label="Search classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
         </div>
+        {isAdultBookingSearch(searchQuery) && (
+          <p className="text-sm">
+            <Link className="font-semibold text-vortex-red underline underline-offset-4" to={ADULT_BOOKING_HREF}>
+              See Typhoons adult gymnastics classes
+            </Link>
+          </p>
+        )}
         {!hasLinkedClass && startDateField}
         <div className="np-enrollment-filter-fields flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">

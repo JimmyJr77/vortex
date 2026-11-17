@@ -65,12 +65,21 @@ export function getPublicBookingDescription(programName: string, catalogDescript
   return catalogDescription
 }
 
+function normalizeBookingSearchText(text: string) {
+  return text.toLowerCase().replace(/&/g, ' and ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim()
+}
+
+export function isAdultBookingSearch(query: string) {
+  return /(?:^| )(?:adults?|typhoons)(?: |$)/.test(normalizeBookingSearchText(query))
+}
+
 export function matchesPublicBookingSearch(
   query: string, programName: string | null, fields: readonly (string | null | undefined)[],
 ) {
-  if (!query) return true
+  if (!query.trim()) return true
+  const term = normalizeBookingSearchText(query)
   const programCopy = programName === FIT_AND_FLIP_BOOKING_PROGRAM ? fitAndFlipSearchCopy : ''
-  return [...fields, programCopy].filter(Boolean).join(' ').toLowerCase().includes(query)
+  return Boolean(term) && normalizeBookingSearchText([...fields, programCopy].join(' ')).includes(term)
 }
 
 export function getPublicBookingPrograms(programs: readonly PublicProgramOffered[]): PublicProgramOffered[] {
