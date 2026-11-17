@@ -657,6 +657,8 @@ const verifyHtml = (
         `${label}: missing the crawlable guide link to ${path}`)
     }
     assert(hasDropInProgramLink(links, 'Fit & Flip'), `${label}: missing the guide link to Cyclones drop-in dates`)
+    assert(links.some((url) => url.href === 'https://bowiesoccer.com/programs/') && /U4–U10 players without tryouts/.test(content),
+      `${label}: missing the sourced comparison of Bowie FC soccer pathways`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''

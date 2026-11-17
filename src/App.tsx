@@ -152,7 +152,8 @@ function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
         setMember(storedAccount)
         const returnParams = new URLSearchParams(location.search)
         const isBillingReturn = returnParams.has('billing') || returnParams.has('enrollment')
-        const isPortalReturn = isBillingReturn || returnParams.get('login') === '1'
+        const isDropInCheckout = location.pathname === '/drop-in' && (returnParams.has('signupSlot') || returnParams.has('booking'))
+        const isPortalReturn = isBillingReturn || (!isDropInCheckout && returnParams.get('login') === '1')
         if (isPortalReturn) {
           setActivePortal(isBillingReturn ? 'member' : bestPortalForAccount(storedAccount))
           setShowMemberDashboard(true)

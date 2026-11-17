@@ -48,6 +48,12 @@ export default function BowieYouthSportsGuide() {
               <a href="https://www.bbgc.com/programs/track-and-field">View track and field</a>
             </li>
             <li>
+              <strong>Bowie FC soccer.</strong> The club’s Developmental program is part of Bowie Boys &amp; Girls Club
+              and welcomes U4–U10 players without tryouts. Its competitive Academy has County and Travel teams
+              for U8–U18, with tryouts. Ask the club which age group fits your child’s birth date.{' '}
+              <a href="https://bowiesoccer.com/programs/">Compare Bowie FC soccer programs</a>
+            </li>
+            <li>
               <strong>South Bowie Boys &amp; Girls Club.</strong> The Sharks offer youth sports including basketball,
               soccer, and cheerleading. Check their registration page to see which sports are accepting signups.{' '}
               <a href="https://southbowiesharks.org/open-sports/">Check South Bowie Sharks registrations</a>

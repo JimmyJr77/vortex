@@ -89,6 +89,8 @@ async function mockDropInApi(page: Page, options: {
       if (url.searchParams.has('memberId')) {
         expect(route.request().headers().authorization).toBe('Bearer drop-in-test-token')
         catalogMemberIds.push(url.searchParams.get('memberId')!)
+      } else {
+        expect(route.request().headers().authorization).toBeUndefined()
       }
       const selectedAthlete = url.searchParams.has('memberId')
       const youthSession = { ...session, allowsFreeTrial: options.allowsFreeTrial, isFull: Boolean(options.fullOnRefresh && selectedAthlete) }
@@ -158,6 +160,73 @@ async function signedIn(page: Page) {
     localStorage.setItem('vortex_member', JSON.stringify(account))
   }, account)
 }
+
+test('signed-in Fit & Flip families choose the eligible athlete before reviewing price or trial benefits', async ({ page }) => {
+  await signedIn(page)
+  await page.setViewportSize({ width: 390, height: 844 })
+  const { catalogMemberIds } = await mockDropInApi(page, { includeFitFlipClass: true, trialUsedOnRefresh: true })
+  await page.route('**/api/members/family', route => {
+    expect(route.request().headers().authorization).toBe('Bearer drop-in-test-token')
+    return route.fulfill({ json: { success: true, familyMembers: [
+      { id: 101, first_name: 'Test', last_name: 'Parent', date_of_birth: '1985-01-01' },
+      { id: 102, first_name: 'Test', last_name: 'Child', date_of_birth: '2019-01-12' },
+      { id: 103, first_name: 'Test', last_name: 'Sibling', date_of_birth: '2019-01-13' },
+    ] } })
+  })
+  const registrations: unknown[] = []
+  await page.route('**/api/public/drop-ins/register', route => {
+    registrations.push(route.request().postDataJSON())
+    return route.fulfill({ status: 400, json: {
+      success: false, message: 'All current required waivers must be signed for this athlete before the drop-in is confirmed.',
+    } })
+  })
+
+  await page.goto(fitFlipDropInUrl)
+  await page.getByRole('button', { name: /Cyclones \(8-11\).*Nonmember/i }).click()
+  await expect(page).toHaveURL(`/drop-in?signupSlot=202&signupDate=${classDate}&program=Fit+%26+Flip`)
+  await expect(page.getByRole('heading', { name: 'Who’s attending this drop-in?' })).toBeVisible()
+  await expect(page.getByRole('radio')).toHaveCount(1)
+  const child = page.getByRole('radio', { name: /Test Child.*Age 8 on class day/ })
+  await expect(child).not.toBeChecked()
+  await expect(page.getByRole('button', { name: 'Review drop-in' })).toBeDisabled()
+  expect(catalogMemberIds).toEqual([])
+
+  await child.check()
+  await page.getByRole('button', { name: 'Review drop-in' }).click()
+  await expect(page).toHaveURL(`/drop-in?signupSlot=202&signupDate=${classDate}&program=Fit+%26+Flip&athlete=102`)
+  await page.reload()
+  await expect(page.getByRole('button', { name: 'Pay $30.00' })).toBeEnabled()
+  await expect(page.getByText('Use my one-time free trial')).toHaveCount(0)
+  await expect(page.getByText('Add yearly membership')).toHaveCount(0)
+  await page.getByLabel('Free-day code (optional)').fill('UNVERIFIED')
+  await expect(page.getByRole('button', { name: 'Pay $30.00' })).toBeEnabled()
+  await page.getByRole('button', { name: 'Pay $30.00' }).click()
+  await expect(page.getByRole('alert')).toContainText('required waivers must be signed for this athlete')
+  await expect(page.getByRole('link', { name: 'Review and sign waivers' })).toHaveAttribute('href', '/waivers-memberships')
+  expect(registrations).toEqual([{ memberId: 102, slotGroupId: 202, classDate, useFreeTrial: false, promoCode: 'UNVERIFIED' }])
+  expect(catalogMemberIds.length).toBeGreaterThanOrEqual(2)
+  expect(new Set(catalogMemberIds)).toEqual(new Set(['102']))
+
+  await page.getByRole('button', { name: 'Change athlete' }).click()
+  await expect(page.getByRole('radio', { name: /Test Child/ })).not.toBeChecked()
+  await page.getByRole('button', { name: 'Back to classes' }).click()
+  await expect(page).toHaveURL('/drop-in?program=Fit+%26+Flip')
+})
+
+test('an expired family session offers sign-in while retaining the class date and program', async ({ page }) => {
+  await signedIn(page)
+  await mockDropInApi(page, { includeFitFlipClass: true })
+  await page.route('**/api/members/family', route => route.fulfill({ status: 401, json: { success: false } }))
+  const selection = `/drop-in?signupSlot=202&signupDate=${classDate}&program=Fit+%26+Flip`
+  await page.goto(selection)
+  await expect(page.getByRole('alert')).toHaveText('Your sign-in expired.')
+  await page.getByRole('link', { name: 'Sign in again' }).click()
+  await expect(page).toHaveURL(`${selection}&login=1`)
+  await expect(page.getByRole('heading', { name: 'Continue your drop-in signup' })).toBeVisible()
+  await expect.poll(() => page.evaluate(() => localStorage.getItem('vortex_member_token'))).toBeNull()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Who’s attending this drop-in?' })).toBeVisible()
+})
 
 async function completeAccountDetails(page: Page) {
   await page.getByPlaceholder('First name *', { exact: true }).fill('Test')

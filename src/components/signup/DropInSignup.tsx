@@ -1,8 +1,9 @@
 import { trackConfirmation, trackEvent } from '../../utils/analyticsClient'
 import { useEffect, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { CheckCircle2, Loader2 } from 'lucide-react'
 import FamilySignupWizard from './FamilySignupWizard'
+import DropInAthletePicker from './DropInAthletePicker'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInSession } from '../../utils/dropInApi'
 import { confirmAnnualMembershipCheckoutSession, createAnnualMembershipCheckoutSession, fetchAnnualMembershipOffer, type AnnualMembershipOffer } from '../../utils/schedulingApi'
 import { getMemberSessionToken, persistMemberSession, PORTAL_SESSION_CHANGED, type PortalAccount } from '../../utils/portalSession'
@@ -19,11 +20,83 @@ interface SignupResult {
 
 export default function DropInSignup({ session, onCancel }: { session: DropInSession; onCancel: () => void }) {
   const [params, setParams] = useSearchParams()
+  const location = useLocation()
   const memberId = Number(params.get('athlete'))
   const hasAthlete = Number.isSafeInteger(memberId) && memberId > 0
+  const [{ token, version }, setSession] = useState(() => ({ token: getMemberSessionToken(), version: 0 }))
+  const [accountCreated, setAccountCreated] = useState(false)
+  const [accountError, setAccountError] = useState<string | null>(null)
+  const signInUrl = `?${new URLSearchParams({ ...Object.fromEntries(params), login: '1' })}`
+
+  useEffect(() => {
+    const changed = () => {
+      const nextToken = getMemberSessionToken()
+      setSession(current => nextToken === current.token ? current : { token: nextToken, version: current.version + 1 })
+    }
+    window.addEventListener(PORTAL_SESSION_CHANGED, changed)
+    return () => window.removeEventListener(PORTAL_SESSION_CHANGED, changed)
+  }, [])
+
+  const chooseAthlete = (id: number, dropInOnly = false) => {
+    setParams(current => {
+      const next = new URLSearchParams(current)
+      next.set('athlete', String(id))
+      next.delete('login')
+      return next
+    }, { replace: true, state: { dropInOnly } })
+  }
+
+  const completedAccount = (value: unknown) => {
+    const result = value as SignupResult
+    setAccountCreated(true)
+    const selectedMemberId = Number(result.dropInMemberId)
+    if (!Number.isSafeInteger(selectedMemberId) || selectedMemberId <= 0) {
+      setAccountError('Your account was created, but the athlete could not be selected. Sign in to finish booking.')
+      return
+    }
+    chooseAthlete(selectedMemberId)
+    if (result.token && result.member) {
+      persistMemberSession(result.token, result.member)
+    }
+  }
+
+  if (token && !hasAthlete) return <DropInAthletePicker key={version} token={token} session={session} signInUrl={signInUrl}
+    onChoose={id => chooseAthlete(id, true)} onCancel={onCancel} />
+  if (!hasAthlete && !accountCreated && params.get('login') !== '1') return <FamilySignupWizard mode="waivers-memberships" dropInSignup onComplete={completedAccount} onCancel={onCancel} />
+
+  if (!token || !hasAthlete) return <section className="space-y-4">
+    <h2 className="text-2xl font-bold">Continue your drop-in signup</h2>
+    <p>Sign in to review your athlete’s membership options and finish booking.</p>
+    {accountError && <p role="alert" className="text-red-700">{accountError}</p>}
+    <div className="flex flex-wrap gap-3">
+      <Link to={signInUrl} className="inline-block rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white">Sign in to continue</Link>
+      <button type="button" onClick={onCancel} className="rounded-lg border px-4 py-3 font-semibold">Back to classes</button>
+    </div>
+  </section>
+
+  return <DropInCheckout key={`${version}:${memberId}`} memberId={memberId} token={token} session={session} onCancel={onCancel}
+    allowMembershipPurchase={location.state?.dropInOnly !== true}
+    onChangeAthlete={() => {
+      setParams(current => {
+        const next = new URLSearchParams(current)
+        next.delete('athlete')
+        next.delete('trial')
+        return next
+      }, { replace: true })
+    }} />
+}
+
+function DropInCheckout({ memberId, token, session, onCancel, onChangeAthlete, allowMembershipPurchase }: {
+  memberId: number
+  token: string
+  session: DropInSession
+  onCancel: () => void
+  onChangeAthlete: () => void
+  allowMembershipPurchase: boolean
+}) {
+  const [params, setParams] = useSearchParams()
   const membershipReturn = params.get('membership')
   const membershipSessionId = params.get('session_id')
-  const [token, setToken] = useState(getMemberSessionToken)
   const [offer, setOffer] = useState<AnnualMembershipOffer | null>(null)
   const [benefits, setBenefits] = useState<DropInBenefits | null>(null)
   const [currentSession, setCurrentSession] = useState<DropInSession | null>(null)
@@ -33,20 +106,12 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
   const [loading, setLoading] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [accountCreated, setAccountCreated] = useState(false)
   const [reload, setReload] = useState(0)
   const [booking, setBooking] = useState<Awaited<ReturnType<typeof registerDropIn>> | null>(null)
   const actionPending = useRef(false)
   const [membershipVerified, setMembershipVerified] = useState(membershipReturn !== 'paid')
 
   useEffect(() => {
-    const changed = () => setToken(getMemberSessionToken())
-    window.addEventListener(PORTAL_SESSION_CHANGED, changed)
-    return () => window.removeEventListener(PORTAL_SESSION_CHANGED, changed)
-  }, [])
-
-  useEffect(() => {
-    if (!token || !hasAthlete) return
     let active = true
     setLoading(true)
     setBenefits(null)
@@ -59,13 +124,13 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
         if (!membershipSettled(confirmed.status)) throw new Error('Your membership payment is still being verified. Check again before completing this drop-in.')
       }
       const [membership, catalog] = await Promise.all([
-        fetchAnnualMembershipOffer(token, memberId), fetchDropIns(memberId),
+        allowMembershipPurchase ? fetchAnnualMembershipOffer(token, memberId) : null, fetchDropIns(memberId),
       ])
       if (!active) return
-      if (membershipReturn === 'review' && !membership.active) {
+      if (membershipReturn === 'review' && !membership?.active) {
         throw new Error('Your membership payment needs staff review before this drop-in can continue.')
       }
-      if (membershipReturn === 'paid' && !membership.active) {
+      if (membershipReturn === 'paid' && !membership?.active) {
         throw new Error('This athlete’s membership is not active yet. Check again before completing this drop-in.')
       }
       setOffer(membership)
@@ -78,34 +143,15 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
       if (active) setError(reason instanceof Error ? reason.message : 'Unable to load your drop-in checkout.')
     }).finally(() => { if (active) setLoading(false) })
     return () => { active = false }
-  }, [token, hasAthlete, memberId, membershipReturn, membershipSessionId, session.slotGroupId, session.date, reload])
-
-  const completedAccount = (value: unknown) => {
-    const result = value as SignupResult
-    setAccountCreated(true)
-    const selectedMemberId = Number(result.dropInMemberId)
-    if (!Number.isSafeInteger(selectedMemberId) || selectedMemberId <= 0) {
-      setError('Your account was created, but the athlete could not be selected. Sign in to your account to finish booking.')
-      return
-    }
-    setParams(current => {
-      const next = new URLSearchParams(current)
-      next.set('athlete', String(selectedMemberId))
-      return next
-    }, { replace: true })
-    if (result.token && result.member) {
-      persistMemberSession(result.token, result.member)
-      setToken(result.token)
-    }
-  }
+  }, [token, memberId, membershipReturn, membershipSessionId, session.slotGroupId, session.date, reload, allowMembershipPurchase])
 
   const trialAvailable = Boolean(currentSession && currentSession.allowsFreeTrial !== false && benefits?.trialAvailable)
   const trialSelected = trialAvailable && useFreeTrial
   const dueCents = benefits && currentSession && (trialSelected || benefits.annualCreditsRemaining > 0 || benefits.adminCreditsRemaining > 0)
     ? 0 : currentSession?.totalCents ?? session.totalCents
   const unavailable = !currentSession || currentSession.isFull
-  const ready = Boolean(benefits && offer && !loading && membershipVerified)
-  const purchasingMembership = includeMembership && !offer?.active
+  const ready = Boolean(benefits && (!allowMembershipPurchase || offer) && !loading && membershipVerified)
+  const purchasingMembership = allowMembershipPurchase && includeMembership && !offer?.active
 
   const pay = async (registration: Awaited<ReturnType<typeof registerDropIn>>) => {
     trackEvent('drop_in_checkout_start', '/drop-in')
@@ -129,7 +175,7 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
   }
 
   const completeDropIn = async () => {
-    if (!token || !hasAthlete || !ready || actionPending.current) return
+    if (!ready || actionPending.current) return
     actionPending.current = true
     setBusy(true)
     setError(null)
@@ -205,15 +251,6 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
     }
   }
 
-  if (!hasAthlete && !accountCreated) return <FamilySignupWizard mode="waivers-memberships" dropInSignup onComplete={completedAccount} onCancel={onCancel} />
-
-  if (!token || !hasAthlete) return <section className="space-y-4">
-    <h2 className="text-2xl font-bold">Continue your drop-in signup</h2>
-    <p>Your account details and waivers are saved. Sign in to review membership options and finish payment.</p>
-    {error && <p role="alert" className="text-red-700">{error}</p>}
-    <Link to={`?${new URLSearchParams({ ...Object.fromEntries(params), login: '1' })}`} className="inline-block rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white">Sign in to continue</Link>
-  </section>
-
   if (booking?.status === 'confirmed') return <section className="space-y-4 text-center" aria-live="polite">
     <CheckCircle2 className="mx-auto h-12 w-12 text-green-600" />
     <h2 className="text-2xl font-bold">Drop-in confirmed</h2>
@@ -223,15 +260,19 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
   </section>
 
   return <section className="space-y-5" aria-busy={busy || loading}>
-    <div><h2 className="text-2xl font-bold">Review your drop-in</h2><p className="mt-2 text-sm text-gray-600">Your account and waivers are complete. Choose your membership option, then finish payment. Your class is confirmed after payment or an eligible free credit is applied.</p></div>
+    <div><h2 className="text-2xl font-bold">Review your drop-in</h2><p className="mt-2 text-sm text-gray-600">Review your athlete’s price and membership options. Booking requires current waivers and payment or an eligible free credit.</p></div>
     {membershipReturn === 'cancelled' && <p className="rounded-lg bg-amber-50 p-3 text-sm">Membership checkout was cancelled. You can try again or continue with the drop-in only.</p>}
     {membershipReturn === 'paid' && membershipVerified && offer?.active && <p className="rounded-lg bg-green-50 p-3 text-sm text-green-800">Your yearly membership is active. Your member benefits are included below.</p>}
-    {error && <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+    {error && <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">
+      {error}
+      {/required waivers must be signed/i.test(error) && <>{' '}<a href="/waivers-memberships" target="_blank" rel="noopener" className="font-semibold underline">Review and sign waivers</a>, then return here to continue.</>}
+    </div>}
     {loading && <p className="flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> {membershipReturn === 'paid' ? 'Verifying membership and loading your benefits…' : 'Loading your payment options…'}</p>}
     {!loading && !ready && <button type="button" onClick={() => setReload(current => current + 1)} className="font-semibold text-vortex-red underline">Check again</button>}
+    {!booking && !membershipReturn && <button type="button" disabled={busy} onClick={onChangeAthlete} className="font-semibold text-vortex-red underline">Change athlete</button>}
     {ready && <>
       {!booking && <>
-        <fieldset className="space-y-3 rounded-xl border border-gray-200 p-4" disabled={busy}>
+        {allowMembershipPurchase && <fieldset className="space-y-3 rounded-xl border border-gray-200 p-4" disabled={busy}>
           <legend className="px-1 font-bold">Yearly membership (optional)</legend>
           <p className="text-sm text-gray-600">Each athlete’s yearly membership includes 4 free drop-ins per membership year and member pricing on eligible classes. Membership lasts one year and renews annually. Class enrollments are purchased separately.</p>
           {offer?.active ? <p className="font-semibold text-green-700">Membership active · {benefits?.annualCreditsRemaining ?? 0} annual drop-in credits remaining</p>
@@ -240,7 +281,7 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
               {offer?.available ? <label className="flex gap-3 rounded-lg border p-3"><input type="radio" name="drop-in-membership" checked={includeMembership} onChange={() => { setIncludeMembership(true); setUseFreeTrial(false) }} /><span><strong>Add yearly membership</strong><span className="block text-sm text-gray-600">{money(offer.amountCents)} per year for this athlete. Pay for membership first, then apply an available credit to this drop-in.</span></span></label>
                 : <p className="text-sm text-gray-600">Yearly membership is not available online right now. You can still book this drop-in.</p>}
             </>}
-        </fieldset>
+        </fieldset>}
         {!purchasingMembership && trialAvailable && <label className="flex gap-3 rounded-lg border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={trialSelected} disabled={busy} onChange={event => setUseFreeTrial(event.target.checked)} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">Available once per athlete. No yearly membership required.</span></span></label>}
         {!purchasingMembership && !trialSelected && <label className="block text-sm font-semibold">Free-day code (optional)<input value={promoCode} disabled={busy} onChange={event => setPromoCode(event.target.value.toUpperCase())} className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" /></label>}
       </>}

@@ -128,16 +128,6 @@
   accent-color: var(--np-red, #c9232c);
 }
 
-.np-drop-in-benefits > div {
-  padding: 18px;
-  border-color: var(--np-line, #dddfd9);
-  border-radius: 14px;
-}
-
-.np-drop-in-benefits > div > div:first-child {
-  margin-bottom: 6px;
-}
-
 .np-drop-in-page :is(.np-drop-in-filters, .np-drop-in-program) {
   min-width: 0;
   padding: 20px;
@@ -251,19 +241,6 @@
 
 .np-drop-in-faq summary::marker {
   color: var(--np-red, #c9232c);
-}
-
-.np-drop-in-modal {
-  backdrop-filter: blur(4px);
-}
-
-.np-drop-in-modal > div {
-  border: 1px solid var(--np-line, #dddfd9);
-  border-radius: 20px;
-}
-
-.np-drop-in-modal button {
-  min-height: 44px;
 }
 
 @media (min-width: 768px) {
