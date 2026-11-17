@@ -134,6 +134,11 @@ After deployment, verify the live hosts and redirect destinations:
 npm run test:seo-live
 ```
 
+The release checks require clean internal links on indexable pages. The live
+check also fetches the three program pages, class board, contact page, and
+drop-in page with a test `vcid` parameter to verify their canonical and Open
+Graph URLs still point to the clean pages.
+
 ## Page quality and performance guardrails
 
 - Public search pages use a real `<main>` landmark and a single descriptive

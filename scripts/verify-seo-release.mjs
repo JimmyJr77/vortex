@@ -37,6 +37,8 @@ const programActions = new Map([
 const hasDropInProgramLink = (links, program) => links.some((url) => url.origin === HUB_ORIGIN &&
   url.pathname === '/drop-in' && url.searchParams.get('program') === program)
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
+const consentQueryParam = 'vcid'
+const consentVariantPaths = [...HUB_PROGRAM_PATHS, '/read-board', '/contact', '/drop-in']
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -311,6 +313,12 @@ const verifyHtml = (
   if (pageUrl.origin === HUB_ORIGIN) {
     for (const url of anchorUrls(html)) {
       if (!unifiedHosts.has(url.hostname.replace(/^www\./, ''))) continue
+      if (shouldIndex) {
+        assert(url.origin === HUB_ORIGIN,
+          `${label}: crawlable link for ${url.pathname} must use the primary host`)
+        assert(!url.searchParams.has(consentQueryParam),
+          `${label}: crawlable link for ${url.pathname} includes a consent identifier`)
+      }
       assert(!Object.hasOwn(legacyLandingRedirects, url.pathname.replace(/\/+$/, '').toLowerCase()),
         `${label}: link points to retired landing URL ${url.pathname}; use its destination directly`)
     }
@@ -800,6 +808,22 @@ for (const set of expectedSets) {
       assert(!/\bnoindex\b/i.test(response.headers.get('x-robots-tag') ?? ''), `${canonical}: HTTP headers contain noindex`)
       verifyHtml(`live ${canonical}`, await response.text(), canonical)
     }
+
+    await Promise.all(consentVariantPaths.map(async (path) => {
+      const canonical = canonicalFor(set.origin, path)
+      const url = new URL(canonical)
+      url.searchParams.set(consentQueryParam, 'c_seo_release_check')
+      const label = `${canonical} with ${consentQueryParam}`
+      const response = await fetch(url, { redirect: 'manual' })
+      const html = await response.text()
+      assert(response.ok, `${label}: returned HTTP ${response.status}; consent handoff requires a page response`)
+      const canonicals = linkValues(html, 'canonical')
+      const ogUrls = metaValues(html, 'property', 'og:url')
+      assert(canonicals.length === 1 && canonicals[0] === canonical,
+        `${label}: expected one canonical matching the clean URL`)
+      assert(ogUrls.length === 1 && ogUrls[0] === canonical,
+        `${label}: expected one og:url matching the clean URL`)
+    }))
 
     for (const path of ['/admin', '/?sport=soccer', ...SPA_ONLY_PATHS]) {
       const response = await fetch(`${set.origin}${path}`, { redirect: 'follow' })
