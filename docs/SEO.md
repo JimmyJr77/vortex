@@ -160,10 +160,12 @@ npm run test:seo-live
 The release checks require clean links on indexable pages. Cross-domain consent
 links for returning visitors carry `vcid` in a browser-only fragment. On arrival,
 the app restores any section anchor and keeps the rest of the query string.
-Legacy query-based `vcid` links still load so the browser can apply consent.
-They carry an HTTP `X-Robots-Tag: noindex`. The live check verifies that the
-response keeps its clean canonical and Open Graph URL and that ordinary
-booking and campaign parameters remain indexable.
+Legacy query-based `vcid` links to Fit & Flip redirect to the same page
+without that parameter. The response keeps existing campaign parameters and
+lets the browser carry the section anchor. A valid ID goes into the same
+necessary consent cookie the browser already uses. Other legacy consent links
+still load with `X-Robots-Tag: noindex` so the browser can apply consent. The
+live check verifies that ordinary booking and campaign URLs remain indexable.
 
 ## Page quality and performance guardrails
 
