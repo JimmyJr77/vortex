@@ -421,6 +421,8 @@ const verifyHtml = (
     }
     if (pagePath === '/drop-in') {
       assert(hasDropInProgramLink(links, 'Adult Fitness & Acrobatics'), `${label}: missing a link to adult drop-in dates near the main heading`)
+      assert(links.some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#class-format`),
+        `${label}: missing the crawlable link to what adults can expect in their first class`)
     }
   }
 
@@ -499,6 +501,11 @@ const verifyHtml = (
         anchorUrls(pricing).some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
         `${label}: missing the adult price comparison and its crawlable booking links`)
       assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
+      const format = mainHtml.match(/<section\b[^>]*\sid=["']class-format["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(/Can I start adult gymnastics with no experience\?/i.test(format) && /keeping your feet on the floor/i.test(format),
+        `${label}: missing the beginner answer or a concrete example of a starting exercise`)
+      assert(anchorUrls(format).some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#adult-availability`),
+        `${label}: missing the first-visit link from the adult class format section`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']adult-availability["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Plan your first adult gymnastics class<\/h2>/i.test(firstVisit) && /select yourself as the participant/i.test(firstVisit),
         `${label}: missing adult registration and first-visit guidance`)
@@ -527,8 +534,10 @@ const verifyHtml = (
     const guideLinks = anchorUrls(html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? '')
     assert(guideLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, '/adult-gymnastics')),
       `${label}: the guide must link to the adult gymnastics program`)
-    assert(guideLinks.some((url) => url.href === `${canonicalFor(HUB_ORIGIN, '/adult-gymnastics')}#adult-class-pricing`),
-      `${label}: the guide must link to the adult price comparison`)
+    for (const hash of ['#class-format', '#adult-class-pricing']) {
+      assert(guideLinks.some((url) => url.href === `${canonicalFor(HUB_ORIGIN, '/adult-gymnastics')}${hash}`),
+        `${label}: the returning gymnastics guide must link to ${hash} on the adult program page`)
+    }
   }
 
   if (shouldIndex) {

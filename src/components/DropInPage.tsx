@@ -272,6 +272,9 @@ export default function DropInPage() {
         {scopedCopy ? <p className="np-drop-in-intro">
           {scopedCopy.intro} For recurring enrollment, see{' '}
           <Link className="font-semibold underline underline-offset-4" to={scopedCopy.programHref}>{scopedCopy.programLink}</Link>.
+          {scopedProgram === ADULT_BOOKING_PROGRAM && <>{' '}
+            <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">See what to expect at your first adult class</Link>.
+          </>}
           {scopedProgram === FIT_AND_FLIP_BOOKING_PROGRAM && <>{' '}
             <Link className="font-semibold underline underline-offset-4" to="/drop-in">Browse all youth drop-ins</Link>.
           </>}
@@ -280,8 +283,9 @@ export default function DropInPage() {
           <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link> and{' '}
           <Link className="font-semibold underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip</Link> for age groups and starting levels.
           {' '}For Typhoons, check{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link> or{' '}
-          <Link className="font-semibold underline underline-offset-4" to={ADULT_DROP_IN_HREF}>see Typhoons drop-in dates</Link>.
+          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link>,{' '}
+          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">what to expect in a first class</Link>, or{' '}
+          <Link className="font-semibold underline underline-offset-4" to={ADULT_DROP_IN_HREF}>Typhoons drop-in dates</Link>.
         </p>}
         <p className="np-drop-in-hero-note">Free trials are available for select class times. Member discounts apply, and all members get 4 free drop-ins per year.</p>
       </div>

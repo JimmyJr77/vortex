@@ -45,6 +45,7 @@ export default function ReturningToGymnasticsGuide() {
             In a coach-led recreational class, you can ask for a movement to try and get feedback on it.
             Open gym can offer time for independent practice. Ask how much instruction is available and
             whether the class works on the skills that interest you, such as floor tumbling or balance.
+            {' '}<Link to="/adult-gymnastics#class-format">See what to expect in a coached Typhoons class</Link>.
           </p>
           <p>
             USA Gymnastics describes weekly recreational classes and open gyms as ways adults can get

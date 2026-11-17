@@ -289,7 +289,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Adult gymnastics and acrobatics classes',
     path: '/adult-gymnastics',
     title: 'Adult Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Compare monthly tuition and drop-in prices for coach-led adult gymnastics in Bowie, MD. See Typhoons class times and free-trial eligibility for ages 18 and up.',
+    description: 'Try beginner-friendly adult gymnastics in Bowie, MD. See Typhoons class times, what to expect on your first visit, and monthly or drop-in prices.',
     heading: 'Adult gymnastics and acrobatics in Bowie, MD',
     intro: 'Typhoons is a 90-minute, coach-led gymnastics and acrobatics class for ages 18 and up. Beginners and returning gymnasts can book one drop-in or enroll in a recurring class.',
     image: BUSINESS_FACILITY_PHOTO.src,
@@ -308,9 +308,18 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'class-format',
         heading: 'What to expect in an adult gymnastics class',
-        description: 'Typhoons pairs strength, conditioning, and mobility with introductory acrobatics. Expect to practice supporting your body weight, balancing, and moving through a range you can control.',
+        description: 'Typhoons pairs strength, conditioning, and mobility with introductory acrobatics. Beginners and returning gymnasts can join the same coach-led class and work on movements that fit their starting points.',
         topics: [
-          { id: 'adult-beginners', heading: 'Starting gymnastics as an adult', description: 'You can start without a gymnastics background. Tell your coach it’s your first class and ask for a starting version of each movement you can practice with control.' },
+          {
+            id: 'adult-beginners',
+            heading: 'Can I start adult gymnastics with no experience?',
+            description: 'Yes. You can come to Typhoons without a handstand, cartwheel, or splits. Tell your coach it’s your first class and mention something you’d like to try, such as practicing balance or working toward a handstand. If you’re unsure, ask the coach for one movement to start with.',
+          },
+          {
+            id: 'adult-handstand-preparation',
+            heading: 'What a first step toward a handstand could look like',
+            description: 'A coach might start you in a supported position so you can practice putting some weight through your hands while keeping your feet on the floor. They can help you find a version you can hold steadily and explain what to look for before moving on.',
+          },
           {
             id: 'returning-gymnasts',
             heading: 'Returning to gymnastics',
@@ -321,6 +330,9 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
               analyticsKey: 'read_returning_to_gymnastics_guide',
             },
           },
+        ],
+        links: [
+          { href: '/adult-gymnastics#adult-availability', label: 'Plan your first Typhoons class', analyticsKey: 'read_adult_first_visit' },
         ],
       },
       {
