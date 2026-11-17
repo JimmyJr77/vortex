@@ -400,6 +400,10 @@ const verifyHtml = (
       const strength = mainHtml.match(/<article\b[^>]*\sid=["']strength["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/<h3\b[^>]*>Youth strength training<\/h3>/i.test(strength),
         `${label}: missing the crawlable strength training heading at #strength`)
+      const classExample = mainHtml.match(/<section\b[^>]*\sid=["']fit-flip-class-example["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const exampleTopics = tags(classExample, 'article').map((tag) => attribute(tag, 'id'))
+      assert(['landing-rehearsal', 'strength-practice', 'jump-practice'].every((topic) => exampleTopics.includes(topic)),
+        `${label}: missing the three parts of the Fit & Flip landing example`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
     }
     if (pagePath === '/adult-gymnastics') {
@@ -467,16 +471,22 @@ const verifyHtml = (
       if (canonical === fitAndFlipCanonical) {
         assert(links.some((url) => url.href === `${guideCanonical}#movement-progression`),
           `${label}: missing the link to Vortex’s coaching progression in the parent guide`)
+        assert(links.some((url) => url.href === `${guideCanonical}#sports-season`),
+          `${label}: missing the link to training around practices and games`)
       }
     } else {
       const examples = content.match(/<section\b[^>]*\sid=["']movement-examples["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const progression = content.match(/<section\b[^>]*\sid=["']movement-progression["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const sportsSeason = content.match(/<section\b[^>]*\sid=["']sports-season["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const outline = content.match(/<nav\b[^>]*\baria-label=["']In this guide["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
       assert(tags(examples, 'li').length === 8, `${label}: expected eight crawlable athleticism examples`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
       assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === '#movement-progression'),
         `${label}: missing the link to the coaching progression in the guide outline`)
+      assert(tags(sportsSeason, 'li').length === 2 &&
+        anchorUrls(sportsSeason).some((url) => url.href === `${fitAndFlipCanonical}#fit-flip-class-example`),
+        `${label}: missing the examples for training around the season or link to the public class example`)
       assert(links.some((url) => url.href === fitAndFlipCanonical),
         `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
       assert(links.some((url) => url.href === `${fitAndFlipCanonical}#strength`),

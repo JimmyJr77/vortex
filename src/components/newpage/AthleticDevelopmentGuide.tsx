@@ -8,6 +8,7 @@ import './AthleticDevelopmentGuide.css'
 
 const sections = [
   { id: 'youth-sports', label: 'How it fits with youth sports' },
+  { id: 'sports-season', label: 'Training around practices and games' },
   { id: 'movement-examples', label: 'Eight qualities of athleticism' },
   { id: 'movement-progression', label: 'How coaches progress a movement' },
   { id: 'first-class', label: 'What to watch for in class' },
@@ -76,14 +77,33 @@ export default function AthleticDevelopmentGuide() {
             together across sports, and each sport still needs practice of its own skills.
           </p>
           <p>
-            Before adding a class, look at a typical week. Count PE, practices, games, and the active play your
-            child already enjoys. Ask them to name one thing they’d like to practice, such as balancing or changing
-            direction with more control. Choose a class if they want to try it and the schedule leaves room for
-            their other activities and time to rest.
-          </p>
-          <p>
             Children who aren’t on a team can start with active play or a coached class they enjoy. For nearby choices,
             see our <Link to={BOWIE_YOUTH_SPORTS_GUIDE.path}>guide to Bowie youth sports</Link>.
+          </p>
+        </section>
+
+        <section id="sports-season">
+          <h2>Athletic training during and between sports seasons</h2>
+          <p>
+            Before adding a class, put practices, games, PE, and other activities on one calendar. Leave time for
+            rest and tell the training coach what the full week looks like. The American Academy of Pediatrics
+            emphasizes balancing how much young athletes train with enough time to recover.
+          </p>
+          <ul>
+            <li>
+              <strong>During a busy season.</strong> If a basketball player has team practice and a weekend
+              tournament, ask the coach whether to keep the session light or skip it that week. If they train,
+              they might rehearse a familiar balanced stop at a comfortable pace.
+            </li>
+            <li>
+              <strong>Between seasons.</strong> With fewer team commitments, ask your child to pick one
+              movement to build. A coach can use that same balanced stop as a starting point and add a
+              change of direction once the athlete can repeat it consistently.
+            </li>
+          </ul>
+          <p className="mt-4">
+            The week’s schedule helps the coach decide when to keep a movement familiar and when to progress it.
+            See how a coach could use that approach in a <Link to="/fit-and-flip#fit-flip-class-example">Fit &amp; Flip class</Link>.
           </p>
         </section>
 
@@ -187,6 +207,7 @@ export default function AthleticDevelopmentGuide() {
           <h2 id="athletic-guide-sources-title">Further reading</h2>
           <ul>
             <li><a href="https://pubmed.ncbi.nlm.nih.gov/32457216/">American Academy of Pediatrics clinical report on youth resistance training</a></li>
+            <li><a href="https://pubmed.ncbi.nlm.nih.gov/38247370/">American Academy of Pediatrics report on training load and recovery in youth sports</a></li>
             <li><a href="https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/">National Strength and Conditioning Association position on long-term athletic development</a></li>
             <li><a href="https://www.cdc.gov/physical-activity-basics/adding-children-adolescents/">CDC guidance on making physical activity part of a child’s life</a></li>
           </ul>

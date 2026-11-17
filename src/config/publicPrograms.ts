@@ -140,7 +140,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     title: 'Youth Fitness & Sports Performance Training in Bowie, MD | Vortex',
     description: 'Fit & Flip offers coached youth fitness, strength training, and tumbling in Bowie, MD. Find a Cyclones trial, drop-in, or recurring class for ages 8–15.',
     heading: 'Youth athletic training in Bowie, MD',
-    intro: 'Fit & Flip is a coached fitness class for kids and teens. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
+    intro: 'Fit & Flip is a coached fitness class for ages 8–15. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
     image: '/fit-and-flip-card.webp',
     imageAlt: 'A Vortex athlete practicing aerial body control on a trampoline',
     imageWidth: 900,
@@ -154,7 +154,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         description:
           'The Athleticism Accelerator is Vortex’s framework for developing eight qualities of movement. It covers strength, explosiveness, speed, agility, flexibility and mobility, balance, coordination, and body control. Fit & Flip organizes that work around the Triad. In a jump, strength creates force, explosiveness helps the athlete take off quickly, and body control helps them land in balance. Mobility and coordination help the athlete get into position and move smoothly through the jump.',
         topics: [
-          { id: 'strength', heading: 'Youth strength training', description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. An athlete might start with bodyweight and add resistance once they can repeat the movement with control. That foundation helps them hold a stable shape in gymnastics or stay balanced when changing direction on the court.' },
+          { id: 'strength', heading: 'Youth strength training', description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. These patterns help athletes support their body weight in gymnastics and control their position when they change direction in sports.' },
           { id: 'explosiveness', heading: 'Explosiveness', description: 'Jumps, takeoffs, and dynamic movement teach athletes to produce force quickly. That carries over to a first step on the field or a stronger takeoff in cheer and tumbling.' },
           {
             id: 'body-control',
@@ -162,6 +162,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description: 'Coaches use trampolines and tumble tracks to teach athletes how to hold a body shape and land steadily. Beginners can start with those skills and work toward connected tumbling as their control improves.',
             link: TUMBLING_GUIDE_ACTION,
           },
+        ],
+      },
+      {
+        id: 'fit-flip-class-example',
+        heading: 'What happens in a Fit & Flip class?',
+        description: 'In a 90-minute Cyclones class, coaches combine strength work, jumps, and gymnastics-inspired body control. Here’s how a coach might connect those activities around one goal: landing steadily on two feet.',
+        topics: [
+          { id: 'landing-rehearsal', heading: 'Rehearse the landing', description: 'A coach can show how to settle into a balanced landing position and pause there. Practicing it on the floor gives a beginner time to find their balance before adding a jump.' },
+          { id: 'strength-practice', heading: 'Build strength for the same movement', description: 'A bodyweight squat lets an athlete practice lowering and standing with control. When they can repeat the movement consistently, the coach can decide whether light resistance is appropriate.' },
+          { id: 'jump-practice', heading: 'Apply it to a jump', description: 'The coach might ask the athlete to land and hold their balance after a small two-foot jump. A steady finish gives the coach something to check before changing the height or difficulty.' },
         ],
       },
       {
@@ -175,13 +185,15 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description: 'Coaches can use short starts to practice the first few steps and stopping drills to teach athletes how to slow down with control. As athletes get comfortable, a coach might cue them to start toward a cone or change direction on the move.',
           },
         ],
-        links: [{ href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#movement-progression`, label: 'See how coaches build speed and agility', analyticsKey: 'read_movement_progression' }],
+        links: [
+          { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#movement-progression`, label: 'See how coaches build speed and agility', analyticsKey: 'read_movement_progression' },
+          { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`, label: 'Fit training around practices and games', analyticsKey: 'read_youth_sports_training_schedule' },
+        ],
       },
       {
         id: 'training-fit',
         heading: 'Youth fitness for beginners',
-        description:
-          'If your child is looking for a way to get active or build confidence with movement, start with the basics. A coach might use a bodyweight squat to practice lowering with control or a small jump to practice balancing on landing. As your child gets comfortable with the movement, the coach can give them a more challenging version.',
+        description: 'New to training? Tell the coach which activities your child enjoys and what they want to try. Two athletes in the same age group can practice different versions of a movement based on what each can repeat with control.',
         topics: [
           {
             id: 'first-fit-flip-class',
