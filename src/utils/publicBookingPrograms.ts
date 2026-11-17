@@ -11,8 +11,13 @@ export function getPublicBookingProgramName(name: string): string | null {
   return PUBLIC_BOOKING_PROGRAMS.find(program => program.aliases.some(alias => normalize(alias) === normalize(name)))?.name ?? null
 }
 
-export function getPublicBookingPrograms<T extends { displayName: string }>(programs: readonly T[]): T[] {
-  return PUBLIC_BOOKING_PROGRAMS.flatMap(({ name }) => programs
+export function getPublicBookingPrograms<T extends { displayName: string; enrollmentSortOrder?: number | null }>(programs: readonly T[]): T[] {
+  const publicPrograms = PUBLIC_BOOKING_PROGRAMS.flatMap(({ name }) => programs
     .filter(program => getPublicBookingProgramName(program.displayName) === name)
     .map(program => ({ ...program, displayName: name })))
+
+  // A stable sort keeps the curated relative order for programs with no saved position.
+  return publicPrograms.sort((left, right) =>
+    (left.enrollmentSortOrder ?? Number.MAX_SAFE_INTEGER) -
+    (right.enrollmentSortOrder ?? Number.MAX_SAFE_INTEGER))
 }
