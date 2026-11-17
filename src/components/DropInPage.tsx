@@ -4,7 +4,12 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { checkoutDropIn, fetchNonmemberDropIns, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
-import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM, getPublicBookingPrograms, getScopedDropInProgram, isAdultBookingProgram } from '../utils/publicBookingPrograms'
+import {
+  ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
+  DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM,
+  FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
+  getPublicBookingPrograms, getScopedDropInProgram, isAdultBookingProgram,
+} from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
@@ -23,7 +28,7 @@ const SCOPED_DROP_IN_COPY = {
   },
   [ADULT_BOOKING_PROGRAM]: {
     heading: 'Adult gymnastics drop-ins.',
-    intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie. Registration shows whether you can apply your one-time free trial to the selected date.',
+    intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie.',
     programHref: '/adult-gymnastics',
     programLink: 'adult gymnastics class times',
     datesHeading: 'Available Typhoons drop-in dates',
@@ -45,6 +50,11 @@ const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
 const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
 const prettyTime = (time: string) => new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
+function TrialDateLabel({ session }: { session: DropInSession }) {
+  if (session.allowsFreeTrial !== true || session.isFull || session.excludedFromDropIns) return null
+  return <span className="np-drop-in-trial-label">Accepts free trials</span>
+}
+
 function DropInSessionOption({ session, alternative = false, showClassName = false, onSelect }: {
   session: DropInSession
   alternative?: boolean
@@ -61,6 +71,7 @@ function DropInSessionOption({ session, alternative = false, showClassName = fal
       </div>
       <div className="shrink-0 text-right"><strong className="text-vortex-red">{money(session.totalCents)}</strong><span className="block text-xs text-gray-600">Nonmember</span></div>
     </div>
+    <TrialDateLabel session={session} />
     <p className="mt-3 text-xs font-semibold text-gray-600">{session.isFull ? 'Class full' : `${session.spotsRemaining} spots available`}</p>
     <p className="mt-1 text-xs text-gray-500">{session.monthlyEnrolled} monthly + {session.dropInEnrolled} drop-in · maximum {session.maxParticipants}</p>
   </button>
@@ -218,6 +229,7 @@ export default function DropInPage() {
         {signupSession && <div className="mb-6 rounded-xl bg-gray-50 p-4">
             <p className="font-bold">{signupSession.className}</p>
             <p className="text-sm text-gray-600">{prettyDate(signupSession.date)} · {prettyTime(signupSession.startTime)}–{prettyTime(signupSession.endTime)}</p>
+            <TrialDateLabel session={signupSession} />
           {dropInDate && signupSession.date !== dropInDate && <p className="np-drop-in-alternate-notice">You selected an alternate date: <strong>{prettyDate(signupSession.date)}</strong>, instead of {prettyDate(dropInDate)}.</p>}
           </div>}
           {loading ? <div role="status" className="flex items-center gap-3"><Loader2 className="h-6 w-6 animate-spin" />Loading your class…</div>
@@ -236,7 +248,7 @@ export default function DropInPage() {
     <section className="np-drop-in-hero">
       <div className="np-drop-in-container">
         <p className="np-drop-in-eyebrow">Gymnastics &amp; athletic development · Bowie, MD</p>
-        <h1>{scopedCopy?.heading ?? 'Drop-in classes.'}</h1>
+        <h1>{scopedCopy?.heading ?? 'Drop-in gymnastics & fitness in Bowie'}</h1>
         {scopedCopy ? <p className="np-drop-in-intro">
           {scopedCopy.intro} For recurring enrollment, see{' '}
           <Link className="font-semibold underline underline-offset-4" to={scopedCopy.programHref}>{scopedCopy.programLink}</Link>.
@@ -246,16 +258,21 @@ export default function DropInPage() {
           {scopedProgram !== ADULT_BOOKING_PROGRAM && <>{' '}
             <Link className="font-semibold underline underline-offset-4" to="/drop-in">Browse all youth drop-ins</Link>.
           </>}
-        </p> : <p className="np-drop-in-intro">
-          Find an available single-day class or schedule a make-up. See{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link> and{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip</Link> for age groups and starting levels.
-          {' '}For Typhoons, check{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link>,{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">what to expect in a first class</Link>, or{' '}
-          <Link className="font-semibold underline underline-offset-4" to={ADULT_DROP_IN_HREF}>Typhoons drop-in dates</Link>.
-        </p>}
-        <p className="np-drop-in-hero-note">Free trials are available for select class times. Member discounts apply, and all members get 4 free drop-ins per year.</p>
+        </p> : <>
+          <p className="np-drop-in-intro">
+            Find an available single-day class or schedule a make-up. For starting ages and class levels, see{' '}
+            <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link>,{' '}
+            <Link className="font-semibold underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip</Link>, or{' '}
+            <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics</Link>.
+            {' '}See <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">what to expect in a first adult class</Link>.
+          </p>
+          <nav aria-label="Drop-in calendars by program" className="mt-4 flex flex-wrap gap-x-5 text-sm font-semibold underline underline-offset-4">
+            <Link className="inline-flex min-h-11 items-center" to={DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF} data-analytics-cta="browse_youth_gymnastics_drop_ins" data-analytics-section="drop_in_programs">Youth gymnastics dates</Link>
+            <Link className="inline-flex min-h-11 items-center" to={FIT_AND_FLIP_DROP_IN_HREF} data-analytics-cta="browse_fit_flip_drop_ins" data-analytics-section="drop_in_programs">Fit &amp; Flip dates</Link>
+            <Link className="inline-flex min-h-11 items-center" to={ADULT_DROP_IN_HREF} data-analytics-cta="browse_typhoons_drop_ins" data-analytics-section="drop_in_programs">Typhoons drop-in dates</Link>
+          </nav>
+        </>}
+        <p className="np-drop-in-hero-note">Look for <strong>Accepts free trials</strong> when you choose a time. Registration checks whether the selected athlete has an unused one-time trial.</p>
       </div>
     </section>
 

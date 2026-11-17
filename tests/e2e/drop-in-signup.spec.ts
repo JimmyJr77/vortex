@@ -58,6 +58,7 @@ async function mockDropInApi(page: Page, options: {
   membershipRequiresReview?: boolean
   includeAdultClass?: boolean
   includeFitFlipClass?: boolean
+  mixedAdultTrialFlags?: boolean
 } = {}) {
   const submitted: { path: string; body: Record<string, unknown> }[] = []
   const catalogMemberIds: string[] = []
@@ -112,6 +113,10 @@ async function mockDropInApi(page: Page, options: {
           ...(options.includeAdultClass ? [adultSession,
             { ...adultSession, date: '2027-01-19', isFull: true, spotsRemaining: 0 },
             { ...adultSession, date: '2027-01-26', excludedFromDropIns: true },
+            ...(options.mixedAdultTrialFlags ? [
+              { ...adultSession, date: '2027-02-02', allowsFreeTrial: false },
+              { ...adultSession, date: '2027-02-09', allowsFreeTrial: undefined },
+            ] : []),
           ] : []),
           ...(options.includeFitFlipClass ? [fitFlipSession] : []),
         ],
@@ -275,11 +280,11 @@ async function finishAccount(page: Page, expectReview = true) {
 
 test('adult drop-in dates stay scoped through guest signup and cancellation', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2027-01-10T17:00:00Z'))
-  const { submitted } = await mockDropInApi(page, { includeAdultClass: true })
+  await acceptAnalytics(page)
+  const { submitted, conversions } = await mockDropInApi(page, { includeAdultClass: true, mixedAdultTrialFlags: true })
   await page.goto('/adult-gymnastics')
-  await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
   await page.getByText('Can I try adult gymnastics for free?', { exact: true }).click()
-  await expect(page.getByText(/If the date qualifies and you have an unused one-time free trial/)).toBeVisible()
+  await expect(page.getByText(/Look for “Accepts free trials” on Typhoons dates/)).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Register yourself and sign your waiver' })).toBeVisible()
   const findDates = page.getByRole('link', { name: 'Check Typhoons dates and prices', exact: true })
   await expect(findDates).toHaveAttribute('href', adultDropInUrl)
@@ -290,10 +295,17 @@ test('adult drop-in dates stay scoped through guest signup and cancellation', as
   const dateOption = page.getByRole('button', { name: /Typhoons \(Adult\).*Jan 12, 2027.*7:00 PM.*8:30 PM/ })
   const youthClass = page.getByRole('button', { name: /Beginner Gymnastics/ })
   await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()
-  await expect(page.getByText(/Registration shows whether you can apply your one-time free trial/)).toBeVisible()
+  await expect(page.getByText(/Registration checks whether the selected athlete has an unused one-time trial/)).toBeVisible()
   await expect(availableDates).toBeVisible()
   await expect(youthClass).toHaveCount(0)
   await expect(page.getByRole('button', { name: /Typhoons \(Adult\).*Jan (19|26), 2027/ })).toHaveCount(0)
+  await expect(dateOption.getByText('Accepts free trials', { exact: true })).toBeVisible()
+  await expect(dateOption.getByText('$30.00', { exact: true })).toBeVisible()
+  for (const day of ['Feb 2', 'Feb 9']) {
+    const paidOption = page.getByRole('button', { name: new RegExp(`Typhoons.*${day}, 2027`) })
+    await expect(paidOption).toBeEnabled()
+    await expect(paidOption.getByText('Accepts free trials', { exact: true })).toHaveCount(0)
+  }
   await dateOption.click()
   await expect(page).toHaveURL(url => url.pathname === '/drop-in' &&
     url.searchParams.get('program') === adultProgram &&
@@ -301,6 +313,11 @@ test('adult drop-in dates stay scoped through guest signup and cancellation', as
     url.searchParams.get('signupDate') === classDate)
   await expect(page.getByRole('heading', { name: 'Register for your drop-in' })).toBeVisible()
   await expect(page.getByText(adultDropInClass.className, { exact: true }).first()).toBeVisible()
+  await expect(page.getByText('Accepts free trials', { exact: true })).toBeVisible()
+  await expect.poll(() => submitted.filter(({ path }) => path === '/api/analytics/event')
+    .flatMap(({ body }) => body.events as { eventName: string; pagePath: string }[])
+    .find(({ eventName }) => eventName === 'drop_in_start')?.pagePath).toBe('/drop-in')
+  expect(conversions()).toEqual([])
 
   await page.getByRole('button', { name: 'Cancel', exact: true }).click()
   await expect(page).toHaveURL(url => url.pathname === '/drop-in' &&
@@ -335,6 +352,10 @@ test('adult membership checkout returns to the selected drop-in and keeps Typhoo
 test('general drop-in catalog retains its curated programs when Typhoons is available', async ({ page }) => {
   await mockDropInApi(page, { includeAdultClass: true })
   await page.goto('/drop-in')
+  const calendars = page.getByRole('navigation', { name: 'Drop-in calendars by program' })
+  await expect(calendars.getByRole('link', { name: 'Youth gymnastics dates' })).toHaveAttribute('href', '/drop-in?program=Developmental%20Gymnastics')
+  await expect(calendars.getByRole('link', { name: 'Fit & Flip dates' })).toHaveAttribute('href', fitFlipDropInUrl)
+  await expect(calendars.getByRole('link', { name: 'Typhoons drop-in dates' })).toHaveAttribute('href', adultDropInUrl)
   await expect(page.getByRole('button', { name: /Beginner Gymnastics.*View drop-in times/ })).toBeVisible()
   await expect(page.getByRole('button', { name: /Typhoons \(Adult\).*View drop-in times/ })).toHaveCount(0)
   await expect(page.getByRole('combobox', { name: 'Program', exact: true }).locator('option')).toHaveText([
@@ -359,6 +380,7 @@ test('Fit & Flip drop-in link shows Cyclones dates and keeps the program through
   await expect(page.getByRole('heading', { name: 'Fit & Flip drop-ins.', exact: true })).toBeVisible()
   await expect(availableDates).toBeVisible()
   await expect(dateOption).toBeVisible()
+  await expect(dateOption.getByText('Accepts free trials', { exact: true })).toHaveCount(0)
   await expect(cyclones).toHaveCount(0)
   await expect(gymnastics).toHaveCount(0)
 

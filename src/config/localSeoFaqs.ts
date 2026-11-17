@@ -7,14 +7,19 @@ export const DROP_IN_FAQS: Faq[] = [
       'Yes. Eligible drop-in openings let families reserve one available class date without starting a monthly enrollment. Availability depends on the class schedule and remaining capacity.',
   },
   {
-    question: 'Can a first-time athlete use a drop-in as a trial class?',
+    question: 'Which drop-in dates accept a free trial?',
     answer:
-      'Eligible first-time athletes may apply their available free trial when registering for a drop-in class. The registration flow displays the benefits available to your family.',
+      'Look for “Accepts free trials” on a class time. An athlete with an unused one-time trial may apply it during registration to book that class for $0. Choose who is attending and review their eligibility and total before confirming.',
+  },
+  {
+    question: 'How does annual membership work for drop-ins?',
+    answer:
+      'You can book a drop-in as a nonmember. An active annual membership includes four drop-in credits per membership year. Registration shows the athlete’s available benefits before you confirm.',
   },
   {
     question: 'Which activities offer drop-in classes?',
     answer:
-      'The live drop-in catalog shows currently eligible gymnastics, athletic development, fitness, and other Vortex classes. Programs can be filtered by sport, age, and experience level.',
+      'The live catalog shows available youth gymnastics, Fit & Flip youth fitness, and adult gymnastics drop-ins. Select a program to see its class times and review the class age group before choosing.',
   },
   {
     question: 'Where are Vortex drop-in classes held?',

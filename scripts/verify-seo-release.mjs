@@ -510,7 +510,12 @@ const verifyHtml = (
           `${label}: missing facility gallery link to ${path}`)
       }
     } else {
-      assert(hasDropInProgramLink(links, 'Adult Fitness & Acrobatics'), `${label}: missing a link to adult drop-in dates near the main heading`)
+      for (const program of ['Developmental Gymnastics', 'Fit & Flip', 'Adult Fitness & Acrobatics']) {
+        assert(hasDropInProgramLink(links, program), `${label}: missing a link to ${program} drop-in dates near the main heading`)
+      }
+      assert(h1s[0] === 'Drop-in gymnastics & fitness in Bowie' && /Accepts free trials/.test(introduction) &&
+        /unused one-time trial/.test(introduction),
+        `${label}: missing the drop-in heading or the visible eligibility guidance`)
       assert(links.some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#class-format`),
         `${label}: missing the crawlable link to what adults can expect in their first class`)
     }
@@ -883,14 +888,14 @@ const verifyHtml = (
         `${label}: the homepage must identify its published training photo as its preferred search image`)
     }
 
-    if (pagePath === '/adult-gymnastics') {
-      const question = 'Can I try adult gymnastics for free?'
+    if (pagePath === '/adult-gymnastics' || pagePath === '/drop-in') {
+      const question = pagePath === '/drop-in' ? 'Which drop-in dates accept a free trial?' : 'Can I try adult gymnastics for free?'
       const faq = parsed.find((item) => item?.['@type'] === 'FAQPage')
       const answer = faq?.mainEntity?.find((item) => item.name === question)?.acceptedAnswer?.text
       const visibleFaq = [...html.matchAll(/<details\b[^>]*>[\s\S]*?<\/details>/gi)]
         .find(([entry]) => entry.includes(question))?.[0] ?? ''
-      assert(answer && /date qualifies/i.test(answer) && /unused one-time free trial/i.test(answer) &&
-        decodeHtml(visibleFaq).includes(answer), `${label}: the visible adult trial eligibility answer must match FAQ structured data`)
+      assert(answer && /Accepts free trials/.test(answer) && /unused one-time (free )?trial/i.test(answer) &&
+        decodeHtml(visibleFaq).includes(answer), `${label}: the visible trial eligibility answer must match FAQ structured data`)
     }
 
     if (HUB_ARTICLE_PATHS.includes(pagePath)) {

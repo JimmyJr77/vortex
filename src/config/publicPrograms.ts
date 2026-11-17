@@ -395,7 +395,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'adult-availability',
         heading: 'Plan your first adult gymnastics class',
-        description: 'Choose an available Typhoons drop-in date. The booking list shows each class time, listed price, and remaining spots. Eligible participants can use a one-time free trial on qualifying dates.',
+        description: 'Choose an available Typhoons drop-in date. The booking list shows the class time, nonmember price, remaining spots, and whether the date accepts free trials.',
         topics: [
           { id: 'adult-registration', heading: 'Register yourself and sign your waiver', description: 'Sign in or create an account, select yourself as the participant, and complete any waiver requested during booking. Review your total before confirming.' },
           { id: 'adult-what-to-bring', heading: 'What to bring', description: 'Bring water and wear comfortable clothes you can move in. Ask Vortex before your visit if you have questions about footwear or what to bring.' },
@@ -410,7 +410,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       { question: 'What age is the adult gymnastics class for?', answer: 'Typhoons is for adults ages 18 and up. Vortex has separate youth gymnastics pathways for kids and teens.' },
       { question: 'Can I join as a beginner?', answer: 'Yes. Typhoons welcomes adults without prior gymnastics experience. Contact Vortex if you would like help choosing your starting point.' },
       { question: 'Can I try one adult gymnastics class?', answer: 'Yes. Choose an available Typhoons drop-in date to reserve one coached class without a monthly enrollment. Availability depends on the date and remaining spots.' },
-      { question: 'Can I try adult gymnastics for free?', answer: 'Choose a Typhoons drop-in date. If the date qualifies and you have an unused one-time free trial, registration offers the option to apply it. No yearly membership is required for a free trial. Review the total shown before confirming.' },
+      { question: 'Can I try adult gymnastics for free?', answer: 'Look for “Accepts free trials” on Typhoons dates. You can apply an unused one-time free trial during registration and review your total before confirming. Annual membership is optional for a free trial.' },
       { question: 'How do I enroll in recurring Typhoons classes?', answer: 'Choose See recurring class times to check the current schedule and begin enrollment. If there are no classes available online, contact Vortex for help.' },
     ],
     relatedPaths: ['/gymnastics', '/fit-and-flip'],
