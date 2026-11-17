@@ -113,6 +113,13 @@
   text-wrap: balance;
 }
 
+.athletic-guide-subheading {
+  margin-block: 1rem 0.35rem;
+  font-size: 1.125rem;
+  font-weight: 680;
+  line-height: 1.3;
+}
+
 .athletic-guide-body p + p,
 .athletic-guide-body p + :is(ul, ol) {
   margin-top: 0.85rem;

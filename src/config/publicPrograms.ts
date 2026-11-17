@@ -176,7 +176,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         description:
           'The Athleticism Accelerator is Vortex’s framework for developing eight qualities of movement. It covers strength, explosiveness, speed, agility, flexibility and mobility, balance, coordination, and body control. Fit & Flip organizes that work around the Triad. In a jump, strength creates force, explosiveness helps the athlete take off quickly, and body control helps them land in balance. Mobility and coordination help the athlete get into position and move smoothly through the jump.',
         topics: [
-          { id: 'strength', heading: 'Youth strength training', description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. These patterns help athletes support their body weight in gymnastics and control their position when they change direction in sports.' },
+          {
+            id: 'strength',
+            heading: 'Youth strength training',
+            description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. These patterns help athletes support their body weight in gymnastics and control their position when they change direction in sports.',
+            link: {
+              href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#strength-training-readiness`,
+              label: 'When kids are ready for strength training',
+              analyticsKey: 'read_youth_strength_readiness',
+            },
+          },
           { id: 'explosiveness', heading: 'Explosiveness', description: 'Jumps, takeoffs, and dynamic movement teach athletes to produce force quickly. That carries over to a first step on the field or a stronger takeoff in cheer and tumbling.' },
           {
             id: 'body-control',
@@ -209,6 +218,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
         links: [
           { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#movement-progression`, label: 'See how coaches build speed and agility', analyticsKey: 'read_movement_progression' },
+          { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#progress`, label: 'See how coaches check athletic progress', analyticsKey: 'read_athletic_progress' },
           { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`, label: 'Fit training around practices and games', analyticsKey: 'read_youth_sports_training_schedule' },
         ],
       },

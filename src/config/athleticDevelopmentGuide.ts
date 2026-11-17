@@ -6,7 +6,7 @@ export const ATHLETIC_DEVELOPMENT_GUIDE = {
   title: 'A Parent’s Guide to Youth Athletic Development | Vortex',
   heading: 'Athleticism development for young athletes',
   description:
-    'Explore eight qualities of youth athleticism and see how Vortex coaches progress skills from a balanced stop to a quick change of direction on a cue.',
+    'Explore eight qualities of youth athleticism, learn when kids are ready for strength training, and see how Vortex coaches check progress over time.',
   image: '/plyometrics-1600.webp',
   cardImage: '/plyometrics-768.webp',
   imageSrcSet: '/plyometrics-768.webp 768w, /plyometrics-1080.webp 1080w, /plyometrics-1600.webp 1536w',

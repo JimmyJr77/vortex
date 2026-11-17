@@ -564,24 +564,33 @@ const verifyHtml = (
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
       if (canonical === fitAndFlipCanonical) {
-        assert(links.some((url) => url.href === `${guideCanonical}#movement-progression`),
-          `${label}: missing the link to Vortex’s coaching progression in the parent guide`)
-        assert(links.some((url) => url.href === `${guideCanonical}#sports-season`),
-          `${label}: missing the link to training around practices and games`)
+        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress']) {
+          assert(links.some((url) => url.href === `${guideCanonical}${hash}`),
+            `${label}: missing the link to the parent guide at ${hash}`)
+        }
       }
     } else {
       const examples = content.match(/<section\b[^>]*\sid=["']movement-examples["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const progression = content.match(/<section\b[^>]*\sid=["']movement-progression["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const sportsSeason = content.match(/<section\b[^>]*\sid=["']sports-season["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const readiness = content.match(/<section\b[^>]*\sid=["']strength-training-readiness["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const progress = content.match(/<section\b[^>]*\sid=["']progress["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const outline = content.match(/<nav\b[^>]*\baria-label=["']In this guide["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
       assert(tags(examples, 'li').length === 8, `${label}: expected eight crawlable athleticism examples`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
-      assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === '#movement-progression'),
-        `${label}: missing the link to the coaching progression in the guide outline`)
+      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress']) {
+        assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === hash),
+          `${label}: missing the link to ${hash} in the guide outline`)
+      }
       assert(tags(sportsSeason, 'li').length === 2 &&
         anchorUrls(sportsSeason).some((url) => url.href === `${fitAndFlipCanonical}#fit-flip-class-example`),
         `${label}: missing the examples for training around the season or link to the public class example`)
+      assert(/Can they listen to a coach/i.test(readiness) &&
+        anchorUrls(readiness).some((url) => url.href === `${fitAndFlipCanonical}#training-fit`),
+        `${label}: missing the youth strength training readiness guidance or link to the beginner program options`)
+      assert(/The first two steps of a sprint/i.test(progress) && /counts controlled starts/i.test(progress),
+        `${label}: missing the Athleticism Accelerator coaching example for checking progress`)
       assert(links.some((url) => url.href === fitAndFlipCanonical),
         `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
       assert(links.some((url) => url.href === `${fitAndFlipCanonical}#strength`),

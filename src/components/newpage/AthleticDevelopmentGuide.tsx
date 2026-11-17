@@ -13,8 +13,9 @@ const sections = [
   { id: 'sports-season', label: 'Training around practices and games' },
   { id: 'movement-examples', label: 'Eight qualities of athleticism' },
   { id: 'movement-progression', label: 'How coaches progress a movement' },
+  { id: 'strength-training-readiness', label: 'When to start strength training' },
   { id: 'first-class', label: 'What to watch for in class' },
-  { id: 'progress', label: 'How to spot progress' },
+  { id: 'progress', label: 'How coaches check progress' },
   { id: 'questions', label: 'Questions for the coach' },
 ] as const
 
@@ -38,7 +39,7 @@ export default function AthleticDevelopmentGuide() {
             <p className="athletic-guide-lead">
               Athleticism development is the practice of building movement skills that children can use in
               sports and active play. See how coaches build strength, speed, agility, and body control over
-              time, and what to watch for when choosing a class.
+              time, what to watch for when choosing a class, and how to see if the training is helping.
             </p>
             <GuideByline datePublished={ATHLETIC_DEVELOPMENT_GUIDE.datePublished} dateModified={ATHLETIC_DEVELOPMENT_GUIDE.dateModified} />
           </div>
@@ -144,6 +145,21 @@ export default function AthleticDevelopmentGuide() {
           </p>
         </section>
 
+        <section id="strength-training-readiness">
+          <h2>When is a child ready to start strength training?</h2>
+          <p>
+            Look at how your child responds to instruction. Can they listen to a coach’s directions, wait for
+            their turn, and try an adjustment when the coach gives feedback? A qualified coach can match the
+            exercise to the child’s current ability and start with bodyweight movements, such as a squat.
+            Read more in the <a href="https://www.sportsmed.org/youth-strength-training">American Orthopaedic Society for Sports Medicine’s youth strength training guidance</a>.
+          </p>
+          <p>
+            At Vortex, Fit &amp; Flip has Cyclones groups for ages 8–11 and 12–15. If you’re considering a class,
+            ask the coach what your child would start with and what they would look for before adding resistance.
+            {' '}<Link to="/fit-and-flip#training-fit">See Fit &amp; Flip options for beginners</Link>.
+          </p>
+        </section>
+
         <section id="first-class">
           <h2>What to watch for in a first class</h2>
           <p>
@@ -160,17 +176,27 @@ export default function AthleticDevelopmentGuide() {
         </section>
 
         <section id="progress">
-          <h2>How to tell if training is helping</h2>
+          <h2>How coaches measure progress in youth athletic development</h2>
           <p>
-            Ask the coach to name one movement your child is working on and what they’ll watch for next time.
-            Compare the same task under similar conditions over a few sessions. A quieter landing, a steadier
-            change of direction, or needing fewer reminders can be progress, even when a stopwatch reading
-            or the amount of weight stays the same.
+            Time, distance, and weight can show one part of progress. A coach can also track whether a child
+            can repeat the same movement with more control. The National Strength and Conditioning Association
+            recommends evaluating both how a child moves and what the movement achieves in its
+            {' '}<a href="https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/long-term-athletic-development-position-statement/">position statement on long-term athletic development</a>.
           </p>
+          <h3 className="athletic-guide-subheading">The first two steps of a sprint</h3>
           <p>
-            Ask your child what they enjoyed and what they could do with more confidence. Soreness tells you
-            little about what they learned. Progress is easier to see when you compare your child with their own
-            starting point and look for skills they can repeat.
+            In one example from Vortex’s Athleticism Accelerator coaching library, the athlete starts still
+            with one foot ahead of the other. The coach cues them to push the floor behind them and watches
+            the first two steps.
+          </p>
+          <ul>
+            <li><strong>Record the starting point.</strong> The coach notes how often the athlete can push forward without rocking back first or reaching for a longer step.</li>
+            <li><strong>Repeat the same task.</strong> On a later visit, the coach uses the same setup and cue and counts controlled starts out of the attempts the athlete makes.</li>
+            <li><strong>Decide what to practice next.</strong> If the athlete still reaches on most attempts, the coach can keep working on the same cue. If the push is steady more often, the coach can consider a longer start.</li>
+          </ul>
+          <p className="mt-4">
+            After class, ask the coach which movement they’d check again and what change they’d look for.
+            Ask your child what felt easier and what they’d like to practice again.
           </p>
         </section>
 
@@ -180,7 +206,6 @@ export default function AthleticDevelopmentGuide() {
             <li>How do you choose a starting level for a child who’s new to this type of training?</li>
             <li>What do you change if a movement is too hard for my child to repeat with control?</li>
             <li>How would you fit this class around my child’s other practices and games?</li>
-            <li>What’s one skill we could check again after a few visits to see what’s changed?</li>
           </ul>
         </section>
 
@@ -209,7 +234,6 @@ export default function AthleticDevelopmentGuide() {
           <ul>
             <li><a href="https://pubmed.ncbi.nlm.nih.gov/32457216/">American Academy of Pediatrics clinical report on youth resistance training</a></li>
             <li><a href="https://pubmed.ncbi.nlm.nih.gov/38247370/">American Academy of Pediatrics report on training load and recovery in youth sports</a></li>
-            <li><a href="https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/">National Strength and Conditioning Association position on long-term athletic development</a></li>
             <li><a href="https://www.cdc.gov/physical-activity-basics/adding-children-adolescents/">CDC guidance on making physical activity part of a child’s life</a></li>
           </ul>
         </section>
