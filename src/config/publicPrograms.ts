@@ -31,6 +31,7 @@ type PublicProgram = {
 }
 
 const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
+const FIT_AND_FLIP_ENROLLMENT_HREF = '/enroll?program=Fit%20%26%20Flip'
 const FREE_TRIAL_FINDER_HREF = '/#free-trial'
 
 export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
@@ -105,8 +106,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageAlt: 'A Vortex athlete practicing aerial body control on a trampoline',
     imageWidth: 900,
     imageHeight: 675,
-    primaryAction: { href: '/enroll?program=Fit%20%26%20Flip', label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
-    trialHref: '/#free-trial',
+    primaryAction: { href: FIT_AND_FLIP_ENROLLMENT_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
+    trialHref: FREE_TRIAL_FINDER_HREF,
     sections: [
       {
         id: 'athleticism-development',
@@ -141,11 +142,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'first-fit-flip-class',
             heading: 'Find a first class',
             description:
-              'The Fit & Flip free trial finder shows current openings for the Cyclones age groups, 8–11 and 12–15. Choose Fit & Flip and enter your child’s age. If dates are unavailable or your child falls outside those age groups, contact Vortex for help finding a starting point.',
+              'Fit & Flip’s 90-minute Cyclones classes are grouped by age, 8–11 and 12–15. Browse current class times or choose Fit & Flip in the free trial finder and enter your child’s age. Contact Vortex if no trial dates are available or your child falls outside those age groups.',
           },
         ],
         links: [
-          { href: '/#free-trial', label: 'Look for a Fit & Flip trial', analyticsKey: 'free_trial_section' },
+          { href: FIT_AND_FLIP_ENROLLMENT_HREF, label: 'See Fit & Flip class times', analyticsKey: 'browse_classes' },
+          { href: FREE_TRIAL_FINDER_HREF, label: 'Look for a Fit & Flip trial', analyticsKey: 'free_trial_section' },
           { href: '/contact', label: 'Ask about class options', analyticsKey: 'inquire' },
           { href: ATHLETIC_DEVELOPMENT_GUIDE.path, label: 'Read the parent guide to athletic development', analyticsKey: 'read_athletic_development_guide' },
         ],

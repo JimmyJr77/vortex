@@ -48,10 +48,18 @@ export default function BowieYouthSportsGuide() {
               <a href="https://www.bbgc.com/programs/track-and-field">View track and field</a>
             </li>
             <li>
+              <strong>South Bowie Boys &amp; Girls Club.</strong> The Sharks offer youth sports including basketball,
+              soccer, and cheerleading. Check their registration page to see which sports are accepting signups.{' '}
+              <a href="https://southbowiesharks.org/open-sports/">Check South Bowie Sharks registrations</a>
+            </li>
+            <li>
               <strong>City of Bowie Municipal Gymnasium.</strong> Check for basketball, volleyball, and other court
               activities. Membership is limited to residents within Bowie’s city limits. Guests need to come with a
               member. Check youth supervision rules before visiting.{' '}
               <a href="https://www.cityofbowie.org/104/Gymnasium">Check city gym membership and rules</a>
+              {' '}The city also runs separate Wiggle and Giggle sessions for residents and nonresidents. They’re
+              designed for ages 1–6.{' '}
+              <a href="https://www.cityofbowie.org/278/Programs-at-the-Gym">See the city’s gym programs</a>
             </li>
             <li>
               <strong>Bowie Ice Arena.</strong> A public skate gives beginners a chance to try the ice before committing
@@ -62,9 +70,10 @@ export default function BowieYouthSportsGuide() {
             </li>
             <li>
               <strong>Prince George’s County Parks and Recreation.</strong> Compare leagues, skills classes, and camps
-              across sports such as soccer, swimming, and tennis. Check the facility on each listing before you register,
-              since the catalog covers the whole county.{' '}
-              <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a>
+              across sports such as soccer, swimming, and tennis. In PARKS DIRECT, choose Activity Search and filter by
+              age and location. Try Bowie Community Center or South Bowie Community Center for nearby options.{' '}
+              <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a> ·{' '}
+              <a href="https://help.pgparksdirect.com/a/1416705-how-to-register-for-an-activity">Find and register for a county activity</a>
             </li>
           </ul>
         </section>
@@ -98,6 +107,11 @@ export default function BowieYouthSportsGuide() {
             <li><strong>Weekly schedule.</strong> Compare practice and game times, where sessions take place, and which days work for your family.</li>
             <li><strong>Total cost.</strong> Check whether uniforms, equipment, membership, or competition fees are included.</li>
             <li><strong>First visit.</strong> Ask whether your child can observe, try a session, or start with a shorter program.</li>
+            <li>
+              <strong>Accommodations.</strong> If your child needs a disability accommodation for a county recreation
+              program, register at least two weeks before it starts so you can request support.{' '}
+              <a href="https://www.pgparks.com/things-to-do/disability-services">See county accommodation requests</a>
+            </li>
           </ul>
         </section>
 
