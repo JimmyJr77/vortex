@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { useEffect, useRef, type MouseEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import video from '../../config/publicTrainingVideo.json'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { INSIDE_THE_GYM_PATH } from '../../config/contact'
 import './TrainingWatchPage.css'
 
@@ -10,21 +11,28 @@ const scenes = [
     id: 'gym-view',
     start: 0,
     description: 'Wide views show the Bowie gym’s mats, tumbling track, and overhead training rig.',
+    links: [],
   },
   {
     id: 'gymnastics-skills',
     start: 4,
     description: 'Athletes practice a pull-up, tumbling on the track and floor, and a straddle hold on small handstand bars.',
+    links: [{ to: '/gymnastics#class-placement', label: 'Compare youth gymnastics starting levels' }],
   },
   {
     id: 'strength-and-handstand',
     start: 12,
     description: 'One athlete swings a kettlebell. Another presses to a handstand on the bars.',
+    links: [
+      { to: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#strength-training-readiness`, label: 'How coaches introduce resistance for kids' },
+      { to: '/adult-gymnastics#adult-handstand-preparation', label: 'How adults can work toward a handstand' },
+    ],
   },
   {
     id: 'change-of-direction',
     start: 16,
     description: 'The film ends with a quick change of direction near a cone and athletes crossing climbing obstacles over mats.',
+    links: [{ to: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#speed-vs-agility`, label: 'How athletes practice changing direction' }],
   },
 ]
 
@@ -86,7 +94,14 @@ export default function TrainingWatchPage() {
                 <a href={`${video.assetPath}#t=${scene.start}`} onClick={event => playScene(event, scene.start)}>
                   Play from 0:{String(scene.start).padStart(2, '0')}
                 </a>
-                <p>{scene.description}</p>
+                <div>
+                  <p>{scene.description}</p>
+                  {scene.links.length > 0 && (
+                    <div className="np-training-watch-scene-links">
+                      {scene.links.map(({ to, label }) => <Link key={to} to={to}>{label}</Link>)}
+                    </div>
+                  )}
+                </div>
               </li>
             ))}
           </ol>
@@ -97,9 +112,13 @@ export default function TrainingWatchPage() {
           <ul>
             <li><Link to="/gymnastics">Explore youth gymnastics <ArrowUpRight size={17} aria-hidden="true" /></Link></li>
             <li><Link to="/fit-and-flip">Explore Fit &amp; Flip youth training <ArrowUpRight size={17} aria-hidden="true" /></Link></li>
+            <li><Link to="/adult-gymnastics">Explore adult gymnastics <ArrowUpRight size={17} aria-hidden="true" /></Link></li>
             <li><Link to={INSIDE_THE_GYM_PATH}>See inside the Bowie gym <ArrowUpRight size={17} aria-hidden="true" /></Link></li>
           </ul>
         </nav>
+        <p className="np-training-watch-youtube">
+          <a href="https://www.youtube.com/watch?v=bvGYBIgc_H8">Watch the Vortex introduction on YouTube <ArrowUpRight size={17} aria-hidden="true" /></a>
+        </p>
       </div>
     </div>
   )

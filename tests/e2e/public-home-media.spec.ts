@@ -54,6 +54,11 @@ test.describe('phone homepage video', () => {
     await expect.poll(() => descriptions.evaluate((element: HTMLTrackElement) =>
       Array.from(element.track.cues ?? []).some(cue => cue.startTime === 16 && /cone/i.test((cue as VTTCue).text)),
     )).toBe(true)
+    await expect(page.getByRole('link', { name: 'Watch the Vortex introduction on YouTube' }))
+      .toHaveAttribute('href', 'https://www.youtube.com/watch?v=bvGYBIgc_H8')
+    await page.locator('#strength-and-handstand').getByRole('link', { name: 'How adults can work toward a handstand' }).click()
+    await expect(page).toHaveURL('/adult-gymnastics#adult-handstand-preparation')
+    await expect(page.locator('#adult-handstand-preparation').getByRole('heading')).toBeInViewport()
   })
 })
 

@@ -307,9 +307,21 @@ const verifyHtml = (
       `${label}: missing the English description track or linkable change-of-direction scene`)
     const next = html.match(/<nav\b[^>]*\baria-labelledby=["']training-film-next["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(next)
-    for (const href of [`${HUB_ORIGIN}/gymnastics`, `${HUB_ORIGIN}/fit-and-flip`, galleryUrl]) {
+    for (const href of [`${HUB_ORIGIN}/gymnastics`, `${HUB_ORIGIN}/fit-and-flip`, `${HUB_ORIGIN}/adult-gymnastics`, galleryUrl]) {
       assert(links.some(url => url.href === href), `${label}: missing the crawlable link to ${href}`)
     }
+    for (const [id, paths] of [
+      ['gymnastics-skills', ['/gymnastics#class-placement']],
+      ['strength-and-handstand', [`${YOUTH_ATHLETIC_GUIDE_PATH}#strength-training-readiness`, '/adult-gymnastics#adult-handstand-preparation']],
+      ['change-of-direction', [`${YOUTH_ATHLETIC_GUIDE_PATH}#speed-vs-agility`]],
+    ]) {
+      const scene = html.match(new RegExp(`<li\\b[^>]*\\sid=["']${id}["'][^>]*>[\\s\\S]*?<\\/li>`, 'i'))?.[0] ?? ''
+      const sceneLinks = anchorUrls(scene)
+      assert(paths.every(path => sceneLinks.some(url => url.href === `${HUB_ORIGIN}${path}`)),
+        `${label}: the ${id} scene must link to coaching or class guidance`)
+    }
+    assert(anchorUrls(html).some(url => url.href === 'https://www.youtube.com/watch?v=bvGYBIgc_H8'),
+      `${label}: missing the separate link to Vortex’s YouTube introduction`)
   } else {
     assert(rawVideoSources.length === 0, `${label}: raw HTML would load a video before the app can defer playback`)
   }
