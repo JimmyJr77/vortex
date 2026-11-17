@@ -20,6 +20,7 @@ type PublicProgram = {
   heading: string
   intro: string
   image: string
+  imageSrcSet?: string
   imageAlt: string
   imageWidth: number
   imageHeight: number
@@ -43,6 +44,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: '/gymnastics-hero.webp',
+    imageSrcSet: '/gymnastics-hero-768.webp 768w, /gymnastics-hero-1080.webp 1080w, /gymnastics-hero.webp 1600w',
     imageAlt: 'Young gymnasts learning together with a coach at Vortex',
     imageWidth: 1600,
     imageHeight: 1200,
@@ -169,6 +171,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     heading: 'Adult gymnastics and acrobatics in Bowie, MD',
     intro: 'Typhoons is Vortex’s fitness and acrobatics class for adults 18 and up. It combines strength, conditioning, and mobility with introductory acrobatics. Beginners and returning gymnasts are welcome.',
     image: '/gym-DSC02636-1600.webp',
+    imageSrcSet: '/gym-DSC02636-768.webp 768w, /gym-DSC02636-1080.webp 1080w, /gym-DSC02636-1600.webp 1600w',
     imageAlt: 'Vortex Athletics gymnastics training area in Bowie, Maryland',
     imageWidth: 1600,
     imageHeight: 1066,

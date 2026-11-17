@@ -6,6 +6,16 @@ import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicProg
 import PublicAdultSchedule from './PublicAdultSchedule'
 import './PublicProgramPage.css'
 
+const HERO_IMAGE_SIZES = [
+  '(max-width: 620px) calc(100vw - 44px)',
+  '(max-width: 760px) calc(100vw - 56px)',
+  '(max-width: 860px) calc(46.34vw - 27.32px)',
+  '(max-width: 1150px) calc(46.34vw - 35.12px)',
+  '(max-width: 1320px) calc(46.34vw - 54.63px)',
+  '(min-width: 1440px) 582px',
+  '557px',
+].join(', ')
+
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
   const program = PUBLIC_PROGRAMS[path]
   const { hash } = useLocation()
@@ -43,7 +53,16 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
             </div>
             {path === '/adult-gymnastics' && <PublicAdultSchedule />}
           </div>
-          <img className="np-program-hero-image" src={program.image} alt={program.imageAlt} width={program.imageWidth} height={program.imageHeight} fetchPriority="high" />
+          <img
+            className="np-program-hero-image"
+            src={program.image}
+            srcSet={program.imageSrcSet}
+            sizes={program.imageSrcSet ? HERO_IMAGE_SIZES : undefined}
+            alt={program.imageAlt}
+            width={program.imageWidth}
+            height={program.imageHeight}
+            fetchPriority="high"
+          />
         </div>
       </section>
 

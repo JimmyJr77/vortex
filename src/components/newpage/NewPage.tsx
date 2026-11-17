@@ -25,7 +25,7 @@ type Overlay = Program | 'finder' | 'inquiry' | 'video' | 'live' | 'trial' | nul
 const programs = {
   gymnastics: {
     name: 'Gymnastics', eyebrow: 'THE FOUNDATION. THE FINESSE. THE FLIGHT.',
-    image: '/gymnastics-hero.webp', alt: 'Young gymnasts learning together with a coach at Vortex',
+    image: '/gymnastics-card.webp', alt: 'Young gymnasts learning together with a coach at Vortex',
     summary: 'Real gymnastics. Real development. Build the technique, strength, and confidence to keep moving forward.',
     detail: 'A traditional gymnastics program with a complete approach to development. Athletes learn the foundations shared across gymnastics disciplines, with the strength, explosiveness, and body control to put those skills into practice.',
     points: ['Foundations across artistic, rhythmic, acrobatic, aerobic, and trampoline & tumbling gymnastics.', 'Progressive skill development supported by purposeful physical preparation.', 'Developmental and team pathways with the same commitment to growth. Only team athletes compete.'],

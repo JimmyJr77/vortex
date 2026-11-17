@@ -32,9 +32,12 @@ export default function AthleticDevelopmentGuide() {
           <img
             className="athletic-guide-image"
             src={ATHLETIC_DEVELOPMENT_GUIDE.image}
+            srcSet={ATHLETIC_DEVELOPMENT_GUIDE.imageSrcSet}
+            sizes="(max-width: 760px) 91vw, (max-width: 1200px) 42vw, 520px"
             alt={ATHLETIC_DEVELOPMENT_GUIDE.imageAlt}
             width={1536}
             height={1024}
+            fetchPriority="high"
           />
         </div>
       </header>

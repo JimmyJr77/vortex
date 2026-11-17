@@ -9,16 +9,21 @@ import { createServer } from 'node:net'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
+  BOWIE_YOUTH_SPORTS_GUIDE_PATH,
   DEFAULT_OG_IMAGE,
   HUB_PRERENDER_PATHS,
+  HUB_PROGRAM_PATHS,
   SITE_NAME,
   SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
+  YOUTH_ATHLETIC_GUIDE_PATH,
 } from './seo-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
+// These public pages use Inter for both headings and body text.
+const interOnlyContentPaths = new Set(['/', ...HUB_PROGRAM_PATHS, YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH])
 let previewPort = 0
 let previewOrigin = ''
 
@@ -223,6 +228,7 @@ const prerenderAppRoutes = async () => {
       // Hub routes (vortexathletics.com) render on the default host.
       ...HUB_PRERENDER_PATHS.map((routePath) => ({
         url: `${previewOrigin}${routePath}`,
+        omitDisplayFontPreload: interOnlyContentPaths.has(routePath),
         outFile:
           routePath === '/'
             ? join(distDir, 'index.html')
@@ -251,12 +257,15 @@ const prerenderAppRoutes = async () => {
           )
           // Static HTML must be independent of live catalogs, schedules and
           // account state. Keep the poster and defer every video URL to React.
-          const snapshot = await page.evaluate(() => {
+          const snapshot = await page.evaluate((omitDisplayFontPreload) => {
             const html = document.documentElement.cloneNode(true)
             html.querySelectorAll('[data-prerender-dynamic]').forEach((node) => node.remove())
             html.querySelectorAll('video[src], video source[src]').forEach((node) => node.removeAttribute('src'))
+            if (omitDisplayFontPreload) {
+              html.querySelector('link[rel="preload"][href="/fonts/oswald-latin-variable.woff2"]')?.remove()
+            }
             return { html: `<!doctype html>\n${html.outerHTML}`, title: document.title }
-          })
+          }, target.omitDisplayFontPreload)
           const html = dedupeHeadTags(snapshot.html, snapshot.title)
           snapshots.push({ outFile: target.outFile, html })
           lastError = null
