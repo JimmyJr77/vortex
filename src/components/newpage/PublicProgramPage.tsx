@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
-import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -160,6 +160,9 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
             <a className="np-program-plain-link" href={`tel:${TEAM_PHONE_E164}`} data-analytics-cta="call" data-analytics-section="program">
               Call {TEAM_PHONE} <ArrowUpRight size={16} aria-hidden="true" />
             </a>
+            <Link className="np-program-plain-link" to={INSIDE_THE_GYM_PATH} data-analytics-cta="see_inside_the_gym" data-analytics-section="program">
+              See inside the Bowie gym <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
           </div>
         </section>
 

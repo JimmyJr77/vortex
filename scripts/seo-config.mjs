@@ -53,7 +53,10 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
-  { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17', images: [searchPhotos.facility] },
+  { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17', images: [
+    searchPhotos.facility, searchPhotos.homepageGallery.springFloor.src,
+    searchPhotos.homepageGallery.trampoline.src, searchPhotos.homepageGallery.strengthEquipment.src,
+  ] },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },

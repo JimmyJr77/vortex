@@ -30,6 +30,26 @@ test.describe('Client-critical smoke flows', () => {
     await expect(startingClasses.getByRole('link', { name: /Ages 18 and up.*adult gymnastics/i })).toHaveAttribute('href', '/adult-gymnastics')
   })
 
+  test('mobile visitors can go from a program page to facility photos and back to a starting class', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/gymnastics')
+    const visit = page.getByRole('region', { name: 'Visit Vortex in Bowie' })
+    await visit.getByRole('link', { name: 'See inside the Bowie gym' }).click()
+    await expect(page).toHaveURL('/contact#inside-the-gym')
+    const gym = page.getByRole('region', { name: 'Inside the Bowie gym' })
+    await expect(gym.getByRole('heading', { level: 2 })).toBeInViewport()
+    await expect(gym.getByRole('img')).toHaveCount(3)
+    await expect(gym.getByRole('img', { name: /Padded trampoline/ })).toHaveAttribute('src', '/gym-DSC02700-1600.webp')
+    const directions = new URL(await page.getByRole('link', { name: 'Get directions to Vortex', exact: true }).getAttribute('href') ?? '')
+    expect(directions.origin + directions.pathname).toBe('https://www.google.com/maps/dir/')
+    expect(directions.searchParams.get('destination')).toBe('4961 Tesla Dr Suite E, Bowie, MD 20715')
+    const mobileFits = await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)
+    expect(mobileFits).toBe(true)
+    await gym.getByRole('link', { name: 'Find a youth gymnastics starting class' }).click()
+    await expect(page).toHaveURL('/gymnastics#choose-a-class')
+    await expect(page.getByRole('heading', { name: 'Find the right starting class' })).toBeInViewport()
+  })
+
   test('homepage previews and recommendations preserve the chosen enrollment program', async ({ page }) => {
     await page.route('**/api/public/classes-offered', (route) => route.fulfill({ json: { success: true, data: { programs: [
       { id: 4, displayName: 'Developmental Gymnastics', classes: [] },

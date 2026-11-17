@@ -1,7 +1,7 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
-import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
 import ParallaxGym from '../ParallaxGym'
 import PublicBrandImage from './PublicBrandImage'
@@ -338,6 +338,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
             <div className="np-visit-buttons">
               <button className="np-button" data-analytics-cta="program_finder" data-analytics-section="visit" onClick={() => setOverlay('finder')}>Find your program <ArrowUpRight size={18} /></button>
               <button className="np-button np-button-outline" onClick={() => openInquiry()}>Talk to our team <ArrowRight size={18} /></button>
+              <Link className="np-text-button" to={INSIDE_THE_GYM_PATH} data-analytics-cta="see_inside_the_gym" data-analytics-section="visit">See inside the Bowie gym <ArrowUpRight size={16} aria-hidden="true" /></Link>
             </div>
           </div>
         </section>

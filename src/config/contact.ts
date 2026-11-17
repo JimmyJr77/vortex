@@ -64,6 +64,9 @@ export const BUSINESS_FACILITY_PHOTO = {
   alt: 'Gymnastics equipment inside Vortex Athletics and Gymnastics in Bowie, Maryland',
 } as const
 
+export const INSIDE_THE_GYM_ID = 'inside-the-gym'
+export const INSIDE_THE_GYM_PATH = `/contact#${INSIDE_THE_GYM_ID}`
+
 /** Stable CID link for the verified public Google Business Profile. */
 export const GOOGLE_MAPS_URL =
   'https://www.google.com/maps?cid=15262285316302188709'

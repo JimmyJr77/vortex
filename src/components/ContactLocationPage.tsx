@@ -1,16 +1,81 @@
 import { Clock3, Mail, MapPin, Phone } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import {
   BUSINESS_FACILITY_PHOTO,
   BUSINESS_HOURS,
   BUSINESS_NAP,
   GOOGLE_DIRECTIONS_URL,
   GOOGLE_REVIEW_URL,
+  INSIDE_THE_GYM_ID,
+  INSIDE_THE_GYM_PATH,
   SERVICE_AREAS,
   TEAM_EMAIL,
   TEAM_PHONE,
   TEAM_PHONE_E164,
 } from '../config/contact'
+import searchPhotos from '../config/publicSearchPhotos.json'
+
+const { springFloor, trampoline, strengthEquipment } = searchPhotos.homepageGallery
+const trainingSpaces = [
+  {
+    photo: springFloor,
+    heading: 'Spring floor and tumbling track',
+    detail: 'Young gymnasts work on foundations such as rolls, cartwheels, and handstands in developmental classes.',
+    href: '/gymnastics#choose-a-class',
+    label: 'Find a youth gymnastics starting class',
+  },
+  {
+    photo: trampoline,
+    heading: 'Trampoline and padded training area',
+    detail: 'Fit & Flip coaches use trampolines and tumble tracks to teach body shapes and controlled landings.',
+    href: '/fit-and-flip#body-control',
+    label: 'See how Fit & Flip teaches body control',
+  },
+  {
+    photo: strengthEquipment,
+    heading: 'Strength training equipment',
+    detail: 'A coach can start with bodyweight movements and add resistance as an athlete gets comfortable repeating the exercise.',
+    href: '/fit-and-flip#strength',
+    label: 'Explore coached youth strength training',
+  },
+] as const
+
+function InsideTheGym() {
+  const { hash, key } = useLocation()
+  useEffect(() => {
+    if (hash !== `#${INSIDE_THE_GYM_ID}`) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(INSIDE_THE_GYM_ID)?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash, key])
+
+  return (
+    <section id={INSIDE_THE_GYM_ID} aria-labelledby="inside-the-gym-heading"
+      className="section-padding scroll-mt-[calc(var(--site-header-height,90px)_+_1rem)] bg-gray-50">
+      <div className="container-custom">
+        <h2 id="inside-the-gym-heading" className="text-3xl font-display font-bold md:text-4xl">Inside the Bowie gym</h2>
+        <p className="mt-4 max-w-2xl text-gray-700">Before your first visit, confirm your class time and complete any required waivers. The photos show the training spaces at our Tesla Drive location.</p>
+        <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {trainingSpaces.map(({ photo, heading, detail, href, label }) => (
+            <article key={photo.src} className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white">
+              <img {...photo} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
+              <div className="flex flex-1 flex-col p-5">
+                <h3 className="text-xl font-bold">{heading}</h3>
+                <p className="mb-4 mt-2 text-gray-700">{detail}</p>
+                <Link to={href} className="mt-auto font-semibold underline underline-offset-4 hover:text-vortex-red">{label}</Link>
+              </div>
+            </article>
+          ))}
+        </div>
+        <p className="mt-6 text-gray-700">Visiting for an adult class?{' '}
+          <Link to="/adult-gymnastics#class-format" className="font-semibold underline underline-offset-4 hover:text-vortex-red">See what to expect in Typhoons</Link>.
+        </p>
+      </div>
+    </section>
+  )
+}
 
 interface ContactLocationPageProps {
   onInquireClick: () => void
@@ -31,13 +96,13 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
           <Link className="underline underline-offset-4" to="/adult-gymnastics">adult gymnastics</Link>?
           {' '}Our team can help with class placement, trials, and enrollment.
         </p>
-        <button
-          type="button"
-          onClick={onInquireClick}
-          className="mt-8 rounded-xl bg-vortex-red px-8 py-4 text-lg font-bold text-white hover:bg-red-700"
-        >
-          Send an Inquiry
-        </button>
+        <div className="mt-8 flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+          <button type="button" onClick={onInquireClick} className="rounded-xl bg-vortex-red px-8 py-4 text-lg font-bold text-white hover:bg-red-700">
+            Send an Inquiry
+          </button>
+          <a className="py-2 font-semibold underline underline-offset-4" href={GOOGLE_DIRECTIONS_URL} target="_blank" rel="noreferrer" data-analytics-cta="get_directions" data-analytics-section="contact_intro">Get directions to Vortex</a>
+          <Link className="py-2 font-semibold underline underline-offset-4" to={INSIDE_THE_GYM_PATH}>See inside the gym</Link>
+        </div>
       </div>
     </section>
 
@@ -111,6 +176,7 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
         </div>
       </div>
     </section>
+    <InsideTheGym />
   </main>
 )
 

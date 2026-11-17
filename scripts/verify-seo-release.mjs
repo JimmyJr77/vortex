@@ -43,6 +43,10 @@ const programActions = new Map([
 ])
 const hasDropInProgramLink = (links, program) => links.some((url) => url.origin === HUB_ORIGIN &&
   url.pathname === '/drop-in' && url.searchParams.get('program') === program)
+const galleryUrl = `${HUB_ORIGIN}/contact#inside-the-gym`
+const isBowieDirections = (url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
+  url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
+  url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const consentQueryParam = 'vcid'
 const consentVariantPaths = [...HUB_PROGRAM_PATHS, '/read-board', '/contact', '/drop-in']
@@ -420,9 +424,10 @@ const verifyHtml = (
       `${label}: the homepage visit section must show the published address and hours`)
     assert(visitLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, '/read-board#schedule')),
       `${label}: the homepage visit section must link to the class schedule`)
-    assert(visitLinks.some((url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
-      url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM'),
+    assert(visitLinks.some(isBowieDirections),
       `${label}: the homepage visit section must link to directions for the verified gym`)
+    assert(visitLinks.some((url) => url.href === galleryUrl),
+      `${label}: the homepage visit section must link to the Bowie gym photos`)
     const pageLinks = anchorUrls(html)
     for (const path of ['/enroll', '/drop-in', '/store', '/contact']) {
       assert(pageLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
@@ -441,7 +446,20 @@ const verifyHtml = (
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing a crawlable program link to ${path} near the main heading`)
     }
-    if (pagePath === '/drop-in') {
+    if (pagePath === '/contact') {
+      assert(links.some(isBowieDirections) && links.some((url) => url.href === galleryUrl),
+        `${label}: the contact introduction must link to Maps and the facility photos`)
+      const gallery = html.match(/<section\b[^>]*\sid=["']inside-the-gym["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const galleryPhotos = tags(gallery, 'img')
+      assert(/<h2\b[^>]*>Inside the Bowie gym<\/h2>/i.test(gallery) && galleryPhotos.length === 3 &&
+        galleryPhotos.every((tag) => attribute(tag, 'alt') && attribute(tag, 'loading') === 'lazy'),
+        `${label}: the facility gallery must render three labelled, lazy-loaded photos`)
+      const galleryLinks = anchorUrls(gallery)
+      for (const path of ['/gymnastics#choose-a-class', '/fit-and-flip#body-control', '/fit-and-flip#strength', '/adult-gymnastics#class-format']) {
+        assert(galleryLinks.some((url) => url.href === `${HUB_ORIGIN}${path}`),
+          `${label}: missing facility gallery link to ${path}`)
+      }
+    } else {
       assert(hasDropInProgramLink(links, 'Adult Fitness & Acrobatics'), `${label}: missing a link to adult drop-in dates near the main heading`)
       assert(links.some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#class-format`),
         `${label}: missing the crawlable link to what adults can expect in their first class`)
@@ -471,6 +489,11 @@ const verifyHtml = (
       `${label}: the compact footer logo must load lazily`)
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
+    if (HUB_PROGRAM_PATHS.includes(pagePath)) {
+      const visit = mainHtml.match(/<section\b[^>]*\baria-labelledby=["']program-visit-heading["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(anchorUrls(visit).some((url) => url.href === galleryUrl),
+        `${label}: the program visit section must link to the Bowie gym photos`)
+    }
     if (pagePath === '/gymnastics') {
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me, preschool/.test(schedule),
@@ -837,11 +860,10 @@ const verifyHtml = (
       if (pagePath === '/contact') {
         assert(tags(html, 'img').some((tag) => `${HUB_ORIGIN}${attribute(tag, 'src')}` === location?.image && attribute(tag, 'alt')),
           `${label}: the facility photo in structured data must be visible on Contact`)
+        assert(ogImages[0] === location?.image, `${label}: the contact page preview must use the Bowie facility photo`)
       }
       if (['/contact', ...HUB_PROGRAM_PATHS].includes(pagePath)) {
-        assert(anchorUrls(html).some((url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
-          url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
-          url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'),
+        assert(anchorUrls(html).some(isBowieDirections),
         `${label}: expected directions to the verified Bowie listing`)
       }
     }
