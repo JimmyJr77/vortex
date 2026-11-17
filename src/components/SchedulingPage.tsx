@@ -10,7 +10,12 @@ import {
   fetchClassesOffered,
   type PublicProgramOffered,
 } from '../utils/publicClassesApi'
-import { getPublicBookingProgramName, getPublicBookingPrograms } from '../utils/publicBookingPrograms'
+import {
+  ADULT_BOOKING_HREF,
+  ADULT_BOOKING_PROGRAM,
+  getPublicBookingProgramName,
+  getPublicBookingPrograms,
+} from '../utils/publicBookingPrograms'
 import { getApiUrl } from '../utils/api'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
 import PublicClassesOfferedEnroll from './enroll/PublicClassesOfferedEnroll'
@@ -33,18 +38,41 @@ function normalizeFilterName(value: string): string {
     .replace(/[^a-z0-9]+/g, '')
 }
 
-function EnrollmentHero({ signup = false }: { signup?: boolean }) {
+const adultProgramName = normalizeFilterName(ADULT_BOOKING_PROGRAM)
+
+const enrollmentHeroCopy = {
+  browse: {
+    heading: 'Classes Offered',
+    intro: 'Explore gymnastics and Fit & Flip classes in Bowie, MD. Choose class times, review pricing, then enroll each athlete through your family account.',
+  },
+  signup: {
+    heading: 'Enroll',
+    intro: 'Choose an offering and time to complete your signup.',
+  },
+  adult: {
+    heading: 'Adult gymnastics classes',
+    intro: 'Find current Typhoons fitness and acrobatics classes for adults 18 and up in Bowie, MD.',
+  },
+}
+
+function EnrollmentHero({ mode = 'browse' }: { mode?: keyof typeof enrollmentHeroCopy }) {
+  const { heading, intro } = enrollmentHeroCopy[mode]
   return (
     <section className="np-enrollment-hero">
       <div className="np-enrollment-wrap">
         <p className="np-enrollment-eyebrow">Your next chapter starts here</p>
-        <h1>{signup ? 'Enroll' : 'Classes Offered'}</h1>
+        <h1>{heading}</h1>
         <p className="np-enrollment-intro">
-          {signup
-            ? 'Choose an offering and time to complete your signup.'
-            : 'Explore gymnastics and Fit & Flip classes in Bowie, MD. Choose class times, review pricing, then enroll each athlete through your family account.'}
+          {intro}
+          {mode === 'browse' && <>
+            {' '}For ages 18 and up,{' '}
+            <Link to={ADULT_BOOKING_HREF} className="font-semibold text-vortex-red underline underline-offset-4"
+              data-analytics-cta="browse_classes" data-analytics-section="adult_enrollment_entry">
+              see adult gymnastics class times
+            </Link>.
+          </>}
         </p>
-        {!signup && (
+        {mode === 'browse' && (
           <div className="np-enrollment-actions">
             <Link to="/signup/family" className="np-enrollment-button">
               Create a new family account <ArrowUpRight size={17} aria-hidden="true" />
@@ -90,7 +118,7 @@ const SchedulingPage = () => {
     urlFormId != null && (urlAuthToken || urlOfferingId || urlSlotGroupId || urlTimeSlotId),
   )
 
-  const [offeredPrograms, setOfferedPrograms] = useState<PublicProgramOffered[]>([])
+  const [catalogPrograms, setCatalogPrograms] = useState<PublicProgramOffered[]>([])
   const [selectedFormId, setSelectedFormId] = useState<number | null>(
     shouldOpenSignupDirectly ? urlFormId : null,
   )
@@ -100,7 +128,7 @@ const SchedulingPage = () => {
 
   useEffect(() => {
     fetchClassesOffered()
-      .then((response) => setOfferedPrograms(getPublicBookingPrograms(response.programs)))
+      .then((response) => setCatalogPrograms(response.programs))
       .catch((err) => setError(err instanceof Error ? err.message : 'Failed to load enroll options'))
       .finally(() => setLoading(false))
   }, [])
@@ -108,6 +136,16 @@ const SchedulingPage = () => {
   useEffect(() => {
     if (urlEmail) saveSchedulingMemberEmail(urlEmail)
   }, [urlEmail])
+
+  const offeredPrograms = useMemo(() => getPublicBookingPrograms(catalogPrograms), [catalogPrograms])
+  const wantsAdultClasses = urlProgramName !== null && normalizeFilterName(urlProgramName) === adultProgramName
+  const adultClasses = catalogPrograms
+    .find((program) => normalizeFilterName(program.displayName) === adultProgramName)
+    ?.classes.filter((classItem) => classItem.enrollVisible === true && classItem.formId != null) ?? []
+  const linkedAdultClass = urlFormId != null
+    ? adultClasses.find((classItem) => classItem.formId === urlFormId)
+    : wantsAdultClasses && adultClasses.length === 1 ? adultClasses[0] : undefined
+  const signupFormId = shouldOpenSignupDirectly ? selectedFormId : linkedAdultClass?.formId ?? null
 
   const initialProgramId = useMemo(() => {
     if (urlProgramsId != null && offeredPrograms.some((program) => program.id === urlProgramsId)) {
@@ -133,18 +171,25 @@ const SchedulingPage = () => {
     if (detail.email) saveSchedulingMemberEmail(detail.email)
   }, [])
 
-  if (selectedFormId != null) {
+  if (signupFormId != null) {
+    const backLabel = signupComplete ? 'Return to classes' : 'Back to classes'
     return (
       <div className="np-enrollment-page">
-        <EnrollmentHero signup />
+        <EnrollmentHero mode="signup" />
         <section className="np-enrollment-content">
           <div className="np-enrollment-wrap np-enrollment-signup space-y-6">
-            <button type="button" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }} className="np-enrollment-button np-enrollment-button-secondary">
-              <ArrowLeft className="w-4 h-4" /> {signupComplete ? 'Return to classes' : 'Back to classes'}
-            </button>
+            {linkedAdultClass ? (
+              <Link to={adultClasses.length > 1 ? ADULT_BOOKING_HREF : '/adult-gymnastics'} className="np-enrollment-button np-enrollment-button-secondary" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }}>
+                <ArrowLeft className="w-4 h-4" /> {backLabel}
+              </Link>
+            ) : (
+              <button type="button" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }} className="np-enrollment-button np-enrollment-button-secondary">
+                <ArrowLeft className="w-4 h-4" /> {backLabel}
+              </button>
+            )}
             <SchedulingSignupEmbed
-              key={`${selectedFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}:${urlEnrollmentStartDate ?? 'none'}`}
-              formId={selectedFormId}
+              key={`${signupFormId}:${urlOfferingId ?? 'none'}:${urlSlotGroupId ?? 'none'}:${urlTimeSlotId ?? 'none'}:${urlEnrollmentStartDate ?? 'none'}`}
+              formId={signupFormId}
               initialOfferingId={urlOfferingId}
               initialSlotGroupId={urlSlotGroupId}
               initialTimeSlotId={urlTimeSlotId}
@@ -154,6 +199,41 @@ const SchedulingPage = () => {
               onSignupComplete={handleSignupComplete}
             />
           </div>
+        </section>
+      </div>
+    )
+  }
+
+  if (wantsAdultClasses) {
+    return (
+      <div className="np-enrollment-page">
+        <EnrollmentHero mode="adult" />
+        <section className="np-enrollment-content" data-prerender-dynamic="">
+          {loading ? (
+            <div className="np-enrollment-state" role="status">
+              <Loader2 className="w-8 h-8 animate-spin text-vortex-red" aria-hidden="true" />
+              <p>Loading classes…</p>
+            </div>
+          ) : (
+            <div className="np-enrollment-wrap space-y-6">
+              {adultClasses.length ? (
+                <ul className="space-y-3" aria-label="Available adult classes">
+                  {adultClasses.map((classItem) => (
+                    <li key={classItem.id}>
+                      <Link to={`/enroll?form=${classItem.formId}`} className="np-enrollment-button">
+                        {classItem.displayName} <ArrowUpRight size={17} aria-hidden="true" />
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{error ? 'We couldn’t load the current adult schedule.' : 'There are no adult classes open for online enrollment right now.'}</p>
+              )}
+              <Link to="/contact" className="np-enrollment-button np-enrollment-button-secondary">
+                Contact us about adult classes <ArrowUpRight size={17} aria-hidden="true" />
+              </Link>
+            </div>
+          )}
         </section>
       </div>
     )
@@ -172,7 +252,7 @@ const SchedulingPage = () => {
           <div className="np-enrollment-wrap space-y-6">
             <EnrollmentOrderEditor onSaved={async () => {
               const response = await fetchClassesOffered()
-              setOfferedPrograms(getPublicBookingPrograms(response.programs))
+              setCatalogPrograms(response.programs)
             }} />
             <PublicClassesOfferedEnroll
               apiUrl={apiUrl}

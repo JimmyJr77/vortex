@@ -1,5 +1,8 @@
 import { buildCanonical, HUB_ORIGIN, type SeoMeta } from '../utils/seo'
+import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from './bowieYouthSportsGuide'
 import { BUSINESS_NAP, TEAM_EMAIL, TEAM_PHONE } from './contact'
+import { PUBLIC_PROGRAMS } from './publicPrograms'
 
 export interface HubRouteSeo {
   path: string
@@ -12,15 +15,19 @@ export interface HubRouteSeo {
 
 export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
-  title: 'Gymnastics & Athletic Development in Bowie, MD | Vortex',
+  title: 'Gymnastics & Youth Athletic Training in Bowie, MD | Vortex',
   description:
-    'Purposeful gymnastics and Fit & Flip athletic training in Bowie, MD. Build strength, explosiveness, and body control. Book a free trial class.',
+    'Find youth gymnastics, Fit & Flip athletic development, and adult gymnastics at Vortex in Bowie, MD. Compare programs and find your first class.',
   ogImage: `${HUB_ORIGIN}/vortex-athletics-og.jpg`,
   ogImageAlt: 'Vortex Athletics gymnastics and athletic development in Bowie, Maryland',
 }
 
 export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
+  ...Object.values(PUBLIC_PROGRAMS).map(({ path, title, description, image, imageAlt }) => ({
+    path, title, description,
+    ...(image ? { ogImage: new URL(image, HUB_ORIGIN).href, ogImageAlt: imageAlt } : {}),
+  })),
   {
     path: '/ninja',
     title: 'Kids Ninja Classes in Bowie, MD | Vortex',
@@ -32,7 +39,7 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     path: '/read-board',
     title: 'Class Schedules, Camps & Events in Bowie, MD | Vortex',
     description:
-      'Explore youth gymnastics and Fit & Flip classes, training schedules, camps, and events at Vortex Athletics in Bowie, MD.',
+      'Explore gymnastics and Fit & Flip classes, training schedules, camps, and events at Vortex Athletics in Bowie, MD.',
   },
   {
     path: '/enroll',
@@ -52,6 +59,9 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     description:
       `Visit Vortex Athletics at ${BUSINESS_NAP.streetAddress} in Bowie, MD. Call ${TEAM_PHONE} to ask about gymnastics, Fit & Flip, free trials, and enrollment.`,
   },
+  ...[ATHLETIC_DEVELOPMENT_GUIDE, BOWIE_YOUTH_SPORTS_GUIDE].map(({ path, title, description, image, imageAlt }) => ({
+    path, title, description, ogImage: `${HUB_ORIGIN}${image}`, ogImageAlt: imageAlt,
+  })),
   {
     path: '/support',
     title: 'Customer Support | Vortex Athletics',

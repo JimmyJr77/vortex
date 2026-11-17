@@ -1,7 +1,8 @@
 import { expect, test } from '@playwright/test'
 
-test('analytics admins can filter traffic and inspect Web Vitals and ordered funnels', async ({ page }) => {
+test('analytics admins can filter reports and check Google search visibility', async ({ page }) => {
   const reportRequests: URL[] = []
+  let topicRequests = 0
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
     localStorage.setItem('adminToken', 'analytics-test-token')
@@ -41,6 +42,38 @@ test('analytics admins can filter traffic and inspect Web Vitals and ordered fun
           vitals: [{ metric: 'LCP', device: 'mobile', p75: 2300, samples: 5 }], vitalPages: [],
         }
         break
+      case '/api/admin/analytics/seo':
+        return route.fulfill({ status: 502, json: { success: false, message: 'Cached SEO reports unavailable' } })
+      case '/api/admin/analytics/seo/topics': {
+        topicRequests += 1
+        const startDate = '2026-10-17'
+        const endDate = '2026-11-13'
+        const timeZone = 'America/Los_Angeles'
+        if (topicRequests === 1) {
+          data = { status: 'unconfigured', reason: 'missing_credentials', startDate, endDate, timeZone, topics: [] }
+        } else if (topicRequests === 6) {
+          data = { status: 'ok', scope: 'without_vortex', view: 'pages', startDate, endDate, timeZone, topics: [
+            { id: 'youth-athletics', label: 'Youth Athletics', status: 'reported', metrics: null, pages: [
+              { page: 'https://vortexathletics.com/fit-and-flip', metrics: { clicks: 3, impressions: 12, ctr: 0.25, position: 8 } },
+              { page: null, metrics: { clicks: 0, impressions: 5, ctr: 0, position: 15 } },
+            ] },
+          ] }
+        } else {
+          const filtered = topicRequests >= 4
+          data = {
+            status: 'partial', startDate, endDate, timeZone,
+            ...(filtered ? { scope: 'without_vortex' } : {}),
+            topics: [
+              { id: 'youth-athletics', label: 'Youth Athletics', status: 'reported', metrics: {
+                clicks: filtered ? 1 : 2, impressions: filtered ? 10 : 25, ctr: filtered ? 0.1 : 0.08, position: 7.2,
+              } },
+              { id: 'youth-gymnastics', label: 'Youth Gymnastics', status: 'no_data', metrics: null },
+              { id: 'adult-gymnastics', label: 'Adult Gymnastics', status: 'error', reason: 'provider_error', metrics: null },
+            ],
+          }
+        }
+        break
+      }
       case '/api/admin/analytics/funnel':
         data = { journeys: [{ name: 'Free trial', steps: [
           { name: 'Trial opened', count: 3, conversionFromPrevious: null },
@@ -71,4 +104,40 @@ test('analytics admins can filter traffic and inspect Web Vitals and ordered fun
   await expect(page.getByRole('cell', { name: '2,300 ms' })).toBeVisible()
   await page.getByRole('button', { name: 'Website Funnels' }).click()
   await expect(page.getByRole('row').filter({ hasText: 'Trial confirmed' })).toContainText('33.3%')
+  await page.getByRole('button', { name: 'Marketing & SEO' }).click()
+  const checkVisibility = page.getByRole('button', { name: 'Check search visibility' })
+  await expect(page.getByText('Cached SEO reports unavailable')).toBeVisible()
+  await expect(checkVisibility).toBeVisible()
+  expect(topicRequests).toBe(0)
+  await checkVisibility.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Connect an identity' })).toBeVisible()
+  await checkVisibility.click()
+  const table = page.getByRole('table', { name: 'Search visibility by topic' })
+  await expect(table.getByRole('row').filter({ hasText: 'Youth Athletics' })).toContainText('8%')
+  await expect(table.getByRole('row').filter({ hasText: 'Youth Gymnastics' })).toContainText('No data reported')
+  await expect(table.getByRole('row').filter({ hasText: 'Adult Gymnastics' })).toContainText('Query unavailable')
+  expect(topicRequests).toBe(2)
+
+  await page.getByLabel('Search queries').selectOption('without_vortex')
+  await expect(table).toHaveCount(0)
+  await checkVisibility.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Could not load the Search Console topic report.' })).toBeVisible()
+  await expect(table).toHaveCount(0)
+  await checkVisibility.click()
+  await expect(table.getByRole('row').filter({ hasText: 'Youth Athletics' })).toContainText('10%')
+  await expect(page.getByText(/Searches for program names such as Fit & Flip can still appear/)).toBeVisible()
+  expect(reportRequests.filter(url => url.pathname.endsWith('/seo/topics')).map(url => url.searchParams.get('scope')))
+    .toEqual([null, null, 'without_vortex', 'without_vortex'])
+
+  await page.getByLabel('Report type').selectOption('pages')
+  await expect(table).toHaveCount(0)
+  const pageTable = page.getByRole('table', { name: 'Top reported pages by topic' })
+  await checkVisibility.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Could not load the Search Console topic report.' })).toBeVisible()
+  await expect(pageTable).toHaveCount(0)
+  await checkVisibility.click()
+  await expect(pageTable.getByRole('row').filter({ hasText: 'https://vortexathletics.com/fit-and-flip' })).toContainText('25%')
+  await expect(pageTable.getByRole('cell', { name: 'Unlisted page' })).toBeVisible()
+  const pageRequests = reportRequests.filter(url => url.searchParams.get('view') === 'pages')
+  expect(pageRequests.map(url => url.searchParams.get('scope'))).toEqual(['without_vortex', 'without_vortex'])
 })
