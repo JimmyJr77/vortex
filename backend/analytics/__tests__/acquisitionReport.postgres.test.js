@@ -43,7 +43,7 @@ test('source reporting counts real facility records without inventing attributio
     CREATE TABLE stripe_pending_enrollment (id bigint PRIMARY KEY, family_billing_account_id bigint,
       stripe_checkout_session_id text, status text);
     CREATE TABLE billing_payment (id bigint PRIMARY KEY, family_billing_account_id bigint,
-      stripe_checkout_session_id text, external_status text, historical_only boolean, paid_at timestamptz);
+      stripe_checkout_session_id text, external_status text, paid_at timestamptz);
     CREATE TABLE billing_charge (id bigint PRIMARY KEY, family_billing_account_id bigint,
       source_type text, source_id text, stripe_checkout_session_id text);
     CREATE TABLE billing_payment_application (billing_payment_id bigint, billing_charge_id bigint,
@@ -78,9 +78,9 @@ test('source reporting counts real facility records without inventing attributio
     INSERT INTO stripe_pending_enrollment VALUES
       (1,1,'cs_enrollment','completed'), (2,2,'cs_foreign','completed'), (3,1,'cs_pending','processing');
     INSERT INTO billing_payment VALUES
-      (1,1,'cs_enrollment','settled',false,'${date}'), (2,1,'cs_drop_in','succeeded',false,'${date}'),
-      (3,1,'cs_unpaid','reconciliation_required',false,'${date}'), (4,2,'cs_foreign','settled',false,'${date}'),
-      (5,1,'cs_store_account','settled',false,'${date}');
+      (1,1,'cs_enrollment','settled','${date}'), (2,1,'cs_drop_in','succeeded','${date}'),
+      (3,1,'cs_unpaid','reconciliation_required','${date}'), (4,2,'cs_foreign','settled','${date}'),
+      (5,1,'cs_store_account','settled','${date}');
     INSERT INTO billing_charge VALUES
       (1,1,'scheduling_signup','1','cs_enrollment'), (2,1,'drop_in','2',null),
       (3,1,'drop_in','6',null), (4,2,'scheduling_signup','3','cs_foreign'), (5,1,'store_order','3',null);

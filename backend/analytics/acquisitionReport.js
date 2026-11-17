@@ -96,7 +96,7 @@ export async function getBusinessAcquisitionReport(pool, range, facilityId, { ca
       JOIN billing_payment_application app ON app.billing_charge_id = bc.id AND app.application_kind = 'application'
       JOIN billing_payment bp ON bp.id = app.billing_payment_id
         AND bp.family_billing_account_id = bc.family_billing_account_id
-        AND bp.external_status IN ('settled', 'succeeded') AND bp.historical_only IS NOT TRUE
+        AND bp.external_status IN ('settled', 'succeeded')
       WHERE d.benefit_type = 'paid'
       GROUP BY d.id, d.amount_cents
       HAVING MAX(bp.paid_at) BETWEEN $1 AND $2
@@ -111,7 +111,7 @@ export async function getBusinessAcquisitionReport(pool, range, facilityId, { ca
         AND app.application_kind = 'application'
       JOIN billing_charge bc ON bc.id = app.billing_charge_id
         AND bc.stripe_checkout_session_id = e.stripe_checkout_session_id AND bc.family_billing_account_id = a.id
-      WHERE bp.external_status IN ('settled', 'succeeded') AND bp.historical_only IS NOT TRUE
+      WHERE bp.external_status IN ('settled', 'succeeded')
         AND bp.paid_at BETWEEN $1 AND $2
       GROUP BY e.id
     ), store_card_payments AS (
@@ -133,7 +133,7 @@ export async function getBusinessAcquisitionReport(pool, range, facilityId, { ca
         AND app.application_kind = 'application'
       JOIN billing_payment bp ON bp.id = app.billing_payment_id
         AND bp.family_billing_account_id = o.family_billing_account_id
-        AND bp.external_status IN ('settled', 'succeeded') AND bp.historical_only IS NOT TRUE
+        AND bp.external_status IN ('settled', 'succeeded')
       WHERE o.facility_id = $3 AND o.status IN ('placed', 'fulfilled')
         AND o.payment_status = 'billed_to_account' AND o.total_cents > 0 AND o.created_at <= $2
       GROUP BY o.id
