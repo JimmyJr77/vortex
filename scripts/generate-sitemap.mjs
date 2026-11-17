@@ -4,23 +4,18 @@ import { fileURLToPath } from 'node:url'
 import {
   HUB_ORIGIN,
   HUB_SITEMAP_ENTRIES,
-  SEO_CONTENT_LASTMOD,
 } from './seo-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const publicDir = join(__dirname, '..', 'public')
 
-const urlEntry = (loc, priority, changefreq) => `  <url>
-    <loc>${loc}</loc>
-    <lastmod>${SEO_CONTENT_LASTMOD}</lastmod>
+const urlEntry = ({ path, priority, changefreq, lastmod }) => `  <url>
+    <loc>${HUB_ORIGIN}${path === '/' ? '' : path}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`
 
-const hubUrls = HUB_SITEMAP_ENTRIES.map((entry) => {
-  const path = entry.path === '/' ? '' : entry.path
-  return urlEntry(`${HUB_ORIGIN}${path}`, entry.priority, entry.changefreq)
-})
+const hubUrls = HUB_SITEMAP_ENTRIES.map(urlEntry)
 
 const wrapUrlset = (urls) => `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -8,7 +8,6 @@ import {
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
-  SEO_CONTENT_LASTMOD,
   SITE_NAME,
   SPA_ONLY_PATHS,
   SPA_SHELL_PATH,
@@ -144,8 +143,25 @@ const extractUrls = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match)
 const extractSitemapRows = (xml) =>
   [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((match) => ({
     loc: match[1].match(/<loc>(.*?)<\/loc>/)?.[1] ?? '',
-    lastmod: match[1].match(/<lastmod>(.*?)<\/lastmod>/)?.[1] ?? '',
+    lastmod: match[1].match(/<lastmod>(.*?)<\/lastmod>/)?.[1],
+    lastmodCount: tags(match[1], 'lastmod').length,
   }))
+
+function verifySitemapLastmod(label, xml, { origin, entries }) {
+  const rows = new Map(extractSitemapRows(xml).map((row) => [row.loc, row]))
+  for (const { path, lastmod } of entries) {
+    const url = canonicalFor(origin, path)
+    const row = rows.get(url)
+    if (lastmod === undefined) {
+      assert(row?.lastmodCount === 0, `${label}: ${url} should omit lastmod`)
+    } else {
+      const date = new Date(`${lastmod}T00:00:00Z`)
+      assert(/^\d{4}-\d{2}-\d{2}$/.test(lastmod) && Number.isFinite(date.getTime()) &&
+        date.toISOString().slice(0, 10) === lastmod, `${label}: invalid configured lastmod for ${url}`)
+      assert(row?.lastmodCount === 1 && row.lastmod === lastmod, `${label}: ${url} must have one lastmod of ${lastmod}`)
+    }
+  }
+}
 
 const expectedSets = [
   {
@@ -277,15 +293,35 @@ const verifyHtml = (
 
   const pagePath = new URL(canonical).pathname
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
-  if (shouldIndex && [
+  const usesLegacyHeader = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service'].includes(pagePath)
+  if (shouldIndex && (usesLegacyHeader || [
     '/', ...HUB_PROGRAM_PATHS, '/read-board', '/enroll', '/drop-in',
     YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH,
-  ].includes(pagePath)) {
+  ].includes(pagePath))) {
     const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(navigation)
-    for (const path of [...HUB_PROGRAM_PATHS, BOWIE_YOUTH_SPORTS_GUIDE_PATH, '/#programs']) {
+    const expectedPaths = [...HUB_PROGRAM_PATHS, BOWIE_YOUTH_SPORTS_GUIDE_PATH]
+    if (!usesLegacyHeader) expectedPaths.push('/#programs')
+    for (const path of expectedPaths) {
       assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
         `${label}: expected one crawlable main navigation link to ${path}`)
+    }
+    if (usesLegacyHeader) {
+      const footer = html.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/i)?.[0] ?? ''
+      const footerLinks = anchorUrls(footer)
+      for (const path of HUB_PROGRAM_PATHS) {
+        assert(footerLinks.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
+          `${label}: expected one crawlable footer link to ${path}`)
+      }
+
+      const header = html.match(/<header\b[^>]*>[\s\S]*?<\/header>/i)?.[0] ?? ''
+      const chromeLinks = [...anchorUrls(header), ...footerLinks]
+      assert(!chromeLinks.some((url) => STUB_SEO_ENTRIES.some(({ host }) => url.hostname.replace(/^www\./, '') === host)),
+        `${label}: header or footer links to a placeholder sport domain`)
+      for (const path of ['/#gymnastics', '/#fit-flip']) {
+        assert(!chromeLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+          `${label}: header or footer links to superseded program entry ${path}`)
+      }
     }
   }
   if (pagePath === '/' && shouldIndex) {
@@ -468,16 +504,12 @@ const verifyHtml = (
 for (const set of expectedSets) {
   const xml = readFileSync(join(root, set.sitemapPath), 'utf8')
   const actualUrls = extractUrls(xml)
-  const rows = extractSitemapRows(xml)
   const expectedUrls = set.entries.map(({ path }) => canonicalFor(set.origin, path))
 
   assert(actualUrls.length === expectedUrls.length, `${set.label} sitemap: found ${actualUrls.length}, expected ${expectedUrls.length}`)
   assert(new Set(actualUrls).size === actualUrls.length, `${set.label} sitemap: duplicate URLs found`)
   assert(expectedUrls.every((url) => actualUrls.includes(url)), `${set.label} sitemap: URL set differs from SEO configuration`)
-  assert(
-    rows.every((row) => row.lastmod === SEO_CONTENT_LASTMOD),
-    `${set.label} sitemap: every lastmod must be ${SEO_CONTENT_LASTMOD}`,
-  )
+  verifySitemapLastmod(`${set.label} sitemap`, xml, set)
   for (const url of actualUrls) {
     try {
       assert(new URL(url).origin === set.origin, `${set.label} sitemap: cross-host URL ${url}`)
@@ -526,11 +558,13 @@ for (const set of expectedSets) {
       `${set.label} live sitemap resolved to ${sitemapResponse.url}, expected ${set.remoteSitemap}`,
     )
     if (sitemapResponse.ok) {
-      const remoteUrls = extractUrls(await sitemapResponse.text())
+      const remoteXml = await sitemapResponse.text()
+      const remoteUrls = extractUrls(remoteXml)
       assert(
         remoteUrls.length === expectedUrls.length && expectedUrls.every((url) => remoteUrls.includes(url)),
         `${set.label} live sitemap does not match the release sitemap`,
       )
+      verifySitemapLastmod(`${set.label} live sitemap`, remoteXml, set)
     }
 
     const robotsResponse = await fetch(set.remoteRobots, { redirect: 'follow' })

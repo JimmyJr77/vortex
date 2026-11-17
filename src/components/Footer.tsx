@@ -11,7 +11,6 @@ import {
   TEAM_PHONE_E164,
 } from '../config/contact'
 import { getHubSiteUrl } from '../utils/crossDomainConsent'
-import { getGymnasticsSiteUrl } from '../utils/gymnasticsSite'
 import {
   NINJA_HOLD_TITLE,
   NINJA_PROGRAM_ON_HOLD,
@@ -28,9 +27,10 @@ const Footer = ({ onLoginClick }: FooterProps) => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  // Public program links return to the unified landing page.
   const quickLinks: { name: string; href: string; onHold?: boolean }[] = [
-    { name: 'Gymnastics', href: getGymnasticsSiteUrl() },
+    { name: 'Youth Gymnastics', href: getHubSiteUrl('/gymnastics') },
+    { name: 'Fit & Flip', href: getHubSiteUrl('/fit-and-flip') },
+    { name: 'Adult Gymnastics', href: getHubSiteUrl('/adult-gymnastics') },
     {
       name: 'Kids Ninja Classes',
       href: getHubSiteUrl('/ninja'),
@@ -40,7 +40,6 @@ const Footer = ({ onLoginClick }: FooterProps) => {
       name: 'The Triad of Athleticism',
       href: getHubSiteUrl('/#triad'),
     },
-    { name: 'Fit & Flip', href: getHubSiteUrl('/#fit-flip') },
     { name: 'Classes & Events', href: getHubSiteUrl('/read-board') },
     { name: 'Drop-In Classes', href: getHubSiteUrl('/drop-in') },
     { name: 'Store', href: getHubSiteUrl('/store') },

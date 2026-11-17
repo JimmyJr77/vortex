@@ -71,9 +71,9 @@ HTTP response header. Crawlers must fetch a URL to see its `noindex`
 directive, so robots.txt allows crawling of these and other noindex pages.
 
 `scripts/seo-config.mjs` owns the sitemap and prerender route inventories.
-`SEO_CONTENT_LASTMOD` changes only when indexable content or search metadata
-meaningfully changes; do not rewrite `<lastmod>` to the build date on every
-deployment.
+Set a route's `lastmod` to its most recent substantive content or search
+metadata change. Leave it out when the date is unknown. The build preserves
+each configured date across deployments.
 
 ## Metadata, content, and structured data
 
