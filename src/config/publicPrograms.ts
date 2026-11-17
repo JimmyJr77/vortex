@@ -1,5 +1,6 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
+import { BUSINESS_FACILITY_PHOTO } from './contact'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../utils/publicBookingPrograms'
 
@@ -17,6 +18,7 @@ type ProgramAction = { href: string; label: string; analyticsKey: string }
 
 type PublicProgram = {
   name: string
+  serviceType: string
   path: PublicProgramPath
   title: string
   description: string
@@ -40,6 +42,7 @@ const FREE_TRIAL_ACTION = { href: '/#free-trial', label: 'Try a free class', ana
 export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   '/gymnastics': {
     name: 'Youth Gymnastics',
+    serviceType: 'Youth gymnastics classes',
     path: '/gymnastics',
     title: 'Youth Gymnastics Classes in Bowie, MD | Vortex',
     description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Choose a starting class, see what to wear, and book a free trial.',
@@ -115,6 +118,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   },
   '/fit-and-flip': {
     name: 'Fit & Flip Youth Athletic Training',
+    serviceType: 'Youth fitness and sports performance training',
     path: '/fit-and-flip',
     title: 'Youth Fitness & Sports Performance Training in Bowie, MD | Vortex',
     description: 'Fit & Flip offers coached youth fitness, strength training, and tumbling in Bowie, MD. Find a Cyclones trial, drop-in, or recurring class for ages 8–15.',
@@ -183,16 +187,17 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   },
   '/adult-gymnastics': {
     name: 'Adult Gymnastics and Acrobatics',
+    serviceType: 'Adult gymnastics and acrobatics classes',
     path: '/adult-gymnastics',
     title: 'Adult Gymnastics & Acrobatics in Bowie, MD | Vortex',
     description: 'Try Typhoons adult gymnastics and acrobatics in Bowie, MD. Beginners and returning gymnasts ages 18 and up can book a drop-in or enroll in recurring classes.',
     heading: 'Adult gymnastics and acrobatics in Bowie, MD',
     intro: 'Typhoons is Vortex’s fitness and acrobatics class for adults 18 and up. It combines strength, conditioning, and mobility with introductory acrobatics. Beginners and returning gymnasts are welcome.',
-    image: '/gym-DSC02636-1600.webp',
-    imageSrcSet: '/gym-DSC02636-768.webp 768w, /gym-DSC02636-1080.webp 1080w, /gym-DSC02636-1600.webp 1600w',
-    imageAlt: 'Vortex Athletics gymnastics training area in Bowie, Maryland',
-    imageWidth: 1600,
-    imageHeight: 1066,
+    image: BUSINESS_FACILITY_PHOTO.src,
+    imageSrcSet: BUSINESS_FACILITY_PHOTO.srcSet,
+    imageAlt: BUSINESS_FACILITY_PHOTO.alt,
+    imageWidth: BUSINESS_FACILITY_PHOTO.width,
+    imageHeight: BUSINESS_FACILITY_PHOTO.height,
     primaryAction: { href: ADULT_BOOKING_HREF, label: 'See recurring class times', analyticsKey: 'browse_classes' },
     secondaryAction: { href: ADULT_DROP_IN_HREF, label: 'See Typhoons drop-in dates', analyticsKey: 'browse_drop_ins' },
     sections: [

@@ -1,9 +1,9 @@
 import {
+  BUSINESS_FACILITY_PHOTO,
   BUSINESS_GEO,
   BUSINESS_HOURS,
   BUSINESS_NAP,
   GOOGLE_MAPS_URL,
-  SERVICE_AREAS,
   SOCIAL_PROFILES,
   TEAM_EMAIL,
 } from '../config/contact'
@@ -18,7 +18,7 @@ import { YOUTH_TRAINING_FAQS } from '../config/youthTrainingFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
 import { ENROLL_PATH } from '../config/enrollSites'
 import { PUBLIC_PROGRAMS } from '../config/publicPrograms'
-import { buildCanonical, DEFAULT_OG_IMAGE, HUB_ORIGIN, SITE_NAME } from './seo'
+import { buildCanonical, HUB_ORIGIN, SITE_NAME } from './seo'
 
 /** Any JSON-LD object (loosely typed; serialized into a <script> tag). */
 export type JsonLd = Record<string, unknown>
@@ -26,7 +26,17 @@ export type JsonLd = Record<string, unknown>
 /** Root URL for an origin, matching the canonical/sitemap form (no trailing slash). */
 const rootUrl = (origin: string) => buildCanonical(origin, '/')
 
-const phoneE164 = '+1-443-422-4794'
+const locationId = `${HUB_ORIGIN}/#location`
+const locationUrl = buildCanonical(HUB_ORIGIN, '/contact')
+const localAreaServed = `${BUSINESS_NAP.addressLocality}, ${BUSINESS_NAP.addressRegion}`
+
+const DROP_IN_SERVICE = {
+  path: '/drop-in',
+  name: 'Single-Day Drop-In Youth Classes',
+  serviceType: 'Single-day gymnastics and youth fitness classes',
+  description:
+    'Single-day gymnastics, fitness, and youth athletic training classes in Bowie, MD without a monthly enrollment.',
+} as const
 
 const postalAddress = () => ({
   '@type': 'PostalAddress',
@@ -48,16 +58,16 @@ export const organizationSchema = (): JsonLd => ({
   logo: `${HUB_ORIGIN}/red_vortex.png`,
   address: postalAddress(),
   email: TEAM_EMAIL,
-  telephone: phoneE164,
+  telephone: BUSINESS_NAP.phone,
   contactPoint: {
     '@type': 'ContactPoint',
-    telephone: phoneE164,
+    telephone: BUSINESS_NAP.phone,
     email: TEAM_EMAIL,
     contactType: 'customer service',
     areaServed: 'US-MD',
     availableLanguage: 'English',
   },
-  location: { '@id': `${HUB_ORIGIN}/#location` },
+  location: { '@id': locationId },
   sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL],
 })
 
@@ -70,42 +80,40 @@ export const webSiteSchema = (origin: string): JsonLd => ({
   publisher: { '@id': `${HUB_ORIGIN}/#organization` },
 })
 
+type ServiceDetails = { name: string; serviceType?: string; url: string }
+
+const serviceIdentity = ({ name, serviceType, url }: ServiceDetails) => ({
+  '@type': 'Service',
+  '@id': `${url}#service`,
+  name,
+  serviceType: serviceType ?? name,
+  url,
+  provider: { '@id': locationId },
+})
+
 const localServiceCatalog = () => ({
   '@type': 'OfferCatalog',
   name: 'Athletics and gymnastics programs',
-  itemListElement: [
-    'Youth Sports Performance Training',
-    'Gymnastics Classes',
-    'Adult Gymnastics',
-    'Beginner Gymnastics',
-    'Artistic Gymnastics',
-    'Rhythmic Gymnastics',
-    'Acrobatic Gymnastics',
-    'Trampoline and Tumbling',
-    'Fit & Flip Athletic Training',
-    'Homeschool Gymnastics and PE',
-    'Drop-In Youth Classes',
-  ].map((name) => ({
+  itemListElement: [...Object.values(PUBLIC_PROGRAMS), DROP_IN_SERVICE].map(({ name, path, serviceType }) => ({
     '@type': 'Offer',
-    itemOffered: { '@type': 'Service', name },
+    itemOffered: serviceIdentity({ name, serviceType, url: buildCanonical(HUB_ORIGIN, path) }),
   })),
 })
 
 /** One stable local entity for the unified site, matching the Google profile. */
-export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
+const sportsActivityLocationSchema = ({ includeCatalog = false } = {}): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'SportsActivityLocation',
-  '@id': `${HUB_ORIGIN}/#location`,
+  '@id': locationId,
   name: BUSINESS_NAP.name,
   alternateName: [SITE_NAME, 'Vortex Gymnastics'],
-  url: rootUrl(HUB_ORIGIN),
-  mainEntityOfPage: rootUrl(pageOrigin),
+  url: locationUrl,
+  mainEntityOfPage: locationUrl,
   description:
     'Youth and adult gymnastics plus Fit & Flip athletic development at Vortex Athletics and Gymnastics in Bowie, Maryland.',
-  image: DEFAULT_OG_IMAGE,
-  telephone: phoneE164,
+  image: `${HUB_ORIGIN}${BUSINESS_FACILITY_PHOTO.src}`,
+  telephone: BUSINESS_NAP.phone,
   email: TEAM_EMAIL,
-  priceRange: '$$',
   address: postalAddress(),
   geo: {
     '@type': 'GeoCoordinates',
@@ -119,8 +127,7 @@ export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
     opens: slot.opens,
     closes: slot.closes,
   })),
-  areaServed: SERVICE_AREAS.map((name) => ({ '@type': 'City', name })),
-  sport: ['Gymnastics', 'Youth sports', 'Strength and conditioning', 'Tumbling'],
+  areaServed: localAreaServed,
   knowsAbout: [
     'Youth athletic development',
     'Sports performance training',
@@ -132,7 +139,7 @@ export const sportsActivityLocationSchema = (pageOrigin: string): JsonLd => ({
     'Trampoline and tumbling',
   ],
   parentOrganization: { '@id': `${HUB_ORIGIN}/#organization` },
-  hasOfferCatalog: localServiceCatalog(),
+  ...(includeCatalog ? { hasOfferCatalog: localServiceCatalog() } : {}),
   sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL],
   potentialAction: {
     '@type': 'ReserveAction',
@@ -169,25 +176,21 @@ export const courseSchema = (params: {
   courseMode: 'onsite',
   provider: {
     '@type': 'SportsActivityLocation',
-    '@id': `${HUB_ORIGIN}/#location`,
+    '@id': locationId,
     name: BUSINESS_NAP.name,
-    url: rootUrl(HUB_ORIGIN),
+    url: locationUrl,
   },
 })
 
-export const serviceSchema = (params: {
-  name: string
-  description: string
-  url: string
-}): JsonLd => ({
+const serviceSchema = (params: ServiceDetails & { description: string }): JsonLd => ({
   '@context': 'https://schema.org',
-  '@type': 'Service',
-  serviceType: params.name,
-  name: params.name,
+  ...serviceIdentity(params),
   description: params.description,
-  url: params.url,
-  areaServed: SERVICE_AREAS.map((name) => ({ '@type': 'City', name })),
-  provider: { '@id': `${HUB_ORIGIN}/#location` },
+  areaServed: localAreaServed,
+  availableChannel: {
+    '@type': 'ServiceChannel',
+    serviceLocation: { '@id': locationId },
+  },
 })
 
 export const eventSchema = (params: {
@@ -210,7 +213,7 @@ export const eventSchema = (params: {
   url: params.url,
   location: {
     '@type': 'Place',
-    '@id': `${HUB_ORIGIN}/#location`,
+    '@id': locationId,
     name: BUSINESS_NAP.name,
     address: postalAddress(),
   },
@@ -242,7 +245,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   const schema: JsonLd[] = [organizationSchema(), webSiteSchema(HUB_ORIGIN)]
 
   if (pathname === '/') {
-    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+    schema.push(sportsActivityLocationSchema({ includeCatalog: true }))
     schema.push(faqPageSchema(HOME_FAQS))
     return schema
   }
@@ -252,9 +255,9 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   if (program) {
     return [
       ...schema,
-      sportsActivityLocationSchema(HUB_ORIGIN),
+      sportsActivityLocationSchema(),
       breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, program.name, pathname)]),
-      serviceSchema({ name: program.name, description: program.description, url }),
+      serviceSchema({ ...program, url }),
       faqPageSchema(program.faqs),
     ]
   }
@@ -294,7 +297,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     )
   }
   if (pathname === '/vortex-athletics') {
-    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(YOUTH_TRAINING_FAQS))
     schema.push(
       serviceSchema({
@@ -316,19 +319,12 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     )
   }
   if (pathname === '/drop-in') {
-    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(DROP_IN_FAQS))
-    schema.push(
-      serviceSchema({
-        name: 'Single-Day Drop-In Youth Classes',
-        description:
-          'Single-day gymnastics, fitness, and youth athletic training classes in Bowie, MD without a monthly enrollment.',
-        url,
-      }),
-    )
+    schema.push(serviceSchema({ ...DROP_IN_SERVICE, url }))
   }
   if (pathname === '/contact') {
-    schema.push(sportsActivityLocationSchema(HUB_ORIGIN))
+    schema.push(sportsActivityLocationSchema())
   }
   const guide = [ATHLETIC_DEVELOPMENT_GUIDE, BOWIE_YOUTH_SPORTS_GUIDE].find(({ path }) => path === pathname)
   if (guide) {
@@ -356,7 +352,7 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
   const schema: JsonLd[] = [organizationSchema(), webSiteSchema(origin)]
 
   if (pathname === '/' || pathname === '/gymnastics') {
-    schema.push(sportsActivityLocationSchema(origin))
+    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(GYMNASTICS_FAQS))
     if (pathname === '/gymnastics') {
       schema.push(
@@ -378,7 +374,7 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
         crumb(origin, 'Gymnastics Drop-In Classes', pathname),
       ]),
     )
-    schema.push(sportsActivityLocationSchema(origin))
+    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(DROP_IN_FAQS))
     schema.push(
       courseSchema({
@@ -473,11 +469,11 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
     )
     if (pathname === '/beginner-gymnastics') {
       schema.push(faqPageSchema(BEGINNER_GYMNASTICS_FAQS))
-      schema.push(sportsActivityLocationSchema(origin))
+      schema.push(sportsActivityLocationSchema())
     }
     if (pathname === '/homeschool-gymnastics') {
       schema.push(faqPageSchema(HOMESCHOOL_GYMNASTICS_FAQS))
-      schema.push(sportsActivityLocationSchema(origin))
+      schema.push(sportsActivityLocationSchema())
     }
   }
 

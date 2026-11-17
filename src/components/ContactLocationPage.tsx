@@ -1,9 +1,10 @@
 import { Clock3, Mail, MapPin, Phone } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import {
+  BUSINESS_FACILITY_PHOTO,
   BUSINESS_HOURS,
   BUSINESS_NAP,
-  GOOGLE_MAPS_URL,
+  GOOGLE_DIRECTIONS_URL,
   GOOGLE_REVIEW_URL,
   SERVICE_AREAS,
   TEAM_EMAIL,
@@ -52,10 +53,11 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
           <h2 className="mt-4 text-xl font-bold text-black">Email Our Team</h2>
           <p className="mt-2 break-words text-gray-700">{TEAM_EMAIL}</p>
         </a>
-        <a className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-vortex-red" href={GOOGLE_MAPS_URL} target="_blank" rel="noreferrer">
+        <a className="rounded-2xl border border-gray-200 bg-gray-50 p-6 hover:border-vortex-red" href={GOOGLE_DIRECTIONS_URL} target="_blank" rel="noreferrer">
           <MapPin className="h-7 w-7 text-vortex-red" aria-hidden="true" />
           <h2 className="mt-4 text-xl font-bold text-black">Get Directions</h2>
           <address className="mt-2 not-italic text-gray-700">
+            <strong className="font-semibold">{BUSINESS_NAP.name}</strong><br />
             {BUSINESS_NAP.streetAddress}<br />
             {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}
           </address>
@@ -90,6 +92,10 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
             Contact us before visiting if you need help choosing an age group, assessing a skill
             level, confirming current availability, or planning a first class.
           </p>
+          <img {...BUSINESS_FACILITY_PHOTO}
+            sizes="(min-width: 1024px) 560px, calc(100vw - 48px)"
+            className="mt-6 h-auto w-full rounded-2xl" loading="lazy" decoding="async"
+          />
         </div>
         <div className="rounded-3xl bg-white/10 p-8">
           <h2 className="text-2xl font-bold">What to include in your inquiry</h2>

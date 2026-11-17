@@ -54,13 +54,29 @@ export const BUSINESS_GEO = {
   longitude: -76.7076355,
 } as const
 
+export const BUSINESS_FACILITY_PHOTO = {
+  src: '/gym-DSC02636-1600.webp',
+  srcSet: '/gym-DSC02636-768.webp 768w, /gym-DSC02636-1080.webp 1080w, /gym-DSC02636-1600.webp 1600w',
+  width: 1600,
+  height: 1066,
+  alt: 'Gymnastics equipment inside Vortex Athletics and Gymnastics in Bowie, Maryland',
+} as const
+
 /** Stable CID link for the verified public Google Business Profile. */
 export const GOOGLE_MAPS_URL =
   'https://www.google.com/maps?cid=15262285316302188709'
 
+const googlePlaceId = 'ChIJZ4XjEwDtt4kRpTDa0qGHztM'
+
+export const GOOGLE_DIRECTIONS_URL = `https://www.google.com/maps/dir/?${new URLSearchParams({
+  api: '1',
+  destination: `${BUSINESS_NAP.streetAddress}, ${BUSINESS_NAP.addressLocality}, ${BUSINESS_NAP.addressRegion} ${BUSINESS_NAP.postalCode}`,
+  destination_place_id: googlePlaceId,
+})}`
+
 /** Review form for the same verified Google Business Profile. */
 export const GOOGLE_REVIEW_URL =
-  'https://search.google.com/local/writereview?placeid=ChIJZ4XjEwDtt4kRpTDa0qGHztM'
+  `https://search.google.com/local/writereview?placeid=${googlePlaceId}`
 
 /**
  * Hours of operation. `days` use schema.org DayOfWeek names; times are 24h.

@@ -31,6 +31,7 @@ const programActions = new Map([
 ])
 const hasDropInProgramLink = (links, program) => links.some((url) => url.origin === HUB_ORIGIN &&
   url.pathname === '/drop-in' && url.searchParams.get('program') === program)
+const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -537,17 +538,19 @@ const verifyHtml = (
         `${label}: Article dates must match the visible dates and sitemap update date`)
     }
 
-    if (
-      normalizedUrl(canonical) === normalizedUrl(HUB_ORIGIN)
-    ) {
+    if (['/', '/contact', ...publicServicePaths].includes(pagePath)) {
       const location = parsed.find((item) => item?.['@type'] === 'SportsActivityLocation')
-      assert(location, `${label}: SportsActivityLocation JSON-LD is missing`)
+      const locationId = `${HUB_ORIGIN}/#location`
+      const locationUrl = `${HUB_ORIGIN}/contact`
+      const organization = parsed.find((item) => item?.['@type'] === 'Organization')
+      assert(location?.['@id'] === locationId && location.url === locationUrl && location.mainEntityOfPage === locationUrl &&
+        organization?.location?.['@id'] === locationId, `${label}: SportsActivityLocation must identify the shared Bowie location`)
       assert(
         location?.name === 'Vortex Athletics and Gymnastics',
         `${label}: local business name does not match the Google Business Profile`,
       )
       assert(
-        location?.telephone === '+1-443-422-4794',
+        location?.telephone === '+14434224794' && organization?.telephone === location.telephone,
         `${label}: local business telephone is incorrect`,
       )
       assert(
@@ -566,6 +569,34 @@ const verifyHtml = (
         location?.hasMap === 'https://www.google.com/maps?cid=15262285316302188709',
         `${label}: local business map entity is incorrect`,
       )
+      assert(location?.areaServed === 'Bowie, MD', `${label}: the facility must describe where classes are held`)
+      if (pagePath === '/') {
+        const items = location?.hasOfferCatalog?.itemListElement ?? []
+        assert(location?.hasOfferCatalog?.['@type'] === 'OfferCatalog' && items.length === publicServicePaths.length,
+          `${label}: the catalog must list the public Vortex services`)
+        for (const path of publicServicePaths) {
+          const url = `${HUB_ORIGIN}${path}`
+          assert(items.some(({ itemOffered }) => itemOffered?.url === url && itemOffered['@id'] === `${url}#service` &&
+            itemOffered.provider?.['@id'] === locationId), `${label}: the catalog must link ${path} to the Bowie facility`)
+        }
+      }
+      if (publicServicePaths.includes(pagePath)) {
+        const service = parsed.find((item) => item?.['@type'] === 'Service')
+        assert(service?.url === canonical && service['@id'] === `${canonical}#service`,
+          `${label}: Service identity must match the canonical page`)
+        assert(service?.provider?.['@id'] === locationId && service.availableChannel?.serviceLocation?.['@id'] === locationId &&
+          service.areaServed === location?.areaServed, `${label}: Service must point to the Bowie facility`)
+      }
+      if (pagePath === '/contact') {
+        assert(tags(html, 'img').some((tag) => `${HUB_ORIGIN}${attribute(tag, 'src')}` === location?.image && attribute(tag, 'alt')),
+          `${label}: the facility photo in structured data must be visible on Contact`)
+      }
+      if (['/contact', ...HUB_PROGRAM_PATHS].includes(pagePath)) {
+        assert(anchorUrls(html).some((url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
+          url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
+          url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'),
+        `${label}: expected directions to the verified Bowie listing`)
+      }
     }
   }
 }
