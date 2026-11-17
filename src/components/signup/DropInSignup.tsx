@@ -6,6 +6,7 @@ import FamilySignupWizard from './FamilySignupWizard'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInSession } from '../../utils/dropInApi'
 import { confirmAnnualMembershipCheckoutSession, createAnnualMembershipCheckoutSession, fetchAnnualMembershipOffer, type AnnualMembershipOffer } from '../../utils/schedulingApi'
 import { getMemberSessionToken, persistMemberSession, PORTAL_SESSION_CHANGED, type PortalAccount } from '../../utils/portalSession'
+import { ADULT_BOOKING_PROGRAM, isAdultBookingProgram } from '../../utils/publicBookingPrograms'
 
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 const membershipSettled = (status?: string) => status === 'completed' || status === 'already_active'
@@ -152,7 +153,11 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
       }
       if (purchasingMembership) {
         const returnUrl = new URL('/drop-in', window.location.origin)
-        returnUrl.search = new URLSearchParams({ signupSlot: String(session.slotGroupId), signupDate: session.date, athlete: String(memberId), trial: '0' }).toString()
+        returnUrl.searchParams.set('signupSlot', String(session.slotGroupId))
+        returnUrl.searchParams.set('signupDate', session.date)
+        returnUrl.searchParams.set('athlete', String(memberId))
+        returnUrl.searchParams.set('trial', '0')
+        if (isAdultBookingProgram(session.programName)) returnUrl.searchParams.set('program', ADULT_BOOKING_PROGRAM)
         const checkout = await createAnnualMembershipCheckoutSession(token, {
           memberId,
           successUrl: `${returnUrl.href}&membership=paid&session_id={CHECKOUT_SESSION_ID}`,

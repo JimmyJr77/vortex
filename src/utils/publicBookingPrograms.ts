@@ -8,6 +8,7 @@ const PUBLIC_BOOKING_PROGRAMS = [
 
 export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
 export const ADULT_BOOKING_HREF = `/enroll?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
+export const ADULT_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)

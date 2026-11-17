@@ -12,7 +12,7 @@ export const HUB_ORIGIN = 'https://vortexathletics.com'
 const HUB_PROGRAM_ENTRIES = [
   { path: '/gymnastics', lastmod: '2026-11-16' },
   { path: '/fit-and-flip', lastmod: '2026-11-16' },
-  { path: '/adult-gymnastics', lastmod: '2026-11-16' },
+  { path: '/adult-gymnastics', lastmod: '2026-11-17' },
 ]
 export const HUB_PROGRAM_PATHS = HUB_PROGRAM_ENTRIES.map(({ path }) => path)
 
@@ -23,7 +23,7 @@ export const HUB_SITEMAP_ENTRIES = [
   ...HUB_PROGRAM_ENTRIES.map((entry) => ({ ...entry, priority: '0.8', changefreq: 'monthly' })),
   { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-16' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
-  { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-16' },
+  { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17' },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/store', priority: '0.5', changefreq: 'weekly' },

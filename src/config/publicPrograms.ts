@@ -1,6 +1,6 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
-import { ADULT_BOOKING_HREF } from '../utils/publicBookingPrograms'
+import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF } from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
 
@@ -11,6 +11,8 @@ type ProgramSection = {
   topics?: readonly { id: string; heading: string; description: string }[]
   links?: readonly { href: string; label: string; analyticsKey: string }[]
 }
+
+type ProgramAction = { href: string; label: string; analyticsKey: string }
 
 type PublicProgram = {
   name: string
@@ -24,8 +26,8 @@ type PublicProgram = {
   imageAlt: string
   imageWidth: number
   imageHeight: number
-  primaryAction: { href: string; label: string; analyticsKey: string }
-  trialHref?: string
+  primaryAction: ProgramAction
+  secondaryAction?: ProgramAction
   sections: readonly ProgramSection[]
   faqs: Faq[]
   relatedPaths: readonly PublicProgramPath[]
@@ -33,7 +35,7 @@ type PublicProgram = {
 
 const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
 const FIT_AND_FLIP_ENROLLMENT_HREF = '/enroll?program=Fit%20%26%20Flip'
-const FREE_TRIAL_FINDER_HREF = '/#free-trial'
+const FREE_TRIAL_ACTION = { href: '/#free-trial', label: 'Try a free class', analyticsKey: 'free_trial_section' }
 
 export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   '/gymnastics': {
@@ -49,7 +51,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 1600,
     imageHeight: 1200,
     primaryAction: { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
-    trialHref: FREE_TRIAL_FINDER_HREF,
+    secondaryAction: FREE_TRIAL_ACTION,
     sections: [
       {
         id: 'choose-a-class',
@@ -68,7 +70,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           { id: 'teen', heading: 'Teens and experienced gymnasts', description: 'New teen gymnasts can enter through the beginner trial finder. Athletes ages 6–17 who have done gymnastics before are directed to a Trial Assessment, where a coach can help place them at a suitable level.' },
         ],
         links: [
-          { href: FREE_TRIAL_FINDER_HREF, label: 'Find a gymnastics trial', analyticsKey: 'free_trial_section' },
+          { ...FREE_TRIAL_ACTION, label: 'Find a gymnastics trial' },
           { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse developmental gymnastics classes', analyticsKey: 'browse_classes' },
         ],
       },
@@ -109,7 +111,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 900,
     imageHeight: 675,
     primaryAction: { href: FIT_AND_FLIP_ENROLLMENT_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
-    trialHref: FREE_TRIAL_FINDER_HREF,
+    secondaryAction: FREE_TRIAL_ACTION,
     sections: [
       {
         id: 'athleticism-development',
@@ -149,7 +151,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
         links: [
           { href: FIT_AND_FLIP_ENROLLMENT_HREF, label: 'See Fit & Flip class times', analyticsKey: 'browse_classes' },
-          { href: FREE_TRIAL_FINDER_HREF, label: 'Look for a Fit & Flip trial', analyticsKey: 'free_trial_section' },
+          { ...FREE_TRIAL_ACTION, label: 'Look for a Fit & Flip trial' },
           { href: '/contact', label: 'Ask about class options', analyticsKey: 'inquire' },
           { href: ATHLETIC_DEVELOPMENT_GUIDE.path, label: 'Read the parent guide to athletic development', analyticsKey: 'read_athletic_development_guide' },
         ],
@@ -167,7 +169,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     name: 'Adult Gymnastics and Acrobatics',
     path: '/adult-gymnastics',
     title: 'Adult Gymnastics & Acrobatics in Bowie, MD | Vortex',
-    description: 'Find Typhoons adult gymnastics and acrobatics in Bowie, MD. Adults 18 and up can build strength, mobility, and introductory skills. See current class times.',
+    description: 'Try Typhoons adult gymnastics and acrobatics in Bowie, MD. Beginners and returning gymnasts ages 18 and up can book a drop-in or enroll in recurring classes.',
     heading: 'Adult gymnastics and acrobatics in Bowie, MD',
     intro: 'Typhoons is Vortex’s fitness and acrobatics class for adults 18 and up. It combines strength, conditioning, and mobility with introductory acrobatics. Beginners and returning gymnasts are welcome.',
     image: '/gym-DSC02636-1600.webp',
@@ -175,12 +177,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageAlt: 'Vortex Athletics gymnastics training area in Bowie, Maryland',
     imageWidth: 1600,
     imageHeight: 1066,
-    primaryAction: { href: ADULT_BOOKING_HREF, label: 'See adult class times', analyticsKey: 'browse_classes' },
+    primaryAction: { href: ADULT_BOOKING_HREF, label: 'See recurring class times', analyticsKey: 'browse_classes' },
+    secondaryAction: { href: ADULT_DROP_IN_HREF, label: 'See Typhoons drop-in dates', analyticsKey: 'browse_drop_ins' },
     sections: [
       {
         id: 'class-format',
         heading: 'What to expect in Typhoons',
-        description: 'The adult class pairs conditioning and mobility work with gymnastics and introductory acrobatics. Expect to practice the physical foundations that help you control a movement, such as supporting your body weight, balancing, or moving through a new range of motion.',
+        description: 'This 90-minute, coach-led class pairs conditioning and mobility work with gymnastics and introductory acrobatics. Expect to practice supporting your body weight, balancing, and moving through a new range of motion.',
         topics: [
           { id: 'adult-beginners', heading: 'Starting from scratch', description: 'You can start without a gymnastics background. Tell the team what you would like to learn and ask about the starting progressions for your experience level.' },
           { id: 'returning-gymnasts', heading: 'Returning to gymnastics', description: 'If you are coming back after time away, share your training background and goals. A coach can help you identify where to restart and build toward more demanding skills.' },
@@ -189,7 +192,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'adult-availability',
         heading: 'Plan your first adult class',
-        description: 'Check the current Typhoons schedule and choose an available class to enroll. Contact Vortex if you have questions about what to bring, which starting level fits, or when more openings are expected.',
+        description: 'Reserve a drop-in to try one available Typhoons class. If you want a regular weekly class, check the recurring schedule and enroll. Contact Vortex if you have questions about what to bring or which starting level fits.',
         links: [
           { href: '/contact', label: 'Ask about Typhoons', analyticsKey: 'inquire' },
         ],
@@ -198,7 +201,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     faqs: [
       { question: 'What age is the adult gymnastics class for?', answer: 'Typhoons is for adults ages 18 and up. Vortex has separate youth gymnastics pathways for kids and teens.' },
       { question: 'Can I join as a beginner?', answer: 'Yes. Typhoons welcomes adults without prior gymnastics experience. Contact Vortex if you would like help choosing your starting point.' },
-      { question: 'How do I sign up for Typhoons?', answer: 'Choose See adult class times to check the current schedule and begin enrollment. If there are no classes available online, contact Vortex for help.' },
+      { question: 'Can I try one adult gymnastics class?', answer: 'Yes. Choose an available Typhoons drop-in date to reserve one coached class without a monthly enrollment. Availability depends on the date and remaining spots.' },
+      { question: 'How do I enroll in recurring Typhoons classes?', answer: 'Choose See recurring class times to check the current schedule and begin enrollment. If there are no classes available online, contact Vortex for help.' },
     ],
     relatedPaths: ['/gymnastics', '/fit-and-flip'],
   },

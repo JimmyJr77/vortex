@@ -3,6 +3,8 @@ import { expect, test, type Page } from '@playwright/test'
 const classDate = '2027-01-12'
 const signupUrl = `/drop-in?signupSlot=200&signupDate=${classDate}`
 const resumeUrl = `${signupUrl}&athlete=102`
+const adultProgram = 'Adult Fitness & Acrobatics'
+const adultDropInUrl = `/drop-in?program=${encodeURIComponent(adultProgram)}`
 const account = { id: 101, memberId: 101, firstName: 'Test', lastName: 'Parent', email: 'dropin@example.test', availablePortals: ['member'] }
 const waivers = [
   { id: 11, name: 'Participation waiver', version: '1', body: 'Fixture waiver text.', is_required: true, waiver_type: 'LIABILITY' },
@@ -19,6 +21,14 @@ const session = {
   maxParticipants: 10, monthlyEnrolled: 3, dropInEnrolled: 1, totalAttending: 4, enrolled: 4,
   spotsRemaining: 6, isFull: false,
 }
+const adultDropInClass = {
+  ...dropInClass, formId: 6, classId: 13, className: 'Typhoons (Adult)',
+  classDescription: 'Strength, conditioning, mobility, and introductory acrobatics.',
+  programId: 8, programName: adultProgram, skillLevel: null, ageMin: 18, ageMax: null,
+}
+const adultSession = {
+  ...session, ...adultDropInClass, slotGroupId: 201, startTime: '19:00', endTime: '20:30',
+}
 
 async function mockDropInApi(page: Page, options: {
   membershipConfirmationFails?: boolean
@@ -28,6 +38,7 @@ async function mockDropInApi(page: Page, options: {
   trialUsedOnRefresh?: boolean
   allowsFreeTrial?: boolean
   membershipRequiresReview?: boolean
+  includeAdultClass?: boolean
 } = {}) {
   const submitted: { path: string; body: Record<string, unknown> }[] = []
   const catalogMemberIds: string[] = []
@@ -39,20 +50,38 @@ async function mockDropInApi(page: Page, options: {
     const body = route.request().method() === 'POST' ? route.request().postDataJSON() as Record<string, unknown> : null
     if (body) submitted.push({ path, body })
     const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
-    if (path === '/api/public/classes-offered') return json({ programs: [{
-      id: 5, displayName: 'Developmental Gymnastics', description: null,
-      classes: [{ id: 4, displayName: 'Beginner Gymnastics', formId: 3, ageMin: 6, ageMax: 12, skillLevel: 'beginner' }],
-    }] })
+    if (path === '/api/public/classes-offered') {
+      const programs = [{
+        id: 5, displayName: 'Developmental Gymnastics', description: null,
+        classes: [{ id: 4, displayName: 'Beginner Gymnastics', formId: 3, ageMin: 6, ageMax: 12, skillLevel: 'beginner' }],
+      }]
+      return json({ programs: options.includeAdultClass ? [...programs, {
+        id: adultDropInClass.programId, displayName: adultProgram, description: null,
+        classes: [{
+          id: adultDropInClass.classId, displayName: adultDropInClass.className, formId: adultDropInClass.formId,
+          ageMin: adultDropInClass.ageMin, ageMax: null, skillLevel: null,
+          enrollVisible: false, excludeFromDropIns: false,
+        }],
+      }] : programs })
+    }
     if (path === '/api/public/drop-ins') {
       if (url.searchParams.has('memberId')) {
         expect(route.request().headers().authorization).toBe('Bearer drop-in-test-token')
         catalogMemberIds.push(url.searchParams.get('memberId')!)
       }
       const selectedAthlete = url.searchParams.has('memberId')
-      return json({ classes: [dropInClass], sessions: [{ ...session, allowsFreeTrial: options.allowsFreeTrial, isFull: Boolean(options.fullOnRefresh && selectedAthlete) }], benefits: {
-        annualMember: membershipActive, annualCreditsRemaining: membershipActive ? 4 : 0,
-        adminCreditsRemaining: 0, freePassesRemaining: 0, trialAvailable: !(options.trialUsedOnRefresh && selectedAthlete), discountPercent: membershipActive ? 10 : 0,
-      } })
+      const youthSession = { ...session, allowsFreeTrial: options.allowsFreeTrial, isFull: Boolean(options.fullOnRefresh && selectedAthlete) }
+      return json({
+        classes: options.includeAdultClass ? [dropInClass, adultDropInClass] : [dropInClass],
+        sessions: options.includeAdultClass ? [youthSession, adultSession,
+          { ...adultSession, date: '2027-01-19', isFull: true, spotsRemaining: 0 },
+          { ...adultSession, date: '2027-01-26', excludedFromDropIns: true },
+        ] : [youthSession],
+        benefits: {
+          annualMember: membershipActive, annualCreditsRemaining: membershipActive ? 4 : 0,
+          adminCreditsRemaining: 0, freePassesRemaining: 0, trialAvailable: !(options.trialUsedOnRefresh && selectedAthlete), discountPercent: membershipActive ? 10 : 0,
+        },
+      })
     }
     if (path === '/api/signup/waivers') return json(waivers)
     if (path === '/api/signup/family') return json({ payerMemberId: 101, memberIds: [101, 102], pendingEnrollments: [] })
@@ -135,6 +164,70 @@ async function finishAccount(page: Page, expectReview = true) {
   await page.getByRole('button', { name: 'Create account & review payment' }).click()
   if (expectReview) await expect(page.getByRole('heading', { name: 'Review your drop-in' })).toBeVisible()
 }
+
+test('adult drop-in dates stay scoped through guest signup and cancellation', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2027-01-10T17:00:00Z'))
+  const { submitted } = await mockDropInApi(page, { includeAdultClass: true })
+  await page.goto('/adult-gymnastics')
+  await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
+  const findDates = page.getByRole('link', { name: 'See Typhoons drop-in dates', exact: true })
+  await expect(findDates).toHaveAttribute('href', adultDropInUrl)
+  await findDates.click()
+  await expect(page).toHaveURL(adultDropInUrl)
+
+  const availableDates = page.getByRole('heading', { name: 'Available Typhoons drop-in dates' })
+  const dateOption = page.getByRole('button', { name: /Typhoons \(Adult\).*Jan 12, 2027.*7:00 PM.*8:30 PM/ })
+  const youthClass = page.getByRole('button', { name: /Beginner Gymnastics/ })
+  await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()
+  await expect(availableDates).toBeVisible()
+  await expect(youthClass).toHaveCount(0)
+  await expect(page.getByRole('button', { name: /Typhoons \(Adult\).*Jan (19|26), 2027/ })).toHaveCount(0)
+  await dateOption.click()
+  await expect(page).toHaveURL(url => url.pathname === '/drop-in' &&
+    url.searchParams.get('program') === adultProgram &&
+    url.searchParams.get('signupSlot') === '201' &&
+    url.searchParams.get('signupDate') === classDate)
+  await expect(page.getByRole('heading', { name: 'Register for your drop-in' })).toBeVisible()
+  await expect(page.getByText(adultDropInClass.className, { exact: true }).first()).toBeVisible()
+
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(page).toHaveURL(url => url.pathname === '/drop-in' &&
+    url.searchParams.get('program') === adultProgram && !url.searchParams.has('signupSlot') &&
+    !url.searchParams.has('signupDate'))
+  await expect(availableDates).toBeVisible()
+  await expect(dateOption).toBeVisible()
+  await expect(youthClass).toHaveCount(0)
+  expect(submitted.filter(({ path }) => path === '/api/public/drop-ins/register')).toHaveLength(0)
+})
+
+test('adult membership checkout returns to the selected drop-in and keeps Typhoons as the back destination', async ({ page }) => {
+  await signedIn(page)
+  const { submitted } = await mockDropInApi(page, { includeAdultClass: true })
+  await page.goto(`${adultDropInUrl}&signupSlot=201&signupDate=${classDate}&athlete=102`)
+  await page.getByRole('radio', { name: /Add yearly membership/ }).check()
+  await page.getByRole('button', { name: 'Continue to payment', exact: true }).click()
+  await expect(page).toHaveURL('/mock-membership-card-payment')
+  const checkout = submitted.find(({ path }) => path === '/api/members/billing/annual-membership-checkout')!
+  for (const destination of [checkout.body.successUrl, checkout.body.cancelUrl]) {
+    const params = new URL(String(destination)).searchParams
+    expect(Object.fromEntries(params)).toMatchObject({ program: adultProgram, signupSlot: '201', signupDate: classDate, athlete: '102' })
+  }
+  await page.goto(String(checkout.body.cancelUrl))
+  await expect(page.getByText('Membership checkout was cancelled.', { exact: false })).toBeVisible()
+  await page.getByRole('button', { name: 'Back to classes' }).click()
+  await expect(page).toHaveURL(url => url.pathname === '/drop-in' && url.searchParams.get('program') === adultProgram && !url.searchParams.has('signupSlot'))
+  await expect(page.getByRole('heading', { name: 'Available Typhoons drop-in dates' })).toBeVisible()
+})
+
+test('general drop-in catalog retains its curated programs when Typhoons is available', async ({ page }) => {
+  await mockDropInApi(page, { includeAdultClass: true })
+  await page.goto('/drop-in')
+  await expect(page.getByRole('button', { name: /Beginner Gymnastics.*View drop-in times/ })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Typhoons \(Adult\).*View drop-in times/ })).toHaveCount(0)
+  await expect(page.getByRole('combobox', { name: 'Program', exact: true }).locator('option')).toHaveText([
+    'All programs', 'Developmental Gymnastics',
+  ])
+})
 
 test('drop-in-only schedule hides the free trial and sends the displayed paid booking', async ({ page }) => {
   await signedIn(page)

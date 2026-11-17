@@ -19,7 +19,7 @@ const HERO_IMAGE_SIZES = [
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
   const program = PUBLIC_PROGRAMS[path]
   const { hash } = useLocation()
-  const { primaryAction } = program
+  const { primaryAction, secondaryAction } = program
 
   useEffect(() => {
     if (!hash) return
@@ -45,9 +45,9 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
               <Link to={primaryAction.href} className="np-button" data-analytics-cta={primaryAction.analyticsKey} data-analytics-section="program">
                 {primaryAction.label} <ArrowUpRight size={17} aria-hidden="true" />
               </Link>
-              {program.trialHref && (
-                <Link to={program.trialHref} className="np-program-plain-link" data-analytics-cta="free_trial_section" data-analytics-section="program">
-                  Try a free class <ArrowUpRight size={16} aria-hidden="true" />
+              {secondaryAction && (
+                <Link to={secondaryAction.href} className="np-program-plain-link" data-analytics-cta={secondaryAction.analyticsKey} data-analytics-section="program">
+                  {secondaryAction.label} <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
               )}
             </div>

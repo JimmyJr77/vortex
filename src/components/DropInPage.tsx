@@ -6,7 +6,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
-import { getPublicBookingPrograms } from '../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, getPublicBookingPrograms, isAdultBookingProgram } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
 import { formatPhoneForDisplay } from '../utils/phoneUtils'
@@ -21,15 +21,20 @@ const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
 const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
 const prettyTime = (time: string) => new Date(`2000-01-01T${time}:00`).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 
-function DropInSessionOption({ session, alternative = false, onSelect }: {
+function DropInSessionOption({ session, alternative = false, showClassName = false, onSelect }: {
   session: DropInSession
   alternative?: boolean
+  showClassName?: boolean
   onSelect: (session: DropInSession) => void
 }) {
   return <button type="button" disabled={session.isFull} onClick={() => onSelect(session)} className={`np-drop-in-session-option${alternative ? ' np-drop-in-session-alternative' : ''} min-h-24 w-full touch-manipulation rounded-xl border border-gray-200 p-4 text-left hover:border-vortex-red disabled:cursor-not-allowed disabled:bg-gray-50 disabled:opacity-60`}>
     {alternative && <span className="np-drop-in-different-date">Different date</span>}
     <div className="flex items-start justify-between gap-3">
-      <div><div className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 shrink-0 text-vortex-red" /> {prettyDate(session.date)}</div><p className="mt-1 text-sm text-gray-600">{prettyTime(session.startTime)}–{prettyTime(session.endTime)}</p></div>
+      <div>
+        {showClassName && <p className="mb-2 text-sm font-semibold text-gray-600">{session.className}</p>}
+        <div className="flex items-center gap-2 font-bold"><CalendarDays className="h-4 w-4 shrink-0 text-vortex-red" /> {prettyDate(session.date)}</div>
+        <p className="mt-1 text-sm text-gray-600">{prettyTime(session.startTime)}–{prettyTime(session.endTime)}</p>
+      </div>
       <strong className="shrink-0 text-vortex-red">{money(session.totalCents)}</strong>
     </div>
     <p className="mt-3 text-xs font-semibold text-gray-600">{session.isFull ? 'Class full' : `${session.spotsRemaining} spots available`}</p>
@@ -39,6 +44,7 @@ function DropInSessionOption({ session, alternative = false, onSelect }: {
 
 export default function DropInPage() {
   const [params, setParams] = useSearchParams()
+  const wantsAdultClasses = isAdultBookingProgram(params.get('program'))
   const signupSlotGroupId = Number(params.get('signupSlot'))
   const signupDate = params.get('signupDate')
   const bookingId = Number(params.get('booking'))
@@ -109,10 +115,13 @@ export default function DropInPage() {
   }
 
   useEffect(() => {
+    let active = true
     setLoading(true)
-    Promise.all([fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
+    setError(null)
+    Promise.all([wantsAdultClasses ? null : fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
+      if (!active) return
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
-      const publicPrograms = getPublicBookingPrograms(catalog.programs)
+      const publicPrograms = catalog ? getPublicBookingPrograms(catalog.programs) : []
       setProgramOptions(publicPrograms)
       setClasses(publicPrograms.flatMap((program) => program.classes
         .filter((classItem) => classItem.formId != null && !(classItem.excludeFromDropIns ?? program.excludeFromDropIns))
@@ -130,9 +139,18 @@ export default function DropInPage() {
       setSessions(data.sessions)
       setBenefits(data.benefits)
       setForm((current) => ({ ...current, useFreeTrial: data.benefits.trialAvailable }))
-    }).catch((err) => setError(err instanceof Error ? err.message : 'Unable to load classes')).finally(() => setLoading(false))
+    }).catch((err) => {
+      if (active) setError(err instanceof Error ? err.message : 'Unable to load classes')
+    }).finally(() => {
+      if (active) setLoading(false)
+    })
     // Refresh after account/membership checkout; typed emails never resolve account benefits.
-  }, [catalogVersion])
+    return () => { active = false }
+  }, [catalogVersion, wantsAdultClasses])
+
+  const adultSessions = useMemo(() => sessions
+    .filter((session) => isAdultBookingProgram(session.programName) && !session.excludedFromDropIns && !session.isFull)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)), [sessions])
 
   const programSections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -165,15 +183,17 @@ export default function DropInPage() {
     setResult(null)
     setError(null)
     if (!memberToken) {
-      setParams({ signupSlot: String(session.slotGroupId), signupDate: session.date })
+      const signupParams = new URLSearchParams({ signupSlot: String(session.slotGroupId), signupDate: session.date })
+      if (wantsAdultClasses) signupParams.set('program', ADULT_BOOKING_PROGRAM)
+      setParams(signupParams)
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
     }
     setSelected(session)
   }
 
-  const closeSignup = () => {
-    setParams({})
+  const closeSignup = (programName: string | null = null) => {
+    setParams(wantsAdultClasses || isAdultBookingProgram(programName) ? { program: ADULT_BOOKING_PROGRAM } : {})
     setSelectedClassId(null)
     setError(null)
     setCatalogVersion(current => current + 1)
@@ -210,10 +230,10 @@ export default function DropInPage() {
           </div>}
           {loading ? <div role="status" className="flex items-center gap-3"><Loader2 className="h-6 w-6 animate-spin" />Loading your class…</div>
             : signupSession ? <Suspense fallback={<p role="status">Loading registration…</p>}>
-              <DropInSignup key={`${signupSession.slotGroupId}:${signupSession.date}`} session={signupSession} onCancel={closeSignup} />
+              <DropInSignup key={`${signupSession.slotGroupId}:${signupSession.date}`} session={signupSession} onCancel={() => closeSignup(signupSession.programName)} />
             </Suspense> : <div role="alert" className="space-y-4">
               <p>{error || 'This drop-in is no longer available. Choose another class or date to continue.'}</p>
-              <button type="button" onClick={closeSignup} className="rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white">Browse drop-in classes</button>
+              <button type="button" onClick={() => closeSignup()} className="rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white">Browse drop-in classes</button>
             </div>}
         </div>
       </section>
@@ -224,14 +244,18 @@ export default function DropInPage() {
     <section className="np-drop-in-hero">
       <div className="np-drop-in-container">
         <p className="np-drop-in-eyebrow">Gymnastics &amp; athletic development · Bowie, MD</p>
-        <h1>Drop-in classes.</h1>
-        <p className="np-drop-in-intro">
+        <h1>{wantsAdultClasses ? 'Adult gymnastics drop-ins.' : 'Drop-in classes.'}</h1>
+        {wantsAdultClasses ? <p className="np-drop-in-intro">
+          Reserve one coach-led Typhoons class for adults 18 and up in Bowie. For recurring enrollment, see{' '}
+          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link>.
+        </p> : <p className="np-drop-in-intro">
           Find an available single-day class or schedule a make-up. See{' '}
           <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link> and{' '}
           <Link className="font-semibold underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip</Link> for age groups and starting levels.
           {' '}For Typhoons, check{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link>.
-        </p>
+          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link> or{' '}
+          <Link className="font-semibold underline underline-offset-4" to={ADULT_DROP_IN_HREF}>see Typhoons drop-in dates</Link>.
+        </p>}
         <p className="np-drop-in-hero-note">Free trials are available for select class times. Member discounts apply, and all members get 4 free drop-ins per year.</p>
       </div>
     </section>
@@ -258,7 +282,19 @@ export default function DropInPage() {
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Additional free passes</div><div className="font-bold">{(benefits.adminCreditsRemaining ?? 0) + (benefits.freePassesRemaining ?? 0)} remaining</div></div>
       </div>}
 
-      {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : <div className={`grid items-start gap-6 ${selectedClassId ? 'lg:grid-cols-[minmax(0,1fr)_24rem]' : ''}`}>
+      {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : wantsAdultClasses ? (
+        <section aria-labelledby="adult-drop-in-dates" className="space-y-4">
+          <h2 id="adult-drop-in-dates" className="text-2xl font-bold text-gray-900">Available Typhoons drop-in dates</h2>
+          {error || adultSessions.length === 0 ? <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">
+            {error ? 'We couldn’t load the current drop-in dates.' : 'There are no Typhoons drop-in openings right now.'}{' '}
+            <Link className="font-semibold text-vortex-red underline" to="/contact">Ask about adult gymnastics</Link>.
+          </p> : <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {adultSessions.map((session) => <li key={`${session.slotGroupId}:${session.date}:${session.startTime}`}>
+              <DropInSessionOption session={session} showClassName onSelect={selectSession} />
+            </li>)}
+          </ul>}
+        </section>
+      ) : <div className={`grid items-start gap-6 ${selectedClassId ? 'lg:grid-cols-[minmax(0,1fr)_24rem]' : ''}`}>
         <div className="space-y-6">
           <div className="np-drop-in-filters rounded-xl border border-gray-200 bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div className="flex items-start justify-between gap-4"><div><h2 className="flex items-center gap-2 text-2xl font-bold text-gray-900"><LayoutGrid className="h-7 w-7 text-vortex-red" /> Browse classes</h2><p className="mt-1 text-sm text-gray-600">Select a class to see its upcoming single-day openings.</p></div>{hasFilters && <button type="button" onClick={clearFilters} className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-gray-600 hover:text-vortex-red"><X className="h-4 w-4" /> Clear</button>}</div>
@@ -361,7 +397,7 @@ export default function DropInPage() {
         {result.status === 'payment_pending' && <button type="button" disabled={paymentBusy} onClick={() => void payForBooking(result.id)} className="mt-5 rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white disabled:opacity-60">{paymentBusy ? 'Opening checkout…' : 'Pay by credit card'}</button>}
         {paymentError && <p className="mt-2 text-sm text-red-700" role="alert">{paymentError}</p>}
         <button type="button" className="mt-4 block w-full text-sm font-semibold" onClick={() => { setSelected(null); setPaymentError(null) }}>Close</button>
-      </div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}–{prettyTime(selected.endTime)}</p>{selected.date !== dropInDate && <p className="np-drop-in-alternate-notice">You selected an alternate date: <strong>{prettyDate(selected.date)}</strong>, instead of {prettyDate(dropInDate)}.</p>}<form onSubmit={submit} className="mt-6 space-y-4">
+      </div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}–{prettyTime(selected.endTime)}</p>{dropInDate && selected.date !== dropInDate && <p className="np-drop-in-alternate-notice">You selected an alternate date: <strong>{prettyDate(selected.date)}</strong>, instead of {prettyDate(dropInDate)}.</p>}<form onSubmit={submit} className="mt-6 space-y-4">
         <div className="grid grid-cols-2 gap-3"><label className="text-sm font-semibold">First name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></label><label className="text-sm font-semibold">Last name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} /></label></div>
         {loggedInAccount ? <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"><strong>Signed in{loggedInName ? ` as ${loggedInName}` : ''}</strong>{loggedInAccount.email && <span className="block">{loggedInAccount.email}</span>}<span className="mt-1 block text-green-700">This registration will use your logged-in account.</span></div> : <label className="block text-sm font-semibold">Email<input required type="email" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>}<label className="block text-sm font-semibold">Phone<TextInput type="tel" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
         {trialAvailable && <label className="flex gap-3 rounded-xl border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={trialSelected} onChange={(event) => setForm({ ...form, useFreeTrial: event.target.checked })} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">No annual membership is required. Available once per athlete, for life.</span></span></label>}
