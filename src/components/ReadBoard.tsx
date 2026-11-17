@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
 import { trackEvent } from '../utils/analyticsClient'
@@ -28,12 +28,16 @@ const TAB_LABELS: { id: TabType; label: string }[] = [
 
 const ReadBoard = () => {
   const location = useLocation()
-  const [activeTab, setActiveTab] = useState<TabType>('classes')
+  const linkedTab = HASH_TO_TAB[location.hash]
+  const activeTab = linkedTab ?? 'classes'
 
   useEffect(() => {
-    const tab = HASH_TO_TAB[location.hash]
-    if (tab) setActiveTab(tab)
-  }, [location.hash])
+    if (!linkedTab) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(linkedTab)?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [linkedTab, location.key])
 
   useEffect(() => {
     if (activeTab === 'schedule') {
@@ -61,33 +65,35 @@ const ReadBoard = () => {
 
           <nav className="np-browse-tabs" aria-label="Browse classes and updates">
               {TAB_LABELS.map(({ id, label }) => (
-                <button
+                <Link
                   key={id}
-                  type="button"
-                  onClick={() => setActiveTab(id)}
-                  aria-pressed={activeTab === id}
+                  id={id === 'schedule' ? undefined : id}
+                  to={{ pathname: location.pathname, search: location.search, hash: `#${id}` }}
+                  aria-current={activeTab === id ? 'location' : undefined}
                   className={`np-browse-tab${activeTab === id ? ' is-active' : ''}`}
                 >
                   {label}
                   {activeTab === id && (
-                    <motion.div
+                    <motion.span
                       className="np-browse-tab-line"
                       layoutId="activeTab"
                       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     />
                   )}
-                </button>
+                </Link>
               ))}
           </nav>
         </div>
       </section>
 
-      <div data-prerender-dynamic="">
-        {activeTab === 'classes' && <ReadBoardClassesTab />}
-        {activeTab === 'schedule' && <ReadBoardScheduleTab />}
-        {activeTab === 'events' && <ReadBoardEventsTab />}
-        {activeTab === 'highlights' && <ReadBoardHighlightsTab />}
-      </div>
+      {activeTab !== 'schedule' && (
+        <div data-prerender-dynamic="">
+          {activeTab === 'classes' && <ReadBoardClassesTab />}
+          {activeTab === 'events' && <ReadBoardEventsTab />}
+          {activeTab === 'highlights' && <ReadBoardHighlightsTab />}
+        </div>
+      )}
+      <ReadBoardScheduleTab showCalendar={activeTab === 'schedule'} />
     </div>
   )
 }

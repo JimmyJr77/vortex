@@ -467,6 +467,19 @@ const verifyHtml = (
       .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
     assert(anchorUrls(introduction).some((url) => url.href === bowieGuideCanonical),
       `${label}: missing the crawlable Bowie youth sports guide link near the main heading`)
+    const viewLinks = anchorUrls(introduction.match(/<nav\b[^>]*\baria-label=["']Browse classes and updates["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? '')
+    for (const hash of ['#classes', '#schedule', '#events', '#highlights']) {
+      assert(viewLinks.some((url) => url.href === `${HUB_ORIGIN}/read-board${hash}`) && pageIds.has(hash.slice(1)),
+        `${label}: missing a working static link for ${hash}`)
+    }
+    const schedule = html.match(/<section\b[^>]*\sid=["']schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    assert(/<h2\b[^>]*>Class schedule in Bowie, MD<\/h2>/i.test(schedule),
+      `${label}: missing the static class schedule heading`)
+    const bookingLinks = anchorUrls(schedule)
+    for (const path of ['/#free-trial', '/enroll', '/drop-in', '/adult-gymnastics']) {
+      assert(bookingLinks.some((url) => url.href === `${HUB_ORIGIN}${path}`),
+        `${label}: missing a static schedule link to ${path}`)
+    }
   }
   if (shouldIndex && canonical === bowieGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''

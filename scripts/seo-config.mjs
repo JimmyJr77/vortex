@@ -21,7 +21,7 @@ export const HUB_PROGRAM_PATHS = HUB_PROGRAM_ENTRIES.map(({ path }) => path)
 export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-16' },
   ...HUB_PROGRAM_ENTRIES.map((entry) => ({ ...entry, priority: '0.8', changefreq: 'monthly' })),
-  { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-16' },
+  { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17' },

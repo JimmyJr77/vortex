@@ -94,6 +94,7 @@
 
 .np-browse-tab {
   position: relative;
+  display: block;
   min-height: 52px;
   padding: 15px 12px;
   color: var(--np-muted);
@@ -121,6 +122,26 @@
 
 .np-browse-page .np-browse-section {
   padding: 40px 0 56px;
+}
+
+.np-browse-tab[id],
+.np-browse-schedule {
+  scroll-margin-top: calc(var(--site-header-height, 76px) + 12px);
+}
+
+.np-browse-schedule-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 20px;
+}
+
+.np-browse-schedule-links a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .np-browse-page .np-browse-section-title {
