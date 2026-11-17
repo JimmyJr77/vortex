@@ -35,7 +35,7 @@ const SeoHead = ({
         <link
           rel="preload"
           as="image"
-          href={preloadImage}
+          href={preloadImageSrcSet ? undefined : preloadImage}
           imageSrcSet={preloadImageSrcSet}
           imageSizes={preloadImageSizes}
           fetchPriority="high"
