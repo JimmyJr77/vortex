@@ -85,6 +85,10 @@ test('analytics admins can filter reports and check Google search visibility', a
             ? { startDate: '2026-10-17', endDate: '2026-11-13', status: 'error', reason: 'access_denied' }
             : { startDate: '2026-10-17', endDate: '2026-11-13', status: 'ok' },
           previous: { startDate: '2026-09-19', endDate: '2026-10-16', status: 'ok' },
+          propertyTotals: {
+            current: { status: 'ok', impressions: failed ? null : 174 },
+            previous: { status: 'ok', impressions: 119 },
+          },
           pages: [
             { page: 'https://vortexathletics.com/', label: 'Vortex homepage', currentImpressions: failed ? null : 80, previousImpressions: 63 },
             { page: 'https://vortexathletics.com/vortex-athletics', label: 'Former youth sports performance page', currentImpressions: null, previousImpressions: 17 },
@@ -172,12 +176,15 @@ test('analytics admins can filter reports and check Google search visibility', a
   await expect(programTable.getByRole('columnheader', { name: /Previous 28 days.*Sep 19, 2026 to Oct 16, 2026/ })).toBeVisible()
   const youth = programTable.getByRole('row', { name: /Youth Gymnastics/ })
   const adult = programTable.getByRole('row', { name: /Adult Gymnastics/ })
+  const property = programTable.getByRole('row', { name: /Property total/ })
+  await expect(property.getByRole('cell')).toHaveText(['174', '119', '+55'])
   await expect(programTable.getByRole('row', { name: /Vortex homepage/ }).getByRole('cell')).toHaveText(['80', '63', '+17'])
   await expect(programTable.getByRole('row', { name: /Former youth sports performance page/ }).getByRole('cell')).toHaveText(['No data reported', '17', '—'])
   await expect(youth.getByRole('cell')).toHaveText(['31', '12', '+19'])
   await expect(adult.getByRole('cell')).toHaveText(['0', 'No data reported', '—'])
   await checkVisibility.click()
   await expect(page.getByRole('status').filter({ hasText: 'One date range could not be loaded.' })).toBeVisible()
+  await expect(property.getByRole('cell')).toHaveText(['No data reported', '119', '—'])
   await expect(youth.getByRole('cell')).toHaveText(['Property access denied', '12', '—'])
   expect(reportRequests.filter(url => url.pathname.endsWith('/seo/program-pages')).map(url => url.search)).toEqual(['', ''])
   expect(topicRequests).toBe(6)

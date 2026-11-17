@@ -26,15 +26,19 @@ const problemMessages = {
 
 type VisibilityView = SearchConsoleReportView | 'program-pages'
 
-function impressionCell(impressions: number | null, window: SearchConsoleProgramPageWindow) {
+function impressionCell(impressions: number | null, window: Pick<SearchConsoleProgramPageWindow, 'status' | 'reason'>) {
   if (impressions !== null) return number.format(impressions)
   if (window.status === 'ok') return 'No data reported'
   if (window.reason === 'access_denied') return 'Property access denied'
   return 'Unavailable'
 }
 
+function impressionChange(current: number | null, previous: number | null) {
+  return current === null || previous === null ? '—' : signedNumber.format(current - previous)
+}
+
 function LandingPageVisibility({ report }: { report: SearchConsoleProgramPageReport }) {
-  const { current, previous, pages } = report
+  const { current, previous, pages, propertyTotals } = report
   const dateRange = ({ startDate, endDate }: SearchConsoleProgramPageWindow) =>
     `${day.format(new Date(startDate))} to ${day.format(new Date(endDate))}`
 
@@ -52,6 +56,14 @@ function LandingPageVisibility({ report }: { report: SearchConsoleProgramPageRep
           </tr>
         </thead>
         <tbody>
+          {propertyTotals && (
+            <tr className="border-b bg-gray-50">
+              <th scope="row" className="py-2 pr-4 font-semibold">Property total (all URLs)</th>
+              <td className="px-3 py-2">{impressionCell(propertyTotals.current.impressions, propertyTotals.current)}</td>
+              <td className="px-3 py-2">{impressionCell(propertyTotals.previous.impressions, propertyTotals.previous)}</td>
+              <td className="px-3 py-2">{impressionChange(propertyTotals.current.impressions, propertyTotals.previous.impressions)}</td>
+            </tr>
+          )}
           {pages.map(({ page, label, currentImpressions, previousImpressions }) => (
             <tr key={page} className="border-b last:border-b-0">
               <th scope="row" className="max-w-xs break-all py-2 pr-4 font-medium">
@@ -60,14 +72,14 @@ function LandingPageVisibility({ report }: { report: SearchConsoleProgramPageRep
               </th>
               <td className="px-3 py-2">{impressionCell(currentImpressions, current)}</td>
               <td className="px-3 py-2">{impressionCell(previousImpressions, previous)}</td>
-              <td className="px-3 py-2">{currentImpressions !== null && previousImpressions !== null
-                ? signedNumber.format(currentImpressions - previousImpressions) : '—'}</td>
+              <td className="px-3 py-2">{impressionChange(currentImpressions, previousImpressions)}</td>
             </tr>
           ))}
         </tbody>
       </table>
     </div>
     <p className="text-xs text-gray-600">
+      {propertyTotals && 'Property totals include URLs outside this table. '}
       Includes all web searches. Google usually credits impressions to its selected canonical URL. Dates use Pacific time.
     </p>
   </>

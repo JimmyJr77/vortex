@@ -236,8 +236,12 @@ test('compares current and former landing pages in two finalized windows across 
     'https://vortexathletics.com/blog/athletic-development-young-athletes',
     preschoolGuide, tumblingGuide, returningGuide,
   ]
-  const query = t.mock.fn(async ({ requestBody }) => ({
-    data: { rows: requestBody.startDate === '2026-10-16' ? [
+  const query = t.mock.fn(async ({ requestBody }) => {
+    const latest = requestBody.startDate === '2026-10-16'
+    if (requestBody.aggregationType === 'byProperty') {
+      return { data: { rows: [{ impressions: latest ? 230 : 142 }] } }
+    }
+    return { data: { rows: latest ? [
       { keys: [homepage], impressions: 80, clicks: 3 },
       { keys: [homepage.slice(0, -1)], impressions: 77, clicks: 2 },
       { keys: [gymnastics], impressions: 30, clicks: 0 },
@@ -252,8 +256,8 @@ test('compares current and former landing pages in two finalized windows across 
       { keys: [gymnastics], impressions: 21, clicks: 1 },
       { keys: [formerYouthSports], impressions: 17, clicks: 1 },
       { keys: [tumblingGuide], impressions: 3, clicks: 0 },
-    ] },
-  }))
+    ] } }
+  })
   t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
 
   const report = await getSearchConsoleProgramPages(NOW)
@@ -264,8 +268,15 @@ test('compares current and former landing pages in two finalized windows across 
   assert.deepEqual(report.pages.map(({ page }) => page), pages)
   assert.deepEqual(report.pages.map(({ currentImpressions, previousImpressions }) => [currentImpressions, previousImpressions]),
     [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [6, null], [null, null], [null, null], [4, null], [8, 3], [5, null]])
-  assert.equal(query.mock.callCount(), 2)
-  for (const [index, { arguments: [request, options] }] of query.mock.calls.entries()) {
+  assert.deepEqual(report.propertyTotals, {
+    current: { status: 'ok', impressions: 230 }, previous: { status: 'ok', impressions: 142 },
+  })
+  assert.equal(query.mock.callCount(), 4)
+  const pageCalls = query.mock.calls.filter(({ arguments: [request] }) => request.requestBody.aggregationType === 'auto')
+  const totalsCalls = query.mock.calls.filter(({ arguments: [request] }) => request.requestBody.aggregationType === 'byProperty')
+  assert.equal(pageCalls.length, 2)
+  assert.equal(totalsCalls.length, 2)
+  for (const [index, { arguments: [request, options] }] of pageCalls.entries()) {
     const { dimensionFilterGroups, ...body } = request.requestBody
     const { startDate, endDate } = [report.current, report.previous][index]
     assert.equal(request.siteUrl, PROPERTY)
@@ -285,11 +296,22 @@ test('compares current and former landing pages in two finalized windows across 
       trainingGuides + '/private-draft', tumblingGuide + '?vcid=private',
       'https://www.vortexathletics.com/gymnastics', 'https://vortexathleticsXcom/gymnastics', 'https://vortexathletics.com/enroll']) assert.doesNotMatch(page, filter)
   }
+  for (const [index, { arguments: [request, options] }] of totalsCalls.entries()) {
+    const { startDate, endDate } = [report.current, report.previous][index]
+    assert.equal(request.siteUrl, PROPERTY)
+    assert.deepEqual(request.requestBody, {
+      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'byProperty', rowLimit: 1,
+    })
+    assert.deepEqual(options, { timeout: 10000, retry: false })
+  }
 })
 
 test('keeps absent program page impressions distinct from failed and unconfigured windows', async t => {
   configure(t, {})
   const query = t.mock.fn(async ({ requestBody }) => {
+    if (requestBody.aggregationType === 'byProperty' && requestBody.startDate === '2026-10-16') {
+      return { data: { rows: [{ impressions: 45 }] } }
+    }
     if (requestBody.startDate === '2026-10-16') {
       throw Object.assign(new Error('private provider response'), { response: { status: 403 } })
     }
@@ -318,5 +340,8 @@ test('keeps absent program page impressions distinct from failed and unconfigure
   assert.equal(partial.current.reason, 'access_denied')
   assert.equal(partial.previous.status, 'ok')
   assert.ok(partial.pages.every(page => page.currentImpressions === null && page.previousImpressions === null))
+  assert.deepEqual(partial.propertyTotals, {
+    current: { status: 'ok', impressions: 45 }, previous: { status: 'ok', impressions: null },
+  })
   assert.doesNotMatch(JSON.stringify(partial), /private provider response/)
 })

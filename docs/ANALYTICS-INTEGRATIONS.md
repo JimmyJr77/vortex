@@ -88,6 +88,11 @@ in the earlier period. The table includes all web queries. It displays
 **No data reported** when Google omits a row and calculates the change when both
 periods have an impression count.
 
+Compare the **Property total (all URLs)** row with the listed pages when
+landing-page results are empty. It uses a separate, unfiltered Google Web
+Search query for each of the same periods. This distinguishes activity
+elsewhere on the property from a period with no reportable property data.
+
 An empty topic means Google returned no reportable data for its query filter.
 Google can omit some search terms, and topic filters overlap, so do not add the
 topic counts together. The report shows missing configuration and provider

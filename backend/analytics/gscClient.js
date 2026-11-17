@@ -305,6 +305,24 @@ async function fetchProgramPageWindow(searchconsole, siteUrl, dates) {
   }
 }
 
+async function fetchPropertyImpressions(searchconsole, siteUrl, dates) {
+  try {
+    const { data } = await searchconsole.searchanalytics.query({
+      siteUrl,
+      requestBody: { ...dates, type: 'web', dataState: 'final', aggregationType: 'byProperty', rowLimit: 1 },
+    }, { timeout: 10000, retry: false })
+
+    const rows = data.rows ?? []
+    if (!Array.isArray(rows) || rows.length > 1) throw new Error('Unexpected Search Console property rows')
+    if (!rows.length) return { status: 'ok', impressions: null }
+    const { impressions } = rows[0]
+    if (!Number.isFinite(impressions) || impressions < 0) throw new Error('Unexpected Search Console property impressions')
+    return { status: 'ok', impressions }
+  } catch (error) {
+    return { status: 'error', reason: searchConsoleErrorReason(error), impressions: null }
+  }
+}
+
 export async function getSearchConsoleProgramPages(now = new Date()) {
   const currentDates = reportDateWindow(now)
   const previousDates = reportDateWindow(now, REPORT_DAYS)
@@ -320,9 +338,11 @@ export async function getSearchConsoleProgramPages(now = new Date()) {
     }
   }
 
-  const [current, previous] = await Promise.all([
+  const [current, previous, currentProperty, previousProperty] = await Promise.all([
     fetchProgramPageWindow(searchconsole, siteUrl, currentDates),
     fetchProgramPageWindow(searchconsole, siteUrl, previousDates),
+    fetchPropertyImpressions(searchconsole, siteUrl, currentDates),
+    fetchPropertyImpressions(searchconsole, siteUrl, previousDates),
   ])
   const failedWindows = [current, previous].filter(({ window }) => window.status === 'error')
   return {
@@ -330,6 +350,7 @@ export async function getSearchConsoleProgramPages(now = new Date()) {
     status: failedWindows.length === 2 ? 'error' : failedWindows.length ? 'partial' : 'ok',
     current: current.window,
     previous: previous.window,
+    propertyTotals: { current: currentProperty, previous: previousProperty },
     pages: LANDING_PAGES.map(page => ({
       ...page,
       currentImpressions: current.impressions?.get(page.page) ?? null,

@@ -229,12 +229,17 @@ export interface SearchConsoleProgramPageWindow {
   reason?: SearchConsoleTopicFailure
 }
 
+interface SearchConsolePropertyImpressions extends Pick<SearchConsoleProgramPageWindow, 'status' | 'reason'> {
+  impressions: number | null
+}
+
 export interface SearchConsoleProgramPageReport {
   status: SearchConsoleTopicReport['status']
   reason?: SearchConsoleTopicReport['reason']
   timeZone: 'America/Los_Angeles'
   current: SearchConsoleProgramPageWindow
   previous: SearchConsoleProgramPageWindow
+  propertyTotals?: { current: SearchConsolePropertyImpressions; previous: SearchConsolePropertyImpressions }
   pages: Array<{
     page: string
     label: string
