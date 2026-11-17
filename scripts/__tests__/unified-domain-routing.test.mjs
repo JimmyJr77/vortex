@@ -112,6 +112,7 @@ test('public program and guide paths use one canonical form across hosts', () =>
     '/adult-gymnastics',
     '/blog/athletic-development-young-athletes',
     '/blog/youth-sports-bowie',
+    '/blog/preschool-gymnastics-what-toddlers-learn',
   ]
   for (const path of paths) {
     assert.equal(nextLocation(`${primary}${path}`), null)

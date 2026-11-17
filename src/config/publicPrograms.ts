@@ -2,19 +2,20 @@ import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BUSINESS_FACILITY_PHOTO } from './contact'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
+import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
 import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
+
+type ProgramAction = { href: string; label: string; analyticsKey: string }
 
 type ProgramSection = {
   id: string
   heading: string
   description: string
-  topics?: readonly { id: string; heading: string; description: string }[]
-  links?: readonly { href: string; label: string; analyticsKey: string }[]
+  topics?: readonly { id: string; heading: string; description: string; link?: ProgramAction }[]
+  links?: readonly ProgramAction[]
 }
-
-type ProgramAction = { href: string; label: string; analyticsKey: string }
 
 type PublicProgram = {
   name: string
@@ -67,6 +68,11 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description:
               'In Dirt Devils, a parent or caregiver joins their child for coached movement and play. This Mommy & Me class is for ages 2–3, and children must be potty trained for a trial. ' +
               'In Twisters, preschoolers ages 4–5 practice balance, coordination, and basic gymnastics shapes through play.',
+            link: {
+              href: PRESCHOOL_GYMNASTICS_GUIDE.path,
+              label: PRESCHOOL_GYMNASTICS_GUIDE.heading,
+              analyticsKey: 'read_preschool_gymnastics_guide',
+            },
           },
           { id: 'beginner', heading: 'Beginner gymnastics for ages 6–17', description: 'Kids and teens with no gymnastics experience start with a Tornadoes trial when available. Athletes learn body shapes and controlled landings as they work toward skills such as rolls, cartwheels, and handstands.' },
           { id: 'youth', heading: 'Developmental and team pathways', description: 'Developmental classes let athletes build skills without competing. Team gymnastics adds competition for athletes placed in that pathway. Families can ask the coaching team how progression and team placement work.' },

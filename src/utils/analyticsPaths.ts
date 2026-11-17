@@ -3,6 +3,7 @@ const paths = new Set([
   '/support', '/privacy-policy', '/terms-of-service', '/camp_interest',
   '/blog/athletic-development-young-athletes',
   '/blog/youth-sports-bowie',
+  '/blog/preschool-gymnastics-what-toddlers-learn',
   '/camp_interest/thank-you', '/signup/family', '/signup/lead', '/signup/invite',
   '/verify-email', '/registration/receipt', '/waivers-memberships', '/copy',
   '/gymnastics', '/adult-gymnastics', '/fit-and-flip', '/vortex-athletics', '/summer-athletic-training',

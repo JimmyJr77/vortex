@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
@@ -90,6 +91,7 @@ export default function BowieYouthSportsGuide() {
             If they keep talking about tumbling or learning a cartwheel, look for a gymnastics class matched to
             their age and experience. <Link to="/gymnastics">Explore youth gymnastics at Vortex</Link> and see{' '}
             <Link to="/gymnastics#first-visit">what to expect at their first class</Link>.
+            For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what children learn in preschool gymnastics</Link>.
           </p>
           <p>
             If they want to get stronger or move with more control, look for coached youth fitness. Fit &amp; Flip

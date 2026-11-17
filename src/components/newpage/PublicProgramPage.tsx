@@ -77,6 +77,11 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                   <article key={topic.id} id={topic.id}>
                     <h3>{topic.heading}</h3>
                     <p>{topic.description}</p>
+                    {topic.link && (
+                      <Link to={topic.link.href} className="np-program-plain-link mt-3" data-analytics-cta={topic.link.analyticsKey} data-analytics-section={topic.id}>
+                        {topic.link.label} <ArrowUpRight size={16} aria-hidden="true" />
+                      </Link>
+                    )}
                   </article>
                 ))}
               </div>
