@@ -56,9 +56,8 @@ async function loadClassTimes(programName: RecurringBookingProgram): Promise<Cla
   return classes.flatMap((result) => result.status === 'fulfilled' && result.value ? [result.value] : [])
 }
 
-export default function PublicRecurringSchedule({ programName, heading }: {
+export default function PublicRecurringSchedule({ programName }: {
   programName: RecurringBookingProgram
-  heading?: string
 }) {
   const [schedule, setSchedule] = useState<ScheduleState>({ status: 'loading' })
 
@@ -78,7 +77,6 @@ export default function PublicRecurringSchedule({ programName, heading }: {
         <p>Checking recurring class times…</p>
       ) : schedule.status === 'loaded' && schedule.classes.length ? (
         <>
-          {heading && <h2>{heading}</h2>}
           <ul>
             {schedule.classes.map(({ formId, name, times }) => (
               <li key={formId}>

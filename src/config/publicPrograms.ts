@@ -5,7 +5,11 @@ import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
-import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../utils/publicBookingPrograms'
+import {
+  ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
+  FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
+  type RecurringBookingProgram,
+} from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
 
@@ -34,6 +38,12 @@ type PublicProgram = {
   imageHeight: number
   primaryAction: ProgramAction
   secondaryAction?: ProgramAction
+  recurringSchedule?: {
+    id: string
+    heading: string
+    description?: string
+    programName: RecurringBookingProgram
+  }
   sections: readonly ProgramSection[]
   faqs: Faq[]
   relatedPaths: readonly PublicProgramPath[]
@@ -148,6 +158,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageHeight: 675,
     primaryAction: { href: FIT_AND_FLIP_BOOKING_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
     secondaryAction: FREE_TRIAL_ACTION,
+    recurringSchedule: {
+      id: 'fit-flip-schedule',
+      heading: 'Recurring Fit & Flip class times',
+      description: 'Check weekly Cyclones times for ages 8–11 and 12–15. Enrollment shows available spots and start dates.',
+      programName: FIT_AND_FLIP_BOOKING_PROGRAM,
+    },
     sections: [
       {
         id: 'athleticism-development',
@@ -235,6 +251,11 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageHeight: BUSINESS_FACILITY_PHOTO.height,
     primaryAction: { href: ADULT_BOOKING_HREF, label: 'See recurring class times', analyticsKey: 'browse_classes' },
     secondaryAction: { href: ADULT_DROP_IN_HREF, label: 'See Typhoons drop-in dates', analyticsKey: 'browse_drop_ins' },
+    recurringSchedule: {
+      id: 'adult-class-schedule',
+      heading: 'Recurring adult gymnastics class times',
+      programName: ADULT_BOOKING_PROGRAM,
+    },
     sections: [
       {
         id: 'class-format',

@@ -469,6 +469,13 @@ const verifyHtml = (
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
     }
     if (pagePath === '/adult-gymnastics') {
+      const hero = mainHtml.match(/<section\b[^>]*\bclass=["']np-program-hero["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const schedule = mainHtml.match(/<section\b[^>]*\sid=["']adult-class-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(hero && !hero.includes('adult-class-schedule') && /<h2\b[^>]*>Recurring adult gymnastics class times<\/h2>/i.test(schedule),
+        `${label}: recurring adult class times must have a crawlable section outside the hero`)
+      assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
+        url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
+        `${label}: the recurring adult schedule must link to Typhoons enrollment`)
       assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']adult-availability["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Plan your first adult gymnastics class<\/h2>/i.test(firstVisit) && /select yourself as the participant/i.test(firstVisit),

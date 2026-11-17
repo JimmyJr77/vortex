@@ -4,6 +4,7 @@ const adultName = 'Typhoons (Adult)'
 const adultFormId = 405
 const adultProgram = 'Adult Fitness & Acrobatics'
 const adultBookingPath = `/enroll?program=${encodeURIComponent(adultProgram)}`
+const scheduleHeading = 'Recurring adult gymnastics class times'
 const slot = {
   id: 501,
   formId: adultFormId,
@@ -24,7 +25,11 @@ async function mockClasses(page: Page, {
   adultFormProgramId = 2,
   adultFormActive = true,
   catalogError = false,
-}: { enrollVisible?: boolean; multipleAdultClasses?: boolean; adultFormProgramId?: number; adultFormActive?: boolean; catalogError?: boolean } = {}) {
+  catalogGate,
+}: {
+  enrollVisible?: boolean; multipleAdultClasses?: boolean; adultFormProgramId?: number
+  adultFormActive?: boolean; catalogError?: boolean; catalogGate?: Promise<void>
+} = {}) {
   const adultClasses = [{
     id: 20, displayName: adultName, ageMin: 18, formId: adultFormId, enrollVisible,
     signupUrl: enrollVisible ? `/enroll?form=${adultFormId}` : null,
@@ -42,6 +47,7 @@ async function mockClasses(page: Page, {
     if (/^\/api\/scheduling\/forms\/\d+$/.test(path)) formRequests.push(path)
     switch (path) {
       case '/api/public/classes-offered':
+        await catalogGate
         if (catalogError) return route.fulfill({ status: 503, json: { success: false } })
         return json({ programs: [
           { id: 1, displayName: 'Fit & Flip', classes: [{ id: 10, displayName: 'Cyclones', formId: 100 }] },
@@ -69,7 +75,7 @@ async function mockClasses(page: Page, {
 test('adult gymnastics, general enrollment, and published form links open the current Typhoons schedule', async ({ page }) => {
   await mockClasses(page)
   await page.goto('/adult-gymnastics')
-  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toBeVisible()
   await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   await expect(page.getByText('All times Eastern. Check enrollment for dates and availability.')).toBeVisible()
   const booking = page.getByRole('link', { name: 'See recurring class times', exact: true })
@@ -108,17 +114,40 @@ test('only the adult program page loads recurring adult class times', async ({ p
   await page.setViewportSize({ width: 390, height: 844 })
   const formRequests = await mockClasses(page, { multipleAdultClasses: true })
   await page.goto('/adult-gymnastics')
-  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toBeVisible()
   await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   await expect(page.getByText('Second adult class', { exact: true })).toHaveCount(0)
   const otherPrograms = page.getByRole('navigation', { name: 'Other Vortex programs' })
   await otherPrograms.getByRole('link', { name: 'Fit & Flip Youth Athletic Training' }).click()
   await expect(page.getByRole('heading', { name: 'Youth athletic training in Bowie, MD' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toHaveCount(0)
   await otherPrograms.getByRole('link', { name: 'Youth Gymnastics', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Youth gymnastics classes in Bowie, MD' })).toBeVisible()
-  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toHaveCount(0)
   expect([...new Set(formRequests)].sort()).toEqual([`/api/scheduling/forms/${adultFormId}`, '/api/scheduling/forms/406'])
+})
+
+test('the adult hero stays in place while recurring times load on mobile', async ({ page }) => {
+  let releaseCatalog!: () => void
+  const catalogGate = new Promise<void>((resolve) => { releaseCatalog = resolve })
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockClasses(page, { catalogGate })
+  await page.goto('/adult-gymnastics')
+  const heroImage = page.locator('.np-program-hero-image')
+  const schedule = page.getByRole('region', { name: scheduleHeading, exact: true })
+  let before: number | undefined
+  try {
+    await expect(schedule.getByText('Checking recurring class times…')).toBeVisible()
+    await page.evaluate(() => document.fonts.ready.then(() => undefined))
+    before = (await heroImage.boundingBox())?.y
+  } finally {
+    releaseCatalog()
+  }
+  await expect(schedule.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
+  const after = (await heroImage.boundingBox())?.y
+  if (before === undefined || after === undefined) throw new Error('The adult hero image must stay visible')
+  expect(Math.abs(before - after)).toBeLessThanOrEqual(1)
+  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', adultBookingPath)
 })
 
 for (const [scenario, mockOptions, expectsFormRequest] of [
@@ -131,7 +160,9 @@ for (const [scenario, mockOptions, expectsFormRequest] of [
     const formRequests = await mockClasses(page, mockOptions)
     await page.goto('/adult-gymnastics')
     await expect(page.getByText('Check enrollment for current class times or contact Vortex for help.')).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Recurring class times' })).toHaveCount(0)
+    const schedule = page.getByRole('region', { name: scheduleHeading, exact: true })
+    await expect(schedule.getByRole('list')).toHaveCount(0)
+    await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', adultBookingPath)
     await expect(page.getByRole('link', { name: 'See recurring class times', exact: true })).toHaveAttribute('href', adultBookingPath)
     expect(formRequests.length > 0).toBe(expectsFormRequest)
     expect(formRequests.every((path) => path === `/api/scheduling/forms/${adultFormId}`)).toBe(true)
