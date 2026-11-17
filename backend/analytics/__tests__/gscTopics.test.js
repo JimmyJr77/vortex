@@ -217,18 +217,31 @@ test('reports a bounded set of pages per topic without exposing unknown paths or
   assert.ok(!JSON.stringify(report).includes('private-'))
 })
 
-test('compares all fixed canonical program pages in two finalized windows without filtering search terms', async t => {
+test('compares current and former landing pages in two finalized windows across all search terms', async t => {
   configure(t, { GSC_SITE_URL: PROPERTY, GOOGLE_APPLICATION_CREDENTIALS_JSON: '{}' })
+  const homepage = 'https://vortexathletics.com/'
+  const gymnastics = 'https://vortexathletics.com/gymnastics'
+  const fitAndFlip = 'https://vortexathletics.com/fit-and-flip'
+  const formerYouthSports = 'https://vortexathletics.com/vortex-athletics'
+  const adultGymnastics = 'https://vortexathletics.com/adult-gymnastics'
   const pages = [
-    'https://vortexathletics.com/gymnastics',
-    'https://vortexathletics.com/fit-and-flip',
-    'https://vortexathletics.com/adult-gymnastics',
+    homepage, gymnastics, fitAndFlip, formerYouthSports, adultGymnastics,
     'https://vortexathletics.com/blog/youth-sports-bowie',
     'https://vortexathletics.com/blog/athletic-development-young-athletes',
   ]
-  const query = t.mock.fn(async ({ requestBody }) => ({ data: { rows: requestBody.startDate === '2026-10-16'
-    ? [{ keys: [pages[2]], impressions: 0, clicks: 0 }, { keys: [pages[0]], impressions: 30, clicks: 0 }]
-    : [{ keys: [pages[0]], impressions: 21, clicks: 1 }, { keys: [pages[1]], impressions: 15, clicks: 1 }] } }))
+  const query = t.mock.fn(async ({ requestBody }) => ({
+    data: { rows: requestBody.startDate === '2026-10-16' ? [
+      { keys: [homepage], impressions: 80, clicks: 3 },
+      { keys: [homepage.slice(0, -1)], impressions: 77, clicks: 2 },
+      { keys: [gymnastics], impressions: 30, clicks: 0 },
+      { keys: [fitAndFlip], impressions: 15, clicks: 1 },
+      { keys: [adultGymnastics], impressions: 0, clicks: 0 },
+    ] : [
+      { keys: [homepage.slice(0, -1)], impressions: 63, clicks: 2 },
+      { keys: [gymnastics], impressions: 21, clicks: 1 },
+      { keys: [formerYouthSports], impressions: 17, clicks: 1 },
+    ] },
+  }))
   t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
 
   const report = await getSearchConsoleProgramPages(NOW)
@@ -238,14 +251,14 @@ test('compares all fixed canonical program pages in two finalized windows withou
   assert.deepEqual(report.previous, { startDate: '2026-09-18', endDate: '2026-10-15', status: 'ok' })
   assert.deepEqual(report.pages.map(({ page }) => page), pages)
   assert.deepEqual(report.pages.map(({ currentImpressions, previousImpressions }) => [currentImpressions, previousImpressions]),
-    [[30, 21], [null, 15], [0, null], [null, null], [null, null]])
+    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [null, null], [null, null]])
   assert.equal(query.mock.callCount(), 2)
   for (const [index, { arguments: [request, options] }] of query.mock.calls.entries()) {
     const { dimensionFilterGroups, ...body } = request.requestBody
     const { startDate, endDate } = [report.current, report.previous][index]
     assert.equal(request.siteUrl, PROPERTY)
     assert.deepEqual(body, {
-      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 5,
+      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 8,
     })
     assert.deepEqual(options, { timeout: 10000, retry: false })
     assert.equal(dimensionFilterGroups.length, 1)
@@ -255,9 +268,9 @@ test('compares all fixed canonical program pages in two finalized windows withou
     assert.equal(filters[0].dimension, 'page')
     assert.equal(filters[0].operator, 'includingRegex')
     const filter = new RegExp(filters[0].expression)
-    for (const page of pages) assert.match(page, filter)
-    for (const page of [pages[0] + '?private=1', pages[0] + '/', 'https://www.vortexathletics.com/gymnastics',
-      'https://vortexathleticsXcom/gymnastics', 'https://vortexathletics.com/enroll']) assert.doesNotMatch(page, filter)
+    for (const page of [...pages, homepage.slice(0, -1)]) assert.match(page, filter)
+    for (const page of [homepage + '?private=1', formerYouthSports + '?vcid=private', gymnastics + '/',
+      'https://www.vortexathletics.com/gymnastics', 'https://vortexathleticsXcom/gymnastics', 'https://vortexathletics.com/enroll']) assert.doesNotMatch(page, filter)
   }
 })
 

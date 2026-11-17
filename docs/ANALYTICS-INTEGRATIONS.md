@@ -79,11 +79,14 @@ its selected canonical URL. These rows represent Google's reported pages and
 should be compared with the intended program pages. Query strings and unknown
 paths are hidden in the report.
 
-Choose **Program page visibility** to compare Google-reported impressions for
-the five canonical program and guide pages across the latest and preceding 28
-finalized Pacific dates. It measures web search exposure for the pages across all
-queries. A missing row is shown as no data reported, and a change is shown when
-Google reports impressions in both periods.
+Choose **Landing page visibility** to compare Google-reported impressions for
+the homepage, current program and guide pages, and the former `/vortex-athletics`
+URL across two finalized 28-day periods. Read the former URL alongside
+`/fit-and-flip` while Google recrawls the redirect. Google generally assigns
+impressions to its selected canonical URL, so the former URL may have data only
+in the earlier period. The table includes all web queries. It displays
+**No data reported** when Google omits a row and calculates the change when both
+periods have an impression count.
 
 An empty topic means Google returned no reportable data for its query filter.
 Google can omit some search terms, and topic filters overlap, so do not add the

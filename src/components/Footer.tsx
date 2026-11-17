@@ -4,6 +4,7 @@ import { getSiteEnrollHref } from '../utils/enrollSite'
 import { Mail, Phone, MapPin, Instagram, Facebook, ArrowUp } from 'lucide-react'
 import {
   BUSINESS_NAP,
+  FACEBOOK_PROFILE_URL,
   GOOGLE_MAPS_URL,
   JACKRABBIT_PARENT_PORTAL_URL,
   TEAM_EMAIL,
@@ -52,7 +53,7 @@ const Footer = ({ onLoginClick }: FooterProps) => {
     {
       name: 'Facebook',
       icon: Facebook,
-      href: 'https://www.facebook.com/profile.php?id=61585434675018',
+      href: FACEBOOK_PROFILE_URL,
     },
   ]
 

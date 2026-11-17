@@ -25,6 +25,7 @@ import {
 import CookieConsent from './components/CookieConsent'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
 import { PUBLIC_PROGRAMS } from './config/publicPrograms'
+import { isAdultBookingProgram } from './utils/publicBookingPrograms'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const Header = lazyWithRetry(() => import('./components/Header'))
 const Footer = lazyWithRetry(() => import('./components/Footer'))
@@ -87,6 +88,7 @@ function App() {
     setPendingWaiverToken(pending => pending === memberToken ? null : pending)
   }, [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
+  const [adultEnrollmentLocationKey, setAdultEnrollmentLocationKey] = useState<string | null>(null)
   const [activePortal, setActivePortal] = useState<PortalId>(() => {
     // The redesign preview should open even when a portal session is stored.
     if (window.location.pathname.replace(/\/$/, '') === '/newpage') return 'website'
@@ -97,12 +99,19 @@ function App() {
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
   const programPage = Object.values(PUBLIC_PROGRAMS).find(({ path }) => Boolean(matchPath(path, location.pathname)))
+  const isEnrollmentPage = Boolean(matchPath('/enroll', location.pathname))
+  const isAdultProgram = programPage?.path === '/adult-gymnastics'
+    || (isEnrollmentPage && (
+      adultEnrollmentLocationKey === location.key
+      || isAdultBookingProgram(new URLSearchParams(location.search).get('program'))
+    ))
   const isModernPublicPage =
     Boolean(programPage)
     || isPublicRegistrationPage
     || Boolean(matchPath(ATHLETIC_DEVELOPMENT_GUIDE.path, location.pathname))
     || Boolean(matchPath(BOWIE_YOUTH_SPORTS_GUIDE.path, location.pathname))
-    || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
+    || isEnrollmentPage
+    || ['/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.
   useEffect(() => {
     if (activePortal !== 'website') return
@@ -329,7 +338,7 @@ function App() {
   return (
     <div className={`min-h-screen bg-white relative${isModernPublicPage ? ' np-public-site' : ''}`}>
       {!isLandingPage && <HubSeo />}
-      {isModernPublicPage && <PublicSiteHeader key={location.pathname} adultProgram={programPage?.path === '/adult-gymnastics'} isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
+      {isModernPublicPage && <PublicSiteHeader key={location.pathname} adultProgram={isAdultProgram} isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
         if (member || isAdmin) {
           const portals = getAvailablePortals(member)
           const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
@@ -372,7 +381,7 @@ function App() {
           />
           <Route
             path="/enroll"
-            element={<SchedulingPage />}
+            element={<SchedulingPage onAdultEnrollmentResolved={setAdultEnrollmentLocationKey} />}
           />
           <Route
             path="/store"

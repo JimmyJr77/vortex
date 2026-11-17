@@ -4,15 +4,19 @@ const SEARCH_CONSOLE_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonl
 const SEARCH_PAGES_PER_TOPIC = 5
 const REPORT_DAYS = 28
 
-const PROGRAM_PAGES = [
+const HOMEPAGE_NO_SLASH = 'https://vortexathletics.com'
+const HOMEPAGE = `${HOMEPAGE_NO_SLASH}/`
+const LANDING_PAGES = [
+  { label: 'Vortex homepage', page: HOMEPAGE },
   { label: 'Youth Gymnastics', page: 'https://vortexathletics.com/gymnastics' },
   { label: 'Fit & Flip Youth Training', page: 'https://vortexathletics.com/fit-and-flip' },
+  { label: 'Former youth sports performance page', page: 'https://vortexathletics.com/vortex-athletics' },
   { label: 'Adult Gymnastics', page: 'https://vortexathletics.com/adult-gymnastics' },
   { label: 'Bowie Youth Sports Guide', page: 'https://vortexathletics.com/blog/youth-sports-bowie' },
   { label: 'Youth Athletic Development Guide', page: 'https://vortexathletics.com/blog/athletic-development-young-athletes' },
 ]
-const PROGRAM_PAGE_URLS = new Set(PROGRAM_PAGES.map(({ page }) => page))
-const PROGRAM_PAGE_EXPRESSION = `^(?:${[...PROGRAM_PAGE_URLS].map(page => page.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`
+const LANDING_PAGE_URLS = new Set(LANDING_PAGES.map(({ page }) => page).concat(HOMEPAGE_NO_SLASH))
+const LANDING_PAGE_EXPRESSION = `^(?:${[...LANDING_PAGE_URLS].map(page => page.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`
 
 function searchConsoleConfigurationIssue(env) {
   if (!env.GSC_SITE_URL?.trim()) return 'missing_property'
@@ -276,21 +280,25 @@ async function fetchProgramPageWindow(searchconsole, siteUrl, dates) {
         aggregationType: 'auto',
         dimensions: ['page'],
         dimensionFilterGroups: [{ groupType: 'and', filters: [
-          { dimension: 'page', operator: 'includingRegex', expression: PROGRAM_PAGE_EXPRESSION },
+          { dimension: 'page', operator: 'includingRegex', expression: LANDING_PAGE_EXPRESSION },
         ] }],
-        rowLimit: PROGRAM_PAGE_URLS.size,
+        rowLimit: LANDING_PAGE_URLS.size,
       },
     }, { timeout: 10000, retry: false })
 
     const rows = data.rows ?? []
-    if (!Array.isArray(rows) || rows.length > PROGRAM_PAGE_URLS.size) throw new Error('Unexpected Search Console rows')
+    if (!Array.isArray(rows) || rows.length > LANDING_PAGE_URLS.size) throw new Error('Unexpected Search Console rows')
     const impressions = new Map()
     for (const row of rows) {
       const page = row.keys?.[0]
-      if (!PROGRAM_PAGE_URLS.has(page) || impressions.has(page) || !Number.isFinite(row.impressions) || row.impressions < 0) {
+      if (!LANDING_PAGE_URLS.has(page) || impressions.has(page) || !Number.isFinite(row.impressions) || row.impressions < 0) {
         throw new Error('Unexpected Search Console page metrics')
       }
       impressions.set(page, row.impressions)
+    }
+    // Use the slashless homepage row as a fallback without adding alias counts.
+    if (!impressions.has(HOMEPAGE) && impressions.has(HOMEPAGE_NO_SLASH)) {
+      impressions.set(HOMEPAGE, impressions.get(HOMEPAGE_NO_SLASH))
     }
     return { window: { ...dates, status: 'ok' }, impressions }
   } catch (error) {
@@ -309,7 +317,7 @@ export async function getSearchConsoleProgramPages(now = new Date()) {
       reason,
       current: { ...currentDates, status: 'unavailable' },
       previous: { ...previousDates, status: 'unavailable' },
-      pages: PROGRAM_PAGES.map(page => ({ ...page, currentImpressions: null, previousImpressions: null })),
+      pages: LANDING_PAGES.map(page => ({ ...page, currentImpressions: null, previousImpressions: null })),
     }
   }
 
@@ -323,7 +331,7 @@ export async function getSearchConsoleProgramPages(now = new Date()) {
     status: failedWindows.length === 2 ? 'error' : failedWindows.length ? 'partial' : 'ok',
     current: current.window,
     previous: previous.window,
-    pages: PROGRAM_PAGES.map(page => ({
+    pages: LANDING_PAGES.map(page => ({
       ...page,
       currentImpressions: current.impressions?.get(page.page) ?? null,
       previousImpressions: previous.impressions?.get(page.page) ?? null,

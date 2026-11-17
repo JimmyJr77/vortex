@@ -39,10 +39,12 @@ export const SERVICE_AREAS = [
   'Anne Arundel County, MD',
 ] as const
 
+export const FACEBOOK_PROFILE_URL = 'https://www.facebook.com/VortexAthleticsUSA/'
+
 /** Official social profiles (schema sameAs). */
 export const SOCIAL_PROFILES = [
   'https://www.instagram.com/vortexathletics.usa/',
-  'https://www.facebook.com/profile.php?id=61585434675018',
+  FACEBOOK_PROFILE_URL,
   'https://www.youtube.com/@VortexAthleticsUSA',
 ] as const
 

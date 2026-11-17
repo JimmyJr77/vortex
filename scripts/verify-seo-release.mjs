@@ -665,7 +665,11 @@ if (live) {
       const aliasOrigin = hostAliases.get(current.origin)
       const aliasTarget = aliasOrigin && new URL(current.pathname + current.search + current.hash, aliasOrigin)
       const temporaryGymnasticsAlias = current.origin === gymnasticsApexOrigin && response.status === 307
-      if (next.href !== aliasTarget?.href || (!permanent && !temporaryGymnasticsAlias)) {
+      const aliasRedirect = next.href === aliasTarget?.href && (permanent || temporaryGymnasticsAlias)
+      const slashlessTarget = new URL(current)
+      slashlessTarget.pathname = current.pathname.replace(/\/$/, '')
+      const slashRedirect = permanent && slashlessTarget.href !== current.href && next.href === slashlessTarget.href
+      if (!aliasRedirect && !slashRedirect) {
         assert(false, `${source.href}: ${current.href} redirected to ${next.href} (HTTP ${response.status}); expected ${destination.href}`)
         return
       }
@@ -685,20 +689,30 @@ if (live) {
     await verifyLiveRedirect(new URL(origin), new URL(HUB_ORIGIN))
   }
 
-  const legacyPaths = [
-    '/vortex-athletics',
-    '/athleticism-accelerator',
-    '/artistic-gymnastics-6-12',
-    '/trampoline-tumbling',
-  ]
-  for (const path of legacyPaths) {
-    const destination = new URL(legacyLandingRedirects[path], HUB_ORIGIN)
+  const verifyTrackedRedirect = async (path, target) => {
+    const destination = new URL(target, HUB_ORIGIN)
     destination.searchParams.set('utm_source', 'seo-release-check')
     for (const origin of [HUB_ORIGIN, ...aliasOrigins]) {
       const source = new URL(path, origin)
       source.search = destination.search
       await verifyLiveRedirect(source, destination)
     }
+  }
+
+  for (const path of [
+    '/vortex-athletics',
+    '/athleticism-accelerator',
+    '/summer-athletic-training',
+    '/artistic-gymnastics-6-12',
+    '/campaigns/artistic-gymnastics-6-12',
+    '/trampoline-tumbling',
+  ]) {
+    await verifyTrackedRedirect(path, legacyLandingRedirects[path])
+    await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path])
+  }
+
+  for (const path of [...HUB_PROGRAM_PATHS, YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH]) {
+    await verifyTrackedRedirect(`${path}/`, path)
   }
 
   for (const [source, destination] of [
@@ -781,6 +795,8 @@ for (const stub of STUB_SEO_ENTRIES) {
 }
 
 const vercelConfig = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'))
+assert(vercelConfig.trailingSlash === false,
+  'vercel.json: trailing-slash variants must permanently redirect to the canonical slashless paths')
 const redirects = vercelConfig.redirects ?? []
 const headers = vercelConfig.headers ?? []
 const rewrites = vercelConfig.rewrites ?? []

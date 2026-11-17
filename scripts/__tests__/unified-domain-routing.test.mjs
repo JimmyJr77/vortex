@@ -12,7 +12,11 @@ const aliases = ['www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex
 // routing intent and ordering; live response verification is a release check.
 function nextLocation(input) {
   const url = new URL(input)
-  const path = url.pathname === '/' ? '/' : url.pathname.replace(/\/$/, '')
+  const path = url.pathname
+  if (config.trailingSlash === false && path !== '/' && path.endsWith('/')) {
+    url.pathname = path.slice(0, -1)
+    return url.href
+  }
   const rule = config.redirects.find(candidate => {
     if (candidate.source !== '/:path*' && candidate.source !== path) return false
     return (candidate.has ?? []).every(condition => {
@@ -78,16 +82,16 @@ test('operational links keep their path, query and fragment on the primary domai
 
 test('legacy marketing pages resolve directly to the corresponding unified section', () => {
   const expected = {
-    '/newpage': '/', '/sports': '/#programs', '/gymnastics': '/#gymnastics',
-    '/artistic-gymnastics-early': '/#gymnastics', '/artistic-gymnastics-6-12': '/#gymnastics',
-    '/artistic-gymnastics-13-18': '/#gymnastics', '/campaigns/artistic-gymnastics-early': '/#gymnastics',
-    '/campaigns/artistic-gymnastics-6-12': '/#gymnastics', '/campaigns/artistic-gymnastics-13-18': '/#gymnastics',
-    '/acro-gymnastics': '/#gymnastics', '/artistic-gymnastics': '/#gymnastics',
-    '/rhythmic-gymnastics': '/#gymnastics', '/trampoline-tumbling': '/#gymnastics',
-    '/aerobic-gymnastics': '/#gymnastics', '/beginner-gymnastics': '/#gymnastics',
-    '/homeschool-gymnastics': '/#gymnastics', '/vortex-athletics': '/#fit-flip',
-    '/athleticism-accelerator': '/#fit-flip', '/fit-and-flip': '/#fit-flip',
-    '/strength-conditioning': '/#fit-flip', '/summer-athletic-training': '/#fit-flip',
+    '/newpage': '/', '/sports': '/#programs',
+    '/artistic-gymnastics-early': '/gymnastics#preschool', '/artistic-gymnastics-6-12': '/gymnastics#youth',
+    '/artistic-gymnastics-13-18': '/gymnastics#teen', '/campaigns/artistic-gymnastics-early': '/gymnastics#preschool',
+    '/campaigns/artistic-gymnastics-6-12': '/gymnastics#youth', '/campaigns/artistic-gymnastics-13-18': '/gymnastics#teen',
+    '/acro-gymnastics': '/gymnastics#acro', '/artistic-gymnastics': '/gymnastics#artistic',
+    '/rhythmic-gymnastics': '/gymnastics#rhythmic', '/trampoline-tumbling': '/gymnastics#trampoline-tumbling',
+    '/aerobic-gymnastics': '/gymnastics#aerobic', '/beginner-gymnastics': '/gymnastics#beginner',
+    '/homeschool-gymnastics': '/gymnastics#homeschool', '/vortex-athletics': '/fit-and-flip',
+    '/athleticism-accelerator': '/fit-and-flip#athleticism-development',
+    '/strength-conditioning': '/fit-and-flip#strength', '/summer-athletic-training': '/fit-and-flip#choose-a-class',
     '/value': '/#approach', '/summer-camp-26': '/camp_interest',
   }
   assert.deepEqual(landingRedirects, expected, 'Client-side navigation must use the same retired marketing paths and destinations')
@@ -96,7 +100,26 @@ test('legacy marketing pages resolve directly to the corresponding unified secti
       const target = new URL(`${primary}${destination}`)
       target.search = '?utm_source=legacy'
       assert.equal(nextLocation(`https://${host}${path}?utm_source=legacy`), target.href)
-      assert.equal(resolve(`https://${host}${path}?utm_source=legacy`), target.href)
+      assert.equal(resolve(`https://${host}${path}/?utm_source=legacy`), target.href)
+    }
+  }
+})
+
+test('public program and guide paths use one canonical form across hosts', () => {
+  const paths = [
+    '/gymnastics',
+    '/fit-and-flip',
+    '/adult-gymnastics',
+    '/blog/athletic-development-young-athletes',
+    '/blog/youth-sports-bowie',
+  ]
+  for (const path of paths) {
+    assert.equal(nextLocation(`${primary}${path}`), null)
+    for (const host of ['vortexathletics.com', ...aliases]) {
+      assert.equal(
+        resolve(`https://${host}${path}/?utm_source=legacy#details`),
+        `${primary}${path}?utm_source=legacy#details`,
+      )
     }
   }
 })

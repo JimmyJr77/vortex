@@ -86,6 +86,8 @@ test('analytics admins can filter reports and check Google search visibility', a
             : { startDate: '2026-10-17', endDate: '2026-11-13', status: 'ok' },
           previous: { startDate: '2026-09-19', endDate: '2026-10-16', status: 'ok' },
           pages: [
+            { page: 'https://vortexathletics.com/', label: 'Vortex homepage', currentImpressions: failed ? null : 80, previousImpressions: 63 },
+            { page: 'https://vortexathletics.com/vortex-athletics', label: 'Former youth sports performance page', currentImpressions: null, previousImpressions: 17 },
             { page: 'https://vortexathletics.com/gymnastics', label: 'Youth Gymnastics', currentImpressions: failed ? null : 31, previousImpressions: 12 },
             { page: 'https://vortexathletics.com/adult-gymnastics', label: 'Adult Gymnastics', currentImpressions: failed ? null : 0, previousImpressions: null },
           ],
@@ -160,16 +162,18 @@ test('analytics admins can filter reports and check Google search visibility', a
   expect(pageRequests.map(url => url.searchParams.get('scope'))).toEqual(['without_vortex', 'without_vortex'])
 
   await page.getByLabel('Report type').selectOption('program-pages')
-  await expect(page.getByRole('heading', { name: 'Google search visibility by program page' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Google search visibility by landing page' })).toBeVisible()
   await expect(page.getByLabel('Search queries')).toHaveCount(0)
   await expect(pageTable).toHaveCount(0)
   expect(programPageRequests).toBe(0)
   await checkVisibility.click()
-  const programTable = page.getByRole('table', { name: 'Google impressions by program page' })
+  const programTable = page.getByRole('table', { name: 'Google impressions by landing page' })
   await expect(programTable.getByRole('columnheader', { name: /Latest 28 days.*Oct 17, 2026 to Nov 13, 2026/ })).toBeVisible()
   await expect(programTable.getByRole('columnheader', { name: /Previous 28 days.*Sep 19, 2026 to Oct 16, 2026/ })).toBeVisible()
   const youth = programTable.getByRole('row', { name: /Youth Gymnastics/ })
   const adult = programTable.getByRole('row', { name: /Adult Gymnastics/ })
+  await expect(programTable.getByRole('row', { name: /Vortex homepage/ }).getByRole('cell')).toHaveText(['80', '63', '+17'])
+  await expect(programTable.getByRole('row', { name: /Former youth sports performance page/ }).getByRole('cell')).toHaveText(['No data reported', '17', '—'])
   await expect(youth.getByRole('cell')).toHaveText(['31', '12', '+19'])
   await expect(adult.getByRole('cell')).toHaveText(['0', 'No data reported', '—'])
   await checkVisibility.click()
