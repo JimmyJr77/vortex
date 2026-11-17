@@ -38,17 +38,20 @@ const scenes = [
 
 export default function TrainingWatchPage() {
   const playerRef = useRef<HTMLVideoElement>(null)
+  const playerFigureRef = useRef<HTMLElement>(null)
   const { hash } = useLocation()
+  const selectedScene = scenes.find(scene => '#' + scene.id === hash)
 
   useEffect(() => {
     if (!hash) return
     const frame = requestAnimationFrame(() => {
-      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      const target = selectedScene ? playerFigureRef.current : document.getElementById(hash.slice(1))
+      target?.scrollIntoView({ block: 'start', behavior: 'instant' })
     })
     return () => cancelAnimationFrame(frame)
-  }, [hash])
+  }, [hash, selectedScene])
 
-  function playScene(event: MouseEvent<HTMLAnchorElement>, start: number) {
+  function playScene(event: MouseEvent<HTMLAnchorElement | HTMLButtonElement>, start: number) {
     const player = playerRef.current
     if (!player || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return
 
@@ -67,7 +70,12 @@ export default function TrainingWatchPage() {
         <h1>{video.name}</h1>
         <p className="np-training-watch-intro">{video.description}</p>
 
-        <figure className="np-training-watch-player">
+        <figure className="np-training-watch-player" ref={playerFigureRef}>
+          {selectedScene && (
+            <button className="np-button np-training-watch-scene-play" type="button" onClick={event => playScene(event, selectedScene.start)}>
+              Play this scene from 0:{String(selectedScene.start).padStart(2, '0')}
+            </button>
+          )}
           <video
             ref={playerRef}
             src={video.assetPath}

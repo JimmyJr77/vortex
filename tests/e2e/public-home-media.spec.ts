@@ -60,6 +60,7 @@ test.describe('phone homepage video', () => {
     await expect(film).toHaveAttribute('poster', '/newpage/training-film-poster.jpg')
     await expect(film).toHaveAttribute('preload', 'none')
     await expect(film).toHaveJSProperty('controls', true)
+    await expect(page.getByRole('button', { name: /^Play this scene/ })).toHaveCount(0)
     expect(requestedMedia).toHaveLength(0)
     await page.getByRole('link', { name: 'Play from 0:16', exact: true }).click()
     await expect.poll(() => film.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThanOrEqual(16)
@@ -76,6 +77,34 @@ test.describe('phone homepage video', () => {
     await page.locator('#strength-and-handstand').getByRole('link', { name: 'How adults can work toward a handstand' }).click()
     await expect(page).toHaveURL('/adult-gymnastics#adult-handstand-preparation')
     await expect(page.locator('#adult-handstand-preparation').getByRole('heading')).toBeInViewport()
+  })
+
+  test('a direct scene link shows the mobile player and waits for Play', async ({ page }) => {
+    const requestedMedia: string[] = []
+    page.on('request', request => {
+      if (trainingLoop.test(request.url())) requestedMedia.push(request.url())
+    })
+
+    await page.goto('/watch/training-at-vortex#strength-and-handstand', { waitUntil: 'networkidle' })
+    const film = page.getByRole('main').locator('video')
+    const playScene = page.getByRole('button', { name: 'Play this scene from 0:12', exact: true })
+    await expect(film).toBeInViewport({ ratio: 1 })
+    await expect(playScene).toBeInViewport({ ratio: 1 })
+    await expect.poll(() => playScene.evaluate(button => {
+      const header = document.querySelector('.np-header')
+      return button.getBoundingClientRect().top >= (header?.getBoundingClientRect().bottom ?? 0)
+    })).toBe(true)
+    await expect(film).toHaveJSProperty('paused', true)
+    expect(requestedMedia).toHaveLength(0)
+    await expect(page.locator('#strength-and-handstand').getByRole('link', { name: 'Play from 0:12' }))
+      .toHaveAttribute('href', '/newpage/training-loop.mp4#t=12')
+
+    await playScene.click()
+    await expect.poll(() => film.evaluate((element: HTMLVideoElement) =>
+      element.readyState >= 2 && !element.paused && element.currentTime >= 12,
+    )).toBe(true)
+    await expect(film).toBeInViewport({ ratio: 1 })
+    expect(requestedMedia.length).toBeGreaterThan(0)
   })
 })
 

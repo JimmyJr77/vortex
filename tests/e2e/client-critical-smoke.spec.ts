@@ -86,7 +86,7 @@ test.describe('Client-critical smoke flows', () => {
     await expect(readiness.getByRole('heading', { level: 2 })).toBeInViewport()
     await readiness.getByRole('link', { name: 'See a kettlebell swing in the Vortex training film' }).click()
     await expect(page).toHaveURL('/watch/training-at-vortex#strength-and-handstand')
-    await expect(page.getByRole('link', { name: 'Play from 0:12', exact: true })).toBeInViewport()
+    await expect(page.getByRole('button', { name: 'Play this scene from 0:12', exact: true })).toBeInViewport()
   })
 
   test('homeschool families can compare local options and return to gymnastics class times', async ({ page }) => {
@@ -163,7 +163,7 @@ test.describe('Client-critical smoke flows', () => {
     await expect(agility.getByRole('heading')).toBeInViewport()
     await agility.getByRole('link', { name: 'See a change of direction in the Vortex training film' }).click()
     await expect(page).toHaveURL('/watch/training-at-vortex#change-of-direction')
-    await expect(page.getByRole('link', { name: 'Play from 0:16', exact: true })).toBeInViewport()
+    await expect(page.getByRole('button', { name: 'Play this scene from 0:16', exact: true })).toBeInViewport()
     await expect(page.getByRole('main').locator('video')).toHaveJSProperty('paused', true)
   })
 

@@ -26,8 +26,17 @@
   line-height: 1.55;
 }
 
+.np-training-watch-player,
+.np-training-watch-scenes li {
+  scroll-margin-top: calc(var(--site-header-height, 76px) + 1.25rem);
+}
+
 .np-training-watch-player {
   margin: 0;
+}
+
+.np-training-watch-scene-play {
+  margin-bottom: 0.65rem;
 }
 
 .np-training-watch-player video {
@@ -66,7 +75,6 @@
 }
 
 .np-training-watch-scenes li {
-  scroll-margin-top: calc(var(--site-header-height, 76px) + 1.25rem);
   display: grid;
   grid-template-columns: 6.25rem minmax(0, 1fr);
   gap: 0.6rem;
