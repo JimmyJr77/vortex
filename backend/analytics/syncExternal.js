@@ -1,4 +1,5 @@
 /** Sync first-party aggregates; optional GA4/GSC when credentials are configured. */
+import { isSearchConsoleConfigured, syncGscRankings } from './gscClient.js'
 
 export async function syncExternalAnalytics(pool) {
   const result = {
@@ -41,9 +42,8 @@ export async function syncExternalAnalytics(pool) {
     result.ga4 = { skipped: 'GA4_PROPERTY_ID or GOOGLE_APPLICATION_CREDENTIALS_JSON not set' }
   }
 
-  if (process.env.GSC_SITE_URL && process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
+  if (isSearchConsoleConfigured()) {
     try {
-      const { syncGscRankings } = await import('./gscClient.js')
       result.gsc = await syncGscRankings(pool)
     } catch (e) {
       result.gsc = { error: e.message }

@@ -7,6 +7,7 @@ import {
   recordUtmAttribution,
 } from './helpers.js'
 import { syncExternalAnalytics } from './syncExternal.js'
+import { isSearchConsoleConfigured } from './gscClient.js'
 import { getBusinessOutcomes } from './businessOutcomes.js'
 import { countWebsiteSessions, getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from './websiteReports.js'
 import { publicPaths, sanitizeAnalyticsId, sanitizeAnalyticsPath, sanitizeCampaign, sanitizeHostname } from './eventContract.js'
@@ -416,8 +417,8 @@ export function createAdminAnalyticsHandlers(pool) {
         ),
       ])
 
-      const configured = Boolean(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON &&
-        (process.env.GA4_PROPERTY_ID || process.env.GSC_SITE_URL))
+      const configured = isSearchConsoleConfigured() ||
+        Boolean(process.env.GA4_PROPERTY_ID && process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON)
 
       res.json({
         success: true,
