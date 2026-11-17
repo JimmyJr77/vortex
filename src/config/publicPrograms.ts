@@ -389,8 +389,11 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'fit-flip-trial-age',
             heading: 'Which Cyclones age group should I choose?',
-            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. If your child is under 8 or over 15, compare gymnastics, open gym, and movement classes by age.',
-            link: { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#fitness-without-a-team`, label: 'Compare Bowie fitness options by age', analyticsKey: 'read_bowie_youth_sports_guide' },
+            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. Families outside the Cyclones age range can compare nearby options by age and training goal.',
+            links: [
+              { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#fitness-without-a-team`, label: 'Compare Bowie fitness options by age', analyticsKey: 'read_bowie_youth_sports_guide' },
+              { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#high-school-sports-training`, label: 'Compare sports training for ages 16–17', analyticsKey: 'read_high_school_sports_training' },
+            ],
           },
           {
             id: 'book-fit-flip-trial',

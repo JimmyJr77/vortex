@@ -48,6 +48,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#indoor-winter-sports">Indoor winter sports</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
             <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
+            <li><a href="#high-school-sports-training">High school sports training</a></li>
             <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
             <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
@@ -199,13 +200,25 @@ export default function BowieYouthSportsGuide() {
               movements. Youth Lab for ages 9–12 adds running mechanics and changes of direction. Its Performance
               Lab for ages 13 and up starts with an assessment.{' '}
               <a href="https://www.goatlabperformance.com/programs/youth-athlete-development">See the younger age groups</a> ·{' '}
-              <a href="https://www.goatlabperformance.com/programs/the-performance-lab">Check how teens start</a>
+              <a href="https://www.goatlabperformance.com/programs/the-performance-lab">See the Performance Lab assessment</a>
             </li>
           </ul>
           <p className="mt-4">
             Before booking, ask what a coach will have your child try first and how they’ll adapt it for a
-            beginner. If your child already plays a sport, share their practice and game schedule with the coach.
-            Confirm whether your first visit is a regular class, a trial session, or a separate assessment.
+            beginner. Confirm whether your first visit is a regular class, a trial session, or a separate assessment.
+          </p>
+          <h3 id="high-school-sports-training" className="athletic-guide-subheading scroll-mt-24">
+            Sports performance training for high school athletes
+          </h3>
+          <p>
+            Fit &amp; Flip enrolls through age 15. Athletes ages 16–17 looking for coached speed, agility, and
+            strength training can compare{' '}
+            <a href="https://booking.redlineathletics.com/free-trial-booking-page-bowie">Redline’s small-group trial</a>{' '}
+            and <a href="https://www.goatlabperformance.com/programs/the-performance-lab">The GOAT Lab’s assessment</a>.
+            Share your teen’s practice and game schedule when you ask about times.
+          </p>
+          <p>
+            If your teen wants to learn tumbling skills, <Link to="/gymnastics#teen">see Vortex’s gymnastics options for teens</Link>.
           </p>
         </section>
 

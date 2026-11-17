@@ -93,6 +93,48 @@ test('still accepts legacy consent links while retaining filters, campaigns, and
   expect((await context.cookies()).find(cookie => cookie.name === '_vortex_cid')?.value).toBe(consentId)
 })
 
+test('keeps mobile booking and consent choices reachable without opting in', async ({ page, context }) => {
+  const events = await mockSite(page)
+  await page.setViewportSize({ width: 360, height: 740 })
+  const consent = page.getByRole('dialog', { name: 'Cookie consent' })
+
+  for (const { path, name, role } of [
+    { path: '/gymnastics', name: 'Find a free gymnastics trial', role: 'button' },
+    { path: '/fit-and-flip', name: 'Browse Fit & Flip classes', role: 'link' },
+    { path: '/adult-gymnastics', name: 'See Typhoons drop-in dates', role: 'link' },
+  ] as const) {
+    await page.goto(path)
+    await expect(consent).toBeVisible()
+    await page.evaluate(async () => { await document.fonts.ready })
+    const target = page.getByRole(role, { name, exact: true }).first()
+    await expect(target).toBeInViewport({ ratio: 1 })
+    expect(await target.evaluate(element => {
+      const { x, y, width, height } = element.getBoundingClientRect()
+      return element.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+    })).toBe(true)
+  }
+
+  const choices = ['Settings', 'Necessary only', 'Accept all']
+    .map(name => consent.getByRole('button', { name, exact: true }))
+  const boxes = await Promise.all(choices.map(choice => choice.boundingBox()))
+  for (const box of boxes) {
+    expect(box?.height).toBeGreaterThanOrEqual(44)
+    expect(box?.width).toBeGreaterThanOrEqual(44)
+    expect(box?.y).toBe(boxes[0]?.y)
+  }
+  await page.setViewportSize({ width: 320, height: 200 })
+  await choices[0].click()
+  await expect(consent.getByRole('checkbox', { name: /^Analytics/ })).not.toBeChecked()
+  await expect(consent.getByRole('checkbox', { name: /^Marketing/ })).not.toBeChecked()
+  const save = consent.getByRole('button', { name: 'Save preferences' })
+  await save.scrollIntoViewIfNeeded()
+  await expect(save).toBeInViewport({ ratio: 1 })
+  await save.click()
+  await expect(consent).toBeHidden()
+  expect(events).toEqual([])
+  expect((await context.cookies()).some(cookie => /^_vortex_(vid|sid)$/.test(cookie.name))).toBe(false)
+})
+
 test('uses explicit analytics consent, preserves campaign labels and records one view per route', async ({ page, context }) => {
   const events = await mockSite(page)
   const query = '?utm_source=school_newsletter&utm_medium=email&utm_campaign=fall_trials&utm_term=visitor%40example.invalid&session_id=private-token'
@@ -100,7 +142,8 @@ test('uses explicit analytics consent, preserves campaign labels and records one
   await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics & youth athletic training in Bowie, MD' })).toBeVisible()
   await page.getByRole('button', { name: 'Necessary only' }).click()
   await page.getByRole('link', { name: 'Explore programs', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Choose your program' })).toBeInViewport()
+  await expect(page).toHaveURL('/' + query + '#starting-classes')
+  await expect(page.getByRole('heading', { name: 'Find a class by age and experience' })).toBeInViewport()
   expect(events).toEqual([])
   expect((await context.cookies()).some(cookie => /^_vortex_(vid|sid)$/.test(cookie.name))).toBe(false)
   expect(await page.evaluate(() => sessionStorage.getItem('vortex_utm'))).toBeNull()

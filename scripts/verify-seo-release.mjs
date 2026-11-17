@@ -528,6 +528,9 @@ const verifyHtml = (
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
     const startingClasses = html.match(/<section\b[^>]*\sid=["']starting-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    assert(tags(html, 'a').some(tag => attribute(tag, 'data-analytics-cta') === 'explore_programs' &&
+      attribute(tag, 'href') === '#starting-classes'),
+      `${label}: the homepage Explore programs link must reach the age-based class choices`)
     const classLinks = anchorUrls(startingClasses)
     for (const path of ['/gymnastics#preschool', '/gymnastics#choose-a-class', '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics']) {
       assert(classLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
@@ -724,8 +727,11 @@ const verifyHtml = (
         `${label}: missing the Fit & Flip price comparison and its crawlable booking and trial links`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
       const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
-      assert(anchorUrls(firstClass).some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#fitness-without-a-team`),
-        `${label}: Fit & Flip age guidance must link to the local fitness alternatives`)
+      const firstClassLinks = anchorUrls(firstClass)
+      for (const hash of ['#fitness-without-a-team', '#high-school-sports-training']) {
+        assert(firstClassLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}${hash}`),
+          `${label}: Fit & Flip age guidance must link to the local options at ${hash}`)
+      }
       assert(tags(firstClass, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
         `${label}: missing the Fit & Flip trial finder button`)
       assert(anchorUrls(firstClass).some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-class-pricing`),
@@ -984,6 +990,9 @@ const verifyHtml = (
       trainingLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/youth-athlete-development') &&
       trainingLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/the-performance-lab'),
       `${label}: missing the crawlable comparison of Fit & Flip, Redline and The GOAT Lab`)
+    assert(pageIds.has('high-school-sports-training') &&
+      tags(content, 'a').some(tag => attribute(tag, 'href') === '#high-school-sports-training'),
+      `${label}: missing the training comparison for high school athletes or its contents link`)
     const homeschool = content.match(/<section\b[^>]*\sid=["']homeschool-pe["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const homeschoolLinks = anchorUrls(homeschool)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#homeschool-pe') &&

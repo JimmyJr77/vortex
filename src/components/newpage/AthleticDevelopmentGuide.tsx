@@ -105,6 +105,7 @@ export default function AthleticDevelopmentGuide() {
           <p className="mt-4">
             The week’s schedule helps the coach decide when to keep a movement familiar and when to progress it.
             See how a coach could use that approach in a <Link to="/fit-and-flip#fit-flip-class-example">Fit &amp; Flip class</Link>.
+            {' '}For older teens, <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#high-school-sports-training`}>compare sports training for ages 16–17 near Bowie</Link>.
           </p>
         </section>
 
