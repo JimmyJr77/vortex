@@ -13,7 +13,7 @@ import { sendDropInConfirmationNotifications } from './dropInNotificationEmail.j
 import { normalizePhoneNumber, normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 import { registerFreeTrialCatalogRoutes } from './freeTrials.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
-import { DROP_IN_CALENDAR_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
+import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -388,7 +388,7 @@ export async function initDropInTables(pool) {
   await pool.query(fs.readFileSync(migrationPath, 'utf8'))
 }
 
-async function loadCatalog(pool, member, { includeExcluded = false, includeTrialOnly = includeExcluded } = {}) {
+async function loadCatalog(pool, member, { includeExcluded = false, trialsOnly = false } = {}) {
   await expirePendingDropIns(pool)
   const benefits = await memberBenefits(pool, member)
   const result = await pool.query(`
@@ -401,7 +401,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
            p.id AS class_id, p.display_name AS class_name, p.description AS class_description, p.skill_level,
            p.age_min, p.age_max, p.is_trial_assessment,
            to_jsonb(sf) AS pricing_form, to_jsonb(top) AS pricing_program, top.id AS program_id, top.display_name AS program_name, top.description AS program_description,
-           COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
+           ${DROP_IN_POLICY_COLUMNS},
            primary_dt.name AS sport_name, top.facility_id, COALESCE(NULLIF(facility.timezone, ''), 'America/New_York') AS time_zone,
            (now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::date::text AS facility_date,
            (((now() AT TIME ZONE COALESCE(NULLIF(facility.timezone, ''), 'America/New_York'))::date + INTERVAL '2 months')::date)::text AS booking_end_date,
@@ -418,7 +418,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
      WHERE sg.is_active=TRUE
        AND COALESCE(p.is_active, TRUE)=TRUE
        AND COALESCE(p.archived, FALSE)=FALSE
-       ${includeTrialOnly ? '' : 'AND COALESCE(p.is_trial_assessment, FALSE)=FALSE'}
+       ${includeExcluded || trialsOnly ? '' : 'AND COALESCE(p.is_trial_assessment, FALSE)=FALSE'}
        AND COALESCE(top.is_active, TRUE)=TRUE
        AND COALESCE(top.archived, FALSE)=FALSE
      ORDER BY primary_dt.name, top.display_name, p.display_name,
@@ -473,12 +473,13 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
   }
   for (const rows of windows.values()) {
     for (const occurrence of dropInOccurrences(rows, rows[0].facility_date, rows[0].booking_end_date)) {
+      if (occurrence.cancelled) continue
       if (!occurrencesByRow.has(occurrence.row)) occurrencesByRow.set(occurrence.row, [])
       occurrencesByRow.get(occurrence.row).push(occurrence)
     }
   }
   for (const row of result.rows) {
-    if (!row.calendar_slot_active || (!includeExcluded && row.excluded_from_drop_ins)) continue
+    if (!row.calendar_slot_active || (!includeExcluded && !trialsOnly && row.excluded_from_drop_ins)) continue
     const offeringById = row.offering_id == null ? null : new Map([[Number(row.offering_id), {
       start_date: row.offering_start_date,
       end_date: row.offering_end_date,
@@ -506,8 +507,8 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
       // any of its scheduled times permits drop-ins.
       classesById.get(Number(row.class_id)).excludedFromDropIns = false
     }
-    for (const { date, excludedFromDropIns } of occurrencesByRow.get(row) || []) {
-      if (!includeExcluded && excludedFromDropIns) continue
+    for (const { date, excludedFromDropIns, allowsFreeTrial } of occurrencesByRow.get(row) || []) {
+      if (!includeExcluded && (trialsOnly ? !allowsFreeTrial : excludedFromDropIns)) continue
       const availability = calculateDropInAvailability({
         maxParticipants: row.max_participants,
         monthlyEnrolled: (monthlyStartsByGroup.get(Number(row.slot_group_id)) ?? [])
@@ -533,7 +534,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, includeTrial
         facilityId: Number(row.facility_id), timeZone: row.time_zone,
         ageMin: row.age_min != null ? Number(row.age_min) : null,
         ageMax: row.age_max != null ? Number(row.age_max) : null,
-        excludedFromDropIns, isTrialAssessment: Boolean(row.is_trial_assessment),
+        excludedFromDropIns, allowsFreeTrial, isTrialAssessment: Boolean(row.is_trial_assessment),
         scheduleDayOfWeek: row.day_of_week != null ? Number(row.day_of_week) : null,
         activeStart: activeDates.activeStart,
         activeEnd: activeDates.activeEnd,
@@ -578,7 +579,7 @@ async function loadDropInClassInventory(pool) {
 }
 
 export function registerDropInRoutes(app, pool) {
-  registerFreeTrialCatalogRoutes(app, pool, (db, member) => loadCatalog(db, member, { includeTrialOnly: true }))
+  registerFreeTrialCatalogRoutes(app, pool, (db, member) => loadCatalog(db, member, { trialsOnly: true }))
   app.get('/api/public/drop-ins', async (req, res) => {
     try {
       const authenticatedMember = await resolveMember(pool, req)
@@ -712,13 +713,13 @@ export function registerDropInRoutes(app, pool) {
       }
       if (member && memberId != null) await assertCurrentMemberWaivers(client, Number(member.id), member.facility_id)
       const benefits = await memberBenefits(client, member)
-      // Scoped eligibility edits lock the same group. Read eligibility in a new
-      // statement after the lock so a waiting booking sees the committed edit.
+      // Date cancellations and eligibility edits lock the same group. Read
+      // again after acquiring the lock to see any committed change.
       await client.query('SELECT id FROM scheduling_slot_group WHERE id=$1 FOR UPDATE', [slotGroupId])
       const slot = await client.query(`
         SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,
                pending_registration_holds(sg.id) AS registration_holds,
-               COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
+               ${DROP_IN_POLICY_COLUMNS},
                ts.start_time, ts.end_time,
                sg.dates_tbd, ts.day_of_week, ts.specific_date, p.is_trial_assessment,
                CASE
@@ -760,9 +761,18 @@ export function registerDropInRoutes(app, pool) {
         await client.query('ROLLBACK')
         return res.status(400).json({ success: false, message: 'Trial assessments must be booked through the free-trial registration with an authorized guardian and required waivers.' })
       }
-      const occurrences = dropInOccurrences(slot.rows, classDate).filter(occurrence => !occurrence.excludedFromDropIns)
+      const scheduled = dropInOccurrences(slot.rows, classDate)
+      const occurrences = scheduled.filter(occurrence => !occurrence.cancelled && !occurrence.excludedFromDropIns)
       if (!occurrences.length) {
-        await client.query('ROLLBACK'); return res.status(400).json({ success: false, message: 'That date is not an active occurrence of this class.' })
+        await client.query('ROLLBACK')
+        if (scheduled.some(occurrence => occurrence.cancelled)) {
+          return res.status(409).json({ success: false, message: 'This class has been canceled for that date. Please choose another date.' })
+        }
+        return res.status(400).json({ success: false, message: 'That date is not an active occurrence of this class.' })
+      }
+      if (useFreeTrial && !occurrences[0].allowsFreeTrial) {
+        await client.query('ROLLBACK')
+        return res.status(409).json({ success: false, message: 'Free trials are not available for this class time. Please choose another date.' })
       }
       // Pricing/capacity use the actual eligible occurrence, not an unrelated
       // sibling returned first by the schedule query.

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { Loader2, X } from 'lucide-react'
 import {
   formatOfferingDates,
@@ -9,17 +9,13 @@ import {
 } from '../../utils/classSchedulingSummary'
 import { formatDateForDisplay } from '../../utils/dateUtils'
 import { slotGroupHasMultipleWeekLetters, type SchedulingCalendarEvent } from '../../utils/schedulingApi'
+import { formatTime12 } from './calendarDateUtils'
 
 interface Props {
   event: SchedulingCalendarEvent
+  canManage: boolean
+  onCancellationChange: (cancelled: boolean) => Promise<void>
   onClose: () => void
-}
-
-function formatTime12(time: string): string {
-  const [h, m] = time.split(':').map(Number)
-  const period = h >= 12 ? 'PM' : 'AM'
-  const hour = h % 12 || 12
-  return `${hour}:${String(m).padStart(2, '0')} ${period}`
 }
 
 function formatAgeRange(ageMin: number | null, ageMax: number | null): string {
@@ -42,10 +38,21 @@ const DetailRow = ({ label, value }: { label: string; value: React.ReactNode }) 
   </div>
 )
 
-const AdminCalendarEventModal = ({ event, onClose }: Props) => {
+const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClose }: Props) => {
+  const dialog = useRef<HTMLDialogElement>(null)
+  const titleId = useId()
   const [detail, setDetail] = useState<ClassSchedulingDetail | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [confirmCancel, setConfirmCancel] = useState(false)
+  const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const element = dialog.current
+    element?.showModal()
+    return () => element?.close()
+  }, [])
 
   const showWeekLetter = useMemo(() => {
     if (!event.weekLetter || !detail?.slotGroups?.length) return false
@@ -76,6 +83,19 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
     loadDetail()
   }, [loadDetail])
 
+  const saveCancellation = async (cancelled: boolean) => {
+    setSaving(true)
+    setSaveError(null)
+    try {
+      await onCancellationChange(cancelled)
+      setConfirmCancel(false)
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : 'Unable to update this class session.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
   const offeringSummary =
     event.offeringLabel ||
     (event.offeringStartDate && event.offeringEndDate
@@ -83,16 +103,17 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
       : null)
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} aria-hidden />
-      <div
-        role="dialog"
-        aria-modal="true"
-        className="portal-dialog relative bg-white rounded-xl shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col"
-      >
+    <dialog
+      ref={dialog}
+      aria-labelledby={titleId}
+      className="portal-dialog m-auto w-[calc(100%_-_2rem)] max-w-4xl max-h-[90vh] overflow-hidden rounded-xl bg-white p-0 shadow-xl backdrop:bg-black/50"
+      onCancel={(e) => { e.preventDefault(); onClose() }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="flex max-h-[90vh] flex-col">
         <div className="portal-dialog-header flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200">
           <div>
-            <h3 className="text-xl font-display font-bold text-black">{event.className}</h3>
+            <h3 id={titleId} className="text-xl font-display font-bold text-black">{event.className}</h3>
             <p className="text-sm text-gray-600 mt-1">
               {formatDateForDisplay(event.date)} · {formatTime12(event.startTime)} –{' '}
               {formatTime12(event.endTime)}
@@ -111,6 +132,15 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
         <div className="portal-dialog-body overflow-y-auto px-6 py-4 space-y-6">
           <dl>
             <DetailRow label="Program" value={event.programName || '—'} />
+            {event.isTrialAssessment && <DetailRow label="Class type" value="Trial assessment" />}
+            <DetailRow
+              label="Session status"
+              value={
+                <span role="status" className={`font-medium ${event.isCancelled ? 'text-red-700' : 'text-gray-900'}`}>
+                  {event.isCancelled ? 'Cancelled' : event.classActive ? 'Scheduled' : 'Inactive'}
+                </span>
+              }
+            />
             <DetailRow
               label="Class status"
               value={
@@ -213,8 +243,50 @@ const AdminCalendarEventModal = ({ event, onClose }: Props) => {
             </div>
           )}
         </div>
+        {canManage && (
+          <div className="portal-dialog-footer shrink-0 space-y-3 border-t border-gray-200 px-6 py-4">
+            {confirmCancel && (
+              <p className="text-sm text-gray-700">
+                Cancel this session on {formatDateForDisplay(event.date)}? Existing registrations stay on file.
+              </p>
+            )}
+            {saveError && <p role="alert" className="text-sm text-red-700">{saveError}</p>}
+            <div className="flex flex-wrap justify-end gap-2">
+              {confirmCancel && (
+                <button
+                  type="button"
+                  disabled={saving}
+                  onClick={() => { setConfirmCancel(false); setSaveError(null) }}
+                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-semibold hover:bg-gray-50 disabled:opacity-50"
+                >
+                  Keep scheduled
+                </button>
+              )}
+              <button
+                type="button"
+                disabled={saving}
+                onClick={() => {
+                  if (event.isCancelled || confirmCancel) {
+                    void saveCancellation(!event.isCancelled)
+                  } else {
+                    setConfirmCancel(true)
+                  }
+                }}
+                className={`rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 ${
+                  event.isCancelled
+                    ? 'border border-gray-300 text-gray-900 hover:bg-gray-50'
+                    : 'bg-vortex-red text-white hover:bg-red-700'
+                }`}
+              >
+                {event.isCancelled
+                  ? (saving ? 'Restoring…' : 'Restore class')
+                  : (saving ? 'Cancelling…' : confirmCancel ? 'Confirm cancellation' : 'Cancel class')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+    </dialog>
   )
 }
 

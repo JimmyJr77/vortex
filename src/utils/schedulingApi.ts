@@ -777,7 +777,15 @@ export interface SchedulingCalendarEvent {
   classActive: boolean
   slotGroupActive: boolean
   slotActive: boolean
+  isCancelled: boolean
+  isTrialAssessment: boolean
   weekLetter?: string | null
+}
+
+interface CalendarOccurrenceStatus {
+  date: string
+  slotId: number
+  cancelled: boolean
 }
 
 export interface SchedulingCalendarTbd {
@@ -2084,6 +2092,11 @@ export async function fetchPublicSchedulingClasses(): Promise<PublicSchedulingCl
   return parseJson(res)
 }
 
+export async function adminFetchSchedulingCalendarClasses(): Promise<PublicSchedulingClassOption[]> {
+  const res = await adminApiRequest('/api/admin/scheduling/classes')
+  return parseJson(res)
+}
+
 export async function adminFetchSchedulingCalendar(params: {
   year?: number
   month?: number
@@ -2110,6 +2123,16 @@ export async function adminFetchSchedulingCalendar(params: {
     qs.set('programId', String(params.programId))
   }
   const res = await adminApiRequest(`/api/admin/scheduling/calendar?${qs.toString()}`)
+  return parseJson(res)
+}
+
+export async function adminSetCalendarOccurrenceStatus(
+  status: CalendarOccurrenceStatus,
+): Promise<CalendarOccurrenceStatus> {
+  const res = await adminApiRequest('/api/admin/scheduling/calendar/occurrence', {
+    method: 'PUT',
+    body: JSON.stringify(status),
+  })
   return parseJson(res)
 }
 

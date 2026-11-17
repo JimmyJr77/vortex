@@ -72,5 +72,12 @@ test('class catalog counts enrollments once per schedule while the roster suppor
     await assert.rejects(classRoster(db,facility+999999,klass,{}),/not found/)
     await assert.rejects(classRoster(db,facility,klass,{slotGroupId:otherGroup,timeSlotId:slot}),/not found/)
     await assert.rejects(classRoster(db,facility,klass,{status:'invalid'}),/Invalid enrollment status/)
+    await db.query('UPDATE scheduling_form SET is_active=FALSE WHERE id=$1',[form])
+    await db.query('UPDATE scheduling_time_slot SET exclude_from_drop_ins=TRUE,allow_free_trials=TRUE WHERE id=$1',[slot])
+    const {rows:[hidden]}=await listClasses(db,facility)
+    assert.deepEqual(hidden.scheduleGroups,[])
+    const hiddenSlot=hidden.otherScheduleGroups.flatMap(group => group.slots).find(time => time.id === Number(slot))
+    assert.equal(hiddenSlot?.allowDropIns,false)
+    assert.equal(hiddenSlot?.allowFreeTrials,true)
   } finally {await db.query('ROLLBACK');db.release();await pool.end()}
 })

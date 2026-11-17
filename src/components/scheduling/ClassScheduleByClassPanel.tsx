@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react'
 import { Clock, Loader2, Users } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { formatAgeRange, formatSkillLevel } from '../../utils/classDisplayUtils'
-import { schedulingEnrollPath } from '../../utils/schedulingApi'
+import { formatDateShort } from '../../utils/dateUtils'
+import { schedulingEnrollPath, type SchedulingCalendarEvent } from '../../utils/schedulingApi'
 import type { ClassScheduleProgramGroup } from './classScheduleGroups'
 
 interface ClassScheduleByClassPanelProps {
@@ -11,6 +12,8 @@ interface ClassScheduleByClassPanelProps {
   mode: 'admin' | 'public'
   showFormActiveFilter?: boolean
   classFilterId: number | 'none'
+  events?: SchedulingCalendarEvent[]
+  onEventClick?: (event: SchedulingCalendarEvent) => void
 }
 
 const ClassScheduleByClassPanel = ({
@@ -19,6 +22,8 @@ const ClassScheduleByClassPanel = ({
   mode,
   showFormActiveFilter = false,
   classFilterId,
+  events,
+  onEventClick,
 }: ClassScheduleByClassPanelProps) => {
   const [selectedOfferingKey, setSelectedOfferingKey] = useState<string | null>(null)
 
@@ -32,6 +37,10 @@ const ClassScheduleByClassPanel = ({
     }
     return null
   }, [groups, selectedOfferingKey])
+
+  const datedEvents = selectedOffering && events?.filter((event) =>
+    event.timeSlotId === selectedOffering.timeSlotId,
+  )
 
   if (loading) {
     return (
@@ -106,12 +115,13 @@ const ClassScheduleByClassPanel = ({
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                       {classGroup.offerings.map((offering) => {
                         const isSelected = selectedOfferingKey === offering.key
-                        const disabled = offering.inactive || (mode === 'public' && !offering.enrollVisible)
+                        const disabled = mode === 'public' && (offering.inactive || !offering.enrollVisible)
                         return (
                           <button
                             key={offering.key}
                             type="button"
                             disabled={disabled}
+                            aria-expanded={mode === 'admin' ? isSelected : undefined}
                             onClick={() => {
                               if (disabled) return
                               setSelectedOfferingKey((current) =>
@@ -147,6 +157,28 @@ const ClassScheduleByClassPanel = ({
                         )
                       })}
                     </div>
+
+                    {mode === 'admin' && selectedInClass && onEventClick && (
+                      <div className="mt-4 space-y-2">
+                        <h6 className="text-sm font-semibold text-gray-900">Session dates</h6>
+                        {datedEvents?.length ? (
+                          <ul className="flex flex-wrap gap-2">
+                            {datedEvents.map((event) => (
+                              <li key={event.id}>
+                                <button
+                                  type="button"
+                                  onClick={() => onEventClick(event)}
+                                  className="rounded-lg border border-gray-300 px-3 py-2 text-sm text-gray-900 hover:bg-gray-50"
+                                >
+                                  {formatDateShort(event.date)}
+                                  {event.isCancelled && <span className="ml-2 font-semibold text-red-700">Cancelled</span>}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        ) : <p className="text-sm text-gray-600">No session dates in this period.</p>}
+                      </div>
+                    )}
 
                     {mode === 'public' && selectedInClass && selectedOffering && (
                       <div className="mt-4 flex flex-wrap items-center gap-3">

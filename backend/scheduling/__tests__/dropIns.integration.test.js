@@ -92,15 +92,26 @@ test('weekly occurrences cover the complete two-month booking horizon', () => {
   assert.ok(dates.every((date) => date >= '2026-07-25' && date <= '2026-09-25'))
 })
 
+function pendingDropInSlot(date, overrides = {}) {
+  return {
+    form_id: 4, calendar_slot_id: 21, calendar_group_id: 20,
+    calendar_schedule_mode: 'date', calendar_slot_active: true, specific_date: date,
+    start_time: '16:00', end_time: '17:00', excluded_from_drop_ins: false,
+    ...overrides,
+  }
+}
+
 test('family signup attaches and confirms a pending free-trial drop-in without charging', async () => {
   const calls = []
   const client = {
     async query(sql, params) {
       calls.push({ sql, params })
       if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: 8, signature_name: 'Parent Stone' }] }
+      if (sql.includes('FROM scheduling_slot_group sg')) return { rows: [pendingDropInSlot('2026-07-18')] }
       if (sql.includes('FROM drop_in_registration d')) {
         return { rows: [{
           id: 41,
+          slot_group_id: 20,
           first_name: 'Avery',
           last_name: 'Stone',
           email: 'parent@example.com',
@@ -137,9 +148,11 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
       async query(sql, params) {
         calls.push({ sql, params })
         if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: 12, signature_name: 'Jordan Lee' }] }
+        if (sql.includes('FROM scheduling_slot_group sg')) return { rows: [pendingDropInSlot('2026-07-21')] }
         if (sql.includes('FROM drop_in_registration d')) {
           return { rows: [{
             id: benefitType === 'paid' ? 51 : 52,
+            slot_group_id: 20,
             first_name: 'Jordan',
             last_name: 'Lee',
             email: 'jordan@example.com',
@@ -164,6 +177,31 @@ test('paid pending drop-in is attached and charged while annual-credit handoff r
       calls.some(({ sql }) => sql.includes('INSERT INTO billing_charge')),
       benefitType === 'paid',
     )
+  }
+})
+
+test('pending guest bookings recheck the date and booking type after account signup', async () => {
+  const date = '2026-07-21'
+  for (const [slot, benefitType, error] of [
+    [pendingDropInSlot(date, { calendar_cancelled_dates: [date] }), 'paid', /canceled for that date/],
+    [pendingDropInSlot(date, { excluded_from_drop_ins: true }), 'paid', /no longer available for drop-ins/],
+    [pendingDropInSlot(date, { allows_free_trial: false }), 'free_trial', /Free trials are not available/],
+  ]) {
+    const client = { async query(sql) {
+      if (sql.includes('FROM drop_in_registration d')) return { rows: [{
+        id: 60, slot_group_id: 20, class_date: date, class_facility_id: 1,
+        first_name: 'Jordan', last_name: 'Lee', email: 'parent@example.com', benefit_type: benefitType,
+        amount_cents: benefitType === 'paid' ? 4000 : 0, base_price_cents: 4000,
+      }] }
+      if (sql.includes('FROM waiver_template template')) return { rows: [{ id: 1, member_id: 12, signature_name: 'Jordan Lee' }] }
+      if (sql.includes('FROM scheduling_slot_group sg')) return { rows: [slot] }
+      assert.doesNotMatch(sql, /UPDATE drop_in_registration|INSERT INTO billing_charge/)
+      return { rows: [] }
+    } }
+    await assert.rejects(finalizePendingDropIn(client, 60, {
+      primaryEmail: 'parent@example.com',
+      createdMembers: [{ member: { id: 12, family_id: 4, facility_id: 1, first_name: 'Jordan', last_name: 'Lee' } }],
+    }), error)
   }
 })
 

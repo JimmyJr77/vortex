@@ -26,6 +26,7 @@ async function mockDropInApi(page: Page, options: {
   autoLoginFails?: boolean
   fullOnRefresh?: boolean
   trialUsedOnRefresh?: boolean
+  allowsFreeTrial?: boolean
   membershipRequiresReview?: boolean
 } = {}) {
   const submitted: { path: string; body: Record<string, unknown> }[] = []
@@ -48,7 +49,7 @@ async function mockDropInApi(page: Page, options: {
         catalogMemberIds.push(url.searchParams.get('memberId')!)
       }
       const selectedAthlete = url.searchParams.has('memberId')
-      return json({ classes: [dropInClass], sessions: [{ ...session, isFull: Boolean(options.fullOnRefresh && selectedAthlete) }], benefits: {
+      return json({ classes: [dropInClass], sessions: [{ ...session, allowsFreeTrial: options.allowsFreeTrial, isFull: Boolean(options.fullOnRefresh && selectedAthlete) }], benefits: {
         annualMember: membershipActive, annualCreditsRemaining: membershipActive ? 4 : 0,
         adminCreditsRemaining: 0, freePassesRemaining: 0, trialAvailable: !(options.trialUsedOnRefresh && selectedAthlete), discountPercent: membershipActive ? 10 : 0,
       } })
@@ -134,6 +135,19 @@ async function finishAccount(page: Page, expectReview = true) {
   await page.getByRole('button', { name: 'Create account & review payment' }).click()
   if (expectReview) await expect(page.getByRole('heading', { name: 'Review your drop-in' })).toBeVisible()
 }
+
+test('drop-in-only schedule hides the free trial and sends the displayed paid booking', async ({ page }) => {
+  await signedIn(page)
+  const { submitted } = await mockDropInApi(page, { allowsFreeTrial: false })
+  await page.goto(resumeUrl)
+  const pay = page.getByRole('button', { name: 'Pay $30.00', exact: true })
+  await expect(pay).toBeVisible()
+  await expect(page.getByRole('checkbox', { name: /Use my one-time free trial/ })).toHaveCount(0)
+  await pay.click()
+  await expect(page).toHaveURL('/mock-drop-in-card-payment')
+  expect(submitted.find(entry => entry.path === '/api/public/drop-ins/register')?.body)
+    .toMatchObject({ memberId: 102, slotGroupId: 200, classDate, useFreeTrial: false })
+})
 
 test('guest drop-in requires full account details and waivers before offering membership and final card payment', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })

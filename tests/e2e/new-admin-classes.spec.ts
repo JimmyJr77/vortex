@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test'
 
-test('class managers can edit classes and create and rename programs from Admin', async ({ page }) => {
+test('class managers can set availability by schedule, edit classes, and manage programs from Admin', async ({ page }) => {
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
     localStorage.setItem('adminToken', 'e2e-admin-token')
@@ -13,13 +13,13 @@ test('class managers can edit classes and create and rename programs from Admin'
     {
       id: 10, enrolledCount: 4, capacity: 10, waitlistCount: 2,
       slots: [
-        { id: 1, dayOfWeek: 1, startTime: '16:00:00', endTime: '17:00:00' },
-        { id: 2, dayOfWeek: 3, startTime: '18:00:00', endTime: '19:00:00' },
+        { id: 1, dayOfWeek: 1, startTime: '16:00:00', endTime: '17:00:00', allowDropIns: true, allowFreeTrials: true },
+        { id: 2, dayOfWeek: 3, startTime: '18:00:00', endTime: '19:00:00', allowDropIns: true, allowFreeTrials: true },
       ],
     },
     {
       id: 20, enrolledCount: 7, capacity: 8, waitlistCount: 3,
-      slots: [{ id: 3, dayOfWeek: 5, startTime: '15:00:00', endTime: '16:00:00' }],
+      slots: [{ id: 3, dayOfWeek: 5, startTime: '15:00:00', endTime: '16:00:00', allowDropIns: true, allowFreeTrials: true }],
     },
   ]
   await page.route('**/api/**', async route => {
@@ -33,6 +33,10 @@ test('class managers can edit classes and create and rename programs from Admin'
     if (path === '/api/admin/new-admin/classes/1' && req.method() === 'PUT') {
       expect(req.postDataJSON()).toMatchObject({ displayName: 'Advanced Tumbling', description: 'Updated class', abridgedName: 'Tumble', isActive: true, monthlyPriceCents: 13500 })
       Object.assign(details, req.postDataJSON())
+    }
+    if (path === '/api/admin/new-admin/classes/1/drop-ins' && req.method() === 'PATCH') {
+      expect(req.postDataJSON()).toEqual({ scope: 'class', timeSlotId: 1, allowFreeTrials: false })
+      scheduleGroups[0].slots[0].allowFreeTrials = false
     }
     if (path === '/api/admin/programs-top') {
       if (req.method() === 'POST') {
@@ -69,6 +73,14 @@ test('class managers can edit classes and create and rename programs from Admin'
   await expect(mondayAndWednesday.getByText('Wed · 6:00 PM–7:00 PM', { exact: true })).toBeVisible()
   await expect(mondayAndWednesday.getByRole('cell').filter({ hasText: /^\d+$/ })).toHaveText(['4', '10', '2'])
   await expect(friday.getByRole('cell').filter({ hasText: /^\d+$/ })).toHaveText(['7', '8', '3'])
+  const mondayAvailability = page.getByRole('button', { name: 'Edit drop-ins and free trials for Tumbling · Mon · 4:00 PM–5:00 PM', exact: true })
+  await mondayAvailability.click()
+  const availability = page.getByRole('dialog', { name: 'Booking availability' })
+  await expect(availability.getByRole('checkbox', { name: 'Allow drop-ins' })).toBeChecked()
+  await availability.getByRole('checkbox', { name: 'Allow free trials' }).uncheck()
+  await availability.getByRole('button', { name: 'Save availability' }).click()
+  await expect(mondayAvailability).toHaveText('Drop-ins: Allowed · Free trials: Blocked')
+  await expect(page.getByRole('button', { name: 'Edit drop-ins and free trials for Tumbling · Wed · 6:00 PM–7:00 PM', exact: true })).toHaveText('Drop-ins: Allowed · Free trials: Allowed')
   await page.getByRole('button', { name: 'Edit class: Tumbling' }).click()
   await expect(page.getByLabel('Monthly price ($)', { exact: true })).toHaveValue('120.00')
   await expect(page.getByText('$40.00', { exact: true })).toBeVisible()

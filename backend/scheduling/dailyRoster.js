@@ -200,7 +200,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   const calendarRows = await loadSchedulingCalendarRows(pool, { formActive: 'active' })
   const calendar = expandCalendarRange({ startDate: rosterDate, endDate: rosterDate, rows: calendarRows })
   const events = calendar.events.filter(
-    (event) => event.formActive && event.classActive && event.slotGroupActive && event.slotActive,
+    (event) => event.formActive && event.classActive && event.slotGroupActive && event.slotActive && !event.isCancelled,
   )
   const groupIds = [...new Set(events.map((event) => event.slotGroupId))]
   const signups = groupIds.length

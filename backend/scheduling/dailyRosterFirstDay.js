@@ -36,7 +36,7 @@ export function firstDayBySignup(calendarRows, signups, reportDate) {
       const { events } = expandCalendarRange({ startDate, endDate: reportDate, rows })
       const dates = new Map()
       for (const event of events) {
-        if (!event.formActive || !event.classActive || !event.slotGroupActive || !event.slotActive) continue
+        if (!event.formActive || !event.classActive || !event.slotGroupActive || !event.slotActive || event.isCancelled) continue
         if (!dates.has(null)) dates.set(null, event.date)
         if (!dates.has(event.timeSlotId)) dates.set(event.timeSlotId, event.date)
       }

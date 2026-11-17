@@ -2,10 +2,11 @@ import Joi from 'joi'
 import { id, inputError } from '../newAdmin/common.js'
 
 const editSchema = Joi.object({
-  allowDropIns: Joi.boolean().required(),
+  allowDropIns: Joi.boolean().optional(),
   scope: Joi.string().valid('class', 'matching', 'program').required(),
   timeSlotId: Joi.number().integer().positive().max(Number.MAX_SAFE_INTEGER).optional(),
-}).required()
+  allowFreeTrials: Joi.boolean().optional(),
+}).or('allowDropIns', 'allowFreeTrials').required()
 
 /** Change only the selected schedule, matching class definitions, or entire program. */
 export async function saveClassSetupDropIns(pool, facilityId, classId, body) {
@@ -13,6 +14,9 @@ export async function saveClassSetupDropIns(pool, facilityId, classId, body) {
   const sourceId = id(classId, 'class')
   const { error, value } = editSchema.validate(body, { convert: false })
   if (error) throw inputError(error.details[0].message)
+  if (value.allowFreeTrials != null && (value.scope !== 'class' || value.timeSlotId == null)) {
+    throw inputError('Free trial availability must be set for a specific schedule time.')
+  }
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -54,7 +58,7 @@ export async function saveClassSetupDropIns(pool, facilityId, classId, body) {
       if (!selectedSlot) throw inputError('Schedule line not found for this class.', 404)
     }
 
-    const excluded = !value.allowDropIns
+    const excluded = value.allowDropIns == null ? null : !value.allowDropIns
     let classIds = [sourceId]
     if (value.scope !== 'class') {
       const targets = await client.query(
@@ -91,8 +95,11 @@ export async function saveClassSetupDropIns(pool, facilityId, classId, body) {
     let slots
     if (value.scope === 'class' && value.timeSlotId != null) {
       slots = await client.query(
-        'UPDATE scheduling_time_slot SET exclude_from_drop_ins=$2, updated_at=now() WHERE id=$1 RETURNING id',
-        [value.timeSlotId, excluded],
+        `UPDATE scheduling_time_slot
+         SET exclude_from_drop_ins=COALESCE($2, exclude_from_drop_ins),
+             allow_free_trials=COALESCE($3, allow_free_trials), updated_at=now()
+         WHERE id=$1 RETURNING id`,
+        [value.timeSlotId, excluded, value.allowFreeTrials ?? null],
       )
     } else {
       if (value.scope === 'program') {

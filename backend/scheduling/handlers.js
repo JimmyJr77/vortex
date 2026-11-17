@@ -108,9 +108,10 @@ import { updateScheduleSlots } from './updateScheduleSlots.js'
 import { expandSlotBatch } from './slotExpansion.js'
 import { expandCalendarRange } from './calendarExpansion.js'
 import {
-  loadPublicSchedulingClasses,
+  loadSchedulingClasses,
   loadSchedulingCalendar,
   parseCalendarDateRange,
+  setSchedulingOccurrenceCancellation,
 } from './calendarQuery.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, buildGroupDisplayLabel } from './slotDisplayLabel.js'
@@ -3145,13 +3146,43 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
           programsId,
           programId,
           formActive,
-          publicOnly: false,
+          includeCancelled: true,
         })
         res.json({ success: true, data })
       } catch (err) {
         if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
         console.error('[scheduling] getAdminCalendar:', err)
         res.status(500).json({ success: false, message: 'Failed to load calendar' })
+      }
+    },
+
+    async updateCalendarOccurrence(req, res) {
+      try {
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
+        const { slotId, cancelled } = req.body || {}
+        const date = typeof req.body?.date === 'string' && validateRosterDate(req.body.date)
+        if (!Number.isSafeInteger(slotId) || slotId <= 0 || !date || date.startsWith('0000-') || typeof cancelled !== 'boolean') {
+          return res.status(400).json({ success: false, message: 'A valid slot, class date and cancellation status are required.' })
+        }
+        const data = await setSchedulingOccurrenceCancellation(pool, { facilityId, slotId, date, cancelled })
+        if (!data) return res.status(404).json({ success: false, message: 'Class session not found on that date.' })
+        res.json({ success: true, data })
+      } catch (err) {
+        if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
+        console.error('[scheduling] updateCalendarOccurrence:', err)
+        res.status(500).json({ success: false, message: 'Failed to update class session.' })
+      }
+    },
+
+    async listAdminSchedulingClasses(req, res) {
+      try {
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
+        const data = await loadSchedulingClasses(pool, { facilityId })
+        res.json({ success: true, data })
+      } catch (err) {
+        if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
+        console.error('[scheduling] listAdminSchedulingClasses:', err)
+        res.status(500).json({ success: false, message: 'Failed to load classes' })
       }
     },
 
@@ -3189,7 +3220,7 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
 
     async listPublicSchedulingClasses(_req, res) {
       try {
-        const data = await loadPublicSchedulingClasses(pool)
+        const data = await loadSchedulingClasses(pool)
         res.json({ success: true, data })
       } catch (err) {
         console.error('[scheduling] listPublicSchedulingClasses:', err)

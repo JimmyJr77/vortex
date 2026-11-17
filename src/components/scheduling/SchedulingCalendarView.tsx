@@ -1,7 +1,8 @@
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import PortalOverlay from '../portal/PortalOverlay'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { formatDateForDisplay } from '../../utils/dateUtils'
 import {
   formatSchedulingOccurrenceLabel,
   schedulingSignupPath,
@@ -131,11 +132,11 @@ const SchedulingCalendarView = ({
     }
   }, [eventPreview])
 
-  const isEventInactive = (event: Pick<SchedulingCalendarEvent, 'classActive' | 'formActive'>) =>
-    mode === 'admin' ? !event.classActive : !event.formActive
-
-  const isTbdInactive = (tbd: Pick<SchedulingCalendarTbd, 'classActive' | 'formActive'>) =>
-    mode === 'admin' ? !tbd.classActive : !tbd.formActive
+  const isScheduleInactive = useCallback(
+    (item: Pick<SchedulingCalendarEvent, 'classActive' | 'formActive'>) =>
+      mode === 'admin' ? !item.classActive : !item.formActive,
+    [mode],
+  )
 
   const selectedClassName =
     classFilterId === 'none'
@@ -145,10 +146,8 @@ const SchedulingCalendarView = ({
   const filteredTbdPatterns = useMemo(() => {
     const patterns = calendar?.tbdPatterns ?? []
     if (view !== 'byClass' || classFilterId === 'none') return patterns
-    const match = classOptions.find((c) => c.id === classFilterId)
-    if (!match) return patterns
-    return patterns.filter((tbd) => tbd.className === match.displayName)
-  }, [calendar?.tbdPatterns, view, classFilterId, classOptions])
+    return patterns.filter((tbd) => tbd.classEventId === classFilterId)
+  }, [calendar?.tbdPatterns, view, classFilterId])
 
   const tbdWeekMap = useMemo(
     () =>
@@ -173,11 +172,9 @@ const SchedulingCalendarView = ({
         events: calendar?.events ?? [],
         tbdPatterns: calendar?.tbdPatterns ?? [],
         classFilterId,
-        classOptions,
-        isEventInactive,
-        isTbdInactive,
+        isScheduleInactive,
       }),
-    [calendar?.events, calendar?.tbdPatterns, classFilterId, classOptions, mode],
+    [calendar?.events, calendar?.tbdPatterns, classFilterId, isScheduleInactive],
   )
 
   const eventsByDate = useMemo(() => {
@@ -231,6 +228,7 @@ const SchedulingCalendarView = ({
   }
 
   const handleEventAction = (event: SchedulingCalendarEvent) => {
+    setEventPreview(null)
     onEventClick?.(event)
   }
 
@@ -281,14 +279,16 @@ const SchedulingCalendarView = ({
           <div>{capacityLabel}{event.waitlistCount > 0 ? ` · ${event.waitlistCount} waitlisted` : ''}</div>
           {event.skillRequirements && <div><span className="font-semibold">Requirements:</span> {event.skillRequirements}</div>}
           {event.classDescription && <p className="line-clamp-4 pt-1 leading-relaxed">{event.classDescription}</p>}
-          {isEventInactive(event) && <div className="font-semibold text-amber-600">Inactive</div>}
+          {event.isCancelled
+            ? <div className="font-semibold text-red-700">Cancelled</div>
+            : isScheduleInactive(event) && <div className="font-semibold text-amber-600">Inactive</div>}
         </div>
       </div>
     </PortalOverlay>
   }
 
   const renderSignupButton = (event: SchedulingCalendarEvent, compact = false) => {
-    if (mode !== 'public' || !event.enrollVisible) return null
+    if (mode !== 'public' || !event.enrollVisible || event.isCancelled) return null
     const url = schedulingSignupPath(event.formId)
     return (
       <Link
@@ -304,8 +304,9 @@ const SchedulingCalendarView = ({
   }
 
   const renderCompactChip = (event: SchedulingCalendarEvent) => {
-    const inactive = isEventInactive(event)
+    const inactive = event.isCancelled || isScheduleInactive(event)
     const timeLabel = `${formatTime12(event.startTime)}–${formatTime12(event.endTime)}`
+    const name = formatCalendarEventClassLabel(event)
     return (
       <button
         key={event.id}
@@ -315,6 +316,7 @@ const SchedulingCalendarView = ({
         onMouseLeave={() => setEventPreview(null)}
         onFocus={(e) => showEventPreview(event, e.currentTarget)}
         onBlur={() => setEventPreview(null)}
+        aria-label={mode === 'admin' ? `${name}, ${formatDateForDisplay(event.date)}, ${timeLabel}${event.isCancelled ? ', Cancelled' : ''}` : undefined}
         aria-describedby={eventPreview?.event.id === event.id ? eventPreviewId : undefined}
         className={`w-full text-left rounded px-1.5 py-0.5 text-[11px] leading-tight border transition-colors cursor-pointer ${
           inactive
@@ -327,13 +329,14 @@ const SchedulingCalendarView = ({
         }`}
       >
         <span className="font-medium text-vortex-red">{timeLabel}</span>
-        <span className="block truncate font-medium">{formatCalendarEventClassLabel(event)}</span>
+        {event.isCancelled && <span className="ml-1 font-semibold text-red-700">Cancelled</span>}
+        <span className="block truncate font-medium">{name}</span>
       </button>
     )
   }
 
   const renderDayListItem = (event: SchedulingCalendarEvent, showSignup = false) => {
-    const inactive = isEventInactive(event)
+    const inactive = event.isCancelled || isScheduleInactive(event)
     const timeLabel = `${formatTime12(event.startTime)} – ${formatTime12(event.endTime)}`
     return (
       <div
@@ -358,6 +361,7 @@ const SchedulingCalendarView = ({
             <span className={`font-semibold ${isDark ? 'text-white' : 'text-black'}`}>
               {formatCalendarEventClassLabel(event)}
             </span>
+            {event.isCancelled && <span className="text-sm font-semibold text-red-700">Cancelled</span>}
           </div>
           {event.classDescription && (
             <p
@@ -495,6 +499,8 @@ const SchedulingCalendarView = ({
       mode={mode}
       showFormActiveFilter={showFormActiveFilter}
       classFilterId={classFilterId}
+      events={mode === 'admin' ? calendar?.events : undefined}
+      onEventClick={onEventClick}
     />
   )
 
@@ -580,6 +586,7 @@ const SchedulingCalendarView = ({
           <div className="flex flex-col sm:flex-row gap-3 sm:items-center flex-wrap">
             {showProgramFilter && view !== 'byClass' && (
               <select
+                aria-label="Program"
                 value={programFilterId === 'all' ? 'all' : String(programFilterId)}
                 onChange={(e) =>
                   onProgramFilterChange(e.target.value === 'all' ? 'all' : Number(e.target.value))
@@ -627,6 +634,7 @@ const SchedulingCalendarView = ({
         {view === 'byClass' && (
           <div className="w-full">
             <select
+              aria-label="Class"
               value={classFilterId === 'none' ? 'none' : String(classFilterId)}
               onChange={(e) =>
                 onClassFilterChange(e.target.value === 'none' ? 'none' : Number(e.target.value))
@@ -721,7 +729,7 @@ const SchedulingCalendarView = ({
                 includeWeek: includeWeekForSlotGroup(tbdWeekMap, tbd.slotGroupId),
                 formatTime: formatTime12,
               })
-              const inactive = isTbdInactive(tbd)
+              const inactive = isScheduleInactive(tbd)
               const signupPath =
                 mode === 'public' && tbd.enrollVisible
                   ? schedulingSignupPath(tbd.formId)

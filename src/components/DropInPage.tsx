@@ -156,6 +156,8 @@ export default function DropInPage() {
 
   const selectedClass = classes.find((row) => row.classId === selectedClassId) ?? null
   const selectedProgram = programOptions.find((program) => program.id === programFilter)
+  const trialAvailable = Boolean(selected && selected.allowsFreeTrial !== false && benefits?.trialAvailable)
+  const trialSelected = trialAvailable && form.useFreeTrial
   const hasFilters = searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
   const clearFilters = () => { setSearchQuery(''); setProgramFilter('all'); setLevelFilter('all') }
   const selectSession = (session: DropInSession) => {
@@ -182,7 +184,7 @@ export default function DropInPage() {
     if (!selected) return
     setSubmitting(true); setError(null)
     try {
-      const booking = await registerDropIn({ slotGroupId: selected.slotGroupId, classDate: selected.date, ...form })
+      const booking = await registerDropIn({ slotGroupId: selected.slotGroupId, classDate: selected.date, ...form, useFreeTrial: trialSelected })
       if (booking.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', booking.id)
       setResult(booking)
     }
@@ -226,7 +228,7 @@ export default function DropInPage() {
         <p className="np-drop-in-intro">
           Keep growing, one class at a time. Find an available drop-in or schedule a make-up class that fits your week.
         </p>
-        <p className="np-drop-in-hero-note">First class for non-members is free. Member discounts apply, and all members get 4 free drop-ins per year.</p>
+        <p className="np-drop-in-hero-note">Free trials are available for select class times. Member discounts apply, and all members get 4 free drop-ins per year.</p>
       </div>
     </section>
 
@@ -358,9 +360,9 @@ export default function DropInPage() {
       </div> : <><h2 className="text-2xl font-bold">Register for one day</h2><p className="mt-1 text-sm text-gray-600">{selected.className} · {prettyDate(selected.date)} · {prettyTime(selected.startTime)}–{prettyTime(selected.endTime)}</p>{selected.date !== dropInDate && <p className="np-drop-in-alternate-notice">You selected an alternate date: <strong>{prettyDate(selected.date)}</strong>, instead of {prettyDate(dropInDate)}.</p>}<form onSubmit={submit} className="mt-6 space-y-4">
         <div className="grid grid-cols-2 gap-3"><label className="text-sm font-semibold">First name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.firstName} onChange={(event) => setForm({ ...form, firstName: event.target.value })} /></label><label className="text-sm font-semibold">Last name<input required className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.lastName} onChange={(event) => setForm({ ...form, lastName: event.target.value })} /></label></div>
         {loggedInAccount ? <div className="rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800"><strong>Signed in{loggedInName ? ` as ${loggedInName}` : ''}</strong>{loggedInAccount.email && <span className="block">{loggedInAccount.email}</span>}<span className="mt-1 block text-green-700">This registration will use your logged-in account.</span></div> : <label className="block text-sm font-semibold">Email<input required type="email" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.email} onChange={(event) => setForm({ ...form, email: event.target.value })} /></label>}<label className="block text-sm font-semibold">Phone<TextInput type="tel" className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" value={form.phone} onChange={(event) => setForm({ ...form, phone: event.target.value })} /></label>
-        {benefits?.trialAvailable && <label className="flex gap-3 rounded-xl border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={form.useFreeTrial} onChange={(event) => setForm({ ...form, useFreeTrial: event.target.checked })} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">No annual membership is required. Available once per athlete, for life.</span></span></label>}
-        {!form.useFreeTrial && <label className="block text-sm font-semibold">Free-day code (optional)<input className="mt-1 w-full rounded-lg border px-3 py-2 font-normal uppercase" value={form.promoCode} onChange={(event) => setForm({ ...form, promoCode: event.target.value.toUpperCase() })} placeholder="Enter code" /></label>}
-        <div className="rounded-xl bg-gray-50 p-4 text-sm"><div className="flex justify-between"><span>Single-day price</span><strong>{form.useFreeTrial || Boolean(form.promoCode.trim()) || (benefits?.annualCreditsRemaining ?? 0) > 0 || (benefits?.adminCreditsRemaining ?? 0) > 0 ? '$0.00' : money(selected.totalCents)}</strong></div></div>{error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}<div className="flex gap-3"><button type="button" onClick={() => setSelected(null)} className="flex-1 rounded-lg border px-4 py-3 font-semibold">Cancel</button><button disabled={submitting} className="flex-1 rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white disabled:opacity-60">{submitting ? 'Registering…' : 'Reserve class'}</button></div>
+        {trialAvailable && <label className="flex gap-3 rounded-xl border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={trialSelected} onChange={(event) => setForm({ ...form, useFreeTrial: event.target.checked })} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">No annual membership is required. Available once per athlete, for life.</span></span></label>}
+        {!trialSelected && <label className="block text-sm font-semibold">Free-day code (optional)<input className="mt-1 w-full rounded-lg border px-3 py-2 font-normal uppercase" value={form.promoCode} onChange={(event) => setForm({ ...form, promoCode: event.target.value.toUpperCase() })} placeholder="Enter code" /></label>}
+        <div className="rounded-xl bg-gray-50 p-4 text-sm"><div className="flex justify-between"><span>Single-day price</span><strong>{trialSelected || Boolean(form.promoCode.trim()) || (benefits?.annualCreditsRemaining ?? 0) > 0 || (benefits?.adminCreditsRemaining ?? 0) > 0 ? '$0.00' : money(selected.totalCents)}</strong></div></div>{error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}<div className="flex gap-3"><button type="button" onClick={() => setSelected(null)} className="flex-1 rounded-lg border px-4 py-3 font-semibold">Cancel</button><button disabled={submitting} className="flex-1 rounded-lg bg-vortex-red px-4 py-3 font-semibold text-white disabled:opacity-60">{submitting ? 'Registering…' : 'Reserve class'}</button></div>
       </form></>}
     </div></div>}
   </div>

@@ -70,6 +70,7 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
     const younger = await addClass(db, { facilityId, programId: fitFlipId, name: 'Cyclones (8-11)', min: 8, max: 11, date })
     const older = await addClass(db, { facilityId, programId: fitFlipId, name: 'Cyclones (12-15)', min: 12, max: 15, date })
     const assessment = await addClass(db, { facilityId, programId: gymnasticsId, name: 'Trial Assessment', min: 6, max: 17, date, assessment: true })
+    await db.query('UPDATE scheduling_time_slot SET exclude_from_drop_ins=TRUE, allow_free_trials=TRUE WHERE id=$1', [younger.slotId])
     const acceptedTemplateIds = []
     for (const template of CANONICAL_WAIVER_TEMPLATES) {
       acceptedTemplateIds.push(Number((await db.query(`INSERT INTO waiver_template
@@ -141,6 +142,7 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
     await assert.rejects(prepareFamilyEnrollmentCheckout(db, { memberId: result.memberIds[3], enrollment: { classEventId: assessment.classId, schedulingFormId: assessment.formId, slotGroupId: assessment.groupId, timeSlotId: assessment.slotId, enrollmentStartDate: date } }), /no longer available/)
     const paidCatalog = await getCatalog({}, '/api/public/drop-ins')
     assert.equal(paidCatalog.classes.some(row => row.classId === assessment.classId), false)
+    assert.equal(paidCatalog.sessions.some(row => row.classId === younger.classId), false)
     const advertised = await listPublicClassesOffered(db)
     assert.equal(advertised.programs.flatMap(program => program.classes).some(row => row.id === assessment.classId), false)
     for (const table of ['billing_charge', 'scheduling_signup', 'additional_fee_redemption']) {

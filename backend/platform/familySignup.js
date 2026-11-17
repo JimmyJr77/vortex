@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import { loadCanonicalAccessContext, resolveCanonicalTokenUserId } from './accessContext.js'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { bookMemberFreeTrial, validateTrialSelection } from '../scheduling/freeTrials.js'
+import { loadDropInDateAvailability } from '../scheduling/dropInOccurrences.js'
 import { normalizeLoginPhone, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
 import { normalizeOptionalPhoneNumber, normalizePhoneNumber, normalizeUpdatedPhoneNumber, PHONE_FORMAT_ERROR } from '../phoneNumbers.js'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
@@ -1160,6 +1161,17 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
 
   const memberId = Number(match.member.id)
   await assertCurrentMemberWaivers(client, memberId, match.member.facility_id)
+  await client.query('SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE', [row.slot_group_id])
+  const availability = await loadDropInDateAvailability(client, row.slot_group_id, formatDateOnly(row.class_date))
+  if (availability.cancelled) {
+    throw Object.assign(new Error('This class has been canceled for that date. Please choose another date.'), { statusCode: 409 })
+  }
+  if (!availability.allowsDropIn) {
+    throw Object.assign(new Error('This class time is no longer available for drop-ins. Please choose another date.'), { statusCode: 409 })
+  }
+  if (row.benefit_type === 'free_trial' && !availability.allowsFreeTrial) {
+    throw Object.assign(new Error('Free trials are not available for this class time. Please choose another date.'), { statusCode: 409 })
+  }
   const status = Number(row.amount_cents) > 0 ? 'payment_pending' : 'confirmed'
   await client.query(
     `UPDATE drop_in_registration

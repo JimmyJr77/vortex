@@ -6,6 +6,7 @@ import { findBillingPaymentAttemptForStripeObject, recordAndCompleteBillingPayme
 import { getStripeClient } from '../billing/stripeBilling.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { sendDropInConfirmationNotifications } from './dropInNotificationEmail.js'
+import { loadDropInDateAvailability } from './dropInOccurrences.js'
 
 /** Only settled funds allocated to this athlete's drop-in charge confirm the booking. */
 export async function confirmPaidDropIns(db, accountId, dropInId = null) {
@@ -54,7 +55,7 @@ function checkoutError(message, statusCode) {
 export async function checkoutDropIn(pool, { account, dropInId, checkoutSessionId = null }) {
   const result = await withBillingAccountCollectionLock(pool, account.id, async (db) => {
     const booking = (await db.query(
-      `SELECT charge.*, booking.status AS booking_status,
+      `SELECT charge.*, booking.status AS booking_status, booking.slot_group_id, booking.class_date::text AS class_date,
               booking.class_date >= (now() AT TIME ZONE facility.timezone)::date AS upcoming
          FROM drop_in_registration booking
          JOIN billing_charge charge ON charge.source_type = 'drop_in'
@@ -75,6 +76,9 @@ export async function checkoutDropIn(pool, { account, dropInId, checkoutSessionI
 
     let confirmed = await confirmPaidDropIns(db, account.id, dropInId)
     if (confirmed.length) return { status: 'confirmed', confirmed }
+    const { cancelled } = await loadDropInDateAvailability(db, booking.slot_group_id, booking.class_date)
+    const cancelledMessage = 'This class has been canceled for that date. Please choose another date.'
+    if (cancelled && !checkoutSessionId) throw checkoutError(cancelledMessage, 409)
     const stripe = await getStripeClient()
     if (!stripe) throw checkoutError('Online payments are unavailable. Your booking is awaiting payment.', 503)
 
@@ -104,6 +108,7 @@ export async function checkoutDropIn(pool, { account, dropInId, checkoutSessionI
         confirmed = await confirmPaidDropIns(db, account.id, dropInId)
         return confirmed.length ? { status: 'confirmed', confirmed } : { status: 'payment_pending' }
       }
+      if (cancelled) throw checkoutError(cancelledMessage, 409)
       if (checkoutSessionId) return { status: 'payment_pending' }
       if (session.status === 'expired' && session.payment_status !== 'paid') {
         latest = await releaseBillingPaymentAttempt(db, {

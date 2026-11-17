@@ -44,6 +44,9 @@ test('drop-in edits respect schedule, matching-name, program and facility bounda
     const migration = await fs.readFile(new URL('../../migrations/863_class_schedule_drop_in_overrides.sql', import.meta.url), 'utf8')
     await db.query(migration)
     await db.query(migration)
+    const trialMigration = await fs.readFile(new URL('../../migrations/873_schedule_free_trial_overrides.sql', import.meta.url), 'utf8')
+    await db.query(trialMigration)
+    await db.query(trialMigration)
     const original = await snapshot()
     assert.equal((await effective()).find(row => Number(row.id) === 201).excluded, true, 'existing schedules inherit the parent policy')
 
@@ -91,6 +94,18 @@ test('drop-in edits respect schedule, matching-name, program and facility bounda
     assert.deepEqual(await snapshot(), beforeRejected)
     assert.deepEqual((await db.query('SELECT * FROM scheduling_signup')).rows, [{ id: '1', status: 'confirmed' }])
     assert.deepEqual((await db.query('SELECT * FROM billing_subscription')).rows, [{ id: '1', amount_cents: 15000 }])
+    await db.query('DROP TRIGGER reject_scope_slot_update ON scheduling_time_slot')
+    await saveClassSetupDropIns(pool, 1, 10, { scope: 'class', timeSlotId: 101, allowFreeTrials: false })
+    let slots = (await snapshot()).slots
+    assert.equal(slots.find(row => Number(row.id) === 101).exclude_from_drop_ins, null)
+    assert.equal(slots.find(row => Number(row.id) === 101).allow_free_trials, false)
+    assert.equal(slots.find(row => Number(row.id) === 102).allow_free_trials, null)
+    await edit(10, 'class', false, 101)
+    await saveClassSetupDropIns(pool, 1, 10, { scope: 'class', timeSlotId: 102, allowDropIns: false, allowFreeTrials: true })
+    slots = (await snapshot()).slots
+    assert.equal(slots.find(row => Number(row.id) === 101).allow_free_trials, false)
+    assert.equal(slots.find(row => Number(row.id) === 102).allow_free_trials, true)
+    await assert.rejects(saveClassSetupDropIns(pool, 1, 10, { scope: 'class', allowDropIns: true, allowFreeTrials: true }), { statusCode: 400 })
   } finally {
     await db.query('ROLLBACK')
     await db.end()

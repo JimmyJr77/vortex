@@ -47,13 +47,17 @@ export function parseCalendarDateRange(query) {
  *   facilityId?: number | null,
  *   programsId?: number | null,
  *   programId?: number | null,
+ *   slotGroupId?: number | string | null,
  *   formActive?: 'all' | 'active' | 'inactive', // admin: filters program.is_active (class status)
  *   publicOnly?: boolean,
+ *   includeCancelled?: boolean,
  * }} options
  */
 export async function loadSchedulingCalendar(pool, options) {
   const rows = await loadSchedulingCalendarRows(pool, options)
-  return expandCalendarRange({ startDate: options.startDate, endDate: options.endDate, rows })
+  const calendar = expandCalendarRange({ startDate: options.startDate, endDate: options.endDate, rows })
+  if (!options.includeCancelled) calendar.events = calendar.events.filter(event => !event.isCancelled)
+  return calendar
 }
 
 // Share the exact calendar context with reports that need the first occurrence
@@ -63,6 +67,7 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
     facilityId = null,
     programsId = null,
     programId = null,
+    slotGroupId = null,
     formActive = 'all',
     publicOnly = false,
   } = options
@@ -101,6 +106,10 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
     params.push(programId)
     filters.push(`sf.program_id = $${params.length}`)
   }
+  if (slotGroupId != null) {
+    params.push(slotGroupId)
+    filters.push(`sg.id = $${params.length}`)
+  }
 
   const programEnrollSelect = hasSchedCols
     ? 'pr.scheduling_enroll_sites, pr.scheduling_active,'
@@ -131,12 +140,16 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
       COALESCE(p.abridged_name, p.display_name) AS class_name,
       p.description AS class_description,
       p.is_active AS class_is_active,
+      p.is_trial_assessment,
       p.skill_level,
       p.age_min,
       p.age_max,
       p.skill_requirements,
       COALESCE(pr.abridged_name, pr.display_name) AS program_name,
       sg.offering_id,
+      ARRAY(SELECT cancellation.occurrence_date::text
+              FROM scheduling_occurrence_cancellation cancellation
+             WHERE cancellation.time_slot_id = ts.id) AS cancelled_dates,
       ${scheduleCountsSql('sg.id')}
     FROM scheduling_time_slot ts
     JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
@@ -153,13 +166,74 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
   return result.rows
 }
 
+export async function setSchedulingOccurrenceCancellation(pool, { facilityId, slotId, date, cancelled }) {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    // Booking and recurring schedule edits take the same group lock before
+    // reading dated availability or editing its slots.
+    const { rows: [group] } = await client.query(`
+      SELECT sg.id
+      FROM scheduling_time_slot ts
+      JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
+      JOIN scheduling_form sf ON sf.id = ts.form_id
+      JOIN program p ON p.id = sf.program_id
+      WHERE ts.id = $1 AND p.facility_id = $2
+      FOR UPDATE OF sg
+    `, [slotId, facilityId])
+
+    // The legacy single-slot editor can update or remove a slot directly.
+    const slot = group && (await client.query(`
+      SELECT id FROM scheduling_time_slot
+      WHERE id = $1 AND slot_group_id = $2
+      FOR SHARE
+    `, [slotId, group.id])).rows[0]
+    const calendar = slot && await loadSchedulingCalendar(client, {
+      facilityId,
+      slotGroupId: group.id,
+      startDate: date,
+      endDate: date,
+      includeCancelled: true,
+    })
+    const occurrence = calendar?.events.find(event => event.timeSlotId === slotId)
+    if (!occurrence) {
+      await client.query('ROLLBACK')
+      return null
+    }
+
+    if (cancelled) {
+      await client.query(`
+        INSERT INTO scheduling_occurrence_cancellation (time_slot_id, occurrence_date)
+        VALUES ($1, $2::date)
+        ON CONFLICT (time_slot_id, occurrence_date) DO NOTHING
+      `, [slotId, date])
+    } else {
+      await client.query(`
+        DELETE FROM scheduling_occurrence_cancellation
+        WHERE time_slot_id = $1 AND occurrence_date = $2::date
+      `, [slotId, date])
+    }
+    await client.query('COMMIT')
+    return { date, slotId, cancelled }
+  } catch (error) {
+    await client.query('ROLLBACK')
+    throw error
+  } finally {
+    client.release()
+  }
+}
+
 /**
- * Distinct active classes with scheduling forms for calendar class picker.
+ * Classes with scheduling forms for the public or facility admin calendar picker.
  */
-export async function loadPublicSchedulingClasses(pool) {
-  const { resolveProgramsSchema, hasProgramSchedulingColumns } = await import('../programs/schema.js')
+export async function loadSchedulingClasses(pool, { facilityId = null } = {}) {
+  const { resolveProgramsSchema } = await import('../programs/schema.js')
   const schema = await resolveProgramsSchema(pool)
-  await hasProgramSchedulingColumns(pool, schema.programsTable)
+  const scope = facilityId != null
+    ? 'AND p.facility_id = $1'
+    : `AND sf.is_active = TRUE
+       AND p.is_active = TRUE
+       AND COALESCE(p.is_trial_assessment, FALSE) = FALSE`
 
   const result = await pool.query(
     `
@@ -172,14 +246,13 @@ export async function loadPublicSchedulingClasses(pool) {
     JOIN program p ON p.id = sf.program_id
     LEFT JOIN ${schema.programsTable} pr ON pr.id = sf.programs_id
     WHERE sf.deleted_at IS NULL
-      AND sf.is_active = TRUE
       AND sf.program_id IS NOT NULL
       AND p.archived = FALSE
-      AND p.is_active = TRUE
-      AND COALESCE(p.is_trial_assessment, FALSE) = FALSE
       AND (pr.id IS NULL OR pr.archived = FALSE)
+      ${scope}
     ORDER BY pr.display_name NULLS LAST, p.display_name
     `,
+    facilityId != null ? [facilityId] : [],
   )
 
   return result.rows.map((row) => ({

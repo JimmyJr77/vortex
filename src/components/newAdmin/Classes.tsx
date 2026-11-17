@@ -2,6 +2,7 @@ import { confirmArchive } from '../../utils/confirmArchive'
 import { Suspense, useMemo, useState, type FormEvent } from 'react'
 import { ArrowLeft, ArrowDown, ArrowUp, ArrowUpDown, Download, Plus, Search } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
+import { saveClassSetupDropIns } from '../../utils/classSetupOverviewApi'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { archiveClassEvent, type ClassEventFormData } from '../../utils/programsApi'
 import ClassRoster, { type RosterRow, type ScheduleSelection } from './ClassRoster'
@@ -14,11 +15,14 @@ import { allowed, request, useRead, useSearch, type Access, type Page } from './
 
 const Scheduling = lazyWithRetry(() => import('./ScheduleEditor'))
 const ClassModal = lazyWithRetry(() => import('../programs/ClassEventModal'))
-interface ClassRow { monthlyPriceCents?: number | null; costAmountCents?: number; costUnit?: string; scheduleGroups?: ClassScheduleGroup[]; id: number; formId: number | null; programsId: number | null; name: string; programName: string | null; isActive: boolean; archived: boolean; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; details: ClassEventFormData }
+interface ClassRow { monthlyPriceCents?: number | null; costAmountCents?: number; costUnit?: string; scheduleGroups?: ClassScheduleGroup[]; otherScheduleGroups?: ClassScheduleGroup[]; id: number; formId: number | null; programsId: number | null; name: string; programName: string | null; isActive: boolean; archived: boolean; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; details: ClassEventFormData }
 interface ScheduleTime { id: number; dayOfWeek: number; weekLetter: string | null; specificDate: string | null; startTime: string; endTime: string }
 interface ClassScheduleTime extends ScheduleTime {
   activeStart: string | null
   activeEnd: string | null
+  allowDropIns: boolean
+  allowFreeTrials: boolean
+  isTrialAssessment?: boolean
 }
 interface ClassScheduleGroup {
   id: number
@@ -42,6 +46,12 @@ const classColumns = [
 const ClassMaster = lazyWithRetry(() => import('../classSetup/AdminClassSetupOverview'))
 type ClassesProps = { access: Access; revision: number; onMember: (id: number) => void }
 type ArchiveVisibility = { showArchived: boolean; onToggleArchived: () => void }
+type ScheduleBooking = { classId: number; className: string; slot: ClassScheduleTime }
+
+function scheduleTimeLabel(slot: ScheduleTime) {
+  const day = slot.specificDate || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][slot.dayOfWeek]
+  return `${day}${slot.weekLetter ? ` · Week ${slot.weekLetter}` : ''} · ${formatTime(slot.startTime)}–${formatTime(slot.endTime)}`
+}
 
 export default function Classes(props: ClassesProps) {
   const [tab, setTab] = useState<'classes' | 'master'>('classes')
@@ -93,6 +103,7 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
   const [version, setVersion] = useState(0)
   const [create, setCreate] = useState(false)
   const [edit, setEdit] = useState<ClassRow | null>(null)
+  const [booking, setBooking] = useState<ScheduleBooking | null>(null)
   const [monthlyPrice, setMonthlyPrice] = useState('')
   const openEdit = (row: ClassRow) => { setEdit(row); setMonthlyPrice(row.monthlyPriceCents == null ? '' : (row.monthlyPriceCents / 100).toFixed(2)) }
   const [programMode, setProgramMode] = useState<'create' | 'edit' | null>(null)
@@ -143,7 +154,9 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
                 </tr>
               </thead>
               {data.data.rows.map(row => {
-                const schedules = row.scheduleGroups?.length ? row.scheduleGroups : [null]
+                const enrollmentSchedules = row.scheduleGroups ?? []
+                const allSchedules = [...enrollmentSchedules, ...(row.otherScheduleGroups ?? [])]
+                const schedules = allSchedules.length ? allSchedules : [null]
                 return <tbody key={row.id} className="divide-y divide-slate-100 border-t border-slate-200">
                   {schedules.map((schedule, index) => (
                     <tr key={schedule?.id ?? 'unscheduled'}>
@@ -158,11 +171,21 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
                         </td>
                       </>}
                       <td className={`${cell} min-w-56`}>
-                        {schedule ? schedule.slots.map(slot => <p key={slot.id} className="whitespace-nowrap">
-                          {slot.specificDate || ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][slot.dayOfWeek]}
-                          {slot.weekLetter ? ` · Week ${slot.weekLetter}` : ''} · {formatTime(slot.startTime)}–{formatTime(slot.endTime)}
-                          {slot.activeStart || slot.activeEnd ? <span className="text-xs text-slate-500"> · {slot.activeStart || 'Open start'} – {slot.activeEnd || 'Ongoing'}</span> : null}
-                        </p>) : 'No available schedules'}
+                        {schedule && index >= enrollmentSchedules.length && <p className="text-xs text-slate-500">Hidden from enrollment</p>}
+                        {schedule ? schedule.slots.map(slot => <div key={slot.id} className="py-1">
+                          <p className="whitespace-nowrap">{scheduleTimeLabel(slot)}
+                            {slot.activeStart || slot.activeEnd ? <span className="text-xs text-slate-500"> · {slot.activeStart || 'Open start'} – {slot.activeEnd || 'Ongoing'}</span> : null}
+                          </p>
+                          {typeof slot.allowFreeTrials === 'boolean' && (
+                            canManage && !row.archived ? (
+                              <button type="button" className="text-left text-xs font-semibold text-slate-700 underline underline-offset-2 hover:text-red-700"
+                                aria-label={`Edit drop-ins and free trials for ${row.name} · ${scheduleTimeLabel(slot)}`}
+                                onClick={() => setBooking({ classId: row.id, className: row.name, slot })}>
+                                <ScheduleBookingStatus slot={slot} />
+                              </button>
+                            ) : <p className="text-xs text-slate-500"><ScheduleBookingStatus slot={slot} /></p>
+                          )}
+                        </div>) : 'No available schedules'}
                       </td>
                       <td className={`${cell} tabular-nums`}>{schedule?.enrolledCount ?? '—'}</td>
                       <td className={`${cell} tabular-nums`}>{schedule?.capacity ?? '—'}</td>
@@ -186,7 +209,56 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
     {create ? <ClassCreator onClose={() => setCreate(false)} onSaved={() => { setCreate(false); refresh() }} /> : null}
     {edit && editing ? <Suspense fallback={<Loading />}><ClassModal open editing={editing} programsId={edit.programsId ?? 0} programsDisplayName={edit.programName ?? undefined} lockProgram hideSportTags pricingFields={<ClassPriceFields value={monthlyPrice} onChange={setMonthlyPrice} legacyUnit={edit.costUnit !== 'per_month' ? edit.costUnit : undefined} />} saveClass={async (_programId, details) => { await request(`/api/admin/new-admin/classes/${edit.id}`, { method: 'PUT', body: JSON.stringify({ ...details, ...(monthlyPrice !== '' && Math.round(Number(monthlyPrice) * 100) !== edit.monthlyPriceCents ? { monthlyPriceCents: Math.round(Number(monthlyPrice) * 100) } : {}) }) }) }} onClose={() => setEdit(null)} onSaved={refresh} /></Suspense> : null}
     {programMode ? <ProgramEditor mode={programMode} onClose={() => setProgramMode(null)} onSaved={refresh} /> : null}
+    {booking && <ScheduleBookingDialog booking={booking} onClose={() => setBooking(null)} onSaved={() => { setBooking(null); refresh() }} />}
   </section>
+}
+
+function ScheduleBookingStatus({ slot }: { slot: ClassScheduleTime }) {
+  return <>{slot.isTrialAssessment ? '' : `Drop-ins: ${slot.allowDropIns ? 'Allowed' : 'Blocked'} · `}Free trials: {slot.allowFreeTrials ? 'Allowed' : 'Blocked'}</>
+}
+
+function ScheduleBookingDialog({ booking, onClose, onSaved }: { booking: ScheduleBooking; onClose: () => void; onSaved: () => void }) {
+  const { classId, className, slot } = booking
+  const [allowDropIns, setAllowDropIns] = useState(slot.allowDropIns)
+  const [allowFreeTrials, setAllowFreeTrials] = useState(slot.allowFreeTrials)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const changed = allowDropIns !== slot.allowDropIns || allowFreeTrials !== slot.allowFreeTrials
+
+  const save = async (event: FormEvent) => {
+    event.preventDefault()
+    if (saving || !changed) return
+    setSaving(true)
+    setError(null)
+    try {
+      await saveClassSetupDropIns(classId, {
+        scope: 'class', timeSlotId: slot.id, allowFreeTrials,
+        ...(allowDropIns !== slot.allowDropIns ? { allowDropIns } : {}),
+      })
+      onSaved()
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : 'Unable to save booking availability.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  return <Dialog title="Booking availability" onClose={() => { if (!saving) onClose() }}>
+    <form className="space-y-4" onSubmit={save}>
+      <div>
+        <p className="font-semibold">{className}</p>
+        <p className="text-sm text-slate-600">{scheduleTimeLabel(slot)}</p>
+        {!slot.specificDate && <p className="mt-2 text-sm text-slate-600">These settings apply each time this class meets at the selected day and time.</p>}
+      </div>
+      {!slot.isTrialAssessment && <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allowDropIns} disabled={saving} onChange={event => setAllowDropIns(event.target.checked)} />Allow drop-ins</label>}
+      <label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={allowFreeTrials} disabled={saving} onChange={event => setAllowFreeTrials(event.target.checked)} />Allow free trials</label>
+      <ErrorNotice message={error} />
+      <div className="flex justify-end gap-2">
+        <button className={button} type="button" disabled={saving} onClick={onClose}>Cancel</button>
+        <button className={primary} type="submit" disabled={saving || !changed}>{saving ? 'Saving…' : 'Save availability'}</button>
+      </div>
+    </form>
+  </Dialog>
 }
 
 function ClassDetail({ id, access, revision, onBack, onMember, onChanged, onEdit }: { id: number; access: Access; revision: number; onBack: () => void; onMember: (id: number) => void; onChanged: () => void; onEdit: (row: ClassRow) => void }) {

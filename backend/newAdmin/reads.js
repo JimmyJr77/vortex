@@ -40,23 +40,27 @@ export async function listClasses(db,facilityId,query={}, {includeArchived=false
   // and schedules, then paginate. This also avoids sorting formatted currency.
   sortClasses([],query.sort || 'class',query.direction || 'asc')
   const rows=await db.query(`${classSelect} WHERE ${where} ORDER BY LOWER(p.display_name),p.id`,values)
-  const classRows=rows.rows.map(row => ({ ...classRow(row), schedules: [], scheduleGroups: [] }))
+  const classRows=rows.rows.map(row => ({ ...classRow(row), schedules: [], scheduleGroups: [], otherScheduleGroups: [] }))
   if (classRows.length) {
     // An enrollment belongs to a group, which can have multiple required meeting times.
     const slots=await db.query(`WITH active_groups AS MATERIALIZED (
       SELECT f.program_id AS class_id,g.id AS group_id,g.max_participants AS capacity,
         COALESCE(o.start_date,g.active_start) AS active_start,COALESCE(o.end_date,g.active_end) AS active_end,
+        f.is_active AND (g.offering_id IS NULL OR o.is_selected IS TRUE) AS shown_in_enrollment,
+        p.is_trial_assessment,COALESCE(p.exclude_from_drop_ins,booking_program.exclude_from_drop_ins,FALSE) AS exclude_from_drop_ins,
         ${scheduleSignupCountSql('g.id')} AS enrolled_count,
         ${scheduleSignupCountSql('g.id', 'waitlisted')} AS waitlist_count
       FROM scheduling_form f JOIN program p ON p.id=f.program_id AND p.facility_id=$2
       JOIN facility facility_row ON facility_row.id=p.facility_id
       JOIN scheduling_slot_group g ON g.form_id=f.id
       LEFT JOIN scheduling_offering o ON o.id=g.offering_id
-      WHERE f.program_id=ANY($1::bigint[]) AND f.deleted_at IS NULL AND f.is_active AND g.is_active
-        AND (g.offering_id IS NULL OR o.is_selected)
+      LEFT JOIN programs booking_program ON booking_program.id=COALESCE(f.programs_id,p.programs_id) AND booking_program.facility_id=p.facility_id
+      WHERE f.program_id=ANY($1::bigint[]) AND f.deleted_at IS NULL AND g.is_active
         AND COALESCE(o.end_date,g.active_end,f.end_date,'infinity'::date)>=(CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(facility_row.timezone,''),'America/New_York'))::date
       )
-      SELECT g.*,ts.id,ts.day_of_week,ts.week_letter,ts.specific_date,ts.start_time,ts.end_time
+      SELECT g.*,ts.id,ts.day_of_week,ts.week_letter,ts.specific_date,ts.start_time,ts.end_time,
+        NOT COALESCE(ts.exclude_from_drop_ins,g.exclude_from_drop_ins) AS allow_drop_ins,
+        COALESCE(ts.allow_free_trials,NOT COALESCE(ts.exclude_from_drop_ins,g.exclude_from_drop_ins)) AS allow_free_trials
       FROM active_groups g JOIN scheduling_time_slot ts ON ts.slot_group_id=g.group_id AND ts.is_active
       ORDER BY ts.specific_date NULLS FIRST,ts.day_of_week,ts.start_time,ts.id`,[classRows.map(row=>row.id),facilityId])
     const classesById = new Map(classRows.map(row => [row.id, row]))
@@ -72,14 +76,16 @@ export async function listClasses(db,facilityId,query={}, {includeArchived=false
           slots: [],
         }
         groupsById.set(groupId, group)
-        row.scheduleGroups.push(group)
+        if (slot.shown_in_enrollment) row.scheduleGroups.push(group)
+        else row.otherScheduleGroups.push(group)
       }
       const time = {
         id: Number(slot.id), dayOfWeek: slot.day_of_week, weekLetter: slot.week_letter,
         specificDate: date(slot.specific_date), startTime: slot.start_time, endTime: slot.end_time,
         activeStart: date(slot.active_start), activeEnd: date(slot.active_end),
+        allowDropIns: slot.allow_drop_ins, allowFreeTrials: slot.allow_free_trials, isTrialAssessment: slot.is_trial_assessment,
       }
-      row.schedules.push(time)
+      if (slot.shown_in_enrollment) row.schedules.push(time)
       group.slots.push(time)
     }
   }

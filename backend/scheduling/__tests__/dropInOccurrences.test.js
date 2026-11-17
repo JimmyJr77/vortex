@@ -31,6 +31,28 @@ test('excluded A/B siblings retain their rotation and cannot become weekly allow
   ])
 })
 
+test('rotating weeks and other schedule groups keep independent trial and drop-in eligibility', () => {
+  const rows = [
+    slot({ allows_free_trial: false }),
+    slot({ calendar_slot_id: 11, calendar_week_letter: 'B', excluded_from_drop_ins: true, allows_free_trial: true }),
+    slot({ calendar_slot_id: 12, calendar_group_id: 21, calendar_slot_active: true }),
+  ]
+  const dates = dropInOccurrences(rows, '2026-11-16', '2026-11-23')
+  assert.deepEqual(dates.map(({ row, date, excludedFromDropIns, allowsFreeTrial }) => [row.calendar_slot_id, date, excludedFromDropIns, allowsFreeTrial]), [
+    [10, '2026-11-16', false, false], [12, '2026-11-16', false, true],
+    [11, '2026-11-23', true, true], [12, '2026-11-23', false, true],
+  ])
+})
+
+test('a canceled sibling stops blocking that date while preserving its normal weekly policy', () => {
+  const rows = [slot(), slot({ calendar_slot_id: 11, excluded_from_drop_ins: true, calendar_cancelled_dates: ['2026-11-16'] })]
+  const dates = dropInOccurrences(rows, '2026-11-16', '2026-11-23')
+  assert.deepEqual(dates.map(({ row, date, cancelled, excludedFromDropIns, allowsFreeTrial }) => [row.calendar_slot_id, date, cancelled, excludedFromDropIns, allowsFreeTrial]), [
+    [10, '2026-11-16', false, false, true], [11, '2026-11-16', true, false, true],
+    [10, '2026-11-23', false, true, false], [11, '2026-11-23', false, true, false],
+  ])
+})
+
 test('inactive siblings retain rotation context without blocking or producing a session', () => {
   const rows = [slot({ excluded_from_drop_ins: true, calendar_slot_active: false }), slot({ calendar_slot_id: 11, calendar_week_letter: 'B' })]
   assert.deepEqual(dropInOccurrences(rows, '2026-11-16', '2026-11-30').map(({ date, excludedFromDropIns }) => ({ date, excludedFromDropIns })), [

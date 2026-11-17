@@ -29,10 +29,10 @@ function routesFor(db) {
   const handlers = new Map()
   const app = new Proxy({}, { get: (_, method) => (path, handler) => handlers.set(`${method}:${path}`, handler) })
   registerDropInRoutes(app, pool)
-  return async (method, path, body = {}) => {
+  return async (method, path, body = {}, query = {}) => {
     let status = 200, payload
     const res = { set() { return this }, status(code) { status = code; return this }, json(value) { payload = value; return this } }
-    await handlers.get(`${method}:${path}`)({ body, query: {}, headers: {} }, res)
+    await handlers.get(`${method}:${path}`)({ body, query, headers: {} }, res)
     return { status, ...payload }
   }
 }
@@ -43,7 +43,10 @@ test('drop-in readers honor program, class and individual schedule eligibility w
   try {
     await db.query('BEGIN')
     // All fixtures and optional schema preparation roll back at the end.
-    for (const migration of ['848_class_owned_pricing.sql', '858_enrollment_catalog_order.sql', '860_trial_assessment_booking_policy.sql', '863_class_schedule_drop_in_overrides.sql']) {
+    for (const migration of [
+      '848_class_owned_pricing.sql', '858_enrollment_catalog_order.sql', '860_trial_assessment_booking_policy.sql',
+      '863_class_schedule_drop_in_overrides.sql', '872_scheduling_occurrence_cancellations.sql', '873_schedule_free_trial_overrides.sql',
+    ]) {
       await db.query(await fs.readFile(new URL(`../../migrations/${migration}`, import.meta.url), 'utf8'))
     }
     const one = async (sql, values = []) => (await db.query(sql, values)).rows[0]
@@ -82,12 +85,43 @@ test('drop-in readers honor program, class and individual schedule eligibility w
     assert.equal(denied.status, 400, denied.message)
     assert.match(denied.message, /not an active occurrence/)
     assert.equal(Number((await one('SELECT count(*) FROM drop_in_registration WHERE slot_group_id=$1', [groupId])).count), 0)
+
+    const trialDates = async () => {
+      const result = await request('get', '/api/public/free-trials', {}, { program: 'fit-flip', age: '10' })
+      assert.equal(result.status, 200, result.message)
+      return result.data.sessions.filter(row => row.classId === classId).map(row => row.date)
+    }
+    const memberId = Number((await one(`INSERT INTO member(facility_id,first_name,last_name,date_of_birth,is_active)
+      VALUES($1,'Trial','Scope',($2::date - INTERVAL '10 years')::date,TRUE) RETURNING id`, [facilityId, dates.blocked])).id)
+    const trialContext = { memberId, facilityId, contactEmail: guest.email }
+    assert.deepEqual(await trialDates(), [dates.allowed])
+    await db.query('UPDATE scheduling_time_slot SET allow_free_trials=FALSE WHERE id=$1', [allowedSlot])
+    await db.query('UPDATE scheduling_time_slot SET allow_free_trials=TRUE WHERE id=$1', [blockedSlot])
+    assert.deepEqual(await trialDates(), [dates.blocked])
+    assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId)
+      .map(row => [row.date, row.allowsFreeTrial]), [[dates.allowed, false]])
+    const deniedTrialCredit = await request('post', '/api/public/drop-ins/register', { ...guest, classDate: dates.allowed })
+    assert.equal(deniedTrialCredit.status, 409, deniedTrialCredit.message)
+    assert.match(deniedTrialCredit.message, /Free trials are not available/)
+    await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: groupId, classDate: dates.allowed }, trialContext), /no longer available/)
+    await db.query('UPDATE scheduling_time_slot SET allow_free_trials=NULL WHERE id=ANY($1)', [[allowedSlot, blockedSlot]])
+
+    await db.query('INSERT INTO scheduling_occurrence_cancellation (time_slot_id, occurrence_date) VALUES ($1,$2)', [allowedSlot, dates.allowed])
+    assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId), [])
+    assert.deepEqual(await trialDates(), [])
+    const cancelled = await request('post', '/api/public/drop-ins/register', { ...guest, classDate: dates.allowed })
+    assert.equal(cancelled.status, 409, cancelled.message)
+    assert.match(cancelled.message, /canceled for that date/)
+    await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: groupId, classDate: dates.allowed }, trialContext), /no longer available/)
+    assert.equal(Number((await one('SELECT count(*) FROM drop_in_registration WHERE slot_group_id=$1', [groupId])).count), 0)
+    await db.query('DELETE FROM scheduling_occurrence_cancellation WHERE time_slot_id=$1 AND occurrence_date=$2', [allowedSlot, dates.allowed])
+    assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId).map(row => row.date), [dates.allowed])
+    assert.deepEqual(await trialDates(), [dates.allowed])
+
     const accepted = await request('post', '/api/public/drop-ins/register', { ...guest, classDate: dates.allowed })
     assert.equal(accepted.status, 201, accepted.message)
     assert.equal(accepted.data.status, 'account_required')
 
-    const memberId = Number((await one(`INSERT INTO member(facility_id,first_name,last_name,date_of_birth,is_active)
-      VALUES($1,'Trial','Scope',($2::date - INTERVAL '10 years')::date,TRUE) RETURNING id`, [facilityId, dates.blocked])).id)
     await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: groupId, classDate: dates.blocked }, {
       memberId, facilityId, contactEmail: guest.email,
     }), /no longer available/)

@@ -58,7 +58,7 @@ export default function LegacyWorkspaces({ section, access, threadId, onThreadOp
   if (!current) return null
   const panel = () => {
     switch (current.id) {
-      case 'calendar': return <Calendar />
+      case 'calendar': return <Calendar canManage={allowed(access, 'scheduling.manage')} />
       case 'floorPlanner': return <FloorPlanner canManage={allowed(access, 'scheduling.manage')} userId={access.user?.id ?? null} />
       case 'messages': return <Messages initialThreadId={threadId} onInitialThreadOpened={onThreadOpened} maximized={maximized} onMaximizedChange={onMaximizedChange} />
       case 'store': return <Store canManage={allowed(access, 'billing.manage')} />

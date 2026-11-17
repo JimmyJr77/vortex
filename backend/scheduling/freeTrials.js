@@ -3,7 +3,7 @@ import { resolveEffectiveFormPricing } from '../programs/pricingDefaults.js'
 import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
 import { calculateDropInPrice } from '../shared/dropInPricing.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
-import { DROP_IN_CALENDAR_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
+import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 
 const DEFAULT_TIME_ZONE = 'America/New_York'
 const TRIAL_PROGRAMS = new Set(['gymnastics', 'fit-flip'])
@@ -169,14 +169,14 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
   await client.query(`UPDATE drop_in_registration SET status = 'cancelled', updated_at = now()
     WHERE member_id = $1 AND benefit_type = 'free_trial' AND status = 'account_required' AND expires_at <= now()`, [memberId])
 
-  // Wait for any scoped eligibility edit, then take a fresh statement snapshot.
+  // Use a fresh snapshot after any concurrent cancellation or eligibility edit.
   await client.query(`SELECT sg.id FROM scheduling_slot_group sg
     JOIN scheduling_form sf ON sf.id=sg.form_id
     JOIN program p ON p.id=sf.program_id
     WHERE sg.id=$1 AND p.facility_id=$2 FOR UPDATE OF sg`, [selection.slotGroupId, facilityId])
   const rows = (await client.query(
     `SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id AS slot_group_id, sg.form_id, sg.max_participants, sg.dates_tbd,
-            COALESCE(ts.exclude_from_drop_ins, p.exclude_from_drop_ins, top.exclude_from_drop_ins, FALSE) AS excluded_from_drop_ins,
+            ${DROP_IN_POLICY_COLUMNS},
             ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time,
             p.display_name AS class_name, p.age_min, p.age_max, p.is_trial_assessment,
             top.display_name AS program_name, primary_dt.name AS sport_name,
@@ -204,7 +204,7 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
     [selection.slotGroupId, selection.classDate, facilityId],
   )).rows
   const occurrences = dropInOccurrences(rows, selection.classDate)
-    .filter(({ row, excludedFromDropIns }) => !excludedFromDropIns && !row.has_started
+    .filter(({ row, cancelled, allowsFreeTrial }) => !cancelled && allowsFreeTrial && !row.has_started
       && selection.classDate >= row.facility_date && selection.classDate <= row.booking_end_date)
     .map(occurrence => occurrence.row)
   if (new Set(occurrences.map(row => `${row.start_time}:${row.end_time}`)).size > 1) {

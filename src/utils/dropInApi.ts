@@ -23,6 +23,7 @@ export interface DropInClass {
 
 export interface DropInSession extends DropInClass {
   slotGroupId: number
+  allowsFreeTrial?: boolean
   offeringId?: number | null
   scheduleDayOfWeek?: number | null
   activeStart?: string | null

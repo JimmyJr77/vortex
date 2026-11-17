@@ -98,7 +98,9 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
     }
   }
 
-  const dueCents = benefits && currentSession && (useFreeTrial || benefits.annualCreditsRemaining > 0 || benefits.adminCreditsRemaining > 0)
+  const trialAvailable = Boolean(currentSession && currentSession.allowsFreeTrial !== false && benefits?.trialAvailable)
+  const trialSelected = trialAvailable && useFreeTrial
+  const dueCents = benefits && currentSession && (trialSelected || benefits.annualCreditsRemaining > 0 || benefits.adminCreditsRemaining > 0)
     ? 0 : currentSession?.totalCents ?? session.totalCents
   const unavailable = !currentSession || currentSession.isFull
   const ready = Boolean(benefits && offer && !loading && membershipVerified)
@@ -141,9 +143,11 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
       setBenefits(catalog.benefits)
       setCurrentSession(available ?? null)
       if (!available || (purchasingMembership && available.isFull)) throw new Error('This class is no longer available. Choose another date or time.')
-      if (useFreeTrial && !catalog.benefits.trialAvailable) {
+      if (trialSelected && (available.allowsFreeTrial === false || !catalog.benefits.trialAvailable)) {
         setUseFreeTrial(false)
-        setError('This athlete’s free trial is no longer available. Review the updated total before continuing.')
+        setError(available.allowsFreeTrial === false
+          ? 'Free trials are no longer available for this class time. Review the updated total before continuing.'
+          : 'This athlete’s free trial is no longer available. Review the updated total before continuing.')
         return
       }
       if (purchasingMembership) {
@@ -176,7 +180,7 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
         return
       }
       const registration = await registerDropIn({ memberId, slotGroupId: session.slotGroupId, classDate: session.date,
-        useFreeTrial, promoCode: useFreeTrial ? undefined : promoCode.trim() || undefined })
+        useFreeTrial: trialSelected, promoCode: trialSelected ? undefined : promoCode.trim() || undefined })
       if (registration.accountRequired) throw new Error('Please sign in again before completing this drop-in.')
       setBooking(registration)
       if (registration.status === 'confirmed') trackConfirmation('drop_in_confirmed', '/drop-in', registration.id)
@@ -231,15 +235,15 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
                 : <p className="text-sm text-gray-600">Yearly membership is not available online right now. You can still book this drop-in.</p>}
             </>}
         </fieldset>
-        {!purchasingMembership && benefits?.trialAvailable && <label className="flex gap-3 rounded-lg border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={useFreeTrial} disabled={busy} onChange={event => setUseFreeTrial(event.target.checked)} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">Available once per athlete. No yearly membership required.</span></span></label>}
-        {!purchasingMembership && !useFreeTrial && <label className="block text-sm font-semibold">Free-day code (optional)<input value={promoCode} disabled={busy} onChange={event => setPromoCode(event.target.value.toUpperCase())} className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" /></label>}
+        {!purchasingMembership && trialAvailable && <label className="flex gap-3 rounded-lg border border-green-200 bg-green-50 p-4"><input type="checkbox" checked={trialSelected} disabled={busy} onChange={event => setUseFreeTrial(event.target.checked)} /><span><strong>Use my one-time free trial</strong><span className="block text-sm text-gray-600">Available once per athlete. No yearly membership required.</span></span></label>}
+        {!purchasingMembership && !trialSelected && <label className="block text-sm font-semibold">Free-day code (optional)<input value={promoCode} disabled={busy} onChange={event => setPromoCode(event.target.value.toUpperCase())} className="mt-1 w-full rounded-lg border px-3 py-2 font-normal" /></label>}
       </>}
       {unavailable && !booking && <p className="rounded-lg bg-amber-50 p-3 text-sm">{currentSession && !purchasingMembership
         ? 'This class currently shows as full. Check for an existing booking or choose another date or time.'
         : 'This class is no longer available. Choose another date or time.'}</p>}
       <div className="rounded-xl bg-gray-50 p-4 text-sm">
         {purchasingMembership ? <><div className="flex justify-between gap-3"><span>Yearly membership due today</span><strong>{money(offer?.amountCents ?? 0)}</strong></div><p className="mt-2 text-gray-600">Your drop-in will use a membership credit after membership payment is verified. Availability is checked again before the class is confirmed.</p></>
-          : <><div className="flex justify-between gap-3"><span>Drop-in total</span><strong>{money(booking?.totalCents ?? dueCents)}</strong></div>{!useFreeTrial && !booking && (benefits?.annualCreditsRemaining ?? 0) > 0 && <p className="mt-2 text-gray-600">One annual member credit will be applied.</p>}{promoCode.trim() && <p className="mt-2 text-gray-600">Your free-day code will be validated before checkout.</p>}</>}
+          : <><div className="flex justify-between gap-3"><span>Drop-in total</span><strong>{money(booking?.totalCents ?? dueCents)}</strong></div>{!trialSelected && !booking && (benefits?.annualCreditsRemaining ?? 0) > 0 && <p className="mt-2 text-gray-600">One annual member credit will be applied.</p>}{!trialSelected && promoCode.trim() && <p className="mt-2 text-gray-600">Your free-day code will be validated before checkout.</p>}</>}
       </div>
       <div className="flex flex-wrap justify-between gap-3">
         <button type="button" disabled={busy} onClick={onCancel} className="rounded-lg border px-4 py-3 font-semibold">Back to classes</button>

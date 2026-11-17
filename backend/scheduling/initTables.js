@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+
 /** Boot-time delegate to enrollmentLifecycle (drops legacy inline status CHECK constraints). */
 export async function ensureEnrollmentLifecycleColumns(pool) {
   const { ensureEnrollmentLifecycleColumns: ensure } = await import('./enrollmentLifecycle.js')
@@ -98,6 +100,9 @@ export async function initSchedulingTables(pool) {
   await pool.query(`
     ALTER TABLE scheduling_time_slot ALTER COLUMN day_of_week DROP NOT NULL
   `)
+
+  await pool.query(await readFile(new URL('../migrations/872_scheduling_occurrence_cancellations.sql', import.meta.url), 'utf8'))
+  await pool.query(await readFile(new URL('../migrations/873_schedule_free_trial_overrides.sql', import.meta.url), 'utf8'))
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS scheduling_signup (

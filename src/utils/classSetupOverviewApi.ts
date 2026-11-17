@@ -92,7 +92,8 @@ export type ClassDropInEditScope = 'class' | 'matching' | 'program'
 
 export async function saveClassSetupDropIns(
   classId: number,
-  change: { allowDropIns: boolean; scope: ClassDropInEditScope; timeSlotId?: number },
+  change: { allowDropIns: boolean; scope: ClassDropInEditScope; timeSlotId?: number }
+    | { scope: 'class'; timeSlotId: number; allowFreeTrials: boolean; allowDropIns?: boolean },
 ): Promise<void> {
   const res = await adminApiRequest(`/api/admin/new-admin/classes/${classId}/drop-ins`, {
     method: 'PATCH',

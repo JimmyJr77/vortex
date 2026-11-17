@@ -107,6 +107,17 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.equal(athlete(nextMonday, newClass, established)?.isNew, false)
     assert.equal(athlete(nextMonday, multiDay, wholeGroup)?.isNew, false)
     assert.equal(classFor(nextMonday, main).athletes.some(row => row.signupId === confirmedTrial && row.source === 'drop_in'), false, 'a trial is present only on its reserved date')
+
+    const occurrence = [main.slotIds[0], '2030-01-07']
+    await db.query('INSERT INTO scheduling_occurrence_cancellation (time_slot_id, occurrence_date) VALUES ($1,$2)', occurrence)
+    const cancelledMonday = await rosterFor('2030-01-07')
+    assert.equal(classFor(cancelledMonday, main), undefined)
+    assert.ok(classFor(cancelledMonday, newClass))
+    assert.equal(athlete(await rosterFor('2030-01-14'), main, first)?.isNew, true)
+    await db.query('DELETE FROM scheduling_occurrence_cancellation WHERE time_slot_id=$1 AND occurrence_date=$2', occurrence)
+    const restoredMonday = await rosterFor('2030-01-07')
+    assert.equal(athlete(restoredMonday, main, first)?.isNew, true)
+    assert.ok(classFor(restoredMonday, main).athletes.some(row => row.signupId === confirmedTrial && row.source === 'drop_in'))
   } finally {
     await db.query('ROLLBACK')
     try {

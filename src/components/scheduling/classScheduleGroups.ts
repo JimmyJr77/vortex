@@ -223,16 +223,9 @@ export function buildClassScheduleGroups(options: {
   events: SchedulingCalendarEvent[]
   tbdPatterns: SchedulingCalendarTbd[]
   classFilterId: number | 'none'
-  classOptions: { id: number; displayName: string }[]
-  isEventInactive: (event: Pick<SchedulingCalendarEvent, 'classActive' | 'formActive'>) => boolean
-  isTbdInactive: (tbd: Pick<SchedulingCalendarTbd, 'classActive' | 'formActive'>) => boolean
+  isScheduleInactive: (item: Pick<SchedulingCalendarEvent, 'classActive' | 'formActive'>) => boolean
 }): ClassScheduleProgramGroup[] {
   const programs = new Map<string, MutableProgram>()
-  const selectedClass =
-    options.classFilterId === 'none'
-      ? null
-      : options.classOptions.find((c) => c.id === options.classFilterId) ?? null
-
   const weekMap = weekLettersBySlotGroup([
     ...options.events.map((event) => ({
       slotGroupId: event.slotGroupId,
@@ -249,7 +242,7 @@ export function buildClassScheduleGroups(options: {
   const seenEventSlots = new Set<string>()
 
   for (const event of options.events) {
-    if (selectedClass && event.className !== selectedClass.displayName) continue
+    if (options.classFilterId !== 'none' && event.classEventId !== options.classFilterId) continue
 
     const dedupeKey = offeringKey(
       event.formId,
@@ -289,14 +282,14 @@ export function buildClassScheduleGroups(options: {
         waitlistCount: event.waitlistCount,
         isFull: event.isFull,
         enrollVisible: Boolean(event.enrollVisible),
-        inactive: options.isEventInactive(event),
+        inactive: options.isScheduleInactive(event),
       },
       occurrence,
     )
   }
 
   for (const tbd of options.tbdPatterns) {
-    if (selectedClass && tbd.className !== selectedClass.displayName) continue
+    if (options.classFilterId !== 'none' && tbd.classEventId !== options.classFilterId) continue
 
     const occurrence = occurrenceFromParts({
       scheduleMode: tbd.scheduleMode,
@@ -330,7 +323,7 @@ export function buildClassScheduleGroups(options: {
         waitlistCount: tbd.waitlistCount,
         isFull: tbd.isFull,
         enrollVisible: Boolean(tbd.enrollVisible),
-        inactive: options.isTbdInactive(tbd),
+        inactive: options.isScheduleInactive(tbd),
       },
       occurrence,
     )
