@@ -1,23 +1,23 @@
 import { FIT_AND_FLIP_PUBLIC_COPY } from '../config/fitAndFlipCopy'
-import { ADULT_BOOKING_PROGRAM } from '../config/publicCatalog'
+import {
+  ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_CATALOG_NAMES, DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM,
+} from '../config/publicCatalog'
 import type { PublicClassOffered, PublicProgramOffered } from './publicClassesApi'
 
-export const DEVELOPMENTAL_GYMNASTICS_PROGRAM = 'Developmental Gymnastics'
+export { ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM }
 export const DEVELOPMENTAL_GYMNASTICS_HREF = `/enroll?program=${encodeURIComponent(DEVELOPMENTAL_GYMNASTICS_PROGRAM)}`
 export const DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(DEVELOPMENTAL_GYMNASTICS_PROGRAM)}`
 export const GYMNASTICS_TEAM_PROGRAM = 'Vortex Gymnastics Team'
 export const GYMNASTICS_TEAM_BOOKING_HREF = `/enroll?program=${encodeURIComponent(GYMNASTICS_TEAM_PROGRAM)}`
-export const FIT_AND_FLIP_BOOKING_PROGRAM = 'Fit & Flip'
 export const FIT_AND_FLIP_BOOKING_HREF = `/enroll?program=${encodeURIComponent(FIT_AND_FLIP_BOOKING_PROGRAM)}`
 export const FIT_AND_FLIP_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(FIT_AND_FLIP_BOOKING_PROGRAM)}`
 
 const PUBLIC_BOOKING_PROGRAMS = [
-  { name: DEVELOPMENTAL_GYMNASTICS_PROGRAM, aliases: ['Development Gymnastics', DEVELOPMENTAL_GYMNASTICS_PROGRAM] },
+  { name: DEVELOPMENTAL_GYMNASTICS_PROGRAM, aliases: DEVELOPMENTAL_GYMNASTICS_CATALOG_NAMES },
   { name: GYMNASTICS_TEAM_PROGRAM, aliases: [GYMNASTICS_TEAM_PROGRAM] },
   { name: FIT_AND_FLIP_BOOKING_PROGRAM, aliases: [FIT_AND_FLIP_BOOKING_PROGRAM] },
 ] as const
 
-export { ADULT_BOOKING_PROGRAM }
 export const ADULT_BOOKING_HREF = `/enroll?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 export const ADULT_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_AND_FLIP_BOOKING_PROGRAM | typeof DEVELOPMENTAL_GYMNASTICS_PROGRAM

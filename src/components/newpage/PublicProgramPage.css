@@ -105,6 +105,96 @@
   text-underline-offset: 3px;
 }
 
+.np-youth-booking-summary {
+  margin-top: 18px;
+  line-height: 1.5;
+}
+
+.np-youth-booking-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 12px;
+  margin-bottom: 8px;
+}
+
+.np-youth-booking-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.np-youth-booking-header p,
+.np-youth-booking-footer {
+  color: var(--np-muted);
+  font-size: 14px;
+}
+
+.np-youth-booking-classes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 8px;
+}
+
+.np-youth-booking-classes > li {
+  min-width: 0;
+  padding: 4px 12px 10px;
+  border: 1px solid var(--np-line);
+  border-radius: 6px;
+}
+
+.np-youth-booking-summary a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--np-red);
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.np-youth-booking-times,
+.np-youth-booking-prices {
+  display: grid;
+  gap: 3px;
+  color: var(--np-muted);
+  font-size: 14px;
+}
+
+.np-youth-booking-times > li {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 8px;
+}
+
+.np-youth-booking-times > li > span:last-child,
+.np-youth-booking-prices dd {
+  color: var(--np-ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.np-youth-booking-prices {
+  grid-template-columns: minmax(0, 1fr) auto;
+  column-gap: 8px;
+  margin-top: 8px;
+  padding-top: 7px;
+  border-top: 1px solid var(--np-line);
+}
+
+.np-youth-booking-prices dd {
+  text-align: right;
+  font-weight: 650;
+}
+
+.np-youth-booking-footer {
+  margin-top: 8px;
+}
+
+.np-youth-booking-footer p + p {
+  margin-top: 3px;
+}
+
 .np-recurring-schedule {
   display: grid;
   gap: 6px;
@@ -219,7 +309,7 @@
   border-bottom: 1px solid var(--np-line);
 }
 
-.np-program-page :is(section[id], article[id], details[id]) {
+.np-program-page :is(section[id], article[id], details[id], .np-youth-booking-summary) {
   scroll-margin-top: calc(var(--site-header-height, 90px) + 18px);
 }
 

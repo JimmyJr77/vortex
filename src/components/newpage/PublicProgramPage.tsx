@@ -4,14 +4,15 @@ import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import {
   BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, PARKING_AND_ACCESSIBILITY_PATH, TEAM_PHONE, TEAM_PHONE_E164,
 } from '../../config/contact'
-import { publicAdultBooking, type PublicAdultBooking } from '../../config/publicAdultBooking'
+import { publicBookingSnapshot, type PublicAdultBooking } from '../../config/publicBookingSnapshot'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { formatCents } from '../../utils/money'
-import { ADULT_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
+import { ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import PublicDialog from './PublicDialog'
 import PublicRecurringSchedule from './PublicRecurringSchedule'
+import YouthBookingSummary from './YouthBookingSummary'
 import './PublicProgramPage.css'
 
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
@@ -43,7 +44,7 @@ function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
         {dropIn && (
           <li>
             <strong>{formatCents(dropIn.priceCents)} per nonmember drop-in.</strong>{' '}
-            {weekly ? `Listed ${bookingWeekday.format(new Date(dropIn.firstDate))} drop-ins are ` : 'The next listed drop-in is '}
+            {weekly ? `Listed ${bookingWeekday.format(new Date(dropIn.firstDate))} drop-ins are ` : 'First listed drop-in at '}
             {bookingTime.format(new Date(`1970-01-01T${dropIn.startTime}:00Z`))}–{bookingTime.format(new Date(`1970-01-01T${dropIn.endTime}:00Z`))} Eastern
             {weekly ? ' from ' : ' on '}<BookingDate date={dropIn.firstDate} />
             {weekly && <> through <BookingDate date={dropIn.lastDate} /></>}.
@@ -65,6 +66,8 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
   const { hash, key } = useLocation()
   const { primaryAction, secondaryAction, recurringSchedule, trial } = program
   const [trialOpen, setTrialOpen] = useState(false)
+  const adultBooking = path === '/adult-gymnastics' ? publicBookingSnapshot?.[path] : null
+  const youthBooking = path === '/adult-gymnastics' ? null : publicBookingSnapshot?.[path]
 
   useEffect(() => {
     if (!hash) return
@@ -129,7 +132,11 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
           <section className="np-program-section np-program-schedule" id={recurringSchedule.id} aria-labelledby={`${recurringSchedule.id}-heading`}>
             <h2 id={`${recurringSchedule.id}-heading`}>{recurringSchedule.heading}</h2>
             {recurringSchedule.description && <p>{recurringSchedule.description}</p>}
-            {path === '/adult-gymnastics' && publicAdultBooking && <AdultBookingSummary booking={publicAdultBooking} />}
+            {adultBooking && <AdultBookingSummary booking={adultBooking} />}
+            {youthBooking && (
+              <YouthBookingSummary booking={youthBooking} enrollmentHref={primaryAction.href}
+                dropInHref={path === '/gymnastics' ? DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF : FIT_AND_FLIP_DROP_IN_HREF} />
+            )}
             <PublicRecurringSchedule
               key={recurringSchedule.programName}
               programName={recurringSchedule.programName}
