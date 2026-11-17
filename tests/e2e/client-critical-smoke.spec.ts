@@ -16,7 +16,8 @@ const cyclones: SchedulingCalendarEvent = {
 test.describe('Client-critical smoke flows', () => {
   test('public homepage renders core CTAs', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
-    await expect(page.getByRole('heading', { level: 1, name: 'Built for more.' })).toBeVisible()
+    await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics & youth athletic training in Bowie, MD' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Directions to the Bowie gym' })).toHaveAttribute('href', '/contact')
     await expect(page.getByRole('button', { name: 'Book a free trial', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('href', '/read-board#schedule')
   })

@@ -48,10 +48,10 @@ test('uses explicit analytics consent, preserves campaign labels and records one
   const events = await mockSite(page)
   const query = '?utm_source=school_newsletter&utm_medium=email&utm_campaign=fall_trials&utm_term=visitor%40example.invalid&session_id=private-token'
   await page.goto('/' + query, { referer: 'https://search.example.invalid/path?email=visitor%40example.invalid' })
-  await expect(page.getByRole('heading', { name: 'Built for more.' })).toBeVisible()
+  await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics & youth athletic training in Bowie, MD' })).toBeVisible()
   await page.getByRole('button', { name: 'Necessary only' }).click()
   await page.getByRole('link', { name: 'Explore programs', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Two programs. One higher standard.' })).toBeInViewport()
+  await expect(page.getByRole('heading', { name: 'Choose your program' })).toBeInViewport()
   expect(events).toEqual([])
   expect((await context.cookies()).some(cookie => /^_vortex_(vid|sid)$/.test(cookie.name))).toBe(false)
   expect(await page.evaluate(() => sessionStorage.getItem('vortex_utm'))).toBeNull()

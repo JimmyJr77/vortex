@@ -344,7 +344,8 @@ const verifyHtml = (
     }
   }
   if (pagePath === '/' && shouldIndex) {
-    assert(h1s[0] === 'Built for more.', `${label}: the primary homepage must render the new unified design`)
+    assert(h1s[0] === 'Gymnastics & youth athletic training in Bowie, MD',
+      `${label}: the homepage heading must identify the programs and Bowie location`)
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
     assert(/THE TRIAD OF ATHLETICISM/.test(html), `${label}: the primary homepage is missing the athleticism triad`)
     const pageLinks = anchorUrls(html)

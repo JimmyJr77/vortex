@@ -206,12 +206,11 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         <section className="np-hero">
           <div className="np-container np-hero-grid">
             <div className="np-hero-copy">
-              <p className="np-eyebrow"><span className="np-red-dash" /> GYMNASTICS + ATHLETIC DEVELOPMENT</p>
-              <h1>Built for<br /><span>more.</span></h1>
-              <p className="np-hero-intro">Stronger athletes.<br />Greater possibilities.</p>
-              <p className="np-hero-description">From a first handstand to a stronger season in youth sports. Gymnastics and athletic development in Bowie, MD, build strength, explosiveness, and body control.</p>
+              <p className="np-eyebrow"><span className="np-red-dash" /> Built for more.</p>
+              <h1>Gymnastics &amp; <span>youth athletic training</span> in Bowie, MD</h1>
+              <p className="np-hero-description">Find a youth gymnastics class, build strength and speed in Fit &amp; Flip, or start adult gymnastics with a coach.</p>
               <div className="np-hero-buttons"><a href="#programs" className="np-button" data-analytics-cta="explore_programs" data-analytics-section="hero">Explore programs <ArrowRight size={18} /></a><button className="np-text-button" onClick={() => openMedia('training_film')}><span className="np-play-outline"><Play size={13} fill="currentColor" /></span>See us in motion</button></div>
-              <div className="np-hero-location"><span className="np-location-dot" /><span>BOWIE, MARYLAND · BUILT FOR EVERY ATHLETE.</span></div>
+              <Link className="np-hero-location np-text-button" to="/contact">Directions to the Bowie gym <ArrowUpRight size={15} aria-hidden="true" /></Link>
             </div>
             <div className="np-hero-visual">
               <div className="np-orbit np-orbit-one" aria-hidden="true" /><div className="np-orbit np-orbit-two" aria-hidden="true" />
@@ -229,7 +228,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         </section>
 
         <section className="np-section np-container" id="programs">
-          <div className="np-section-heading"><div><p className="np-eyebrow">01 / FIND YOUR PATH</p><h2>Two programs.<br /><span>One higher standard.</span></h2></div><p>Different goals. The same belief: every athlete deserves purposeful coaching and the opportunity to grow.</p></div>
+          <div className="np-section-heading"><div><h2>Choose your program</h2></div><p>See what each class teaches and where to start.</p></div>
           <div className="np-program-grid">{(Object.entries(programs) as [Program, typeof programs[Program]][]).map(([id, program], index) => <article className="np-program" id={id} key={id}>
             <button className="np-program-image" onClick={() => openProgram(id, 'program_cards')} aria-label={`Explore ${program.name}`}><img src={program.image} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
             <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><Link className="np-program-link" to={program.page} data-analytics-cta={`explore_${id}`} data-analytics-section="program_cards">{program.linkText}<ArrowUpRight size={21} aria-hidden="true" /></Link></div>
