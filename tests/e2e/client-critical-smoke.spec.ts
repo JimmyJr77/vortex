@@ -237,8 +237,18 @@ test.describe('Client-critical smoke flows', () => {
     await page.getByRole('link', { name: 'Compare sprint starts, planned turns, and reacting' }).click()
     await expect(page).toHaveURL('/blog/athletic-development-young-athletes#speed-vs-agility')
     const agility = page.locator('#speed-vs-agility')
-    await expect(agility.getByRole('heading')).toBeInViewport()
-    await agility.getByRole('link', { name: 'See a change of direction in the Vortex training film' }).click()
+    await expect(agility.getByRole('heading', { level: 2 })).toBeInViewport()
+
+    await page.goto('/fit-and-flip#speed-agility')
+    await page.getByRole('link', { name: 'See how speed and agility fit youth soccer' }).click()
+    await expect(page).toHaveURL('/blog/athletic-development-young-athletes#soccer-speed-and-agility')
+    const soccer = page.locator('#soccer-speed-and-agility')
+    await expect(soccer.getByRole('heading', { name: 'Speed and agility for youth soccer' })).toBeInViewport()
+    await expect(soccer.getByRole('link', { name: 'See weekly Fit & Flip times for both age groups' }))
+      .toHaveAttribute('href', '/fit-and-flip#fit-flip-schedule')
+    await expect(soccer.getByRole('link', { name: 'See Bowie FC’s soccer skills programs' }))
+      .toHaveAttribute('href', 'https://bowiesoccer.com/programs/')
+    await soccer.getByRole('link', { name: 'See a change of direction in the Vortex training film' }).click()
     await expect(page).toHaveURL('/watch/training-at-vortex#change-of-direction')
     await expect(page.getByRole('button', { name: 'Play this scene from 0:16', exact: true })).toBeInViewport()
     await expect(page.getByRole('main').locator('video')).toHaveJSProperty('paused', true)
@@ -432,6 +442,47 @@ test.describe('Client-critical smoke flows', () => {
     await expect(classes.getByRole('heading', { name: 'Typhoons (Adult)', exact: true })).toBeVisible()
     await expect(classes.getByRole('link', { name: 'Sign Up', exact: true })).toHaveAttribute('href', '/enroll?form=3')
     await expect(classes.getByText('Unpublished adult class')).toHaveCount(0)
+  })
+
+  test('keyboard pricing links focus the opened comparison', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: {
+      success: true, data: { programs: [] },
+    } }))
+    await page.route('**/api/public/drop-ins', route => route.fulfill({ json: {
+      success: true, data: { sessions: [] },
+    } }))
+
+    for (const { from, name, to, id } of [
+      { from: '/gymnastics', name: 'Compare youth gymnastics prices', to: '/gymnastics', id: 'youth-gymnastics-pricing' },
+      { from: '/fit-and-flip', name: 'Compare monthly and drop-in prices', to: '/fit-and-flip', id: 'fit-flip-class-pricing' },
+      { from: '/blog/returning-to-gymnastics-as-an-adult', name: 'Compare monthly enrollment and drop-in prices', to: '/adult-gymnastics', id: 'adult-class-pricing' },
+    ]) {
+      await page.goto(from)
+      await page.getByRole('link', { name, exact: true }).press('Enter')
+      await expect(page).toHaveURL(`${to}#${id}`)
+      const pricing = page.locator(`#${id}`)
+      const summary = pricing.locator('summary')
+      await expect(pricing).toHaveAttribute('open', '')
+      await expect(summary).toBeFocused()
+      await expect(summary).toBeInViewport({ ratio: 1 })
+      await page.keyboard.press('Tab')
+      await expect(pricing.getByRole('link', { name: 'Terms of Service', exact: true })).toBeFocused()
+    }
+
+    await page.goBack()
+    await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult')
+    await page.goForward()
+    await expect(page).toHaveURL('/adult-gymnastics#adult-class-pricing')
+    const adultPricing = page.locator('#adult-class-pricing')
+    await expect(adultPricing).toHaveAttribute('open', '')
+    await expect(adultPricing.locator('summary')).not.toBeFocused()
+
+    await page.goto('/gymnastics#youth-gymnastics-pricing')
+    const youthPricing = page.locator('#youth-gymnastics-pricing')
+    await expect(youthPricing).toHaveAttribute('open', '')
+    await expect(youthPricing.locator('summary')).toBeInViewport({ ratio: 1 })
+    await expect(youthPricing.locator('summary')).not.toBeFocused()
   })
 
   test('the youth gymnastics page lists published weekly times and keeps class levels distinct', async ({ page }) => {

@@ -918,7 +918,7 @@ const verifyHtml = (
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
       if (canonical === fitAndFlipCanonical) {
-        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility']) {
+        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility']) {
           assert(links.some((url) => url.href === `${guideCanonical}${hash}`),
             `${label}: missing the link to the parent guide at ${hash}`)
         }
@@ -937,6 +937,14 @@ const verifyHtml = (
         speedAgilityLinks.some(url => url.href === `${watchUrl}#change-of-direction`) &&
         speedAgilityLinks.some(url => url.href === 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9465760/'),
         `${label}: missing the speed and agility coaching examples, video moment, or research link`)
+      const soccer = speedAgility.match(/<div\b[^>]*\sid=["']soccer-speed-and-agility["'][^>]*>[\s\S]*?<\/div>/i)?.[0] ?? ''
+      const soccerLinks = anchorUrls(soccer)
+      assert(/Speed and agility for youth soccer/.test(soccer) && /8–11 and 12–15/.test(soccer) &&
+        soccerLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
+        soccerLinks.some(url => url.href === `${watchUrl}#change-of-direction`) &&
+        soccerLinks.some(url => url.href === 'https://bowiesoccer.com/programs/') &&
+        soccerLinks.some(url => url.href === 'https://pubmed.ncbi.nlm.nih.gov/40293724/'),
+        `${label}: missing the crawlable youth soccer example, sources, or Cyclones schedule link`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
       for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress']) {

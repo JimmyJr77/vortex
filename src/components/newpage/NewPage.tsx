@@ -198,6 +198,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
     return () => cancelAnimationFrame(frame)
   }, [hash])
   const [menuOpen, setMenuOpen] = useState(false)
+  const menuToggle = useRef<HTMLButtonElement>(null)
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [inquiryProgram, setInquiryProgram] = useState<Program | undefined>()
   const [trialProgram, setTrialProgram] = useState<Program | undefined>()
@@ -268,11 +269,15 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
     <div className={`np-page${motionPaused ? ' np-motion-paused' : ''}`} id="top">
       <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} />
       <a className="np-skip" href="#main">Skip to content</a>
-      <header className="np-header">
+      <header className="np-header" onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !menuOpen) return
+        setMenuOpen(false)
+        menuToggle.current?.focus({ preventScroll: true })
+      }}>
         <div className="np-container np-nav">
           <Brand />
           <nav className="np-desktop-nav" aria-label="Main navigation"><PublicNavigationLinks /></nav>
-          <div className="np-nav-actions"><button className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button><button className="np-button np-nav-cta" data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={() => openTrial('navigation')}>Try a free class <ArrowUpRight size={16} /></button><button className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
+          <div className="np-nav-actions"><button className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button><button className="np-button np-nav-cta" data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={() => openTrial('navigation')}>Try a free class <ArrowUpRight size={16} /></button><button ref={menuToggle} className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button></div>
         </div>
         {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation"><PublicNavigationLinks mobile onNavigate={() => setMenuOpen(false)} /><button data-analytics-cta="member_login" data-analytics-section="navigation" onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
       </header>

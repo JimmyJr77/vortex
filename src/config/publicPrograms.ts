@@ -374,7 +374,10 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'speed-agility',
             heading: 'Speed and agility for youth sports',
             description: 'Coaches can use short starts to practice the first few steps and stopping drills to teach athletes how to slow down with control. As athletes get comfortable, a coach might cue them to start toward a cone or change direction on the move.',
-            link: { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#speed-vs-agility`, label: 'Compare sprint starts, planned turns, and reacting', analyticsKey: 'read_speed_and_agility_guide' },
+            links: [
+              { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#speed-vs-agility`, label: 'Compare sprint starts, planned turns, and reacting', analyticsKey: 'read_speed_and_agility_guide' },
+              { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#soccer-speed-and-agility`, label: 'See how speed and agility fit youth soccer', analyticsKey: 'read_youth_soccer_speed_and_agility' },
+            ],
           },
         ],
         links: [

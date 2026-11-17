@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigationType } from 'react-router-dom'
 import { CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { getApiUrl } from '../../utils/api'
 import { fetchNonmemberDropIns } from '../../utils/dropInApi'
@@ -99,6 +99,7 @@ export default function PublicClassPricing({ program, classes, usesClassTuition,
 }) {
   const { id, label, comparisonKey, scheduleSection, bookingHref, dropInHref, trial } = PRICING_DETAILS[program]
   const { hash, key } = useLocation()
+  const navigationType = useNavigationType()
   const detailsRef = useRef<HTMLDetailsElement>(null)
   const isYouthGymnastics = program === DEVELOPMENTAL_GYMNASTICS_PROGRAM
   const analyticsSection = id.replaceAll('-', '_')
@@ -109,8 +110,12 @@ export default function PublicClassPricing({ program, classes, usesClassTuition,
     ? monthly.map(prices => prices[0]) : []
 
   useEffect(() => {
-    if (hash === `#${id}` && detailsRef.current) detailsRef.current.open = true
-  }, [hash, id, key])
+    const details = detailsRef.current
+    if (hash !== `#${id}` || !details) return
+
+    details.open = true
+    if (navigationType === 'PUSH') details.querySelector('summary')?.focus({ preventScroll: true })
+  }, [hash, id, key, navigationType])
 
   useEffect(() => {
     if (requested && classes !== null && usesClassTuition) {

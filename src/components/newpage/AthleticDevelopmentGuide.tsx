@@ -153,15 +153,32 @@ export default function AthleticDevelopmentGuide() {
             </li>
           </ul>
           <p className="mt-4">
-            Watch for the athlete’s plant and push away from a cone.{' '}
-            <Link to={`${trainingFilm.path}#change-of-direction`}>See a change of direction in the Vortex training film</Link>.
-          </p>
-          <p className="mt-4">
             A defender can practice braking in the gym, then learn which movements to read from an opponent
             in team practice. Researchers also use separate tests for planned and reactive agility in youth
             team sports.{' '}
             <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9465760/">See the study on reactive agility in young athletes</a>.
           </p>
+          <div id="soccer-speed-and-agility" className="scroll-mt-24">
+            <h3 className="athletic-guide-subheading">Speed and agility for youth soccer</h3>
+            <p>
+              When a loose ball deflects, a player may need to push off quickly, slow down, and turn to reach it.
+              In a conditioning class, a coach can rehearse that movement with a short start and a turn at a cone.
+              Watch for the athlete’s plant and push away from the cone.{' '}
+              <Link to={`${trainingFilm.path}#change-of-direction`}>See a change of direction in the Vortex training film</Link>.
+            </p>
+            <p>
+              How players slowed down and sped up again helped explain their times on a direction-change test
+              in a <a href="https://pubmed.ncbi.nlm.nih.gov/40293724/">study of junior high soccer players</a>.
+              In soccer practice, players put those movements together with a ball touch and a decision
+              about where to dribble or pass.{' '}
+              <a href="https://bowiesoccer.com/programs/">See Bowie FC’s soccer skills programs</a>.
+            </p>
+            <p>
+              For coached strength, jumps, and movement work alongside soccer, Fit &amp; Flip has Cyclones
+              groups for ages 8–11 and 12–15 in Bowie.{' '}
+              <Link to="/fit-and-flip#fit-flip-schedule">See weekly Fit &amp; Flip times for both age groups</Link>.
+            </p>
+          </div>
         </section>
 
         <section id="movement-progression">

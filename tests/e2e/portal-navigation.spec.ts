@@ -77,6 +77,22 @@ test('public visitors and member-only accounts are not offered admin portals', a
   await expect(page.getByRole('button', { name: 'Member login', exact: true })).toHaveCount(0)
 })
 
+test('Escape returns focus to the closed mobile menu toggle', async ({ page }) => {
+  await mockNavigationApi(page)
+  await page.setViewportSize({ width: 390, height: 740 })
+  for (const path of ['/', '/adult-gymnastics']) {
+    await page.goto(path)
+    const openMenu = page.getByRole('button', { name: 'Open menu', exact: true })
+    await openMenu.press('Enter')
+    const mobileNav = page.getByRole('navigation', { name: 'Mobile navigation' })
+    const guides = mobileNav.getByRole('link', { name: 'Training guides' })
+    await guides.press('Escape')
+    await expect(mobileNav).toHaveCount(0)
+    await expect(openMenu).toHaveAttribute('aria-expanded', 'false')
+    await expect(openMenu).toBeFocused()
+  }
+})
+
 test('scrolling stops at the bottom of the active portal page', async ({ page }) => {
   await mockNavigationApi(page)
   await page.setViewportSize({ width: 390, height: 600 })
