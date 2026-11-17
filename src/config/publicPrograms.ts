@@ -98,7 +98,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'athleticism-development',
         heading: 'Athleticism development through the Triad of Athleticism',
-        description: 'The Triad links three qualities that athletes use together. A jump, for example, starts with the strength to create force, uses explosiveness to take off quickly, and needs body control to finish with a balanced landing.',
+        description:
+          'The Athleticism Accelerator is Vortex’s framework for developing eight qualities of movement. It covers strength, explosiveness, speed, agility, flexibility and mobility, balance, coordination, and body control. Fit & Flip organizes that work around the Triad. In a jump, strength creates force, explosiveness helps the athlete take off quickly, and body control helps them land in balance. Mobility and coordination help the athlete get into position and move smoothly through the jump.',
         topics: [
           { id: 'strength', heading: 'Strength', description: 'Progressive, coached resistance work develops the ability to push, pull, and support the body. That foundation helps an athlete hold a stable shape in gymnastics or stay balanced when they change direction on the court.' },
           { id: 'explosiveness', heading: 'Explosiveness', description: 'Jumps, takeoffs, and dynamic movement teach athletes to produce force quickly. That carries over to a first step on the field or a stronger takeoff in cheer and tumbling.' },
