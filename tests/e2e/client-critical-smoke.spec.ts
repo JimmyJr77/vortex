@@ -106,13 +106,15 @@ test.describe('Client-critical smoke flows', () => {
     const enrollmentClass = (formId: number, displayName: string, skillLevel: string, enrollVisible = true) =>
       ({ id: formId, formId, displayName, skillLevel, enrollVisible })
     const classes = [
-      enrollmentClass(9, 'Tornadoes', 'BEGINNER'), enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'),
+      enrollmentClass(9, 'Tornadoes', 'BEGINNER'),
+      { ...enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'), excludeFromDropIns: true },
       enrollmentClass(14, 'Hidden class', 'ADVANCED', false), enrollmentClass(15, 'Expired class', 'ADVANCED'),
       enrollmentClass(16, 'Different program form', 'ADVANCED'),
     ]
     await page.route('**/api/public/classes-offered', (route) => route.fulfill({ json: {
       success: true, data: { programs: [
-        { id: developmentalProgram, displayName: 'Development Gymnastics', classes },
+        { id: developmentalProgram, displayName: 'Development Gymnastics', classes,
+          pricingCostOptions: [{ key: 'monthly_flat', enabled: true, amountCents: 99999 }] },
         { id: 9, displayName: 'Fit & Flip', classes: [enrollmentClass(30, 'Cyclones (8–11)', 'BEGINNER')] },
         { id: 13, displayName: 'Vortex Gymnastics Team', classes: [enrollmentClass(31, 'Team', 'ADVANCED')] },
       ] },
@@ -135,7 +137,7 @@ test.describe('Client-critical smoke flows', () => {
     await page.goto('/gymnastics#youth-gymnastics-schedule')
     const schedule = page.getByRole('region', { name: 'Weekly youth gymnastics class schedule' })
     await expect(schedule.getByRole('heading')).toBeInViewport()
-    await expect(schedule.locator('summary')).toHaveText(['Tornadoes Beginner', 'Cyclones Intermediate'])
+    await expect(schedule.locator('.np-recurring-schedule summary')).toHaveText(['Tornadoes Beginner', 'Cyclones Intermediate'])
     const times = schedule.getByText('Tuesday · 4:00 PM – 5:30 PM', { exact: true })
     await expect(times.first()).toBeHidden()
     await schedule.getByText('Tornadoes Beginner', { exact: true }).click()
@@ -143,6 +145,46 @@ test.describe('Client-critical smoke flows', () => {
     await expect(schedule.getByRole('link', { name: 'Check dates and availability' }))
       .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics')
     expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])
+
+    await page.route(/\/api\/signup\/catalog\/classes\/(9|22)\/offerings$/, (route) => {
+      expect(route.request().headers().authorization).toBeUndefined()
+      const formId = Number(new URL(route.request().url()).pathname.split('/').at(-2))
+      const option = { scheduleMode: 'day', slotGroupId: formId, offeringId: formId + 100 }
+      return route.fulfill({ json: { success: true, data: {
+        formId, costUnit: formId === 9 ? 'per_month' : 'per_class',
+        scheduleOptions: [
+          { ...option, priceCents: 15000 },
+          { ...option, priceCents: 16000 },
+          { ...option, offeringId: 999, priceCents: 1000 },
+          { ...option, scheduleMode: 'date', priceCents: 2000 },
+        ],
+      } } })
+    })
+    await page.route('**/api/public/drop-ins', (route) => {
+      expect(route.request().headers().authorization).toBeUndefined()
+      const youth = { programName: 'Development Gymnastics', classId: 9, date: classDate, totalCents: 5000, isFull: false }
+      return route.fulfill({ json: { success: true, data: { sessions: [
+        youth,
+        { ...youth, totalCents: 1000, isFull: true },
+        { ...youth, totalCents: 2000, excludedFromDropIns: true },
+        { ...youth, programName: 'Fit & Flip', totalCents: 3000 },
+      ] } } })
+    })
+    await page.getByRole('link', { name: 'Compare youth gymnastics prices' }).click()
+    await expect(page).toHaveURL('/gymnastics#youth-gymnastics-pricing')
+    const pricing = page.locator('#youth-gymnastics-pricing')
+    await expect(pricing.getByRole('table')).toBeVisible()
+    const tornadoesPricing = pricing.getByRole('row', { name: /Tornadoes/ })
+    await expect(tornadoesPricing.getByRole('cell')).toHaveText(['$150.00–$160.00', '$50.00'])
+    await expect(tornadoesPricing.getByRole('link', { name: 'Tornadoes' }))
+      .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics&form=9')
+    await expect(pricing.getByRole('row', { name: /Cyclones/ }).getByRole('cell')).toHaveText(['See enrollment', 'Unavailable'])
+    await expect(pricing.getByRole('link', { name: 'Find a free gymnastics trial' })).toHaveAttribute('href', '/gymnastics#first-visit')
+    await pricing.getByRole('link', { name: 'Review available drop-in dates' }).click()
+    await expect(page).toHaveURL('/drop-in?program=Developmental%20Gymnastics')
+    await expect(page.getByRole('heading', { name: 'Youth gymnastics drop-ins.' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Tornadoes' })).toBeVisible()
+    await expect(page.getByRole('heading', { name: /Fit & Flip|Cyclones/ })).toHaveCount(0)
   })
 
   test('Fit & Flip compares current prices by program without using member benefits', async ({ page }) => {

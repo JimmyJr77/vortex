@@ -2,6 +2,7 @@ import type { PublicClassOffered, PublicProgramOffered } from './publicClassesAp
 
 export const DEVELOPMENTAL_GYMNASTICS_PROGRAM = 'Developmental Gymnastics'
 export const DEVELOPMENTAL_GYMNASTICS_HREF = `/enroll?program=${encodeURIComponent(DEVELOPMENTAL_GYMNASTICS_PROGRAM)}`
+export const DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(DEVELOPMENTAL_GYMNASTICS_PROGRAM)}`
 export const FIT_AND_FLIP_BOOKING_PROGRAM = 'Fit & Flip'
 export const FIT_AND_FLIP_BOOKING_HREF = `/enroll?program=${encodeURIComponent(FIT_AND_FLIP_BOOKING_PROGRAM)}`
 export const FIT_AND_FLIP_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(FIT_AND_FLIP_BOOKING_PROGRAM)}`
@@ -38,7 +39,7 @@ export function getRecurringBookingProgram(programs: readonly PublicProgramOffer
   if (name === FIT_AND_FLIP_BOOKING_PROGRAM) {
     classes.sort((left, right) => (left.ageMin ?? Number.MAX_SAFE_INTEGER) - (right.ageMin ?? Number.MAX_SAFE_INTEGER))
   }
-  return { id: program.id, classes }
+  return { ...program, classes }
 }
 
 /** Public booking labels only; retain catalog IDs, pricing, and portal names. */
@@ -48,7 +49,8 @@ export function getPublicBookingProgramName(name: string): string | null {
 
 export function getScopedDropInProgram(name: string | null) {
   if (isAdultBookingProgram(name)) return ADULT_BOOKING_PROGRAM
-  return name && getPublicBookingProgramName(name) === FIT_AND_FLIP_BOOKING_PROGRAM ? FIT_AND_FLIP_BOOKING_PROGRAM : null
+  const program = name ? getPublicBookingProgramName(name) : null
+  return program === FIT_AND_FLIP_BOOKING_PROGRAM || program === DEVELOPMENTAL_GYMNASTICS_PROGRAM ? program : null
 }
 
 export function getPublicBookingPrograms<T extends { displayName: string; enrollmentSortOrder?: number | null }>(programs: readonly T[]): T[] {

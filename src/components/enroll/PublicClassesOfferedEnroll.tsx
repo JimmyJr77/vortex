@@ -9,9 +9,8 @@ import {
   type ClassSkillLevelFilter,
 } from '../../utils/classDisplayUtils'
 import {
-  enabledBasePricingOptions,
   formatProgramPricingOptionLabel,
-  type ProgramPricingOption,
+  publicEnrollmentPricingOptions,
   type ProgramPricingOptionKey,
 } from '../../utils/programPricingOptions'
 import {
@@ -76,15 +75,8 @@ function classMatchesLevel(skillLevel: string | null, filter: ClassSkillLevelFil
   return filter === 'all' || skillLevel == null || skillLevel === filter
 }
 
-function nonWeeklyOptions(program: PublicProgramOffered): ProgramPricingOption[] {
-  return enabledBasePricingOptions(program.pricingCostOptions ?? []).filter(
-    (option) => !option.key.startsWith('monthly_'),
-  )
-}
-
 function defaultPricingKey(program?: PublicProgramOffered): ProgramPricingOptionKey | undefined {
-  if (!program) return undefined
-  return nonWeeklyOptions(program)[0]?.key
+  return publicEnrollmentPricingOptions(program?.pricingCostOptions ?? [])[0]?.key
 }
 
 function estimateProgramSubtotal(
@@ -103,7 +95,7 @@ function estimateProgramSubtotal(
     }
   }
 
-  const options = nonWeeklyOptions(program)
+  const options = publicEnrollmentPricingOptions(program.pricingCostOptions ?? [])
   const option =
     options.find((candidate) => candidate.key === selectedPricingKey) ?? options[0]
   if (option) {
@@ -554,7 +546,7 @@ export default function PublicClassesOfferedEnroll({
         const maxSlots = programUsesWeeklyTierPricing(program)
           ? maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
           : 0
-        const options = nonWeeklyOptions(program)
+        const options = publicEnrollmentPricingOptions(program.pricingCostOptions ?? [])
         return (
           <Fragment key={`${resultGroup}:${program.id}`}>
             {resultGroup === 'across' && index === filteredProgramSections.length && (

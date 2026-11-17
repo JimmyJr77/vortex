@@ -1,8 +1,10 @@
 import { StrictMode, Suspense, type ReactNode } from 'react'
+import { flushSync } from 'react-dom'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './index.css'
+import { loadHomePage, loadPublicProgramPage, publicGuideLoaders, type PublicSnapshotPage } from './config/publicPageLoaders'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
 import { HUB_ORIGIN } from './utils/seo'
 import {
@@ -36,9 +38,9 @@ const stubPreview = stubSite
   ? isStubPreviewOnNonStubHost(window.location.hostname, window.location.search)
   : false
 const isLegacyGymnasticsHost = /^(www\.)?vortex-gymnastics\.com$/i.test(window.location.hostname)
-const snapshotPath = root.dataset.prerenderedProgram
-const currentPath = window.location.pathname.toLowerCase().replace(/\/+$/, '')
-const keepProgramSnapshot = snapshotPath !== undefined && snapshotPath === currentPath &&
+const snapshotPath = root.dataset.prerenderedPage ?? root.dataset.prerenderedProgram
+const currentPath = window.location.pathname.toLowerCase().replace(/\/+$/, '') || '/'
+const keepPublicSnapshot = snapshotPath === currentPath &&
   !stubSite && !isLegacyGymnasticsHost && !hasAdminSession() && !getMemberSessionToken()
 
 /**
@@ -82,22 +84,32 @@ function renderWebsite(app: ReactNode) {
   )
 }
 
-async function mountProgramSnapshot() {
+async function loadSnapshotPage(path: string): Promise<PublicSnapshotPage> {
+  if (path === '/') return { kind: 'home', Component: (await loadHomePage()).default }
+  if (path === root.dataset.prerenderedProgram) {
+    return { kind: 'program', Component: (await loadPublicProgramPage()).default }
+  }
+  const guide = publicGuideLoaders.find((guide) => guide.path === path)
+  if (!guide) throw new Error(`No page loader for snapshot path ${path}`)
+  return { kind: 'guide', path, Component: (await guide.load()).default }
+}
+
+async function mountPublicSnapshot(path: string) {
   try {
     // Render the resolved components so React can replace the snapshot in one commit.
-    const [{ default: Website }, { default: ProgramPage }] = await Promise.all([
-      import('./App.tsx'), import('./components/newpage/PublicProgramPage.tsx'),
-    ])
-    prepareReactMount()
-    renderWebsite(<Website programPageComponent={ProgramPage} />)
+    const [{ default: Website }, snapshotPage] = await Promise.all([import('./App.tsx'), loadSnapshotPage(path)])
+    flushSync(() => {
+      prepareReactMount()
+      renderWebsite(<Website snapshotPage={snapshotPage} />)
+    })
   } catch (error) {
     // Keep the readable snapshot while the existing one-reload recovery runs.
     if (isChunkLoadError(error)) reloadForStaleChunks()
-    else console.error('Could not start the program page', error)
+    else console.error('Could not start the public page', error)
   }
 }
 
-if (!keepProgramSnapshot) prepareReactMount()
+if (!keepPublicSnapshot) prepareReactMount()
 
 initGoogleAnalyticsConsent()
 initGoogleAnalyticsLinker()
@@ -167,8 +179,8 @@ if (isLegacyGymnasticsHost) {
       </ChunkLoadErrorBoundary>
     </StrictMode>,
   )
-} else if (keepProgramSnapshot) {
-  void mountProgramSnapshot()
+} else if (keepPublicSnapshot) {
+  void mountPublicSnapshot(currentPath)
 } else {
   renderWebsite(<App />)
 }

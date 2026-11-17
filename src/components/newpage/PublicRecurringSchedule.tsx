@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { formatSkillLevel } from '../../utils/classDisplayUtils'
 import { DEVELOPMENTAL_GYMNASTICS_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
+import { publicEnrollmentPricingOptions } from '../../utils/programPricingOptions'
 import {
   fetchPublicSchedulingForm,
   fetchPublicSchedulingOfferings,
@@ -9,12 +10,13 @@ import {
   slotGroupHasMultipleWeekLetters,
 } from '../../utils/schedulingApi'
 import { sortOccurrences } from '../../utils/slotSort'
+import { programUsesWeeklyTierPricing } from '../../utils/weeklyTierPricing'
 import PublicClassPricing, { type RecurringPriceClass } from './PublicClassPricing'
 
-type ClassTimes = RecurringPriceClass & { name: string; skillLevel: string | null; times: string[] }
+type ClassTimes = RecurringPriceClass & { skillLevel: string | null; times: string[] }
 type ScheduleState =
   | { status: 'loading' | 'unavailable' }
-  | { status: 'loaded'; classes: ClassTimes[] }
+  | { status: 'loaded'; classes: ClassTimes[]; usesClassTuition: boolean }
 
 const easternDate = new Intl.DateTimeFormat('en-CA', {
   timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
@@ -25,14 +27,16 @@ function includesDate(date: string, start?: string | null, end?: string | null) 
   return (!start || start <= date) && (!end || end >= date)
 }
 
-async function loadClassTimes(programName: RecurringBookingProgram): Promise<ClassTimes[]> {
+async function loadSchedule(programName: RecurringBookingProgram): Promise<Extract<ScheduleState, { status: 'loaded' }>> {
   const { programs } = await fetchClassesOffered()
   const program = getRecurringBookingProgram(programs, programName)
-  if (!program) return []
+  if (!program) return { status: 'loaded', classes: [], usesClassTuition: false }
 
   const dateParts = easternDate.formatToParts(new Date())
   const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type)?.value).join('-')
-  const classes = await Promise.allSettled(program.classes.map(async ({ id: classId, formId, displayName, skillLevel }) => {
+  const timesByClass = await Promise.allSettled(program.classes.map(async ({
+    id: classId, formId, displayName, skillLevel, excludeFromDropIns,
+  }) => {
     const [form, offerings] = await Promise.all([
       fetchPublicSchedulingForm(formId), fetchPublicSchedulingOfferings(formId),
     ])
@@ -56,10 +60,17 @@ async function loadClassTimes(programName: RecurringBookingProgram): Promise<Cla
     const includeWeek = slotGroupHasMultipleWeekLetters(slots)
     const times = Array.from(new Set(sortOccurrences(slots).map((slot) =>
       formatSchedulingOccurrenceLabel(slot, { includeWeek }))))
-    return times.length ? { classId, formId, name: displayName, skillLevel, times, groups } : null
+    return times.length ? {
+      classId, formId, name: displayName, skillLevel, times, groups,
+      excludeFromDropIns: excludeFromDropIns ?? program.excludeFromDropIns,
+    } : null
   }))
 
-  return classes.flatMap((result) => result.status === 'fulfilled' && result.value ? [result.value] : [])
+  return {
+    status: 'loaded',
+    classes: timesByClass.flatMap(result => result.status === 'fulfilled' && result.value ? [result.value] : []),
+    usesClassTuition: !programUsesWeeklyTierPricing(program) && !publicEnrollmentPricingOptions(program.pricingCostOptions ?? []).length,
+  }
 }
 
 export default function PublicRecurringSchedule({ programName }: {
@@ -70,8 +81,8 @@ export default function PublicRecurringSchedule({ programName }: {
 
   useEffect(() => {
     let current = true
-    void loadClassTimes(programName).then((classes) => {
-      if (current) setSchedule({ status: 'loaded', classes })
+    void loadSchedule(programName).then((result) => {
+      if (current) setSchedule(result)
     }).catch(() => {
       if (current) setSchedule({ status: 'unavailable' })
     })
@@ -105,8 +116,10 @@ export default function PublicRecurringSchedule({ programName }: {
         <p>Check enrollment for current class times or contact Vortex for help.</p>
       )}
     </div>
-    {programName !== DEVELOPMENTAL_GYMNASTICS_PROGRAM && (
-      <PublicClassPricing program={programName} classes={schedule.status === 'loaded' ? schedule.classes : schedule.status === 'loading' ? null : NO_CLASSES} />
-    )}
+    <PublicClassPricing
+      program={programName}
+      classes={schedule.status === 'loaded' ? schedule.classes : schedule.status === 'loading' ? null : NO_CLASSES}
+      usesClassTuition={!isDevelopmentalGymnastics || (schedule.status === 'loaded' && schedule.usesClassTuition)}
+    />
   </>)
 }

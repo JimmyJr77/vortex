@@ -55,6 +55,11 @@ type PublicProgram = {
 }
 
 const GYMNASTICS_TRIAL_LABEL = 'Find a free gymnastics trial'
+const GYMNASTICS_PRICING_ACTION = {
+  href: '/gymnastics#youth-gymnastics-pricing',
+  label: 'Compare youth gymnastics prices',
+  analyticsKey: 'compare_youth_gymnastics_prices',
+}
 const FIT_AND_FLIP_TRIAL_LABEL = 'Find a free Fit & Flip trial'
 const TUMBLING_GUIDE_ACTION = {
   href: GYMNASTICS_VS_TUMBLING_GUIDE.path,
@@ -68,7 +73,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Youth gymnastics classes',
     path: '/gymnastics',
     title: 'Youth Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Compare weekly class times and starting levels, or find a free trial.',
+    description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Compare weekly times, tuition, and drop-in prices or find a free trial.',
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: searchPhotos.youthGymnastics,
@@ -77,11 +82,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 1600,
     imageHeight: 1200,
     primaryAction: { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
+    secondaryAction: GYMNASTICS_PRICING_ACTION,
     trial: { program: 'gymnastics', label: GYMNASTICS_TRIAL_LABEL },
     recurringSchedule: {
       id: 'youth-gymnastics-schedule',
       heading: 'Weekly youth gymnastics class schedule',
-      description: 'Open a class to see the weekly times for Mommy & Me, preschool, and school-age developmental gymnastics. For a first visit, check the class ages and placement guidance below, then use the free trial finder.',
+      description: 'Check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. For a first visit, use the age and placement guidance below to find a free trial.',
       programName: DEVELOPMENTAL_GYMNASTICS_PROGRAM,
     },
     sections: [
@@ -180,6 +186,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       { question: 'Does my child need gymnastics experience to start?', answer: 'Beginners are welcome. The trial finder matches new gymnasts ages 6–17 with Tornadoes trials when available. If your athlete has trained before, choose the experienced pathway to look for a Trial Assessment.' },
       { question: 'Does my child have to compete?', answer: 'Competition is part of the team pathway. Athletes in developmental gymnastics can work on skills, strength, and body control without entering competitions.' },
       { question: 'How do I choose a gymnastics class?', answer: 'For a first visit, enter your child’s age and experience in the gymnastics trial finder. You can also browse the live class catalog or contact Vortex if you have a placement question.' },
+      { question: 'How much do youth gymnastics classes cost?', answer: 'Monthly tuition depends on the class and schedule you choose. The price comparison shows current tuition and nonmember drop-in prices. Paid monthly enrollment requires an active annual membership for the athlete. A drop-in is for one class, and eligible athletes can book one free trial.' },
     ],
     relatedPaths: ['/fit-and-flip', '/adult-gymnastics'],
   },

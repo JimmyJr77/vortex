@@ -170,6 +170,26 @@
   font-weight: 650;
 }
 
+.np-youth-gymnastics-pricing table {
+  width: 100%;
+  margin-top: 14px;
+  border-collapse: collapse;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.np-youth-gymnastics-pricing :is(th, td) {
+  padding: 8px 6px;
+  border-bottom: 1px solid var(--np-line);
+  text-align: left;
+  vertical-align: top;
+}
+
+.np-youth-gymnastics-pricing th[scope="row"] a {
+  text-underline-offset: 3px;
+  text-decoration: underline;
+}
+
 .np-program-section {
   padding-block: clamp(32px, 5vw, 64px);
   border-bottom: 1px solid var(--np-line);

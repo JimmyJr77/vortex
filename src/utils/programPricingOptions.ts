@@ -114,6 +114,11 @@ export function enabledBasePricingOptions(options: ProgramPricingOption[]): Prog
   return options.filter((o) => o.enabled && o.amountCents > 0)
 }
 
+/** Choices that replace scheduled class prices in public enrollment. */
+export function publicEnrollmentPricingOptions(options: ProgramPricingOption[]): ProgramPricingOption[] {
+  return enabledBasePricingOptions(options).filter(option => !option.key.startsWith('monthly_'))
+}
+
 export function formatProgramPricingOptionLabel(opt: ProgramPricingOption): string {
   const def = DEF_BY_KEY.get(opt.key)
   if (!def) return opt.key

@@ -4,7 +4,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { checkoutDropIn, fetchNonmemberDropIns, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
-import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, getPublicBookingPrograms, getScopedDropInProgram, isAdultBookingProgram } from '../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM, getPublicBookingPrograms, getScopedDropInProgram, isAdultBookingProgram } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, formatAgeRange, formatSkillLevel, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
@@ -15,6 +15,12 @@ import './DropInPage.css'
 const DropInSignup = lazy(() => import('./signup/DropInSignup'))
 
 const SCOPED_DROP_IN_COPY = {
+  [DEVELOPMENTAL_GYMNASTICS_PROGRAM]: {
+    heading: 'Youth gymnastics drop-ins.',
+    intro: 'Reserve a single youth gymnastics class in Bowie. Pick a date to see available classes and times.',
+    programHref: '/gymnastics#youth-gymnastics-pricing',
+    programLink: 'youth gymnastics tuition and class options',
+  },
   [ADULT_BOOKING_PROGRAM]: {
     heading: 'Adult gymnastics drop-ins.',
     intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie. Registration shows whether you can apply your one-time free trial to the selected date.',
@@ -64,6 +70,7 @@ export default function DropInPage() {
   const [params, setParams] = useSearchParams()
   const scopedProgram = getScopedDropInProgram(params.get('program'))
   const scopedCopy = scopedProgram ? SCOPED_DROP_IN_COPY[scopedProgram] : null
+  const showScopedDates = scopedProgram === ADULT_BOOKING_PROGRAM || scopedProgram === FIT_AND_FLIP_BOOKING_PROGRAM
   const signupSlotGroupId = Number(params.get('signupSlot'))
   const signupDate = params.get('signupDate')
   const bookingId = Number(params.get('booking'))
@@ -121,10 +128,11 @@ export default function DropInPage() {
     let active = true
     setLoading(true)
     setError(null)
-    Promise.all([scopedProgram ? null : fetchClassesOffered(), fetchNonmemberDropIns()]).then(([catalog, data]) => {
+    Promise.all([showScopedDates ? null : fetchClassesOffered(), fetchNonmemberDropIns()]).then(([catalog, data]) => {
       if (!active) return
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
-      const publicPrograms = catalog ? getPublicBookingPrograms(catalog.programs) : []
+      const publicPrograms = catalog ? getPublicBookingPrograms(catalog.programs)
+        .filter(program => !scopedProgram || program.displayName === scopedProgram) : []
       setProgramOptions(publicPrograms)
       setClasses(publicPrograms.flatMap((program) => program.classes
         .filter((classItem) => classItem.formId != null && !(classItem.excludeFromDropIns ?? program.excludeFromDropIns))
@@ -147,16 +155,16 @@ export default function DropInPage() {
     })
     // Refresh public availability after checkout. Benefits are loaded for the selected athlete.
     return () => { active = false }
-  }, [catalogVersion, scopedProgram])
+  }, [catalogVersion, scopedProgram, showScopedDates])
 
-  const scopedSessions = useMemo(() => scopedProgram ? sessions
+  const scopedSessions = useMemo(() => showScopedDates ? sessions
     .filter((session) => getScopedDropInProgram(session.programName) === scopedProgram && !session.excludedFromDropIns && !session.isFull)
-    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)) : [], [sessions, scopedProgram])
+    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)) : [], [sessions, scopedProgram, showScopedDates])
 
   const programSections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     const filtered = classes.filter((row) =>
-      (programFilter === 'all' || row.programId === programFilter) &&
+      (scopedProgram || programFilter === 'all' || row.programId === programFilter) &&
       (levelFilter === 'all' || row.skillLevel == null || row.skillLevel === levelFilter) &&
       (!dropInDate || sessions.some(
         (session) => session.classId === row.classId && session.date === dropInDate,
@@ -166,7 +174,7 @@ export default function DropInPage() {
     const grouped = new Map<number, DropInClass[]>()
     for (const row of filtered) grouped.set(row.programId, [...(grouped.get(row.programId) ?? []), row])
     return [...grouped.values()]
-  }, [classes, dropInDate, levelFilter, programFilter, searchQuery, sessions])
+  }, [classes, dropInDate, levelFilter, programFilter, scopedProgram, searchQuery, sessions])
 
   const { onSelectedDate, alternatives } = useMemo(
     () => getDropInDateOptions(sessions, selectedClassId, dropInDate),
@@ -174,8 +182,8 @@ export default function DropInPage() {
   )
 
   const selectedClass = classes.find((row) => row.classId === selectedClassId) ?? null
-  const selectedProgram = programOptions.find((program) => program.id === programFilter)
-  const hasFilters = searchQuery !== '' || programFilter !== 'all' || levelFilter !== 'all'
+  const selectedProgram = scopedProgram ? undefined : programOptions.find((program) => program.id === programFilter)
+  const hasFilters = searchQuery !== '' || (!scopedProgram && programFilter !== 'all') || levelFilter !== 'all'
   const clearFilters = () => { setSearchQuery(''); setProgramFilter('all'); setLevelFilter('all') }
   const selectSession = (session: DropInSession) => {
     trackEvent('drop_in_start', '/drop-in')
@@ -235,7 +243,7 @@ export default function DropInPage() {
           {scopedProgram === ADULT_BOOKING_PROGRAM && <>{' '}
             <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">See what to expect at your first adult class</Link>.
           </>}
-          {scopedProgram === FIT_AND_FLIP_BOOKING_PROGRAM && <>{' '}
+          {scopedProgram !== ADULT_BOOKING_PROGRAM && <>{' '}
             <Link className="font-semibold underline underline-offset-4" to="/drop-in">Browse all youth drop-ins</Link>.
           </>}
         </p> : <p className="np-drop-in-intro">
@@ -266,7 +274,7 @@ export default function DropInPage() {
           </>}
         </div>
       )}
-      {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : scopedCopy ? (
+      {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : scopedCopy && 'datesHeading' in scopedCopy ? (
         <section aria-labelledby="program-drop-in-dates" className="space-y-4">
           <h2 id="program-drop-in-dates" className="text-2xl font-bold text-gray-900">{scopedCopy.datesHeading}</h2>
           {error || scopedSessions.length === 0 ? <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">
@@ -298,7 +306,7 @@ export default function DropInPage() {
               helpText="Choose the date you want to attend this drop-in class."
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select aria-label="Program" value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((program) => <option key={program.id} value={program.id}>{program.displayName}</option>)}</select></label>
+              {!scopedProgram && <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Program</span><select aria-label="Program" value={programFilter} onChange={(event) => setProgramFilter(event.target.value === 'all' ? 'all' : Number(event.target.value))} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm"><option value="all">All programs</option>{programOptions.map((program) => <option key={program.id} value={program.id}>{program.displayName}</option>)}</select></label>}
               <label className="flex min-w-[10rem] flex-1 flex-col gap-1 sm:max-w-[14rem]"><span className="text-xs font-semibold text-gray-600">Experience level</span><select aria-label="Experience level" value={levelFilter} onChange={(event) => setLevelFilter(event.target.value as ClassSkillLevelFilter)} className="h-10 rounded-lg border border-gray-300 bg-white px-3 text-sm">{CLASS_SKILL_LEVEL_FILTER_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select></label>
             </div>
           </div>

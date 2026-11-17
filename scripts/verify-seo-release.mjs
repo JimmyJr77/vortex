@@ -348,6 +348,10 @@ const verifyHtml = (
   const expectedProgramSnapshot = shouldIndex && HUB_PROGRAM_PATHS.includes(pagePath) ? pagePath : ''
   assert(attribute(snapshotRoot, 'data-prerendered-program') === expectedProgramSnapshot,
     `${label}: the prerendered program marker must match the program route`)
+  const expectedPublicSnapshot = shouldIndex && pageUrl.origin === HUB_ORIGIN &&
+    ['/', HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS].includes(pagePath) ? pagePath : ''
+  assert(attribute(snapshotRoot, 'data-prerendered-page') === expectedPublicSnapshot,
+    `${label}: the prerendered page marker must match the homepage or guide route`)
   if (pageUrl.origin === HUB_ORIGIN) {
     for (const url of anchorUrls(html)) {
       if (!unifiedHosts.has(url.hostname.replace(/^www\./, ''))) continue
@@ -496,11 +500,18 @@ const verifyHtml = (
     }
     if (pagePath === '/gymnastics') {
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
-      assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me, preschool/.test(schedule),
+      assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me.*preschool/.test(schedule),
         `${label}: missing the crawlable youth gymnastics schedule and age-group guidance`)
-      assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
+      const prices = schedule.match(/<details\b[^>]*\sid=["']youth-gymnastics-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
+      const priceLinks = anchorUrls(prices)
+      assert(priceLinks.some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
         url.searchParams.get('program') === 'Developmental Gymnastics'),
-        `${label}: the youth gymnastics schedule must link to developmental enrollment`)
+        `${label}: the youth gymnastics price comparison must link to developmental enrollment`)
+      assert(/Dirt Devils.*Twisters.*Tornadoes.*Cyclones.*Vortex A4 Elite/.test(schedule) &&
+        /Compare youth gymnastics prices/.test(prices) && /Paid monthly enrollment requires an active annual membership/.test(prices) &&
+        /How much do youth gymnastics classes cost\?/.test(mainHtml) && hasDropInProgramLink(priceLinks, 'Developmental Gymnastics') &&
+        priceLinks.some(url => url.href === `${canonical}#first-visit`),
+        `${label}: missing the crawlable youth class comparison, tuition guidance, or trial and drop-in links`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']first-visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>What to expect at your child’s first gymnastics class<\/h2>/i.test(firstVisit),
         `${label}: missing the first gymnastics visit section`)
@@ -695,7 +706,8 @@ const verifyHtml = (
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
     for (const path of [
-      '/gymnastics', '/gymnastics#first-visit', '/gymnastics#youth-gymnastics-schedule', '/fit-and-flip', '/fit-and-flip#fit-flip-class-pricing', '/read-board',
+      '/gymnastics', '/gymnastics#first-visit', '/gymnastics#youth-gymnastics-schedule', '/gymnastics#youth-gymnastics-pricing',
+      '/fit-and-flip', '/fit-and-flip#fit-flip-class-pricing', '/read-board',
       YOUTH_ATHLETIC_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
     ]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),

@@ -115,7 +115,7 @@ export default function BowieYouthSportsGuide() {
           <ul>
             <li><strong>Starting group.</strong> Ask whether placement depends on age, grade, or experience, and what the first session looks like for a beginner.</li>
             <li><strong>Weekly schedule.</strong> Compare practice and game times, where sessions take place, and which days work for your family.</li>
-            <li><strong>Total cost.</strong> Check whether uniforms, equipment, membership, or competition fees are included. <Link to="/fit-and-flip#fit-flip-class-pricing">Compare Fit &amp; Flip prices</Link>.</li>
+            <li><strong>Total cost.</strong> Check whether uniforms, equipment, membership, or competition fees are included. See <Link to="/gymnastics#youth-gymnastics-pricing">youth gymnastics prices</Link> for weekly classes and drop-ins. <Link to="/fit-and-flip#fit-flip-class-pricing">Compare Fit &amp; Flip prices</Link> for youth strength and fitness.</li>
             <li><strong>First visit.</strong> Ask whether your child can observe, try a session, or start with a shorter program.</li>
             <li>
               <strong>Accommodations.</strong> If your child needs a disability accommodation for a county recreation

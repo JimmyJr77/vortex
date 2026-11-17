@@ -1,9 +1,8 @@
-import { Suspense, useState, useEffect, useCallback, type ComponentType } from 'react'
+import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
-import publicArticles from './config/publicArticles.json'
-import guideIndex from './config/publicGuideIndex.json'
+import { loadHomePage, loadPublicProgramPage, publicGuideLoaders, type PublicSnapshotPage } from './config/publicPageLoaders'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import PortalTheme from './components/portal/PortalTheme'
 import { trackEngagement } from './utils/analytics'
@@ -24,7 +23,7 @@ import {
 } from './utils/portalSession'
 import CookieConsent from './components/CookieConsent'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
-import { PUBLIC_PROGRAMS, type PublicProgramPath } from './config/publicPrograms'
+import { PUBLIC_PROGRAMS } from './config/publicPrograms'
 import { isAdultBookingProgram } from './utils/publicBookingPrograms'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const Header = lazyWithRetry(() => import('./components/Header'))
@@ -32,8 +31,8 @@ const Footer = lazyWithRetry(() => import('./components/Footer'))
 const ContactForm = lazyWithRetry(() => import('./components/ContactForm'))
 const Login = lazyWithRetry(() => import('./components/Login'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
-const NewPage = lazyWithRetry(() => import('./components/newpage/NewPage'))
-const PublicProgramPage = lazyWithRetry(() => import('./components/newpage/PublicProgramPage'))
+const NewPage = lazyWithRetry(loadHomePage)
+const PublicProgramPage = lazyWithRetry(loadPublicProgramPage)
 const Ninja = lazyWithRetry(() => import('./components/Ninja'))
 const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
 const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage'))
@@ -46,14 +45,7 @@ const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
 const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
 const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
-const publicGuideRoutes = [
-  { path: guideIndex.path, Component: lazyWithRetry(() => import('./components/newpage/TrainingGuidesIndex')) },
-  { path: publicArticles.athleticDevelopment.path, Component: lazyWithRetry(() => import('./components/newpage/AthleticDevelopmentGuide')) },
-  { path: publicArticles.bowieYouthSports.path, Component: lazyWithRetry(() => import('./components/newpage/BowieYouthSportsGuide')) },
-  { path: publicArticles.preschoolGymnastics.path, Component: lazyWithRetry(() => import('./components/newpage/PreschoolGymnasticsGuide')) },
-  { path: publicArticles.gymnasticsVsTumbling.path, Component: lazyWithRetry(() => import('./components/newpage/GymnasticsVsTumblingGuide')) },
-  { path: publicArticles.returningToGymnastics.path, Component: lazyWithRetry(() => import('./components/newpage/ReturningToGymnasticsGuide')) },
-]
+const publicGuideRoutes = publicGuideLoaders.map(({ path, load }) => ({ path, Component: lazyWithRetry(load) }))
 const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
 const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
@@ -81,9 +73,9 @@ function PublicLandingRedirect({ destination }: { destination: string }) {
   return <Navigate to={{ pathname: pathname || '/', search: location.search, hash: anchor ? `#${anchor}` : location.hash }} replace />
 }
 
-function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
-  programPageComponent?: ComponentType<{ path: PublicProgramPath }>
-}) {
+function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
+  const HomePage = snapshotPage?.kind === 'home' ? snapshotPage.Component : NewPage
+  const ProgramPage = snapshotPage?.kind === 'program' ? snapshotPage.Component : PublicProgramPage
   // Mount on first use, then retain each dialog's state across close and reopen.
   const [isContactFormOpen, setIsContactFormOpen] = useState<boolean | null>(null)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
@@ -367,7 +359,7 @@ function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
       <Suspense fallback={<PageLoader />}>
       <PublicSiteAnalytics disabled={Boolean((publicLandingRedirects as Record<string, string>)[location.pathname.toLowerCase().replace(/\/+$/, '')])} />
         <Routes>
-          <Route path="/" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
+          <Route path="/" element={<HomePage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
             if (member || isAdmin) {
               const portals = getAvailablePortals(member)
               const adminPortal = localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin'
@@ -396,7 +388,10 @@ function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
             element={<Storefront memberToken={memberToken} mode="public" onSignIn={() => setIsLoginOpen(true)} />}
           />
           <Route path="/drop-in" element={<DropInPage />} />
-          {publicGuideRoutes.map(({ path, Component }) => <Route key={path} path={path} element={<Component />} />)}
+          {publicGuideRoutes.map(({ path, Component }) => {
+            const Guide = snapshotPage?.kind === 'guide' && snapshotPage.path === path ? snapshotPage.Component : Component
+            return <Route key={path} path={path} element={<Guide />} />
+          })}
           <Route
             path="/contact"
             element={<ContactLocationPage onInquireClick={handleContactClick} />}
