@@ -12,6 +12,7 @@ import {
 } from '../utils/publicClassesApi'
 import {
   ADULT_BOOKING_HREF,
+  getAdultBookingProgram,
   getPublicBookingProgramName,
   getPublicBookingPrograms,
   isAdultBookingProgram,
@@ -140,9 +141,7 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
 
   const offeredPrograms = useMemo(() => getPublicBookingPrograms(catalogPrograms), [catalogPrograms])
   const wantsAdultClasses = isAdultBookingProgram(urlProgramName)
-  const adultClasses = catalogPrograms
-    .find((program) => isAdultBookingProgram(program.displayName))
-    ?.classes.filter((classItem) => classItem.enrollVisible === true && classItem.formId != null) ?? []
+  const adultClasses = getAdultBookingProgram(catalogPrograms)?.classes ?? []
   const linkedAdultClass = urlFormId != null
     ? adultClasses.find((classItem) => classItem.formId === urlFormId)
     : wantsAdultClasses && adultClasses.length === 1 ? adultClasses[0] : undefined

@@ -86,6 +86,24 @@
   text-underline-offset: 3px;
 }
 
+.np-adult-schedule {
+  display: grid;
+  gap: 6px;
+  margin-top: 20px;
+  color: var(--np-muted);
+  font-size: 14px;
+}
+
+.np-program-page .np-adult-schedule h2 {
+  color: var(--np-ink);
+  font-size: 16px;
+  letter-spacing: normal;
+}
+
+.np-adult-schedule > ul > li {
+  font-weight: 650;
+}
+
 .np-program-section {
   padding-block: clamp(32px, 5vw, 64px);
   border-bottom: 1px solid var(--np-line);

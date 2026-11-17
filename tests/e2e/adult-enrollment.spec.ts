@@ -21,7 +21,10 @@ const slot = {
 async function mockClasses(page: Page, {
   enrollVisible = true,
   multipleAdultClasses = false,
-}: { enrollVisible?: boolean; multipleAdultClasses?: boolean } = {}) {
+  adultFormProgramId = 2,
+  adultFormActive = true,
+  catalogError = false,
+}: { enrollVisible?: boolean; multipleAdultClasses?: boolean; adultFormProgramId?: number; adultFormActive?: boolean; catalogError?: boolean } = {}) {
   const adultClasses = [{
     id: 20, displayName: adultName, ageMin: 18, formId: adultFormId, enrollVisible,
     signupUrl: enrollVisible ? `/enroll?form=${adultFormId}` : null,
@@ -36,21 +39,24 @@ async function mockClasses(page: Page, {
   await page.route('**/api/**', async (route) => {
     const path = new URL(route.request().url()).pathname
     const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
+    if (/^\/api\/scheduling\/forms\/\d+$/.test(path)) formRequests.push(path)
     switch (path) {
       case '/api/public/classes-offered':
+        if (catalogError) return route.fulfill({ status: 503, json: { success: false } })
         return json({ programs: [
           { id: 1, displayName: 'Fit & Flip', classes: [{ id: 10, displayName: 'Cyclones', formId: 100 }] },
           { id: 2, displayName: adultProgram, classes: adultClasses },
         ] })
       case `/api/scheduling/forms/${adultFormId}`:
-        formRequests.push(path)
-        return json({ id: adultFormId, title: adultName, isActive: true, mandateWaiver: false,
+        return json({ id: adultFormId, title: adultName, programsId: adultFormProgramId, isActive: adultFormActive, mandateWaiver: false,
           slotGroups: [{ id: slot.slotGroupId, formId: adultFormId, offeringId: 701, scheduleMode: 'day',
             maxParticipants: 10, spotsRemaining: 8, isActive: true, occurrences: [slot] }], timeSlots: [slot] })
       case `/api/scheduling/forms/${adultFormId}/offerings`:
         return json([{ id: 701, formId: adultFormId, startDate: '2026-01-01', evergreen: true, isSelected: true }])
       case `/api/scheduling/forms/${adultFormId}/program-options`:
         return json({ options: [] })
+      case '/api/scheduling/forms/406':
+        return route.fulfill({ status: 503, json: { success: false } })
       case '/api/signup/catalog/classes/10/offerings':
         return json({ formId: 100, offerings: [], scheduleOptions: [] })
       default:
@@ -63,6 +69,9 @@ async function mockClasses(page: Page, {
 test('adult gymnastics, general enrollment, and published form links open the current Typhoons schedule', async ({ page }) => {
   await mockClasses(page)
   await page.goto('/adult-gymnastics')
+  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toBeVisible()
+  await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
+  await expect(page.getByText('All times Eastern. Check enrollment for dates and availability.')).toBeVisible()
   const booking = page.getByRole('link', { name: 'See adult class times' })
   await expect(booking).toHaveAttribute('href', adultBookingPath)
   await booking.click()
@@ -94,6 +103,40 @@ test('adult gymnastics, general enrollment, and published form links open the cu
   await expect(page).toHaveURL('/enroll')
   await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveAttribute('href', '/#free-trial')
 })
+
+test('only the adult program page loads recurring adult class times', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const formRequests = await mockClasses(page, { multipleAdultClasses: true })
+  await page.goto('/adult-gymnastics')
+  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toBeVisible()
+  await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
+  await expect(page.getByText('Second adult class', { exact: true })).toHaveCount(0)
+  const otherPrograms = page.getByRole('navigation', { name: 'Other Vortex programs' })
+  await otherPrograms.getByRole('link', { name: 'Fit & Flip Youth Athletic Training' }).click()
+  await expect(page.getByRole('heading', { name: 'Youth athletic training in Bowie, MD' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toHaveCount(0)
+  await otherPrograms.getByRole('link', { name: 'Youth Gymnastics', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Youth gymnastics classes in Bowie, MD' })).toBeVisible()
+  await expect(page.getByRole('heading', { name: 'Recurring class times' })).toHaveCount(0)
+  expect([...new Set(formRequests)].sort()).toEqual([`/api/scheduling/forms/${adultFormId}`, '/api/scheduling/forms/406'])
+})
+
+for (const [scenario, mockOptions, expectsFormRequest] of [
+  ['an unpublished adult class', { enrollVisible: false }, false],
+  ['an inactive adult form', { adultFormActive: false }, true],
+  ['a mismatched youth form', { adultFormProgramId: 1 }, true],
+  ['an unavailable class catalog', { catalogError: true }, false],
+] as const) {
+  test(`the adult landing page keeps the enrollment link for ${scenario}`, async ({ page }) => {
+    const formRequests = await mockClasses(page, mockOptions)
+    await page.goto('/adult-gymnastics')
+    await expect(page.getByText('Check enrollment for current class times or contact Vortex for help.')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Recurring class times' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'See adult class times' })).toHaveAttribute('href', adultBookingPath)
+    expect(formRequests.length > 0).toBe(expectsFormRequest)
+    expect(formRequests.every((path) => path === `/api/scheduling/forms/${adultFormId}`)).toBe(true)
+  })
+}
 
 test('choosing from multiple adult classes retains the adult contact and return links', async ({ page }) => {
   await mockClasses(page, { multipleAdultClasses: true })

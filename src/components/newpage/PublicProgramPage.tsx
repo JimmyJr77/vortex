@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import { BUSINESS_NAP, GOOGLE_MAPS_URL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
+import PublicAdultSchedule from './PublicAdultSchedule'
 import './PublicProgramPage.css'
 
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
@@ -40,6 +41,7 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                 </Link>
               )}
             </div>
+            {path === '/adult-gymnastics' && <PublicAdultSchedule />}
           </div>
           <img className="np-program-hero-image" src={program.image} alt={program.imageAlt} width={program.imageWidth} height={program.imageHeight} fetchPriority="high" />
         </div>

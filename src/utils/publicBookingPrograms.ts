@@ -1,3 +1,5 @@
+import type { PublicClassOffered, PublicProgramOffered } from './publicClassesApi'
+
 const PUBLIC_BOOKING_PROGRAMS = [
   { name: 'Developmental Gymnastics', aliases: ['Development Gymnastics', 'Developmental Gymnastics'] },
   { name: 'Vortex Gymnastics Team', aliases: ['Vortex Gymnastics Team'] },
@@ -12,6 +14,14 @@ const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
 
 export function isAdultBookingProgram(name: string | null): boolean {
   return name !== null && normalize(name) === normalizedAdultBookingProgram
+}
+
+export function getAdultBookingProgram(programs: readonly PublicProgramOffered[]) {
+  const program = programs.find(({ displayName }) => isAdultBookingProgram(displayName))
+  if (!program) return null
+  const classes = program.classes.filter((classItem): classItem is PublicClassOffered & { formId: number } =>
+    classItem.enrollVisible === true && classItem.formId != null)
+  return { id: program.id, classes }
 }
 
 /** Public booking labels only; retain catalog IDs, pricing, and portal names. */
