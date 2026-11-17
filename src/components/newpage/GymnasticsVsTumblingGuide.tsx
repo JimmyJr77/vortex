@@ -34,6 +34,8 @@ export default function GymnasticsVsTumblingGuide() {
             <GuideByline datePublished={guide.datePublished} dateModified={guide.dateModified} />
           </div>
           <img className="athletic-guide-image" src={guide.image} alt={guide.imageAlt}
+            srcSet={guide.imageSrcSet}
+            sizes="(max-width: 760px) 91vw, (max-width: 1264px) 43vw, 520px"
             width={1600} height={1067} fetchPriority="high" />
         </div>
       </header>

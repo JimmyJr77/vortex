@@ -14,6 +14,19 @@ const cyclones: SchedulingCalendarEvent = {
 }
 
 test.describe('Client-critical smoke flows', () => {
+  test('the mobile guide index and tumbling guide load the responsive tumbling photo', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const photo = page.getByRole('img', { name: 'A Vortex athlete flipping above a tumble track in Bowie, Maryland' })
+    await page.goto('/blog')
+    await photo.scrollIntoViewIfNeeded()
+    await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(/tramp-tumble-hero-768\.webp$/)
+
+    await page.getByRole('link', { name: 'Gymnastics vs. tumbling for kids' }).click()
+    await expect(page).toHaveURL('/blog/gymnastics-vs-tumbling')
+    await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(/tramp-tumble-hero-768\.webp$/)
+    await expect(photo).toHaveAttribute('src', '/tramp-tumble-hero-1600.webp')
+  })
+
   test('the Contact menu supports keyboard navigation and restores focus on Escape', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/contact')
@@ -249,6 +262,7 @@ test.describe('Client-critical smoke flows', () => {
       await expect(photo).toHaveAttribute('src', src)
       await photo.scrollIntoViewIfNeeded()
       await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.naturalWidth)).toBeGreaterThan(0)
+      await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(/-640\.webp$/)
     }
     await equipment.getByRole('link', { name: 'Ask which equipment your class uses' }).click()
     await expect(page).toHaveURL('/contact#inquiry')

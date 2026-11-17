@@ -331,7 +331,31 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           <div className="np-principles"><article><span>01</span><div><h3>Skills with a strong foundation.</h3><p>Gymnastics technique and physical development work together. Athletes build the strength and power to support the skills they are learning.</p></div></article><article><span>02</span><div><h3>Purpose in every progression.</h3><p>Start where the athlete is. Develop movement quality, reinforce the fundamentals, and work toward the next challenge with intention.</p></div></article><article><span>03</span><div><h3>Development for everyone.</h3><p>Team or developmental, the focus is real growth. Competition belongs to the team pathway. High-quality coaching belongs to every athlete.</p></div></article></div>
         </section>
 
-        <section className="np-difference"><div className="np-container np-difference-grid"><div><p className="np-eyebrow">THE VORTEX DIFFERENCE</p><h2>Power is only<br />part of the picture.</h2><p>What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.</p><Link className="np-button np-button-white" to="/fit-and-flip#athleticism-development" data-analytics-cta="explore_athleticism_development" data-analytics-section="training_approach">Discover Fit &amp; Flip <ArrowUpRight size={18} aria-hidden="true" /></Link></div><div className="np-difference-image"><img src="/calisthenics-card.jpg" alt="An athlete practicing a controlled handstand at Vortex" width="1536" height="1024" loading="lazy" /><span>CONTROL CHANGES EVERYTHING.</span></div></div></section>
+        <section className="np-difference">
+          <div className="np-container np-difference-grid">
+            <div>
+              <p className="np-eyebrow">THE VORTEX DIFFERENCE</p>
+              <h2>Power is only<br />part of the picture.</h2>
+              <p>What happens when an athlete can also rotate, balance, land, and adapt? Strength and explosiveness become more useful. That’s why body control is at the heart of our athletic development.</p>
+              <Link className="np-button np-button-white" to="/fit-and-flip#athleticism-development" data-analytics-cta="explore_athleticism_development" data-analytics-section="training_approach">
+                Discover Fit &amp; Flip <ArrowUpRight size={18} aria-hidden="true" />
+              </Link>
+            </div>
+            <div className="np-difference-image">
+              <img
+                src="/calisthenics-card-1280.webp"
+                srcSet="/calisthenics-card-640.webp 640w, /calisthenics-card-960.webp 960w, /calisthenics-card-1280.webp 1280w"
+                sizes="auto, (max-width: 620px) calc(100vw - 44px), (max-width: 860px) calc(50vw - 45.5px), (max-width: 1150px) calc(50vw - 66px), (max-width: 1320px) calc(50vw - 106px), (min-width: 1440px) 580px, 554px"
+                alt="An athlete practicing a controlled handstand at Vortex"
+                width={1280}
+                height={853}
+                loading="lazy"
+                decoding="async"
+              />
+              <span>CONTROL CHANGES EVERYTHING.</span>
+            </div>
+          </div>
+        </section>
 
         <section className="np-container np-section np-faq" id="faq"><div><p className="np-eyebrow">A LITTLE CLARITY</p><h2>Good questions.<br /><span>Clear answers.</span></h2><p>Choosing a program should feel simple.<br />We’re here to help you find the right fit.</p><button className="np-text-button" onClick={() => openInquiry()}>Talk to our team <ArrowUpRight size={18} /></button></div><div className="np-faq-list">{faqs.map(([question, answer], index) => <details key={question}><summary data-analytics-cta={`faq_${index + 1}`} data-analytics-section="faq">{question}<Plus size={20} /></summary><p>{answer}</p></details>)}</div></section>
 

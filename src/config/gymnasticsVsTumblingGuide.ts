@@ -1,6 +1,8 @@
 import publicArticles from './publicArticles.json'
 import searchPhotos from './publicSearchPhotos.json'
 
+const tumblingImageSrcSet = `/tramp-tumble-hero-768.webp 768w, /tramp-tumble-hero-1080.webp 1080w, ${searchPhotos.tumbling} 1600w`
+
 export const GYMNASTICS_VS_TUMBLING_GUIDE = {
   ...publicArticles.gymnasticsVsTumbling,
   breadcrumbLabel: 'Gymnastics vs. Tumbling',
@@ -9,6 +11,8 @@ export const GYMNASTICS_VS_TUMBLING_GUIDE = {
   description:
     'Compare developmental gymnastics, boys’ apparatus classes, and dedicated tumbling near Bowie, MD. See beginner requirements and where to try a first class.',
   image: searchPhotos.tumbling,
+  imageSrcSet: tumblingImageSrcSet,
   cardImage: searchPhotos.tumbling,
+  cardImageSrcSet: tumblingImageSrcSet,
   imageAlt: 'A Vortex athlete flipping above a tumble track in Bowie, Maryland',
 } as const

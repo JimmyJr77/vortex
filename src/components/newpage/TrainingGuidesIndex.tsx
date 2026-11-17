@@ -22,19 +22,24 @@ export default function TrainingGuidesIndex() {
 
       <div className="athletic-guide-shell np-guides-content">
         <ul className="np-guides-grid" aria-label="Training guides">
-          {PUBLIC_GUIDES.map((guide) => (
-            <li key={guide.path} className="np-guides-card">
-              <img src={guide.cardImage} alt={guide.imageAlt} width={640} height={400} loading="lazy" decoding="async" />
-              <div className="np-guides-card-copy">
-                <h2>
-                  <Link to={guide.path} data-analytics-cta="open_training_guide" data-analytics-section="training_guides">
-                    {guide.heading} <ArrowUpRight size={18} aria-hidden="true" />
-                  </Link>
-                </h2>
-                <p>{guide.description}</p>
-              </div>
-            </li>
-          ))}
+          {PUBLIC_GUIDES.map((guide) => {
+            const srcSet = 'cardImageSrcSet' in guide ? guide.cardImageSrcSet : undefined
+            return (
+              <li key={guide.path} className="np-guides-card">
+                <img src={guide.cardImage} srcSet={srcSet} alt={guide.imageAlt} width={640} height={400}
+                  sizes={srcSet ? 'auto, (max-width: 910px) 91vw, (max-width: 1264px) 45vw, 560px' : undefined}
+                  loading="lazy" decoding="async" />
+                <div className="np-guides-card-copy">
+                  <h2>
+                    <Link to={guide.path} data-analytics-cta="open_training_guide" data-analytics-section="training_guides">
+                      {guide.heading} <ArrowUpRight size={18} aria-hidden="true" />
+                    </Link>
+                  </h2>
+                  <p>{guide.description}</p>
+                </div>
+              </li>
+            )
+          })}
         </ul>
 
         <nav aria-labelledby="training-guides-classes" className="np-guides-programs">

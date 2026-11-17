@@ -6,14 +6,34 @@
   "preschoolGymnastics": "/campaign_early_dev_hero-1600.webp",
   "tumbling": "/tramp-tumble-hero-1600.webp",
   "facilityApparatus": {
-    "balanceBeams": { "src": "/gym-DSC02690-1600.webp", "alt": "Two low balance beams beside the tumbling track at Vortex Athletics" },
-    "trainingRings": { "src": "/gym-DSC02672-1600.webp", "alt": "Wooden training rings hanging above red and blue mats at Vortex Athletics" }
+    "balanceBeams": {
+      "src": "/gym-DSC02690-1600.webp",
+      "srcSet": "/gym-DSC02690-640.webp 640w, /gym-DSC02690-960.webp 960w, /gym-DSC02690-1600.webp 1600w",
+      "alt": "Two low balance beams beside the tumbling track at Vortex Athletics"
+    },
+    "trainingRings": {
+      "src": "/gym-DSC02672-1600.webp",
+      "srcSet": "/gym-DSC02672-640.webp 640w, /gym-DSC02672-960.webp 960w, /gym-DSC02672-1600.webp 1600w",
+      "alt": "Wooden training rings hanging above red and blue mats at Vortex Athletics"
+    }
   },
   "homepageGallery": {
     "strengthTraining": { "src": "/strength-1600.webp", "alt": "Strength training at Vortex" },
     "agilityDrills": { "src": "/agility-1600.webp", "alt": "Agility drills at Vortex" },
-    "springFloor": { "src": "/gym-DSC02689-1600.webp", "alt": "Full spring floor and tumbling track at Vortex" },
-    "trampoline": { "src": "/gym-DSC02700-1600.webp", "alt": "Padded trampoline surrounded by red and blue mats at Vortex Athletics" },
-    "strengthEquipment": { "src": "/gym-DSC02724-1600.webp", "alt": "Medicine balls and strength equipment at Vortex" }
+    "springFloor": {
+      "src": "/gym-DSC02689-1600.webp",
+      "srcSet": "/gym-DSC02689-640.webp 640w, /gym-DSC02689-960.webp 960w, /gym-DSC02689-1600.webp 1600w",
+      "alt": "Full spring floor and tumbling track at Vortex"
+    },
+    "trampoline": {
+      "src": "/gym-DSC02700-1600.webp",
+      "srcSet": "/gym-DSC02700-640.webp 640w, /gym-DSC02700-960.webp 960w, /gym-DSC02700-1600.webp 1600w",
+      "alt": "Padded trampoline surrounded by red and blue mats at Vortex Athletics"
+    },
+    "strengthEquipment": {
+      "src": "/gym-DSC02724-1600.webp",
+      "srcSet": "/gym-DSC02724-640.webp 640w, /gym-DSC02724-960.webp 960w, /gym-DSC02724-1600.webp 1600w",
+      "alt": "Medicine balls and strength equipment at Vortex"
+    }
   }
 }

@@ -550,8 +550,9 @@ const verifyHtml = (
       const gallery = html.match(/<section\b[^>]*\sid=["']inside-the-gym["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const galleryPhotos = tags(gallery, 'img')
       assert(/<h2\b[^>]*>Inside the Bowie gym<\/h2>/i.test(gallery) && galleryPhotos.length === 5 &&
-        galleryPhotos.every((tag) => attribute(tag, 'alt') && attribute(tag, 'loading') === 'lazy'),
-        `${label}: the facility gallery must render five labelled, lazy-loaded photos`)
+        galleryPhotos.every((tag) => attribute(tag, 'alt') && attribute(tag, 'loading') === 'lazy' &&
+          attribute(tag, 'sizes').startsWith('auto, ') && /\b640w\b/.test(attribute(tag, 'srcset'))),
+        `${label}: the facility gallery must render five labelled, responsive, lazy-loaded photos`)
       const galleryLinks = anchorUrls(gallery)
       assert(pageIds.has('gymnastics-equipment') && tags(gallery, 'figcaption').length === 2 &&
         galleryLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),

@@ -23,6 +23,20 @@ import searchPhotos from '../config/publicSearchPhotos.json'
 
 const { springFloor, trampoline, strengthEquipment } = searchPhotos.homepageGallery
 const { balanceBeams, trainingRings } = searchPhotos.facilityApparatus
+const galleryCardSizes = [
+  'auto',
+  '(max-width: 639px) calc(100vw - 98px)',
+  '(max-width: 1023px) calc((100vw - 156px) / 2)',
+  '(max-width: 1375px) calc((100vw - 246px) / 3)',
+  '377px',
+].join(', ')
+const apparatusPhotoSizes = [
+  'auto',
+  '(max-width: 639px) calc(100vw - 98px)',
+  '(max-width: 1023px) calc((100vw - 156px) / 2)',
+  '(max-width: 1375px) calc((100vw - 220px) / 2)',
+  '578px',
+].join(', ')
 const trainingSpaces = [
   {
     photo: springFloor,
@@ -57,7 +71,7 @@ function InsideTheGym() {
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {trainingSpaces.map(({ photo, heading, detail, href, label }) => (
             <article key={photo.src} className="flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white">
-              <img {...photo} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
+              <img {...photo} sizes={galleryCardSizes} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
               <div className="flex flex-1 flex-col p-5">
                 <h3 className="text-xl font-bold">{heading}</h3>
                 <p className="mb-4 mt-2 text-gray-700">{detail}</p>
@@ -71,11 +85,11 @@ function InsideTheGym() {
           <h3 id="gymnastics-equipment-heading" className="text-2xl font-bold">Balance beams and training rings</h3>
           <div className="mt-4 grid gap-6 sm:grid-cols-2">
             <figure className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-              <img {...balanceBeams} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
+              <img {...balanceBeams} sizes={apparatusPhotoSizes} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
               <figcaption className="p-4 text-gray-700">Low practice beams beside the tumbling track.</figcaption>
             </figure>
             <figure className="overflow-hidden rounded-2xl border border-gray-200 bg-white">
-              <img {...trainingRings} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
+              <img {...trainingRings} sizes={apparatusPhotoSizes} width={1600} height={1066} loading="lazy" decoding="async" className="h-auto w-full" />
               <figcaption className="p-4 text-gray-700">Suspended wooden rings above the padded training area.</figcaption>
             </figure>
           </div>

@@ -31,6 +31,10 @@ test.describe('phone homepage video', () => {
 
     await galleryHeading.scrollIntoViewIfNeeded()
     await expect(galleryHeading).toHaveClass(/\bfont-display\b/)
+
+    const handstandPhoto = page.getByRole('img', { name: 'An athlete practicing a controlled handstand at Vortex' })
+    await handstandPhoto.scrollIntoViewIfNeeded()
+    await expect.poll(() => handstandPhoto.evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(/calisthenics-card-640\.webp$/)
   })
 
   test('the training film has a direct, user-controlled player on mobile', async ({ page }) => {
