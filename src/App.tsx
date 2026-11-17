@@ -48,6 +48,7 @@ const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
 const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
 const LazyDropInPage = lazyWithRetry(publicPageLoaders.dropIn.load)
+const LazyTrainingWatchPage = lazyWithRetry(publicPageLoaders.trainingWatch.load)
 const publicGuideRoutes = publicGuideLoaders.map(({ path, load }) => ({ path, Component: lazyWithRetry(load) }))
 const LazyContactLocationPage = lazyWithRetry(publicPageLoaders.contact.load)
 const LazySupportPage = lazyWithRetry(publicPageLoaders.support.load)
@@ -79,6 +80,7 @@ function PublicLandingRedirect({ destination }: { destination: string }) {
 function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   const HomePage = snapshotPage?.kind === 'home' ? snapshotPage.Component : NewPage
   const ProgramPage = snapshotPage?.kind === 'program' ? snapshotPage.Component : PublicProgramPage
+  const TrainingWatchPage = snapshotPage?.kind === 'watch' ? snapshotPage.Component : LazyTrainingWatchPage
   const pageSnapshot = snapshotPage?.kind === 'page' ? snapshotPage : undefined
   const Header = pageSnapshot?.chrome?.Header ?? LazyHeader
   const Footer = pageSnapshot?.chrome?.Footer ?? LazyFooter
@@ -123,6 +125,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
     Boolean(programPage)
     || isPublicRegistrationPage
     || publicGuideRoutes.some(({ path }) => Boolean(matchPath(path, location.pathname)))
+    || Boolean(matchPath(publicPageLoaders.trainingWatch.path, location.pathname))
     || isEnrollmentPage
     || ['/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.
@@ -402,6 +405,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             element={<Storefront memberToken={memberToken} mode="public" onSignIn={() => setIsLoginOpen(true)} />}
           />
           <Route path={publicPageLoaders.dropIn.path} element={<DropInPage />} />
+          <Route path={publicPageLoaders.trainingWatch.path} element={<TrainingWatchPage />} />
           {publicGuideRoutes.map(({ path, Component }) => {
             const Guide = snapshotPage?.kind === 'guide' && snapshotPage.path === path ? snapshotPage.Component : Component
             return <Route key={path} path={path} element={<Guide />} />

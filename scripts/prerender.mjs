@@ -16,6 +16,7 @@ import {
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
+  PUBLIC_TRAINING_VIDEO,
   SITE_NAME,
   SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
@@ -25,7 +26,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
 // These public pages use Inter for both headings and body text.
-const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS])
+const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path])
 const publicPagePaths = new Set(HUB_SITEMAP_ENTRIES.map(({ path }) => path))
 let previewPort = 0
 let previewOrigin = ''
@@ -234,6 +235,7 @@ const prerenderAppRoutes = async () => {
         omitDisplayFontPreload: interOnlyContentPaths.has(routePath),
         programPath: HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         publicPagePath: publicPagePaths.has(routePath) && !HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
+        watchVideoAssetPath: routePath === PUBLIC_TRAINING_VIDEO.path ? PUBLIC_TRAINING_VIDEO.assetPath : null,
         outFile:
           routePath === '/'
             ? join(distDir, 'index.html')
@@ -260,12 +262,14 @@ const prerenderAppRoutes = async () => {
             undefined,
             { timeout: 30000 },
           )
-          // Static HTML must be independent of live catalogs, schedules and
-          // account state. Keep the poster and defer every video URL to React.
-          const snapshot = await page.evaluate(({ omitDisplayFontPreload, programPath, publicPagePath }) => {
+          // Remove live data and defer background media. Preserve the watch
+          // page's own video URL so browsers and crawlers can find the player.
+          const snapshot = await page.evaluate(({ omitDisplayFontPreload, programPath, publicPagePath, watchVideoAssetPath }) => {
             const html = document.documentElement.cloneNode(true)
             html.querySelectorAll('[data-prerender-dynamic]').forEach((node) => node.remove())
-            html.querySelectorAll('video[src], video source[src]').forEach((node) => node.removeAttribute('src'))
+            html.querySelectorAll('video[src], video source[src]').forEach((node) => {
+              if (node.getAttribute('src') !== watchVideoAssetPath) node.removeAttribute('src')
+            })
             if (omitDisplayFontPreload) {
               html.querySelector('link[rel="preload"][href="/fonts/oswald-latin-variable.woff2"]')?.remove()
             }
@@ -276,6 +280,7 @@ const prerenderAppRoutes = async () => {
             omitDisplayFontPreload: target.omitDisplayFontPreload,
             programPath: target.programPath,
             publicPagePath: target.publicPagePath,
+            watchVideoAssetPath: target.watchVideoAssetPath,
           })
           const html = dedupeHeadTags(snapshot.html, snapshot.title)
           snapshots.push({ outFile: target.outFile, html })

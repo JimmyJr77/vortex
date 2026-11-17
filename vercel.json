@@ -198,6 +198,12 @@
       "permanent": true
     },
     {
+      "source": "/watch/training-at-vortex/index.html",
+      "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
+      "destination": "https://vortexathletics.com/watch/training-at-vortex",
+      "permanent": true
+    },
+    {
       "source": "/vortex-athletics/index.html",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip",
@@ -474,6 +480,10 @@
     {
       "source": "/blog/returning-to-gymnastics-as-an-adult",
       "destination": "/blog/returning-to-gymnastics-as-an-adult/index.html"
+    },
+    {
+      "source": "/watch/training-at-vortex",
+      "destination": "/watch/training-at-vortex/index.html"
     },
     {
       "source": "/ninja",

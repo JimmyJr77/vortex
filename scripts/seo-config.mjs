@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs'
 const publicArticles = JSON.parse(readFileSync(new URL('../src/config/publicArticles.json', import.meta.url), 'utf8'))
 const guideIndex = JSON.parse(readFileSync(new URL('../src/config/publicGuideIndex.json', import.meta.url), 'utf8'))
 const searchPhotos = JSON.parse(readFileSync(new URL('../src/config/publicSearchPhotos.json', import.meta.url), 'utf8'))
+export const PUBLIC_TRAINING_VIDEO = JSON.parse(readFileSync(new URL('../src/config/publicTrainingVideo.json', import.meta.url), 'utf8'))
 
 export const YOUTH_ATHLETIC_GUIDE_PATH = publicArticles.athleticDevelopment.path
 export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = publicArticles.bowieYouthSports.path
@@ -16,6 +17,7 @@ export const HUB_GUIDE_INDEX_PATH = guideIndex.path
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 export const IMAGE_SITEMAP_NAMESPACE = 'http://www.google.com/schemas/sitemap-image/1.1'
+export const VIDEO_SITEMAP_NAMESPACE = 'http://www.google.com/schemas/sitemap-video/1.1'
 export const HOME_GALLERY_POSTER = searchPhotos.homepageGallery.strengthTraining.src
 export const HOME_ROTATING_SITEMAP_PHOTOS = Object.values(searchPhotos.homepageGallery)
   .map(({ src }) => src).filter(src => src !== HOME_GALLERY_POSTER)
@@ -50,6 +52,8 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-17',
     images: [HOME_PREFERRED_PHOTO, HOME_GALLERY_POSTER, ...HOME_ROTATING_SITEMAP_PHOTOS] },
   ...HUB_PROGRAM_ENTRIES.map((entry) => ({ ...entry, priority: '0.8', changefreq: 'monthly' })),
+  { path: PUBLIC_TRAINING_VIDEO.path, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-17',
+    video: PUBLIC_TRAINING_VIDEO },
   { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },

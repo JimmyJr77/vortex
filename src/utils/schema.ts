@@ -12,6 +12,7 @@ import { HOME_FAQS, type Faq } from '../config/faqs'
 import { PUBLIC_GUIDES } from '../config/publicGuides'
 import guideIndex from '../config/publicGuideIndex.json'
 import searchPhotos from '../config/publicSearchPhotos.json'
+import trainingVideo from '../config/publicTrainingVideo.json'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -254,6 +255,42 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
 
   const url = buildCanonical(HUB_ORIGIN, pathname)
+  if (pathname === trainingVideo.path) {
+    const pageId = `${url}#webpage`
+    const videoId = `${url}#video`
+    const thumbnail = new URL(trainingVideo.thumbnail, HUB_ORIGIN).href
+    return [
+      ...schema,
+      breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, trainingVideo.name, pathname)]),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        '@id': pageId,
+        url,
+        name: trainingVideo.name,
+        description: trainingVideo.description,
+        isPartOf: { '@id': `${HUB_ORIGIN}/#website` },
+        about: { '@id': locationId },
+        inLanguage: 'en-US',
+        primaryImageOfPage: thumbnail,
+        mainEntity: { '@id': videoId },
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'VideoObject',
+        '@id': videoId,
+        mainEntityOfPage: { '@id': pageId },
+        name: trainingVideo.name,
+        description: trainingVideo.description,
+        thumbnailUrl: [thumbnail],
+        uploadDate: trainingVideo.uploadDate,
+        duration: `PT${trainingVideo.durationSeconds}S`,
+        contentUrl: new URL(trainingVideo.assetPath, HUB_ORIGIN).href,
+        publisher: { '@id': locationId },
+      },
+    ]
+  }
+
   if (program) {
     return [
       ...schema,

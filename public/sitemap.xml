@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
   <url>
     <loc>https://vortexathletics.com</loc>
     <lastmod>2026-11-17</lastmod>
@@ -50,6 +50,20 @@
     <image:image>
       <image:loc>https://vortexathletics.com/gym-DSC02636-1600.webp</image:loc>
     </image:image>
+  </url>
+  <url>
+    <loc>https://vortexathletics.com/watch/training-at-vortex</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <video:video>
+      <video:thumbnail_loc>https://vortexathletics.com/newpage/training-film-poster.jpg</video:thumbnail_loc>
+      <video:title>Gymnastics and athletic training at Vortex</video:title>
+      <video:description>Watch 24 seconds of training inside Vortex’s Bowie gym, including tumbling, handstands, kettlebell work, cone drills, and climbing.</video:description>
+      <video:content_loc>https://vortexathletics.com/newpage/training-loop.mp4</video:content_loc>
+      <video:duration>24</video:duration>
+      <video:publication_date>2026-11-16</video:publication_date>
+    </video:video>
   </url>
   <url>
     <loc>https://vortexathletics.com/read-board</loc>

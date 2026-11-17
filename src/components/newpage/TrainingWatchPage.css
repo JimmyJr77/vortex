@@ -1,0 +1,117 @@
+.np-training-watch {
+  padding-block: clamp(26px, 5vw, 62px) clamp(48px, 8vw, 90px);
+  background: var(--np-paper);
+  color: var(--np-ink);
+}
+
+.np-training-watch-shell {
+  width: min(calc(100% - clamp(32px, 9vw, 96px)), 52rem);
+  margin-inline: auto;
+}
+
+.np-training-watch h1 {
+  margin: 0;
+  font-size: clamp(2.125rem, 5vw, 3.875rem);
+  line-height: 1.04;
+  font-weight: 720;
+  letter-spacing: -.055em;
+  text-wrap: balance;
+}
+
+.np-training-watch-intro {
+  max-width: 60ch;
+  margin-block: 0.65rem 1.25rem;
+  color: var(--np-muted);
+  font-size: clamp(1rem, 2vw, 1.125rem);
+  line-height: 1.55;
+}
+
+.np-training-watch-player {
+  margin: 0;
+}
+
+.np-training-watch-player video {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+  border-radius: 0.55rem;
+  background: #151515;
+}
+
+.np-training-watch-player figcaption {
+  margin-top: 0.55rem;
+  color: var(--np-muted);
+  font-size: 0.875rem;
+}
+
+.np-training-watch-scenes,
+.np-training-watch-next {
+  margin-top: clamp(26px, 5vw, 48px);
+}
+
+.np-training-watch h2 {
+  margin: 0 0 0.65rem;
+  font-size: clamp(1.375rem, 3vw, 1.8rem);
+  line-height: 1.2;
+  font-weight: 680;
+  letter-spacing: -.035em;
+}
+
+.np-training-watch-scenes ol,
+.np-training-watch-next ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.np-training-watch-scenes li {
+  display: grid;
+  grid-template-columns: 6.25rem minmax(0, 1fr);
+  gap: 0.6rem;
+  padding-block: 0.7rem;
+  border-top: 1px solid var(--np-line);
+  line-height: 1.55;
+}
+
+.np-training-watch-scenes li > span {
+  color: var(--np-muted);
+  font-size: 0.875rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+.np-training-watch-scenes li > p {
+  margin: 0;
+}
+
+.np-training-watch-next ul {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 1.6rem;
+}
+
+.np-training-watch-next a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  font-weight: 650;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+.np-training-watch-next a:hover {
+  color: var(--np-red);
+}
+
+.np-training-watch-next svg {
+  flex: none;
+}
+
+@media (max-width: 420px) {
+  .np-training-watch-scenes li {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+}

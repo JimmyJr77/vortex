@@ -15,6 +15,7 @@ import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingG
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import { PUBLIC_PROGRAMS } from '../../config/publicPrograms'
 import searchPhotos from '../../config/publicSearchPhotos.json'
+import trainingFilm from '../../config/publicTrainingVideo.json'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
 import { getHubSchema } from '../../utils/schema'
 import { liveTrainingEmbedUrl, trainingVideoUrl } from './media'
@@ -367,6 +368,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
               <button className="np-button" data-analytics-cta="program_finder" data-analytics-section="visit" onClick={() => setOverlay('finder')}>Find your program <ArrowUpRight size={18} /></button>
               <button className="np-button np-button-outline" onClick={() => openInquiry()}>Talk to our team <ArrowRight size={18} /></button>
               <Link className="np-text-button" to={INSIDE_THE_GYM_PATH} data-analytics-cta="see_inside_the_gym" data-analytics-section="visit">See inside the Bowie gym <ArrowUpRight size={16} aria-hidden="true" /></Link>
+              <Link className="np-text-button" to={trainingFilm.path} data-analytics-cta="watch_training_film" data-analytics-section="visit">Watch the Vortex training film <ArrowUpRight size={16} aria-hidden="true" /></Link>
             </div>
           </div>
         </section>

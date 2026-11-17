@@ -17,6 +17,7 @@ import {
   HUB_SITEMAP_ENTRIES,
   IMAGE_SITEMAP_NAMESPACE,
   PRESCHOOL_GYMNASTICS_GUIDE_PATH,
+  PUBLIC_TRAINING_VIDEO,
   RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS,
   RETIRED_LANDING_SNAPSHOT_PATHS,
   RETURNING_TO_GYMNASTICS_GUIDE_PATH,
@@ -24,6 +25,7 @@ import {
   SPA_ONLY_PATHS,
   SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
+  VIDEO_SITEMAP_NAMESPACE,
   YOUTH_ATHLETIC_GUIDE_PATH,
 } from './seo-config.mjs'
 
@@ -44,6 +46,9 @@ const programActions = new Map([
 const hasDropInProgramLink = (links, program) => links.some((url) => url.origin === HUB_ORIGIN &&
   url.pathname === '/drop-in' && url.searchParams.get('program') === program)
 const galleryUrl = `${HUB_ORIGIN}/contact#inside-the-gym`
+const watchUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.path}`
+const videoUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.assetPath}`
+const videoThumbnailUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.thumbnail}`
 const isBowieDirections = (url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
   url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
   url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
@@ -175,6 +180,7 @@ const extractSitemapRows = (xml) =>
     lastmodCount: tags(match[1], 'lastmod').length,
     images: [...match[1].matchAll(/<image:image>\s*<image:loc>(.*?)<\/image:loc>\s*<\/image:image>/g)]
       .map((image) => decodeHtml(image[1])),
+    videos: [...match[1].matchAll(/<video:video>([\s\S]*?)<\/video:video>/g)].map((video) => video[1]),
   }))
 
 const isCalendarDate = (value) => {
@@ -187,7 +193,9 @@ function verifySitemapEntries(label, xml, { origin, entries }) {
   const rows = new Map(extractSitemapRows(xml).map((row) => [row.loc, row]))
   assert(attribute(tags(xml, 'urlset')[0] ?? '', 'xmlns:image') === IMAGE_SITEMAP_NAMESPACE,
     `${label}: missing the Google image sitemap namespace`)
-  for (const { path, lastmod, images = [] } of entries) {
+  assert(attribute(tags(xml, 'urlset')[0] ?? '', 'xmlns:video') === VIDEO_SITEMAP_NAMESPACE,
+    `${label}: missing the Google video sitemap namespace`)
+  for (const { path, lastmod, images = [], video } of entries) {
     const url = canonicalFor(origin, path)
     const row = rows.get(url)
     if (lastmod === undefined) {
@@ -200,10 +208,22 @@ function verifySitemapEntries(label, xml, { origin, entries }) {
     const expected = images.map((image) => new URL(image, origin).href)
     assert(listed.length === expected.length && new Set(listed).size === listed.length &&
       expected.every((image) => listed.includes(image)), `${label}: ${url} must list exactly its configured photos`)
+    assert(row?.videos.length === (video ? 1 : 0), `${label}: ${url} must list only its configured video`)
+    if (video) {
+      for (const [field, value] of Object.entries({
+        thumbnail_loc: videoThumbnailUrl, title: video.name, description: video.description,
+        content_loc: videoUrl, duration: String(video.durationSeconds), publication_date: video.uploadDate,
+      })) {
+        const fields = [...(row?.videos[0] ?? '').matchAll(new RegExp(`<video:${field}>(.*?)</video:${field}>`, 'g'))]
+        assert(fields.length === 1 && decodeHtml(fields[0]?.[1]) === value, `${label}: incorrect video ${field} for ${url}`)
+      }
+    }
   }
   const count = [...rows.values()].reduce((sum, row) => sum + row.images.length, 0)
   assert(tags(xml, 'image:image').length === count && tags(xml, 'image:loc').length === count,
     `${label}: malformed or misplaced image entry`)
+  assert(tags(xml, 'video:video').length === entries.filter(({ video }) => video).length,
+    `${label}: malformed or misplaced video entry`)
 }
 
 const expectedSets = [
@@ -269,7 +289,26 @@ const verifyHtml = (
 
   if (!label.startsWith('live ')) verifyLocalAssets(label, html)
   assert(!/\sdata-prerender-dynamic(?:=|\s|>)/i.test(html), `${label}: raw HTML contains live data or a temporary UI state`)
-  assert(rawVideoSources.length === 0, `${label}: raw HTML would load a video before the app can defer playback`)
+  if (shouldIndex && canonical === watchUrl) {
+    const videos = tags(html, 'video')
+    const player = videos[0] ?? ''
+    assert(videos.length === 1 && rawVideoSources.length === 1 && rawVideoSources[0] === PUBLIC_TRAINING_VIDEO.assetPath &&
+      attribute(player, 'poster') === PUBLIC_TRAINING_VIDEO.thumbnail && attribute(player, 'preload') === 'none' &&
+      /\scontrols(?:[\s=>])/.test(player) && !/\sautoplay(?:[\s=>])/.test(player),
+      `${label}: the static page must show one user-controlled player with the configured video and poster`)
+    assert(h1s[0] === PUBLIC_TRAINING_VIDEO.name && /Silent footage/.test(html) && /What you’ll see/.test(html),
+      `${label}: missing the film heading, silent label, or scene descriptions`)
+    const next = html.match(/<nav\b[^>]*\baria-labelledby=["']training-film-next["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
+    const links = anchorUrls(next)
+    for (const href of [`${HUB_ORIGIN}/gymnastics`, `${HUB_ORIGIN}/fit-and-flip`, galleryUrl]) {
+      assert(links.some(url => url.href === href), `${label}: missing the crawlable link to ${href}`)
+    }
+  } else {
+    assert(rawVideoSources.length === 0, `${label}: raw HTML would load a video before the app can defer playback`)
+  }
+  if (shouldIndex && new URL(canonical).origin === HUB_ORIGIN) {
+    assert(JSON.stringify(linkValues(html, 'icon')) === '["/favicon.png"]', `${label}: expected the stable square favicon`)
+  }
 
   assert(htmlTags.length === 1, `${label}: expected exactly one html element`)
   assert(attribute(htmlTags[0] ?? '', 'lang').toLowerCase().startsWith('en'), `${label}: html lang must be English`)
@@ -498,6 +537,9 @@ const verifyHtml = (
       `${label}: the compact footer logo must load lazily`)
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
+    if (['/', '/gymnastics', '/fit-and-flip'].includes(pagePath)) {
+      assert(mainLinks.some(url => url.href === watchUrl), `${label}: missing a crawlable link to the Vortex training film`)
+    }
     if (HUB_PROGRAM_PATHS.includes(pagePath)) {
       const visit = mainHtml.match(/<section\b[^>]*\baria-labelledby=["']program-visit-heading["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(anchorUrls(visit).some((url) => url.href === galleryUrl),
@@ -806,6 +848,20 @@ const verifyHtml = (
     assert(location?.legalName === 'Vortex Athletics, LLC' && location?.logo === `${HUB_ORIGIN}/red_vortex.png` &&
       location?.contactPoint?.telephone === location.telephone, `${label}: missing business identity or contact information`)
     assert(website?.publisher?.['@id'] === locationId, `${label}: website publisher must reference the Bowie business`)
+    if (canonical === watchUrl) {
+      const page = parsed.find(item => item?.['@type'] === 'WebPage')
+      const videos = parsed.filter(item => item?.['@type'] === 'VideoObject')
+      const video = videos[0]
+      const { name, description, uploadDate, durationSeconds } = PUBLIC_TRAINING_VIDEO
+      assert(videos.length === 1 && video?.name === name && video?.description === description &&
+        video?.contentUrl === videoUrl && video?.thumbnailUrl?.length === 1 && video.thumbnailUrl[0] === videoThumbnailUrl &&
+        ogImages[0] === videoThumbnailUrl && video.uploadDate === uploadDate && isCalendarDate(uploadDate) &&
+        video.duration === `PT${durationSeconds}S` && video.publisher?.['@id'] === locationId &&
+        page?.url === canonical && page?.mainEntity?.['@id'] === video['@id'] && video?.mainEntityOfPage?.['@id'] === page?.['@id'],
+        `${label}: VideoObject must describe the visible film and be the main entity of its page`)
+    } else {
+      assert(!types.includes('VideoObject'), `${label}: VideoObject must only appear on the training watch page`)
+    }
     if (pagePath === '/') {
       const home = parsed.find(item => item?.['@type'] === 'WebPage')
       assert(home?.url === HUB_ORIGIN && home?.primaryImageOfPage === `${HUB_ORIGIN}${HOME_PREFERRED_PHOTO}`,
@@ -928,6 +984,17 @@ for (const url of sitemapImages) {
   const file = join(root, 'dist', url.pathname.replace(/^\//, ''))
   assert(existsSync(file) && statSync(file).size > 0 && statSync(file).size <= 1024 * 1024,
     `sitemap: expected a valid photo of at most 1 MiB (${url.pathname})`)
+}
+for (const asset of [PUBLIC_TRAINING_VIDEO.assetPath, PUBLIC_TRAINING_VIDEO.thumbnail, '/favicon.png']) {
+  const file = join(root, 'dist', asset.slice(1))
+  assert(existsSync(file) && statSync(file).size > 0, `dist: missing the public asset ${asset}`)
+}
+const faviconPath = join(root, 'dist/favicon.png')
+if (existsSync(faviconPath)) {
+  const favicon = readFileSync(faviconPath)
+  assert(favicon.length >= 26 && favicon.subarray(0, 8).toString('hex') === '89504e470d0a1a0a' &&
+    favicon.readUInt32BE(16) === 192 && favicon.readUInt32BE(20) === 192,
+    'dist: the public favicon must be a 192×192 PNG')
 }
 
 for (const set of expectedSets) {
@@ -1228,6 +1295,19 @@ if (live) {
     assert(!/\b(?:noindex|noimageindex)\b/i.test(response.headers.get('x-robots-tag') ?? ''),
       `${url.href}: sitemap photo is excluded from image indexing`)
   }))
+  await Promise.all([videoThumbnailUrl, `${HUB_ORIGIN}/favicon.png`].map(async (url) => {
+    const response = await fetch(url, { redirect: 'manual' })
+    await response.body?.cancel()
+    assert(response.ok && (response.headers.get('content-type') ?? '').startsWith('image/') &&
+      !/\b(?:noindex|noimageindex)\b/i.test(response.headers.get('x-robots-tag') ?? ''),
+      `${url}: the image must be directly available and crawlable`)
+  }))
+  const videoResponse = await fetch(videoUrl, { headers: { Range: 'bytes=0-63' }, redirect: 'manual' })
+  await videoResponse.body?.cancel()
+  assert(videoResponse.status === 206 && /^video\/mp4\b/i.test(videoResponse.headers.get('content-type') ?? '') &&
+    /^bytes 0-63\/\d+$/.test(videoResponse.headers.get('content-range') ?? '') &&
+    !/\bnoindex\b/i.test(videoResponse.headers.get('x-robots-tag') ?? ''),
+    `${videoUrl}: the video must be crawlable and support byte-range playback`)
 }
 
 assert(
@@ -1295,6 +1375,7 @@ const snapshotRedirectRules = [
   [snapshotAliasFor('/'), '/'],
   [snapshotAliasFor(`/:page(${hubPages.join('|')})`), '/:page'],
   [snapshotAliasFor(`/blog/:article(${hubArticles.join('|')})`), '/blog/:article'],
+  [snapshotAliasFor(PUBLIC_TRAINING_VIDEO.path), PUBLIC_TRAINING_VIDEO.path],
   ...retiredSnapshotRoutes,
 ]
 for (const [source, destination] of snapshotRedirectRules) {

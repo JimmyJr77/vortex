@@ -6,6 +6,7 @@ import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
 import searchPhotos from './publicSearchPhotos.json'
+import trainingFilm from './publicTrainingVideo.json'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
 import type { FreeTrialProgram } from '../utils/freeTrialApi'
 import {
@@ -176,6 +177,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             link: TUMBLING_GUIDE_ACTION,
           },
         ],
+        links: [{ href: trainingFilm.path, label: 'Watch gymnastics and athletic training at Vortex', analyticsKey: 'watch_training_film' }],
       },
       {
         id: 'homeschool',
@@ -246,6 +248,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           { id: 'strength-practice', heading: 'Build strength for the same movement', description: 'A bodyweight squat lets an athlete practice lowering and standing with control. When they can repeat the movement consistently, the coach can decide whether light resistance is appropriate.' },
           { id: 'jump-practice', heading: 'Apply it to a jump', description: 'The coach might ask the athlete to land and hold their balance after a small two-foot jump. A steady finish gives the coach something to check before changing the height or difficulty.' },
         ],
+        links: [{ href: trainingFilm.path, label: 'Watch strength and movement training at Vortex', analyticsKey: 'watch_training_film' }],
       },
       {
         id: 'choose-a-class',

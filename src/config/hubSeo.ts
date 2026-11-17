@@ -3,6 +3,7 @@ import { BUSINESS_FACILITY_PHOTO, BUSINESS_NAP, TEAM_EMAIL, TEAM_PHONE } from '.
 import guideIndex from './publicGuideIndex.json'
 import { PUBLIC_GUIDES } from './publicGuides'
 import { PUBLIC_PROGRAMS } from './publicPrograms'
+import trainingVideo from './publicTrainingVideo.json'
 
 export interface HubRouteSeo {
   path: string
@@ -62,6 +63,13 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     ogImageAlt: BUSINESS_FACILITY_PHOTO.alt,
   },
   { path: guideIndex.path, title: guideIndex.title, description: guideIndex.description },
+  {
+    path: trainingVideo.path,
+    title: trainingVideo.title,
+    description: trainingVideo.description,
+    ogImage: new URL(trainingVideo.thumbnail, HUB_ORIGIN).href,
+    ogImageAlt: trainingVideo.thumbnailAlt,
+  },
   ...PUBLIC_GUIDES.map(({ path, title, description, image, imageAlt }) => ({
     path, title, description, ogImage: `${HUB_ORIGIN}${image}`, ogImageAlt: imageAlt,
   })),

@@ -27,6 +27,28 @@ test.describe('phone homepage video', () => {
     await expect(page.locator(backgroundVideo)).toHaveAttribute('src', trainingLoop)
     await expect.poll(() => requestedMedia.length).toBeGreaterThan(0)
   })
+
+  test('the training film has a direct, user-controlled player on mobile', async ({ page }) => {
+    const requestedMedia: string[] = []
+    page.on('request', request => {
+      if (trainingLoop.test(request.url())) requestedMedia.push(request.url())
+    })
+    await page.goto('/', { waitUntil: 'networkidle' })
+    await page.getByRole('button', { name: 'Necessary only' }).click()
+    await page.getByRole('link', { name: 'Watch the Vortex training film' }).click()
+    await expect(page).toHaveURL('/watch/training-at-vortex')
+    await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics and athletic training at Vortex' })).toBeVisible()
+    const film = page.getByRole('main').locator('video')
+    await expect(film).toBeVisible()
+    await expect(film).toHaveAttribute('poster', '/newpage/training-film-poster.jpg')
+    await expect(film).toHaveAttribute('preload', 'none')
+    await expect(film).toHaveJSProperty('controls', true)
+    expect(requestedMedia).toHaveLength(0)
+    await film.evaluate((element: HTMLVideoElement) => element.play())
+    await expect.poll(() => film.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0)
+    await expect(film).toHaveJSProperty('duration', 24)
+    await expect(page.getByRole('region', { name: 'What you’ll see' }).getByRole('listitem')).toHaveCount(4)
+  })
 })
 
 test('desktop visits keep automatic background playback', async ({ page }) => {
