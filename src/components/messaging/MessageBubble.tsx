@@ -220,11 +220,11 @@ export default function MessageBubble({
     <article className={`flex items-end gap-2 ${ownMessage ? 'flex-row-reverse' : ''}`}>
       <div className="min-w-[min(9rem,80%,calc(100%-2.75rem))] max-w-[calc(100%-2.75rem)] sm:max-w-[min(80%,40rem)]">
         <div className={`mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-0.5 text-xs ${ownMessage ? 'justify-end' : ''}`}>
-          <span className="min-w-0 break-words font-semibold text-slate-700">{senderName}</span>
-          <time dateTime={message.created_at} className="shrink-0 tabular-nums text-slate-500">
+          <span className="min-w-0 break-words font-semibold !text-slate-800">{senderName}</span>
+          <time dateTime={message.created_at} className="shrink-0 tabular-nums font-medium !text-slate-600">
             {formatMessageTime(message.created_at)}
           </time>
-          {isEdited && <span className="text-slate-500">Edited</span>}
+          {isEdited && <span className="!text-slate-600">Edited</span>}
         </div>
         <div
           className={`${messageBubbleClassName(message, ownMessage)}${pinSelected ? ' ring-2 ring-blue-700 ring-offset-1' : ''}${canSelect ? ' cursor-pointer' : ''}`}
