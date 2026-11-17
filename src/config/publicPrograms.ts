@@ -149,6 +149,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description: 'Coaches can use short starts to practice the first few steps and stopping drills to teach athletes how to slow down with control. As athletes get comfortable, a coach might cue them to start toward a cone or change direction on the move.',
           },
         ],
+        links: [{ href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#movement-progression`, label: 'See how coaches build speed and agility', analyticsKey: 'read_movement_progression' }],
       },
       {
         id: 'training-fit',

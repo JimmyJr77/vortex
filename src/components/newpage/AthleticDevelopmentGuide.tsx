@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
@@ -7,13 +8,23 @@ import './AthleticDevelopmentGuide.css'
 
 const sections = [
   { id: 'youth-sports', label: 'How it fits with youth sports' },
-  { id: 'movement-examples', label: 'Examples of athleticism development' },
+  { id: 'movement-examples', label: 'Eight qualities of athleticism' },
+  { id: 'movement-progression', label: 'How coaches progress a movement' },
   { id: 'first-class', label: 'What to watch for in class' },
   { id: 'progress', label: 'How to spot progress' },
   { id: 'questions', label: 'Questions for the coach' },
 ] as const
 
 export default function AthleticDevelopmentGuide() {
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (!hash) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash])
+
   return (
     <article className="athletic-guide" aria-labelledby="athletic-guide-title">
       <header className="athletic-guide-hero">
@@ -26,9 +37,9 @@ export default function AthleticDevelopmentGuide() {
             </nav>
             <h1 id="athletic-guide-title">{ATHLETIC_DEVELOPMENT_GUIDE.heading}</h1>
             <p className="athletic-guide-lead">
-              Athleticism development helps children build strength, speed, and body control they can use in
-              sports and active play. Here’s what those skills look like in a coached class and how to decide
-              if the class fits your child.
+              Athleticism development is the practice of building movement skills that children can use in
+              sports and active play. See how coaches build strength, speed, agility, and body control over
+              time, and what to watch for when choosing a class.
             </p>
             <GuideByline datePublished={ATHLETIC_DEVELOPMENT_GUIDE.datePublished} dateModified={ATHLETIC_DEVELOPMENT_GUIDE.dateModified} />
           </div>
@@ -77,17 +88,42 @@ export default function AthleticDevelopmentGuide() {
         </section>
 
         <section id="movement-examples">
-          <h2>What athleticism development looks like in class</h2>
+          <h2>Eight qualities of youth athleticism</h2>
           <p>
-            Watch how the coach changes a movement as your child learns it. These are examples of what a coach
-            might choose based on the child’s experience.
+            Vortex’s Athleticism Accelerator framework names eight qualities coaches develop. One movement can
+            involve several of them. For example, landing a jump takes both strength to absorb force and
+            balance to stay steady.
           </p>
           <ul>
-            <li><strong>Strength.</strong> A coach might start with a bodyweight squat. Once the child can lower and stand with control across several attempts, the coach can add resistance.</li>
-            <li><strong>Speed.</strong> A child might practice a short start, rest, and try again. The coach watches whether the first few steps stay consistent as the child gets faster.</li>
-            <li><strong>Body control.</strong> A child might practice a small jump and steady landing. Once the landing is repeatable, the coach can connect the jump to another tumbling movement.</li>
+            <li><strong>Strength.</strong> Produce and resist force. A child might practice lowering and standing in a bodyweight squat before a coach adds resistance.</li>
+            <li><strong>Explosiveness.</strong> Use force quickly. A coach might ask a child to take off crisply in a short jump and rest before the next attempt.</li>
+            <li><strong>Speed.</strong> Move quickly with consistent technique. A coach might watch the first few steps of a short sprint to see what stays steady as the child accelerates.</li>
+            <li><strong>Agility.</strong> Slow down, redirect, and respond to a cue. A child might learn a planned turn before reacting to the coach’s signal for which way to go.</li>
+            <li><strong>Flexibility and mobility.</strong> Reach a useful position and control it. A coach might use a shallow lunge with a reach, then adjust the depth as the child gains control.</li>
+            <li><strong>Balance.</strong> Maintain or regain stability. A child might step onto one foot and practice getting steady enough to hold the position.</li>
+            <li><strong>Coordination.</strong> Time the movement of different body parts. A coach might use skipping to help a child match the rhythm of their arms and legs.</li>
+            <li><strong>Body control.</strong> Manage where the body is in space. A child might learn to hold a tucked shape through a roll and finish in a stable position.</li>
           </ul>
           <p>See how Vortex teaches <Link to="/fit-and-flip#strength">youth strength training in Fit &amp; Flip</Link>.</p>
+        </section>
+
+        <section id="movement-progression">
+          <h2>How Vortex coaches progress a movement</h2>
+          <p>
+            Vortex uses four stages to teach movement. Here’s how a coach might take one athlete from a balanced
+            stop to changing direction on a cue.
+          </p>
+          <ol>
+            <li><strong>Control.</strong> The athlete approaches a line at an easy pace and comes to a balanced stop.</li>
+            <li><strong>Produce.</strong> The coach asks for a quicker start from the same spot and checks whether the athlete can keep the stop steady.</li>
+            <li><strong>Redirect.</strong> The athlete slows, plants, and changes direction toward a cone chosen in advance.</li>
+            <li><strong>React.</strong> The athlete approaches the same area and responds when the coach signals which of two cones to move toward.</li>
+          </ol>
+          <p>
+            The coach changes one demand at a time once the athlete can repeat the movement with control. Two
+            children of the same age may practice different versions at the same station based on what each can
+            do consistently.
+          </p>
         </section>
 
         <section id="first-class">

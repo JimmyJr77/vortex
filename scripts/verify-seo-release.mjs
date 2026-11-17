@@ -453,7 +453,19 @@ const verifyHtml = (
     if (canonical !== guideCanonical) {
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
+      if (canonical === fitAndFlipCanonical) {
+        assert(links.some((url) => url.href === `${guideCanonical}#movement-progression`),
+          `${label}: missing the link to Vortex’s coaching progression in the parent guide`)
+      }
     } else {
+      const examples = content.match(/<section\b[^>]*\sid=["']movement-examples["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const progression = content.match(/<section\b[^>]*\sid=["']movement-progression["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const outline = content.match(/<nav\b[^>]*\baria-label=["']In this guide["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
+      assert(tags(examples, 'li').length === 8, `${label}: expected eight crawlable athleticism examples`)
+      assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
+        `${label}: expected the four coaching stages in an ordered list`)
+      assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === '#movement-progression'),
+        `${label}: missing the link to the coaching progression in the guide outline`)
       assert(links.some((url) => url.href === fitAndFlipCanonical),
         `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
       assert(links.some((url) => url.href === `${fitAndFlipCanonical}#strength`),
