@@ -12,6 +12,11 @@ export const DROP_IN_FAQS: Faq[] = [
       'Look for “Accepts free trials” on a class time. An athlete with an unused one-time trial may apply it during registration to book that class for $0. Choose who is attending and review their eligibility and total before confirming.',
   },
   {
+    question: 'How do I ask about a make-up class?',
+    answer:
+      'Ask Vortex about your missed class before booking. Make-up options depend on your program and class availability. If Vortex issues a credit, sign in, choose the athlete, and review the total before confirming a drop-in.',
+  },
+  {
     question: 'How does annual membership work for drop-ins?',
     answer:
       'You can book a drop-in as a nonmember. An active annual membership includes four drop-in credits per membership year. Registration shows the athlete’s available benefits before you confirm.',

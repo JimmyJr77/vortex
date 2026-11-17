@@ -448,6 +448,8 @@ test.describe('short mobile drop-in calendar', () => {
     await page.goto('/drop-in')
     const banner = page.getByRole('dialog', { name: 'Cookie consent' })
     await expect(banner).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Ask Vortex about make-up options' }))
+      .toHaveAttribute('href', '/contact#inquiry')
     const date = page.locator('#drop-in-date')
     const age = page.getByRole('spinbutton', { name: 'Age on class date' })
     const classOption = page.getByRole('button', { name: /Beginner Gymnastics.*View drop-in times/ })

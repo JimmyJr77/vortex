@@ -280,7 +280,7 @@ export default function PublicClassesOfferedEnroll({
       const programClasses = classesWithForm
         .filter((classItem) => classItem.programsId === program.id)
         .filter((classItem) => classMatchesPublicAge(participantAge, classItem.ageMin, classItem.ageMax))
-        .filter((classItem) => matchesPublicBookingSearch(query, program.displayName, [
+        .filter((classItem) => matchesPublicBookingSearch(query, program.displayName, classItem.skillLevel, [
           classItem.label, classItem.description, classItem.programName, classItem.skillLevel, program.primarySportName,
         ]))
 

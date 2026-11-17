@@ -26,6 +26,7 @@ export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
 const fitAndFlipSearchCopy = Object.values(FIT_AND_FLIP_PUBLIC_COPY).join(' ')
+const fitAndFlipSearchAliases = new Set(['youth athletics', 'athleticism development', 'youth sports'])
 
 export function isAdultBookingProgram(name: string | null): boolean {
   return name !== null && normalize(name) === normalizedAdultBookingProgram
@@ -74,11 +75,21 @@ export function isAdultBookingSearch(query: string) {
 }
 
 export function matchesPublicBookingSearch(
-  query: string, programName: string | null, fields: readonly (string | null | undefined)[],
+  query: string,
+  programName: string | null,
+  skillLevel: string | null,
+  fields: readonly (string | null | undefined)[],
 ) {
   if (!query.trim()) return true
   const term = normalizeBookingSearchText(query)
-  const programCopy = programName === FIT_AND_FLIP_BOOKING_PROGRAM ? fitAndFlipSearchCopy : ''
+  const isDevelopmentalGymnastics = programName === DEVELOPMENTAL_GYMNASTICS_PROGRAM
+  const isFitAndFlip = programName === FIT_AND_FLIP_BOOKING_PROGRAM
+
+  if (term === 'beginner gymnastics') return isDevelopmentalGymnastics && skillLevel?.trim().toUpperCase() === 'BEGINNER'
+  if (isDevelopmentalGymnastics && term === 'youth gymnastics') return true
+  if (isFitAndFlip && fitAndFlipSearchAliases.has(term)) return true
+
+  const programCopy = isFitAndFlip ? fitAndFlipSearchCopy : ''
   return Boolean(term) && normalizeBookingSearchText([...fields, programCopy].join(' ')).includes(term)
 }
 

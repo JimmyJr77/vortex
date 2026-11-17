@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import { DEVELOPMENTAL_GYMNASTICS_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
@@ -39,6 +40,7 @@ export default function PreschoolGymnasticsGuide() {
             <li><a href="#gymnastics-before-age-2">Gymnastics before age 2</a></li>
             <li><a href="#ages-2-3">Ages 2–3 with a caregiver</a></li>
             <li><a href="#ages-4-5">Ages 4–5 in a group</a></li>
+            <li><a href="#gymnastics-for-siblings">Gymnastics for siblings</a></li>
             <li><a href="#progress">What progress can look like</a></li>
           </ul>
         </nav>
@@ -84,6 +86,22 @@ export default function PreschoolGymnasticsGuide() {
           </p>
         </section>
 
+        <section id="gymnastics-for-siblings">
+          <h2>Can siblings take gymnastics on the same day?</h2>
+          <p>
+            Start with a class that matches each child’s age and experience. A 4-year-old can look for
+            Twisters while a 7-year-old beginner looks for Tornadoes. Open both groups in the weekly
+            schedule and look for times that overlap. Twisters usually lasts about an hour and Tornadoes
+            about 90 minutes, so check when each class ends and whether both have room.{' '}
+            <Link to="/gymnastics#youth-gymnastics-schedule">Compare weekly youth gymnastics times</Link>.
+          </p>
+          <p>
+            For weekly enrollment, use one family account and choose a class and time for each athlete.
+            When setting up an account, use Add member for each child. Book free trials one athlete at a time.{' '}
+            <Link to={DEVELOPMENTAL_GYMNASTICS_HREF}>Choose recurring gymnastics classes</Link>.
+          </p>
+        </section>
+
         <section id="progress">
           <h2>Signs your child is making progress</h2>
           <p>Look for changes in how your child approaches a familiar activity.</p>
@@ -104,10 +122,10 @@ export default function PreschoolGymnasticsGuide() {
             Use your child’s age on the day they’ll attend the Vortex trial. If they’ll be 4 that day,
             look for <Link to="/gymnastics#preschool">Twisters</Link>. Children must be potty trained for a
             Dirt Devils trial. You can also see{' '}
-            <Link to="/gymnastics#first-visit">what to wear and how to prepare for your first visit</Link>.
+            <Link to="/gymnastics#gymnastics-attire">what to wear to class</Link>.
           </p>
           <div className="athletic-guide-actions">
-            <Link className="np-button" to="/#free-trial" data-analytics-cta="free_trial_section" data-analytics-section="preschool_gymnastics_guide">
+            <Link className="np-button" to="/gymnastics#first-visit" data-analytics-cta="free_trial_section" data-analytics-section="preschool_gymnastics_guide">
               Find a free gymnastics trial <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
           </div>

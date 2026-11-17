@@ -16,7 +16,7 @@ import { getEasternDateString } from '../utils/dateUtils'
 import { getMemberSessionToken } from '../utils/portalSession'
 import { CLASS_SKILL_LEVEL_FILTER_OPTIONS, classMatchesPublicAge, formatPublicAgeRange, formatSkillLevel, parsePublicClassAge, type ClassSkillLevelFilter } from '../utils/classDisplayUtils'
 import { DROP_IN_FAQS } from '../config/localSeoFaqs'
-import { PARKING_AND_ACCESSIBILITY_PATH } from '../config/contact'
+import { CONTACT_INQUIRY_PATH, PARKING_AND_ACCESSIBILITY_PATH } from '../config/contact'
 import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 import ParticipantAgeField from './enroll/ParticipantAgeField'
 import './DropInPage.css'
@@ -208,7 +208,9 @@ export default function DropInPage() {
       (!dropInDate || sessions.some(
         (session) => session.classId === row.classId && session.date === dropInDate && !session.excludedFromDropIns,
       )) &&
-      matchesPublicBookingSearch(query, row.programName, [row.sportName, row.programName, row.className, row.skillLevel, row.classDescription]),
+      matchesPublicBookingSearch(query, row.programName, row.skillLevel, [
+        row.sportName, row.programName, row.className, row.skillLevel, row.classDescription,
+      ]),
     )
     const grouped = new Map<number, DropInClass[]>()
     for (const row of filtered) grouped.set(row.programId, [...(grouped.get(row.programId) ?? []), row])
@@ -306,7 +308,7 @@ export default function DropInPage() {
           </>}
         </p> : <>
           <p className="np-drop-in-intro">
-            Reserve one scheduled, coach-led class or schedule a make-up. Compare weekly times and tuition for{' '}
+            Reserve one scheduled, coach-led class. Compare weekly times and tuition for{' '}
             <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[DEVELOPMENTAL_GYMNASTICS_PROGRAM].programHref}>youth gymnastics</Link>,{' '}
             <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[FIT_AND_FLIP_BOOKING_PROGRAM].programHref}>Fit &amp; Flip youth fitness</Link>, or{' '}
             <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[ADULT_BOOKING_PROGRAM].programHref}>adult gymnastics</Link>.
@@ -321,6 +323,11 @@ export default function DropInPage() {
         <p className="np-drop-in-hero-note">
           Look for <strong>Accepts free trials</strong> when you choose a time. Registration checks whether the selected athlete has an unused one-time trial.{' '}
           <Link className="font-semibold underline underline-offset-4" to={PARKING_AND_ACCESSIBILITY_PATH}>See parking and accessibility</Link>.
+        </p>
+        <p className="np-drop-in-hero-note">
+          Missed a class?{' '}
+          <Link className="font-semibold underline underline-offset-4" to={CONTACT_INQUIRY_PATH}>Ask Vortex about make-up options</Link>{' '}
+          before booking your drop-in.
         </p>
       </div>
     </section>

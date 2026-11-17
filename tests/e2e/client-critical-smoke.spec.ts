@@ -162,6 +162,32 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('button', { name: 'Play this scene from 0:12', exact: true })).toBeInViewport()
   })
 
+  test('families can compare weekly gymnastics times for siblings', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/blog/preschool-gymnastics-what-toddlers-learn')
+    await page.getByRole('navigation', { name: 'In this guide' }).getByRole('link', { name: 'Gymnastics for siblings' }).click()
+    await expect(page).toHaveURL('/blog/preschool-gymnastics-what-toddlers-learn#gymnastics-for-siblings')
+    const siblings = page.locator('#gymnastics-for-siblings')
+    await expect(siblings.getByRole('heading', { name: 'Can siblings take gymnastics on the same day?' })).toBeInViewport()
+    await expect(siblings.getByRole('link', { name: 'Choose recurring gymnastics classes' }))
+      .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics')
+    await siblings.getByRole('link', { name: 'Compare weekly youth gymnastics times' }).click()
+    await expect(page).toHaveURL('/gymnastics#youth-gymnastics-schedule')
+    await expect(page.locator('#youth-gymnastics-schedule').getByRole('heading', { level: 2 })).toBeInViewport()
+  })
+
+  test('the preschool guide leads to a gymnastics trial with the program selected', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/blog/preschool-gymnastics-what-toddlers-learn')
+    await page.getByRole('link', { name: 'Find a free gymnastics trial' }).click()
+    await expect(page).toHaveURL('/gymnastics#first-visit')
+    const firstVisit = page.locator('#first-visit')
+    await firstVisit.getByRole('button', { name: 'Find a free gymnastics trial', exact: true }).click()
+    const trial = page.getByRole('dialog', { name: 'How old is your athlete?' })
+    await expect(trial.getByText('Gymnastics', { exact: true })).toBeVisible()
+    await expect(trial.getByLabel('Your child’s age')).toBeVisible()
+  })
+
   test('homeschool families can compare local options and return to gymnastics class times', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics#homeschool')

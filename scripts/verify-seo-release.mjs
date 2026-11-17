@@ -653,6 +653,11 @@ const verifyHtml = (
         `${label}: missing the drop-in heading or the visible eligibility guidance`)
       assert(links.some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#class-format`),
         `${label}: missing the crawlable link to what adults can expect in their first class`)
+      assert(/Ask Vortex about make-up options/.test(introduction) &&
+        links.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`) &&
+        /How do I ask about a make-up class\?/.test(html) &&
+        /Make-up options depend on your program and class availability/.test(html),
+        `${label}: the drop-in page must explain how to ask about a missed class before booking`)
     }
   }
 
@@ -1165,12 +1170,19 @@ const verifyHtml = (
   if (shouldIndex && canonical === preschoolGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
-    for (const path of ['/gymnastics#preschool', '/gymnastics#first-visit', '/#free-trial']) {
+    for (const path of ['/gymnastics#preschool', '/gymnastics#first-visit', '/gymnastics#gymnastics-attire']) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable preschool gymnastics guide link to ${path}`)
     }
     assert(['ages-2-3', 'ages-4-5', 'progress'].every((id) => pageIds.has(id)),
       `${label}: missing preschool curriculum or progress sections`)
+    const siblings = content.match(/<section\b[^>]*\sid=["']gymnastics-for-siblings["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const siblingLinks = anchorUrls(siblings)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#gymnastics-for-siblings') &&
+      siblingLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#youth-gymnastics-schedule`) &&
+      siblingLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
+        url.searchParams.get('program') === 'Developmental Gymnastics'),
+      `${label}: the siblings section must link families to scoped enrollment and current weekly times`)
     const youngerToddlers = content.match(/<section\b[^>]*\sid=["']gymnastics-before-age-2["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const countyLinks = anchorUrls(youngerToddlers)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#gymnastics-before-age-2') &&
