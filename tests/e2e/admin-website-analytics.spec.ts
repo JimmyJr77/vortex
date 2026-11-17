@@ -51,8 +51,15 @@ test('analytics admins can filter reports and check Google search visibility', a
         const timeZone = 'America/Los_Angeles'
         if (topicRequests === 1) {
           data = { status: 'unconfigured', reason: 'missing_credentials', startDate, endDate, timeZone, topics: [] }
+        } else if (topicRequests === 6) {
+          data = { status: 'ok', scope: 'without_vortex', view: 'pages', startDate, endDate, timeZone, topics: [
+            { id: 'youth-athletics', label: 'Youth Athletics', status: 'reported', metrics: null, pages: [
+              { page: 'https://vortexathletics.com/fit-and-flip', metrics: { clicks: 3, impressions: 12, ctr: 0.25, position: 8 } },
+              { page: null, metrics: { clicks: 0, impressions: 5, ctr: 0, position: 15 } },
+            ] },
+          ] }
         } else {
-          const filtered = topicRequests === 4
+          const filtered = topicRequests >= 4
           data = {
             status: 'partial', startDate, endDate, timeZone,
             ...(filtered ? { scope: 'without_vortex' } : {}),
@@ -121,4 +128,16 @@ test('analytics admins can filter reports and check Google search visibility', a
   await expect(page.getByText(/Searches for program names such as Fit & Flip can still appear/)).toBeVisible()
   expect(reportRequests.filter(url => url.pathname.endsWith('/seo/topics')).map(url => url.searchParams.get('scope')))
     .toEqual([null, null, 'without_vortex', 'without_vortex'])
+
+  await page.getByLabel('Report type').selectOption('pages')
+  await expect(table).toHaveCount(0)
+  const pageTable = page.getByRole('table', { name: 'Top reported pages by topic' })
+  await checkVisibility.click()
+  await expect(page.getByRole('alert').filter({ hasText: 'Could not load the Search Console topic report.' })).toBeVisible()
+  await expect(pageTable).toHaveCount(0)
+  await checkVisibility.click()
+  await expect(pageTable.getByRole('row').filter({ hasText: 'https://vortexathletics.com/fit-and-flip' })).toContainText('25%')
+  await expect(pageTable.getByRole('cell', { name: 'Unlisted page' })).toBeVisible()
+  const pageRequests = reportRequests.filter(url => url.searchParams.get('view') === 'pages')
+  expect(pageRequests.map(url => url.searchParams.get('scope'))).toEqual(['without_vortex', 'without_vortex'])
 })

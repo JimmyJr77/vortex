@@ -441,8 +441,12 @@ export function createAdminAnalyticsHandlers(pool) {
     if (scope !== 'all' && scope !== 'without_vortex') {
       return res.status(400).json({ success: false, message: 'Unknown Search Console query scope' })
     }
+    const view = req.query?.view ?? 'totals'
+    if (view !== 'totals' && view !== 'pages') {
+      return res.status(400).json({ success: false, message: 'Unknown Search Console report type' })
+    }
     try {
-      res.json({ success: true, data: await getSearchConsoleTopics(undefined, scope) })
+      res.json({ success: true, data: await getSearchConsoleTopics(undefined, scope, view) })
     } catch {
       console.error('[analytics/seo/topics] Unexpected report failure')
       res.status(500).json({ success: false, message: 'Could not load the Search Console topic report' })

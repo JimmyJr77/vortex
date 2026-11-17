@@ -1,4 +1,7 @@
+import { sanitizeAnalyticsPath } from './eventContract.js'
+
 const SEARCH_CONSOLE_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
+const SEARCH_PAGES_PER_TOPIC = 5
 
 function searchConsoleConfigurationIssue(env) {
   if (!env.GSC_SITE_URL?.trim()) return 'missing_property'
@@ -159,11 +162,37 @@ function searchConsoleErrorReason(error) {
     : 'provider_error'
 }
 
-async function fetchTopic(searchconsole, siteUrl, { startDate, endDate, scope }, { id, label, expression }) {
+function topicMetrics({ clicks, impressions, position }) {
+  if (!Number.isFinite(clicks) || clicks < 0 || !Number.isFinite(impressions) || impressions < 0) {
+    throw new Error('Unexpected Search Console metrics')
+  }
+  return {
+    clicks,
+    impressions,
+    ctr: impressions > 0 ? clicks / impressions : null,
+    position: impressions > 0 && Number.isFinite(position) ? position : null,
+  }
+}
+
+function readReportedPage(row) {
+  const url = new URL(row.keys?.[0])
+  if (url.protocol !== 'https:' && url.protocol !== 'http:') {
+    throw new Error('Unexpected Search Console page URL')
+  }
+  const path = sanitizeAnalyticsPath(url.pathname)
+  return {
+    page: path && path !== '/other' ? `${url.origin}${path}` : null,
+    metrics: topicMetrics(row),
+  }
+}
+
+async function fetchTopic(searchconsole, siteUrl, { startDate, endDate, scope, view }, { id, label, expression }) {
   const filters = [{ dimension: 'query', operator: 'includingRegex', expression }]
   if (scope === 'without_vortex') {
     filters.push({ dimension: 'query', operator: 'excludingRegex', expression: VORTEX_NAME_QUERY })
   }
+  const groupByPage = view === 'pages'
+  const rowLimit = groupByPage ? SEARCH_PAGES_PER_TOPIC : 1
   try {
     const { data } = await searchconsole.searchanalytics.query({
       siteUrl,
@@ -172,36 +201,27 @@ async function fetchTopic(searchconsole, siteUrl, { startDate, endDate, scope },
         endDate,
         type: 'web',
         dataState: 'final',
-        aggregationType: 'byProperty',
+        ...(groupByPage ? { aggregationType: 'auto', dimensions: ['page'] } : { aggregationType: 'byProperty' }),
         dimensionFilterGroups: [{ groupType: 'and', filters }],
-        rowLimit: 1,
+        rowLimit,
       },
     }, { timeout: 10000, retry: false })
 
     const rows = data.rows ?? []
-    if (!Array.isArray(rows) || rows.length > 1) {
-      return { id, label, status: 'error', metrics: null, reason: 'provider_error' }
-    }
+    if (!Array.isArray(rows) || rows.length > rowLimit) throw new Error('Unexpected Search Console rows')
     if (!rows.length) return { id, label, status: 'no_data', metrics: null }
-    const { clicks, impressions, position } = rows[0]
-    if (!Number.isFinite(clicks) || clicks < 0 || !Number.isFinite(impressions) || impressions < 0) {
-      return { id, label, status: 'error', metrics: null, reason: 'provider_error' }
+    if (groupByPage) {
+      return { id, label, status: 'reported', metrics: null, pages: rows.map(readReportedPage) }
     }
-    const metrics = {
-      clicks,
-      impressions,
-      ctr: impressions > 0 ? clicks / impressions : null,
-      position: impressions > 0 && Number.isFinite(position) ? position : null,
-    }
-    return { id, label, status: 'reported', metrics }
+    return { id, label, status: 'reported', metrics: topicMetrics(rows[0]) }
   } catch (error) {
     return { id, label, status: 'error', metrics: null, reason: searchConsoleErrorReason(error) }
   }
 }
 
-/** Fetch the provider's property-level aggregate for each search topic independently. */
-export async function getSearchConsoleTopics(now = new Date(), scope = 'all') {
-  const window = { ...topicDateWindow(now), scope }
+/** Fetch totals or reported pages for each search topic independently. */
+export async function getSearchConsoleTopics(now = new Date(), scope = 'all', view = 'totals') {
+  const window = { ...topicDateWindow(now), scope, view }
   const unavailable = (status, reason) => ({
     ...window, status, reason,
     topics: SEARCH_TOPICS.map(({ id, label }) => ({ id, label, status: 'unavailable', metrics: null })),
