@@ -6,6 +6,10 @@ const younger = 'Cyclones ages 8–11'
 const older = 'Cyclones ages 12–15'
 const currentDay = '2026-11-17'
 const staleDescription = 'Legacy catalog wording about ninja course dynamics.'
+const teamName = 'Vortex Gymnastics Team'
+const staleTeamProgramDescription = 'VGT is the official artistic gymnastics team of Vortex Gymnastics'
+const staleTeamClassDescription = 'Team athletes will participate in any of the following types of gymnastics competitions: Artistic, Acrobatics, Rhythmic, Aerobics, and Trampoline.'
+const teamSignupPath = '/enroll?form=29'
 
 function recurringGroup(formId: number, groupId: number, offeringId: number, dayOfWeek: number, startTime: string, endTime: string) {
   return {
@@ -35,6 +39,11 @@ async function mockSchedule(page: Page, unavailableForms: number[] = []) {
         { id: 2, displayName: 'Development Gymnastics', classes: [
           { id: 64, displayName: 'Tornadoes', ageMin: 6, formId: 5, enrollVisible: true },
         ] },
+        { id: 13, displayName: teamName, description: staleTeamProgramDescription, classes: [{
+          id: 40, displayName: teamName, description: staleTeamClassDescription, ageMin: 6, ageMax: null,
+          formId: 29, enrollVisible: true, excludeFromDropIns: true, skillRequirements: 'Evaluation is required.',
+          signupUrl: teamSignupPath,
+        }] },
       ] })
     }
     if (path === '/api/public/drop-ins') {
@@ -168,6 +177,34 @@ test('starts a mobile form link at the selected cohort while the other schedule 
   } finally {
     releaseOlderSchedule()
   }
+})
+
+test('uses verified program descriptions on the public class board and team enrollment', async ({ page }) => {
+  await mockSchedule(page)
+  await page.goto('/read-board')
+  const board = page.locator('.np-browse-class-list')
+  await expect(board.getByText(/Fit & Flip is a coached fitness class for ages 8–15/)).toBeVisible()
+  await expect(board.getByText(staleDescription)).toHaveCount(0)
+  const boardTeam = board.locator(':scope > div').filter({ has: page.getByRole('heading', { name: teamName, level: 3 }) })
+  const teamPlacement = /^Vortex Gymnastics Team is listed for ages 6 and up\. The team requires an evaluation for placement\./
+  await expect(boardTeam.getByText(teamPlacement)).toBeVisible()
+  await expect(boardTeam.getByText(staleTeamProgramDescription)).toHaveCount(0)
+  await expect(boardTeam.getByText(staleTeamClassDescription)).toHaveCount(0)
+  await expect(boardTeam.getByText(/Age:.*6 – Any/)).toBeVisible()
+  await expect(boardTeam.getByText(/Requirements:.*Evaluation is required\./)).toBeVisible()
+
+  const signup = boardTeam.getByRole('link', { name: 'Sign Up', exact: true })
+  await expect(signup).toHaveAttribute('href', teamSignupPath)
+  await signup.click()
+  await expect(page).toHaveURL(teamSignupPath)
+  const enrollmentTeam = page.locator('.np-enrollment-program').filter({ has: page.getByRole('heading', { name: teamName, level: 2 }) })
+  await expect(enrollmentTeam.getByText(teamPlacement)).toBeVisible()
+  await expect(enrollmentTeam.getByText(staleTeamProgramDescription)).toHaveCount(0)
+  await expect(enrollmentTeam.getByText(staleTeamClassDescription)).toHaveCount(0)
+  const teamClass = enrollmentTeam.locator('.np-enrollment-class')
+  await expect(teamClass.getByRole('heading', { name: teamName })).toBeFocused()
+  await expect(teamClass.getByText('Age: 6 – Any')).toBeVisible()
+  await expect(teamClass.getByText('Evaluation is required.')).toBeVisible()
 })
 
 for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', 'Search drop-in classes']]) {

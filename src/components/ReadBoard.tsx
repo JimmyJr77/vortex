@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion'
-import { useEffect } from 'react'
+import { Suspense, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
 import { trackEvent } from '../utils/analyticsClient'
+import { lazyWithRetry } from '../utils/chunkLoadRecovery'
 import ReadBoardClassesTab from './readBoard/ReadBoardClassesTab'
 import ReadBoardScheduleTab from './readBoard/ReadBoardScheduleTab'
-import ReadBoardEventsTab from './readBoard/ReadBoardEventsTab'
-import ReadBoardHighlightsTab from './readBoard/ReadBoardHighlightsTab'
 import './readBoard/PublicBrowse.css'
+
+const ReadBoardEventsTab = lazyWithRetry(() => import('./readBoard/ReadBoardEventsTab'))
+const ReadBoardHighlightsTab = lazyWithRetry(() => import('./readBoard/ReadBoardHighlightsTab'))
 
 type TabType = 'classes' | 'schedule' | 'events' | 'highlights'
 
@@ -87,8 +89,9 @@ const ReadBoard = () => {
       {activeTab === 'classes' && <ReadBoardClassesTab />}
       {(activeTab === 'events' || activeTab === 'highlights') && (
         <div data-prerender-dynamic="">
-          {activeTab === 'events' && <ReadBoardEventsTab />}
-          {activeTab === 'highlights' && <ReadBoardHighlightsTab />}
+          <Suspense fallback={<p className="np-browse-container py-6" role="status">Loading {activeTab}…</p>}>
+            {activeTab === 'events' ? <ReadBoardEventsTab /> : <ReadBoardHighlightsTab />}
+          </Suspense>
         </div>
       )}
       <ReadBoardScheduleTab showCalendar={activeTab === 'schedule'} />
