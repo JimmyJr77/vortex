@@ -6,7 +6,7 @@ import FamilySignupWizard from './FamilySignupWizard'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInSession } from '../../utils/dropInApi'
 import { confirmAnnualMembershipCheckoutSession, createAnnualMembershipCheckoutSession, fetchAnnualMembershipOffer, type AnnualMembershipOffer } from '../../utils/schedulingApi'
 import { getMemberSessionToken, persistMemberSession, PORTAL_SESSION_CHANGED, type PortalAccount } from '../../utils/portalSession'
-import { ADULT_BOOKING_PROGRAM, isAdultBookingProgram } from '../../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, getScopedDropInProgram, isAdultBookingProgram } from '../../utils/publicBookingPrograms'
 
 const money = (cents: number) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(cents / 100)
 const membershipSettled = (status?: string) => status === 'completed' || status === 'already_active'
@@ -157,7 +157,8 @@ export default function DropInSignup({ session, onCancel }: { session: DropInSes
         returnUrl.searchParams.set('signupDate', session.date)
         returnUrl.searchParams.set('athlete', String(memberId))
         returnUrl.searchParams.set('trial', '0')
-        if (isAdultBookingProgram(session.programName)) returnUrl.searchParams.set('program', ADULT_BOOKING_PROGRAM)
+        const program = getScopedDropInProgram(params.get('program')) ?? (isAdultBookingProgram(session.programName) ? ADULT_BOOKING_PROGRAM : null)
+        if (program) returnUrl.searchParams.set('program', program)
         const checkout = await createAnnualMembershipCheckoutSession(token, {
           memberId,
           successUrl: `${returnUrl.href}&membership=paid&session_id={CHECKOUT_SESSION_ID}`,

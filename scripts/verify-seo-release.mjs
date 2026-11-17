@@ -29,8 +29,8 @@ const programActions = new Map([
   ['/fit-and-flip', { path: '/enroll', program: 'Fit & Flip' }],
   ['/adult-gymnastics', { path: '/enroll', program: 'Adult Fitness & Acrobatics' }],
 ])
-const hasAdultDropInLink = (links) => links.some((url) => url.origin === HUB_ORIGIN &&
-  url.pathname === '/drop-in' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics')
+const hasDropInProgramLink = (links, program) => links.some((url) => url.origin === HUB_ORIGIN &&
+  url.pathname === '/drop-in' && url.searchParams.get('program') === program)
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -364,7 +364,7 @@ const verifyHtml = (
         `${label}: missing a crawlable program link to ${path} near the main heading`)
     }
     if (pagePath === '/drop-in') {
-      assert(hasAdultDropInLink(links), `${label}: missing a link to adult drop-in dates near the main heading`)
+      assert(hasDropInProgramLink(links, 'Adult Fitness & Acrobatics'), `${label}: missing a link to adult drop-in dates near the main heading`)
     }
   }
 
@@ -393,9 +393,13 @@ const verifyHtml = (
       const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/<h3\b[^>]*>Speed and agility for youth sports<\/h3>/i.test(speedAgility),
         `${label}: missing the crawlable speed and agility heading at #speed-agility`)
+      const strength = mainHtml.match(/<article\b[^>]*\sid=["']strength["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(/<h3\b[^>]*>Youth strength training<\/h3>/i.test(strength),
+        `${label}: missing the crawlable strength training heading at #strength`)
+      assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
     }
     if (pagePath === '/adult-gymnastics') {
-      assert(hasAdultDropInLink(mainLinks), `${label}: missing a crawlable link for single-class adult bookings`)
+      assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
     }
     if (pagePath === '/') {
       for (const path of HUB_PROGRAM_PATHS) {
@@ -452,6 +456,8 @@ const verifyHtml = (
     } else {
       assert(links.some((url) => url.href === fitAndFlipCanonical),
         `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
+      assert(links.some((url) => url.href === `${fitAndFlipCanonical}#strength`),
+        `${label}: missing a crawlable link from the guide to youth strength training`)
       assert(
         links.some((url) =>
           url.origin === HUB_ORIGIN &&

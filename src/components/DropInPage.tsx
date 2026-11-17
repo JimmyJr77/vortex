@@ -6,7 +6,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import { CalendarDays, CheckCircle2, LayoutGrid, Loader2, Search, X } from 'lucide-react'
 import { checkoutDropIn, fetchDropIns, registerDropIn, type DropInBenefits, type DropInClass, type DropInSession } from '../utils/dropInApi'
 import { fetchClassesOffered, type PublicProgramOffered } from '../utils/publicClassesApi'
-import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, getPublicBookingPrograms, isAdultBookingProgram } from '../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, getPublicBookingPrograms, getScopedDropInProgram, isAdultBookingProgram } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getLoggedInMemberAccount, getMemberSessionToken } from '../utils/portalSession'
 import { formatPhoneForDisplay } from '../utils/phoneUtils'
@@ -16,6 +16,27 @@ import EnrollmentStartDateField from './enroll/EnrollmentStartDateField'
 import './DropInPage.css'
 
 const DropInSignup = lazy(() => import('./signup/DropInSignup'))
+
+const SCOPED_DROP_IN_COPY = {
+  [ADULT_BOOKING_PROGRAM]: {
+    heading: 'Adult gymnastics drop-ins.',
+    intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie.',
+    programHref: '/adult-gymnastics',
+    programLink: 'adult gymnastics class times',
+    datesHeading: 'Available Typhoons drop-in dates',
+    empty: 'There are no Typhoons drop-in openings right now.',
+    contactLink: 'Ask about adult gymnastics',
+  },
+  [FIT_AND_FLIP_BOOKING_PROGRAM]: {
+    heading: 'Fit & Flip drop-ins.',
+    intro: 'Reserve one coach-led Cyclones class in Bowie. Choose a date for your child’s age group, 8–11 or 12–15.',
+    programHref: '/fit-and-flip',
+    programLink: 'Fit & Flip class options',
+    datesHeading: 'Available Cyclones drop-in dates',
+    empty: 'There are no Cyclones drop-in openings right now.',
+    contactLink: 'Ask about Fit & Flip',
+  },
+} as const
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`
 const prettyDate = (date: string) => new Intl.DateTimeFormat('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }).format(new Date(`${date}T12:00:00`))
@@ -44,7 +65,8 @@ function DropInSessionOption({ session, alternative = false, showClassName = fal
 
 export default function DropInPage() {
   const [params, setParams] = useSearchParams()
-  const wantsAdultClasses = isAdultBookingProgram(params.get('program'))
+  const scopedProgram = getScopedDropInProgram(params.get('program'))
+  const scopedCopy = scopedProgram ? SCOPED_DROP_IN_COPY[scopedProgram] : null
   const signupSlotGroupId = Number(params.get('signupSlot'))
   const signupDate = params.get('signupDate')
   const bookingId = Number(params.get('booking'))
@@ -118,7 +140,7 @@ export default function DropInPage() {
     let active = true
     setLoading(true)
     setError(null)
-    Promise.all([wantsAdultClasses ? null : fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
+    Promise.all([scopedProgram ? null : fetchClassesOffered(), fetchDropIns()]).then(([catalog, data]) => {
       if (!active) return
       const dropInClassById = new Map((data.classes ?? []).map((row) => [row.classId, row]))
       const publicPrograms = catalog ? getPublicBookingPrograms(catalog.programs) : []
@@ -146,11 +168,11 @@ export default function DropInPage() {
     })
     // Refresh after account/membership checkout; typed emails never resolve account benefits.
     return () => { active = false }
-  }, [catalogVersion, wantsAdultClasses])
+  }, [catalogVersion, scopedProgram])
 
-  const adultSessions = useMemo(() => sessions
-    .filter((session) => isAdultBookingProgram(session.programName) && !session.excludedFromDropIns && !session.isFull)
-    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)), [sessions])
+  const scopedSessions = useMemo(() => scopedProgram ? sessions
+    .filter((session) => getScopedDropInProgram(session.programName) === scopedProgram && !session.excludedFromDropIns && !session.isFull)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)) : [], [sessions, scopedProgram])
 
   const programSections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
@@ -184,7 +206,7 @@ export default function DropInPage() {
     setError(null)
     if (!memberToken) {
       const signupParams = new URLSearchParams({ signupSlot: String(session.slotGroupId), signupDate: session.date })
-      if (wantsAdultClasses) signupParams.set('program', ADULT_BOOKING_PROGRAM)
+      if (scopedProgram) signupParams.set('program', scopedProgram)
       setParams(signupParams)
       window.scrollTo({ top: 0, behavior: 'smooth' })
       return
@@ -193,7 +215,8 @@ export default function DropInPage() {
   }
 
   const closeSignup = (programName: string | null = null) => {
-    setParams(wantsAdultClasses || isAdultBookingProgram(programName) ? { program: ADULT_BOOKING_PROGRAM } : {})
+    const program = scopedProgram ?? (isAdultBookingProgram(programName) ? ADULT_BOOKING_PROGRAM : null)
+    setParams(program ? { program } : {})
     setSelectedClassId(null)
     setError(null)
     setCatalogVersion(current => current + 1)
@@ -213,7 +236,8 @@ export default function DropInPage() {
   }
 
   if (signupSlotGroupId > 0 && signupDate) {
-    const signupSession = sessions.find((session) => session.slotGroupId === signupSlotGroupId && session.date === signupDate)
+    const signupSession = sessions.find((session) => session.slotGroupId === signupSlotGroupId && session.date === signupDate &&
+      (!scopedProgram || getScopedDropInProgram(session.programName) === scopedProgram))
     return <div className="np-drop-in-page min-h-screen">
       <section className="np-drop-in-hero">
         <div className="np-drop-in-container">
@@ -244,10 +268,13 @@ export default function DropInPage() {
     <section className="np-drop-in-hero">
       <div className="np-drop-in-container">
         <p className="np-drop-in-eyebrow">Gymnastics &amp; athletic development · Bowie, MD</p>
-        <h1>{wantsAdultClasses ? 'Adult gymnastics drop-ins.' : 'Drop-in classes.'}</h1>
-        {wantsAdultClasses ? <p className="np-drop-in-intro">
-          Reserve one coach-led Typhoons class for adults 18 and up in Bowie. For recurring enrollment, see{' '}
-          <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics class times</Link>.
+        <h1>{scopedCopy?.heading ?? 'Drop-in classes.'}</h1>
+        {scopedCopy ? <p className="np-drop-in-intro">
+          {scopedCopy.intro} For recurring enrollment, see{' '}
+          <Link className="font-semibold underline underline-offset-4" to={scopedCopy.programHref}>{scopedCopy.programLink}</Link>.
+          {scopedProgram === FIT_AND_FLIP_BOOKING_PROGRAM && <>{' '}
+            <Link className="font-semibold underline underline-offset-4" to="/drop-in">Browse all youth drop-ins</Link>.
+          </>}
         </p> : <p className="np-drop-in-intro">
           Find an available single-day class or schedule a make-up. See{' '}
           <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link> and{' '}
@@ -282,14 +309,14 @@ export default function DropInPage() {
         <div className="rounded-xl border bg-white p-4"><div className="text-sm text-gray-500">Additional free passes</div><div className="font-bold">{(benefits.adminCreditsRemaining ?? 0) + (benefits.freePassesRemaining ?? 0)} remaining</div></div>
       </div>}
 
-      {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : wantsAdultClasses ? (
-        <section aria-labelledby="adult-drop-in-dates" className="space-y-4">
-          <h2 id="adult-drop-in-dates" className="text-2xl font-bold text-gray-900">Available Typhoons drop-in dates</h2>
-          {error || adultSessions.length === 0 ? <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">
-            {error ? 'We couldn’t load the current drop-in dates.' : 'There are no Typhoons drop-in openings right now.'}{' '}
-            <Link className="font-semibold text-vortex-red underline" to="/contact">Ask about adult gymnastics</Link>.
+      {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : scopedCopy ? (
+        <section aria-labelledby="program-drop-in-dates" className="space-y-4">
+          <h2 id="program-drop-in-dates" className="text-2xl font-bold text-gray-900">{scopedCopy.datesHeading}</h2>
+          {error || scopedSessions.length === 0 ? <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">
+            {error ? 'We couldn’t load the current drop-in dates.' : scopedCopy.empty}{' '}
+            <Link className="font-semibold text-vortex-red underline" to="/contact">{scopedCopy.contactLink}</Link>.
           </p> : <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {adultSessions.map((session) => <li key={`${session.slotGroupId}:${session.date}:${session.startTime}`}>
+            {scopedSessions.map((session) => <li key={`${session.slotGroupId}:${session.date}:${session.startTime}`}>
               <DropInSessionOption session={session} showClassName onSelect={selectSession} />
             </li>)}
           </ul>}

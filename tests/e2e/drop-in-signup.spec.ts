@@ -5,6 +5,8 @@ const signupUrl = `/drop-in?signupSlot=200&signupDate=${classDate}`
 const resumeUrl = `${signupUrl}&athlete=102`
 const adultProgram = 'Adult Fitness & Acrobatics'
 const adultDropInUrl = `/drop-in?program=${encodeURIComponent(adultProgram)}`
+const fitFlipProgram = 'Fit & Flip'
+const fitFlipDropInUrl = `/drop-in?program=${encodeURIComponent(fitFlipProgram)}`
 const account = { id: 101, memberId: 101, firstName: 'Test', lastName: 'Parent', email: 'dropin@example.test', availablePortals: ['member'] }
 const waivers = [
   { id: 11, name: 'Participation waiver', version: '1', body: 'Fixture waiver text.', is_required: true, waiver_type: 'LIABILITY' },
@@ -29,6 +31,13 @@ const adultDropInClass = {
 const adultSession = {
   ...session, ...adultDropInClass, slotGroupId: 201, startTime: '19:00', endTime: '20:30',
 }
+const fitFlipDropInClass = {
+  ...dropInClass, formId: 7, classId: 14, className: 'Cyclones (8-11)',
+  classDescription: null, programId: 9, programName: fitFlipProgram, ageMin: 8, ageMax: 11,
+}
+const fitFlipSession = {
+  ...session, ...fitFlipDropInClass, slotGroupId: 202, startTime: '18:00', endTime: '19:30',
+}
 
 async function mockDropInApi(page: Page, options: {
   membershipConfirmationFails?: boolean
@@ -39,6 +48,7 @@ async function mockDropInApi(page: Page, options: {
   allowsFreeTrial?: boolean
   membershipRequiresReview?: boolean
   includeAdultClass?: boolean
+  includeFitFlipClass?: boolean
 } = {}) {
   const submitted: { path: string; body: Record<string, unknown> }[] = []
   const catalogMemberIds: string[] = []
@@ -51,18 +61,29 @@ async function mockDropInApi(page: Page, options: {
     if (body) submitted.push({ path, body })
     const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
     if (path === '/api/public/classes-offered') {
-      const programs = [{
+      const gymnasticsProgram = {
         id: 5, displayName: 'Developmental Gymnastics', description: null,
         classes: [{ id: 4, displayName: 'Beginner Gymnastics', formId: 3, ageMin: 6, ageMax: 12, skillLevel: 'beginner' }],
-      }]
-      return json({ programs: options.includeAdultClass ? [...programs, {
+      }
+      const adultProgramOption = {
         id: adultDropInClass.programId, displayName: adultProgram, description: null,
         classes: [{
           id: adultDropInClass.classId, displayName: adultDropInClass.className, formId: adultDropInClass.formId,
           ageMin: adultDropInClass.ageMin, ageMax: null, skillLevel: null,
           enrollVisible: false, excludeFromDropIns: false,
         }],
-      }] : programs })
+      }
+      const fitFlipProgramOption = {
+        id: fitFlipDropInClass.programId, displayName: fitFlipProgram, description: null,
+        classes: [{
+          id: fitFlipDropInClass.classId, displayName: fitFlipDropInClass.className, formId: fitFlipDropInClass.formId,
+          ageMin: fitFlipDropInClass.ageMin, ageMax: fitFlipDropInClass.ageMax, skillLevel: 'beginner',
+        }],
+      }
+      return json({ programs: [gymnasticsProgram,
+        ...(options.includeAdultClass ? [adultProgramOption] : []),
+        ...(options.includeFitFlipClass ? [fitFlipProgramOption] : []),
+      ] })
     }
     if (path === '/api/public/drop-ins') {
       if (url.searchParams.has('memberId')) {
@@ -72,11 +93,17 @@ async function mockDropInApi(page: Page, options: {
       const selectedAthlete = url.searchParams.has('memberId')
       const youthSession = { ...session, allowsFreeTrial: options.allowsFreeTrial, isFull: Boolean(options.fullOnRefresh && selectedAthlete) }
       return json({
-        classes: options.includeAdultClass ? [dropInClass, adultDropInClass] : [dropInClass],
-        sessions: options.includeAdultClass ? [youthSession, adultSession,
-          { ...adultSession, date: '2027-01-19', isFull: true, spotsRemaining: 0 },
-          { ...adultSession, date: '2027-01-26', excludedFromDropIns: true },
-        ] : [youthSession],
+        classes: [dropInClass,
+          ...(options.includeAdultClass ? [adultDropInClass] : []),
+          ...(options.includeFitFlipClass ? [fitFlipDropInClass] : []),
+        ],
+        sessions: [youthSession,
+          ...(options.includeAdultClass ? [adultSession,
+            { ...adultSession, date: '2027-01-19', isFull: true, spotsRemaining: 0 },
+            { ...adultSession, date: '2027-01-26', excludedFromDropIns: true },
+          ] : []),
+          ...(options.includeFitFlipClass ? [fitFlipSession] : []),
+        ],
         benefits: {
           annualMember: membershipActive, annualCreditsRemaining: membershipActive ? 4 : 0,
           adminCreditsRemaining: 0, freePassesRemaining: 0, trialAvailable: !(options.trialUsedOnRefresh && selectedAthlete), discountPercent: membershipActive ? 10 : 0,
@@ -227,6 +254,43 @@ test('general drop-in catalog retains its curated programs when Typhoons is avai
   await expect(page.getByRole('combobox', { name: 'Program', exact: true }).locator('option')).toHaveText([
     'All programs', 'Developmental Gymnastics',
   ])
+})
+
+test('Fit & Flip drop-in link shows Cyclones dates and keeps the program through signup', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2027-01-10T17:00:00Z'))
+  await mockDropInApi(page, { includeFitFlipClass: true })
+  await page.goto('/fit-and-flip')
+  await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
+  const findDates = page.getByRole('link', { name: 'See Fit & Flip drop-in dates', exact: true })
+  await expect(findDates).toHaveAttribute('href', fitFlipDropInUrl)
+  await findDates.click()
+  await expect(page).toHaveURL(fitFlipDropInUrl)
+
+  const availableDates = page.getByRole('heading', { name: 'Available Cyclones drop-in dates', exact: true })
+  const dateOption = page.getByRole('button', { name: /Cyclones.*Jan 12, 2027.*6:00 PM.*7:30 PM/ })
+  const cyclones = page.getByRole('button', { name: /Cyclones.*View drop-in times/ })
+  const gymnastics = page.getByRole('button', { name: /Beginner Gymnastics.*View drop-in times/ })
+  await expect(page.getByRole('heading', { name: 'Fit & Flip drop-ins.', exact: true })).toBeVisible()
+  await expect(availableDates).toBeVisible()
+  await expect(dateOption).toBeVisible()
+  await expect(cyclones).toHaveCount(0)
+  await expect(gymnastics).toHaveCount(0)
+
+  await dateOption.click()
+  await expect(page.getByRole('heading', { name: 'Register for your drop-in' })).toBeVisible()
+  await expect(page).toHaveURL(url => url.pathname === '/drop-in' &&
+    url.searchParams.get('program') === fitFlipProgram &&
+    url.searchParams.get('signupSlot') === '202' && url.searchParams.get('signupDate') === classDate)
+  await page.getByRole('button', { name: 'Cancel', exact: true }).click()
+  await expect(page).toHaveURL(url => url.pathname === '/drop-in' && url.searchParams.get('program') === fitFlipProgram && !url.searchParams.has('signupSlot'))
+  await expect(availableDates).toBeVisible()
+  await expect(dateOption).toBeVisible()
+  await expect(gymnastics).toHaveCount(0)
+
+  await page.getByRole('link', { name: 'Browse all youth drop-ins', exact: true }).click()
+  await expect(page).toHaveURL('/drop-in')
+  await expect(cyclones).toBeVisible()
+  await expect(gymnastics).toBeVisible()
 })
 
 test('drop-in-only schedule hides the free trial and sends the displayed paid booking', async ({ page }) => {

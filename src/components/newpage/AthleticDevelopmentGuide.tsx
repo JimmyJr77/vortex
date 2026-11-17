@@ -87,6 +87,7 @@ export default function AthleticDevelopmentGuide() {
             <li><strong>Speed.</strong> A child might practice a short start, rest, and try again. The coach watches whether the first few steps stay consistent as the child gets faster.</li>
             <li><strong>Body control.</strong> A child might practice a small jump and steady landing. Once the landing is repeatable, the coach can connect the jump to another tumbling movement.</li>
           </ul>
+          <p>See how Vortex teaches <Link to="/fit-and-flip#strength">youth strength training in Fit &amp; Flip</Link>.</p>
         </section>
 
         <section id="first-class">

@@ -1,7 +1,7 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
-import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF } from '../utils/publicBookingPrograms'
+import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
 
@@ -35,7 +35,6 @@ type PublicProgram = {
 }
 
 const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
-const FIT_AND_FLIP_ENROLLMENT_HREF = '/enroll?program=Fit%20%26%20Flip'
 const FREE_TRIAL_ACTION = { href: '/#free-trial', label: 'Try a free class', analyticsKey: 'free_trial_section' }
 
 export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
@@ -118,14 +117,14 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     name: 'Fit & Flip Youth Athletic Training',
     path: '/fit-and-flip',
     title: 'Youth Fitness & Sports Performance Training in Bowie, MD | Vortex',
-    description: 'Fit & Flip offers youth fitness and sports performance training in Bowie, MD. Beginners and young athletes build strength, power, and body control.',
+    description: 'Fit & Flip offers coached youth fitness, strength training, and tumbling in Bowie, MD. Find a Cyclones trial, drop-in, or recurring class for ages 8–15.',
     heading: 'Youth athletic training in Bowie, MD',
     intro: 'Fit & Flip is a coached fitness class for kids and teens. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
     image: '/fit-and-flip-card.webp',
     imageAlt: 'A Vortex athlete practicing aerial body control on a trampoline',
     imageWidth: 900,
     imageHeight: 675,
-    primaryAction: { href: FIT_AND_FLIP_ENROLLMENT_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
+    primaryAction: { href: FIT_AND_FLIP_BOOKING_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
     secondaryAction: FREE_TRIAL_ACTION,
     sections: [
       {
@@ -134,9 +133,9 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         description:
           'The Athleticism Accelerator is Vortex’s framework for developing eight qualities of movement. It covers strength, explosiveness, speed, agility, flexibility and mobility, balance, coordination, and body control. Fit & Flip organizes that work around the Triad. In a jump, strength creates force, explosiveness helps the athlete take off quickly, and body control helps them land in balance. Mobility and coordination help the athlete get into position and move smoothly through the jump.',
         topics: [
-          { id: 'strength', heading: 'Strength', description: 'Progressive, coached resistance work develops the ability to push, pull, and support the body. That foundation helps an athlete hold a stable shape in gymnastics or stay balanced when they change direction on the court.' },
+          { id: 'strength', heading: 'Youth strength training', description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. An athlete might start with bodyweight and add resistance once they can repeat the movement with control. That foundation helps them hold a stable shape in gymnastics or stay balanced when changing direction on the court.' },
           { id: 'explosiveness', heading: 'Explosiveness', description: 'Jumps, takeoffs, and dynamic movement teach athletes to produce force quickly. That carries over to a first step on the field or a stronger takeoff in cheer and tumbling.' },
-          { id: 'body-control', heading: 'Body control', description: 'Gymnastics-inspired work challenges coordination, balance, and awareness in the air. Athletes practice staying organized through rotation and arriving at a controlled landing.' },
+          { id: 'body-control', heading: 'Body control and tumbling', description: 'Coaches use trampolines and tumble tracks to teach athletes how to hold a body shape and land steadily. Beginners can start with those skills and work toward connected tumbling as their control improves.' },
         ],
       },
       {
@@ -161,12 +160,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'first-fit-flip-class',
             heading: 'Find a first class',
             description:
-              'Fit & Flip’s 90-minute Cyclones classes are grouped by age, 8–11 and 12–15. Browse current class times or choose Fit & Flip in the free trial finder and enter your child’s age. Contact Vortex if no trial dates are available or your child falls outside those age groups.',
+              'Fit & Flip’s 90-minute Cyclones classes are grouped by age, 8–11 and 12–15. Choose one available date for a trial or drop-in, or browse recurring classes if you’re ready for a weekly class. Contact Vortex if your child falls outside those age groups.',
           },
         ],
         links: [
-          { href: FIT_AND_FLIP_ENROLLMENT_HREF, label: 'See Fit & Flip class times', analyticsKey: 'browse_classes' },
+          { href: FIT_AND_FLIP_BOOKING_HREF, label: 'See recurring Fit & Flip classes', analyticsKey: 'browse_classes' },
           { ...FREE_TRIAL_ACTION, label: 'Look for a Fit & Flip trial' },
+          { href: FIT_AND_FLIP_DROP_IN_HREF, label: 'See Fit & Flip drop-in dates', analyticsKey: 'browse_drop_ins' },
           { href: '/contact', label: 'Ask about class options', analyticsKey: 'inquire' },
           { href: ATHLETIC_DEVELOPMENT_GUIDE.path, label: 'Read the parent guide to athletic development', analyticsKey: 'read_athletic_development_guide' },
         ],

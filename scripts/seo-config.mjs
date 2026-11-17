@@ -11,7 +11,7 @@ export const HUB_ORIGIN = 'https://vortexathletics.com'
 
 const HUB_PROGRAM_ENTRIES = [
   { path: '/gymnastics', lastmod: '2026-11-17' },
-  { path: '/fit-and-flip', lastmod: '2026-11-16' },
+  { path: '/fit-and-flip', lastmod: '2026-11-17' },
   { path: '/adult-gymnastics', lastmod: '2026-11-17' },
 ]
 export const HUB_PROGRAM_PATHS = HUB_PROGRAM_ENTRIES.map(({ path }) => path)

@@ -1,9 +1,13 @@
 import type { PublicClassOffered, PublicProgramOffered } from './publicClassesApi'
 
+export const FIT_AND_FLIP_BOOKING_PROGRAM = 'Fit & Flip'
+export const FIT_AND_FLIP_BOOKING_HREF = `/enroll?program=${encodeURIComponent(FIT_AND_FLIP_BOOKING_PROGRAM)}`
+export const FIT_AND_FLIP_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(FIT_AND_FLIP_BOOKING_PROGRAM)}`
+
 const PUBLIC_BOOKING_PROGRAMS = [
   { name: 'Developmental Gymnastics', aliases: ['Development Gymnastics', 'Developmental Gymnastics'] },
   { name: 'Vortex Gymnastics Team', aliases: ['Vortex Gymnastics Team'] },
-  { name: 'Fit & Flip', aliases: ['Fit & Flip'] },
+  { name: FIT_AND_FLIP_BOOKING_PROGRAM, aliases: [FIT_AND_FLIP_BOOKING_PROGRAM] },
 ] as const
 
 export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
@@ -28,6 +32,11 @@ export function getAdultBookingProgram(programs: readonly PublicProgramOffered[]
 /** Public booking labels only; retain catalog IDs, pricing, and portal names. */
 export function getPublicBookingProgramName(name: string): string | null {
   return PUBLIC_BOOKING_PROGRAMS.find(program => program.aliases.some(alias => normalize(alias) === normalize(name)))?.name ?? null
+}
+
+export function getScopedDropInProgram(name: string | null) {
+  if (isAdultBookingProgram(name)) return ADULT_BOOKING_PROGRAM
+  return name && getPublicBookingProgramName(name) === FIT_AND_FLIP_BOOKING_PROGRAM ? FIT_AND_FLIP_BOOKING_PROGRAM : null
 }
 
 export function getPublicBookingPrograms<T extends { displayName: string; enrollmentSortOrder?: number | null }>(programs: readonly T[]): T[] {
