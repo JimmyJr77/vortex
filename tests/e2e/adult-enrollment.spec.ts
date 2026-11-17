@@ -98,6 +98,11 @@ test('adult gymnastics, general enrollment, and published form links open the cu
   await expect(page.getByRole('link', { name: 'Ask about adult gymnastics classes' })).toHaveAttribute('href', '/contact')
   await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveCount(0)
 
+  const legacyClassSelection = `?form=${adultFormId}&offeringId=701&slotGroupId=${slot.slotGroupId}&timeSlotId=${slot.id}&utm_source=legacy#classes`
+  await page.goto(`/schedule${legacyClassSelection}`)
+  await expect(page).toHaveURL(`/enroll${legacyClassSelection}`)
+  await expect(page.getByRole('heading', { name: adultName })).toBeVisible()
+
   await page.goto('/enroll')
   await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveAttribute('href', '/#free-trial')
   await expect(page.getByRole('heading', { name: 'Cyclones' })).toBeVisible()

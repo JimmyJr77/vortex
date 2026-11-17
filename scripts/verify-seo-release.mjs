@@ -14,6 +14,8 @@ import {
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
   PRESCHOOL_GYMNASTICS_GUIDE_PATH,
+  RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS,
+  RETIRED_LANDING_SNAPSHOT_PATHS,
   RETURNING_TO_GYMNASTICS_GUIDE_PATH,
   SITE_NAME,
   SPA_ONLY_PATHS,
@@ -106,6 +108,10 @@ const normalizedUrl = (value) => {
 
 const canonicalFor = (origin, path) => `${origin}${path === '/' ? '' : path}`
 const snapshotAliasFor = (path) => `${path === '/' ? '' : path}/index.html`
+const retiredSnapshotRoutes = [
+  ...RETIRED_LANDING_SNAPSHOT_PATHS.map(path => [snapshotAliasFor(path), legacyLandingRedirects[path]]),
+  ...Object.entries(RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS),
+]
 
 const anchorUrls = (html) => tags(html, 'a')
   .map((tag) => attribute(tag, 'href'))
@@ -992,8 +998,9 @@ if (live) {
     await verifyLiveRedirect(new URL(origin), new URL(HUB_ORIGIN))
   }
 
-  const verifyTrackedRedirect = async (path, target) => {
+  const verifyTrackedRedirect = async (path, target, query = {}) => {
     const destination = new URL(target, HUB_ORIGIN)
+    for (const [key, value] of Object.entries(query)) destination.searchParams.set(key, value)
     destination.searchParams.set('utm_source', 'seo-release-check')
     for (const origin of [HUB_ORIGIN, ...aliasOrigins]) {
       const source = new URL(path, origin)
@@ -1014,12 +1021,19 @@ if (live) {
     await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path])
   }
 
+  const bookingQuery = { form: '42', offeringId: '3', slotGroupId: '5', timeSlotId: '6' }
+  for (const path of ['/schedule', '/scheduling']) {
+    await verifyTrackedRedirect(path, legacyLandingRedirects[path], bookingQuery)
+    await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path], bookingQuery)
+  }
+
   for (const path of [...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS]) {
     await verifyTrackedRedirect(`${path}/`, path)
   }
 
   await Promise.all(HUB_PRERENDER_PATHS.map((path) => verifyTrackedRedirect(snapshotAliasFor(path), path)))
-  for (const path of ['/__seo-release-404-check__/index.html', '/blog/__seo-release-404-check__/index.html', '/gymnastics/indexXhtml']) {
+  await Promise.all(retiredSnapshotRoutes.map(([path, target]) => verifyTrackedRedirect(path, target)))
+  for (const path of ['/__seo-release-404-check__/index.html', '/blog/__seo-release-404-check__/index.html', '/gymnastics/indexXhtml', '/_gym/__seo-release-404-check__.html']) {
     const response = await fetch(new URL(path, HUB_ORIGIN), { redirect: 'manual' })
     await response.body?.cancel()
     assert(response.status === 404, `${path}: expected HTTP 404 for an unknown snapshot file, received ${response.status}`)
@@ -1132,6 +1146,7 @@ const snapshotRedirectRules = [
   [snapshotAliasFor('/'), '/'],
   [snapshotAliasFor(`/:page(${hubPages.join('|')})`), '/:page'],
   [snapshotAliasFor(`/blog/:article(${hubArticles.join('|')})`), '/blog/:article'],
+  ...retiredSnapshotRoutes,
 ]
 for (const [source, destination] of snapshotRedirectRules) {
   for (const host of ['vortexathletics.com', 'www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex-gymnastics.com']) {

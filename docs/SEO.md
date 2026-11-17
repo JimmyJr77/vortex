@@ -32,8 +32,12 @@ internal links, GBP links, Search Console submissions, or citations.
 
 - Legacy gymnastics slugs and retired campaigns redirect permanently to the
   relevant youth gymnastics section. Legacy sports performance and conditioning
-  slugs redirect to Fit & Flip. The retired gymnastics host transfers equivalent
-  paths to the athletics domain.
+  slugs redirect to Fit & Flip. The former summer training link goes to current
+  Fit & Flip starting options. The retired gymnastics host transfers equivalent
+  paths to the athletics domain. The legacy `/schedule` and `/scheduling` URLs
+  redirect to enrollment and preserve booking and campaign parameters.
+- The former build's public HTML snapshot URLs redirect to the corresponding
+  program pages, sections, or booking pages. Other snapshot paths return 404.
 - The adult program page links to recurring Typhoons enrollment and to the
   adult drop-in calendar. Typhoons drop-in registration offers a one-time
   trial when the date and athlete qualify. The homepage trial finder serves

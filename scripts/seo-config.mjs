@@ -51,6 +51,22 @@ export const HUB_SITEMAP_ENTRIES = [
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']
 
+// Published by the previous build as <path>/index.html. The current public
+// landing redirects supply their canonical destinations.
+export const RETIRED_LANDING_SNAPSHOT_PATHS = [
+  '/vortex-athletics', '/summer-athletic-training', '/value',
+  '/beginner-gymnastics', '/homeschool-gymnastics', '/artistic-gymnastics-early',
+  '/artistic-gymnastics-6-12', '/artistic-gymnastics-13-18', '/summer-camp-26',
+  '/acro-gymnastics', '/artistic-gymnastics', '/rhythmic-gymnastics',
+  '/trampoline-tumbling', '/aerobic-gymnastics',
+]
+
+export const RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS = {
+  '/_gym/index.html': '/',
+  '/_gym/read-board.html': '/read-board',
+  '/_gym/drop-in.html': '/drop-in',
+}
+
 export const SPA_SHELL_PATH = '/_seo/spa.html'
 export const SPA_ONLY_PATHS = [
   '/employee/payroll',

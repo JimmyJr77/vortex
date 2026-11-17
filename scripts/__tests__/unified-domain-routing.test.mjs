@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS, RETIRED_LANDING_SNAPSHOT_PATHS } from '../seo-config.mjs'
 
 const config = JSON.parse(readFileSync(new URL('../../vercel.json', import.meta.url), 'utf8'))
 const landingRedirects = JSON.parse(readFileSync(new URL('../../src/config/publicLandingRedirects.json', import.meta.url), 'utf8'))
@@ -80,7 +81,7 @@ test('operational links keep their path, query and fragment on the primary domai
   }
 })
 
-test('legacy marketing pages resolve directly to the corresponding unified section', () => {
+test('legacy pages resolve directly to the corresponding unified page or section', () => {
   const expected = {
     '/newpage': '/', '/sports': '/#programs',
     '/artistic-gymnastics-early': '/gymnastics#preschool', '/artistic-gymnastics-6-12': '/gymnastics#youth',
@@ -91,10 +92,11 @@ test('legacy marketing pages resolve directly to the corresponding unified secti
     '/aerobic-gymnastics': '/gymnastics#aerobic', '/beginner-gymnastics': '/gymnastics#beginner',
     '/homeschool-gymnastics': '/gymnastics#homeschool', '/vortex-athletics': '/fit-and-flip',
     '/athleticism-accelerator': '/fit-and-flip#athleticism-development',
-    '/strength-conditioning': '/fit-and-flip#strength', '/summer-athletic-training': '/fit-and-flip#choose-a-class',
+    '/strength-conditioning': '/fit-and-flip#strength', '/summer-athletic-training': '/fit-and-flip#training-fit',
+    '/schedule': '/enroll', '/scheduling': '/enroll',
     '/value': '/#approach', '/summer-camp-26': '/camp_interest',
   }
-  assert.deepEqual(landingRedirects, expected, 'Client-side navigation must use the same retired marketing paths and destinations')
+  assert.deepEqual(landingRedirects, expected, 'Client-side navigation must use the same retired paths and destinations')
   for (const host of ['vortexathletics.com', ...aliases]) {
     for (const [path, destination] of Object.entries(expected)) {
       const target = new URL(`${primary}${destination}`)
@@ -103,6 +105,33 @@ test('legacy marketing pages resolve directly to the corresponding unified secti
       assert.equal(resolve(`https://${host}${path}/?utm_source=legacy`), target.href)
     }
   }
+})
+
+test('retired schedule links preserve booking selection and campaign attribution', () => {
+  const queryAndHash = '?form=42&offeringId=3&slotGroupId=5&timeSlotId=6&utm_source=legacy#classes'
+  for (const host of ['vortexathletics.com', ...aliases]) {
+    for (const path of ['/schedule', '/scheduling']) {
+      assert.equal(nextLocation(`https://${host}${path}${queryAndHash}`), `${primary}/enroll${queryAndHash}`)
+    }
+  }
+  assert.equal(nextLocation(`https://vortex-basketball.com/schedule${queryAndHash}`),
+    `https://vortex-basketball.com/enroll${queryAndHash}`)
+})
+
+test('each published retired HTML snapshot goes to the matching public page in one configurable hop', () => {
+  const snapshotRoutes = [
+    ...RETIRED_LANDING_SNAPSHOT_PATHS.map(path => [`${path}/index.html`, landingRedirects[path]]),
+    ...Object.entries(RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS),
+  ]
+  for (const [source, destination] of snapshotRoutes) {
+    assert(destination, `Missing canonical destination for ${source}`)
+    const target = new URL(destination, primary)
+    target.searchParams.set('utm_source', 'legacy')
+    for (const host of ['vortexathletics.com', ...aliases]) {
+      assert.equal(nextLocation(`https://${host}${source}?utm_source=legacy`), target.href)
+    }
+  }
+  assert.equal(nextLocation(`${primary}/_gym/unpublished.html`), null)
 })
 
 test('public program and guide paths use one canonical form across hosts', () => {

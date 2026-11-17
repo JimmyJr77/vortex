@@ -364,7 +364,7 @@ function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
       /></Suspense>}
       <div id={isModernPublicPage && !programPage ? 'public-content' : undefined} role={isModernPublicPage && !isLeadRegistration && !programPage ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
       <Suspense fallback={<PageLoader />}>
-      <PublicSiteAnalytics disabled={Boolean((publicLandingRedirects as Record<string, string>)[location.pathname.toLowerCase().replace(/\/+$/, '')]) || ['/schedule', '/scheduling'].some(path => Boolean(matchPath(path, location.pathname)))} />
+      <PublicSiteAnalytics disabled={Boolean((publicLandingRedirects as Record<string, string>)[location.pathname.toLowerCase().replace(/\/+$/, '')])} />
         <Routes>
           <Route path="/" element={<NewPage isLoggedIn={Boolean(member) || isAdmin} onLogin={() => {
             if (member || isAdmin) {
@@ -421,8 +421,6 @@ function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
           <Route path="/support" element={<SupportPage />} />
           <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
           <Route path="/terms-of-service" element={<TermsOfServicePage />} />
-          <Route path="/scheduling" element={<Navigate to="/enroll" replace />} />
-          <Route path="/schedule" element={<Navigate to="/enroll" replace />} />
         </Routes>
       </Suspense>
       </div>
