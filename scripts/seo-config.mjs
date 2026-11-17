@@ -1,30 +1,33 @@
 /** Shared SEO data for build scripts (keep in sync with src/config/*.ts). */
 
-// Update only when indexable page content or search metadata changes. A stable,
-// truthful date is better than rewriting every <lastmod> on every deployment.
-export const SEO_CONTENT_LASTMOD = '2026-11-16'
-
 export const YOUTH_ATHLETIC_GUIDE_PATH = '/blog/athletic-development-young-athletes'
 export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = '/blog/youth-sports-bowie'
 
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
-export const HUB_PROGRAM_PATHS = ['/gymnastics', '/fit-and-flip', '/adult-gymnastics']
+const HUB_PROGRAM_ENTRIES = [
+  { path: '/gymnastics', lastmod: '2026-11-16' },
+  { path: '/fit-and-flip', lastmod: '2026-11-16' },
+  { path: '/adult-gymnastics', lastmod: '2026-11-16' },
+]
+export const HUB_PROGRAM_PATHS = HUB_PROGRAM_ENTRIES.map(({ path }) => path)
 
+// Use the date of the last known substantive update to each page's content or
+// metadata. Omit lastmod when that date cannot be confirmed.
 export const HUB_SITEMAP_ENTRIES = [
-  { path: '/', priority: '1.0', changefreq: 'weekly' },
-  ...HUB_PROGRAM_PATHS.map((path) => ({ path, priority: '0.8', changefreq: 'monthly' })),
-  { path: '/read-board', priority: '0.8', changefreq: 'daily' },
-  { path: '/enroll', priority: '0.8', changefreq: 'weekly' },
-  { path: '/drop-in', priority: '0.8', changefreq: 'daily' },
-  { path: '/contact', priority: '0.7', changefreq: 'monthly' },
+  { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-16' },
+  ...HUB_PROGRAM_ENTRIES.map((entry) => ({ ...entry, priority: '0.8', changefreq: 'monthly' })),
+  { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-16' },
+  { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
+  { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-16' },
+  { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-16' },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
-  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
-  { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly' },
+  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-16' },
+  { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-16' },
 ]
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']

@@ -8,7 +8,6 @@ import {
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
-  SEO_CONTENT_LASTMOD,
   SITE_NAME,
   SPA_ONLY_PATHS,
   SPA_SHELL_PATH,
@@ -144,8 +143,25 @@ const extractUrls = (xml) => [...xml.matchAll(/<loc>(.*?)<\/loc>/g)].map((match)
 const extractSitemapRows = (xml) =>
   [...xml.matchAll(/<url>([\s\S]*?)<\/url>/g)].map((match) => ({
     loc: match[1].match(/<loc>(.*?)<\/loc>/)?.[1] ?? '',
-    lastmod: match[1].match(/<lastmod>(.*?)<\/lastmod>/)?.[1] ?? '',
+    lastmod: match[1].match(/<lastmod>(.*?)<\/lastmod>/)?.[1],
+    lastmodCount: tags(match[1], 'lastmod').length,
   }))
+
+function verifySitemapLastmod(label, xml, { origin, entries }) {
+  const rows = new Map(extractSitemapRows(xml).map((row) => [row.loc, row]))
+  for (const { path, lastmod } of entries) {
+    const url = canonicalFor(origin, path)
+    const row = rows.get(url)
+    if (lastmod === undefined) {
+      assert(row?.lastmodCount === 0, `${label}: ${url} should omit lastmod`)
+    } else {
+      const date = new Date(`${lastmod}T00:00:00Z`)
+      assert(/^\d{4}-\d{2}-\d{2}$/.test(lastmod) && Number.isFinite(date.getTime()) &&
+        date.toISOString().slice(0, 10) === lastmod, `${label}: invalid configured lastmod for ${url}`)
+      assert(row?.lastmodCount === 1 && row.lastmod === lastmod, `${label}: ${url} must have one lastmod of ${lastmod}`)
+    }
+  }
+}
 
 const expectedSets = [
   {
@@ -468,16 +484,12 @@ const verifyHtml = (
 for (const set of expectedSets) {
   const xml = readFileSync(join(root, set.sitemapPath), 'utf8')
   const actualUrls = extractUrls(xml)
-  const rows = extractSitemapRows(xml)
   const expectedUrls = set.entries.map(({ path }) => canonicalFor(set.origin, path))
 
   assert(actualUrls.length === expectedUrls.length, `${set.label} sitemap: found ${actualUrls.length}, expected ${expectedUrls.length}`)
   assert(new Set(actualUrls).size === actualUrls.length, `${set.label} sitemap: duplicate URLs found`)
   assert(expectedUrls.every((url) => actualUrls.includes(url)), `${set.label} sitemap: URL set differs from SEO configuration`)
-  assert(
-    rows.every((row) => row.lastmod === SEO_CONTENT_LASTMOD),
-    `${set.label} sitemap: every lastmod must be ${SEO_CONTENT_LASTMOD}`,
-  )
+  verifySitemapLastmod(`${set.label} sitemap`, xml, set)
   for (const url of actualUrls) {
     try {
       assert(new URL(url).origin === set.origin, `${set.label} sitemap: cross-host URL ${url}`)
@@ -526,11 +538,13 @@ for (const set of expectedSets) {
       `${set.label} live sitemap resolved to ${sitemapResponse.url}, expected ${set.remoteSitemap}`,
     )
     if (sitemapResponse.ok) {
-      const remoteUrls = extractUrls(await sitemapResponse.text())
+      const remoteXml = await sitemapResponse.text()
+      const remoteUrls = extractUrls(remoteXml)
       assert(
         remoteUrls.length === expectedUrls.length && expectedUrls.every((url) => remoteUrls.includes(url)),
         `${set.label} live sitemap does not match the release sitemap`,
       )
+      verifySitemapLastmod(`${set.label} live sitemap`, remoteXml, set)
     }
 
     const robotsResponse = await fetch(set.remoteRobots, { redirect: 'follow' })
