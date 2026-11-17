@@ -192,6 +192,39 @@ const isCalendarDate = (value) => {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
+function verifyYouthBookingSummary(label, schedule, { path, program }) {
+  const summary = schedule.match(/<div\b[^>]*\sid=["']youth-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
+  assert(summary, `${label}: the youth booking summary must be inside its program schedule`)
+  if (!summary) return
+
+  const checkTime = summary.match(/\bCatalog checked\s+(<time\b[^>]*>)/i)?.[1] ?? ''
+  assert(isCalendarDate(attribute(checkTime, 'datetime')),
+    `${label}: the youth booking summary must show a valid catalog check date`)
+
+  const classHeadings = [...summary.matchAll(/<h4\b[^>]*>[\s\S]*?<\/h4>/gi)]
+  assert(classHeadings.length > 0 && classHeadings.every(([heading]) => {
+    const links = anchorUrls(heading)
+    const url = links[0]
+    const form = url?.searchParams.get('form') ?? ''
+    return links.length === 1 && url.origin === HUB_ORIGIN && url.pathname === path &&
+      url.searchParams.get('program') === program && /^[1-9]\d*$/.test(form) && Number.isSafeInteger(Number(form))
+  }), `${label}: every youth booking class must link to its published enrollment form in ${program}`)
+  const excludedDropIns = [...summary.matchAll(/<dt\b[^>]*>\s*Nonmember drop-in\s*<\/dt>\s*<dd\b[^>]*>\s*Unavailable\s*<\/dd>/gi)].length
+  assert(hasDropInProgramLink(anchorUrls(summary), program) || excludedDropIns === classHeadings.length,
+    `${label}: the youth booking summary must link to the ${program} drop-in calendar when classes accept drop-ins`)
+
+  const monthlyAmounts = [...summary.matchAll(/<dt\b[^>]*>\s*Base monthly tuition\s*<\/dt>\s*<dd\b[^>]*>([\s\S]*?)<\/dd>/gi)]
+  if (monthlyAmounts.some(([, amount]) => /\$\d/.test(amount))) {
+    assert(/Paid monthly enrollment requires an active annual membership/i.test(summary),
+      `${label}: the youth booking summary must explain the annual membership requirement for monthly tuition`)
+  }
+
+  const visibleText = decodeHtml(summary.replace(/<[^>]*>/g, ' '))
+  if (/\b\d{1,2}:\d{2}\b/.test(visibleText)) {
+    assert(/\bEastern\b/.test(visibleText), `${label}: the youth booking summary must identify class times as Eastern`)
+  }
+}
+
 function verifySitemapEntries(label, xml, { origin, entries }) {
   const rows = new Map(extractSitemapRows(xml).map((row) => [row.loc, row]))
   assert(attribute(tags(xml, 'urlset')[0] ?? '', 'xmlns:image') === IMAGE_SITEMAP_NAMESPACE,
@@ -609,6 +642,7 @@ const verifyHtml = (
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me.*preschool/.test(schedule),
         `${label}: missing the crawlable youth gymnastics schedule and age-group guidance`)
+      if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       const prices = schedule.match(/<details\b[^>]*\sid=["']youth-gymnastics-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
       const priceLinks = anchorUrls(prices)
       assert(priceLinks.some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
@@ -645,6 +679,7 @@ const verifyHtml = (
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']fit-flip-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Recurring Fit &amp; Flip class times<\/h2>/i.test(schedule) && /8–11 and 12–15/.test(schedule),
         `${label}: missing the crawlable Fit & Flip schedule heading or age groups`)
+      if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
       const pricing = schedule.match(/<details\b[^>]*\sid=["']fit-flip-class-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''

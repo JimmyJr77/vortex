@@ -136,11 +136,13 @@ account state, and loading UI with `data-prerender-dynamic` so the build
 excludes them from raw HTML. Keep a useful heading and intro on each browser
 snapshot. Client-only routes use `/_seo/spa.html` for the app entry point.
 
-For the adult gymnastics landing page, Vite reads the public booking catalog
-before prerendering. The page displays the checked date, published drop-in
-dates and prices, and verified monthly base tuition when those details are
-available. The live catalog links give visitors current prices and availability
-even if the build could not verify the summary.
+Vite reads the public booking catalog before prerendering the three program
+pages. Published summaries include the catalog check date and the class
+times and rates the build could verify. Base monthly tuition comes from the
+current enrollment options for each youth class. Single-class rates come
+from bookable nonmember drop-ins. The existing schedule and booking links
+give visitors current prices and availability, including when a build could
+only verify part of the catalog.
 
 Local verification:
 
