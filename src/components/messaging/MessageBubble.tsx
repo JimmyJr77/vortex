@@ -7,7 +7,6 @@ import MessageReactionBar from './MessageReactionBar'
 import MessagingFileChip from './MessagingFileChip'
 import { isOwnMessage, messageBubbleClassName, type MessageViewer } from './messageBubbleStyle'
 import { formatMessageSenderDisplayName, formatMessageTime } from './messageFormatting'
-import { viewerIsMentioned } from './messageMentions'
 import type { MessageReactionGroup, MessageRow, MessagingRole, ThreadParticipant } from './types'
 
 type Fetcher = (endpoint: string, options?: RequestInit) => Promise<unknown>
@@ -76,7 +75,6 @@ export default function MessageBubble({
   const isDeleted = Boolean(message.deleted_at)
   const isEdited = Boolean(message.edited_at) && !isDeleted
   const isCritical = Boolean(message.is_critical) && !isDeleted
-  const mentionedYou = !isDeleted && viewerIsMentioned(message, viewer)
   const files = message.files ?? []
   const reactions = message.reactions ?? []
   const actionId = useId()
@@ -218,7 +216,7 @@ export default function MessageBubble({
 
   return (
     <article className={`flex items-end gap-2 ${ownMessage ? 'flex-row-reverse' : ''}`}>
-      <div className="min-w-[min(9rem,80%,calc(100%-2.75rem))] max-w-[calc(100%-2.75rem)] sm:max-w-[min(80%,40rem)]">
+      <div className="min-w-[min(12rem,80%,calc(100%-2.75rem))] lg:min-w-[min(20rem,80%,calc(100%-2.75rem))] max-w-[calc(100%-2.75rem)] sm:max-w-[min(80%,40rem)]">
         <div className={`mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-0.5 text-xs ${ownMessage ? 'justify-end' : ''}`}>
           <span className="min-w-0 break-words font-semibold !text-slate-800">{senderName}</span>
           <time dateTime={message.created_at} className="shrink-0 tabular-nums font-medium !text-slate-600">
@@ -264,7 +262,7 @@ export default function MessageBubble({
             touchStart.current = null
           }}
         >
-          {(isCritical || mentionedYou) && (
+          {isCritical && (
             <div className="mb-1.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold text-red-800">
               {isCritical && (
                 <span className="inline-flex items-center gap-1">
@@ -272,7 +270,6 @@ export default function MessageBubble({
                 </span>
               )}
               {isCritical && message.requires_ack && <span className="font-medium">Acknowledgment required</span>}
-              {mentionedYou && <span className="rounded !bg-blue-100 px-1.5 py-0.5 !text-blue-800">Mentions you</span>}
             </div>
           )}
           {isDeleted ? (
