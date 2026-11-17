@@ -203,6 +203,11 @@ test.describe('Client-critical smoke flows', () => {
     await comparison.getByRole('link', { name: 'Check Vortex’s weekly gymnastics times' }).click()
     await expect(page).toHaveURL('/gymnastics#youth-gymnastics-schedule')
     await expect(page.locator('#youth-gymnastics-schedule').getByRole('heading').first()).toBeInViewport()
+
+    await page.goto('/blog/youth-sports-bowie#homeschool-pe')
+    await comparison.getByRole('link', { name: 'Browse youth gymnastics drop-in classes' }).click()
+    await expect(page).toHaveURL('/drop-in?program=Developmental%20Gymnastics')
+    await expect(page.getByRole('heading', { name: 'Youth gymnastics drop-ins.' })).toBeVisible()
   })
 
   test('public homepage renders core CTAs', async ({ page }) => {
@@ -303,9 +308,11 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult#nearby-adult-gymnastics')
     const comparison = page.locator('#nearby-adult-gymnastics')
     await expect(comparison.getByRole('heading')).toBeInViewport()
-    await expect(comparison.getByRole('listitem')).toHaveCount(5)
+    await expect(comparison.getByRole('listitem')).toHaveCount(6)
     await expect(comparison.getByText(/MGA Gymnastics in Upper Marlboro/)).toBeVisible()
     await expect(comparison.getByText(/Fairland/)).toBeVisible()
+    await expect(comparison.getByRole('link', { name: 'See Emilia’s adult gymnastics class' }))
+      .toHaveAttribute('href', 'https://www.eagcgym.com/recclasses')
     await expect(comparison.getByRole('link', { name: 'See Docksiders’ adult open gym details' }))
       .toHaveAttribute('href', 'https://www.docksidersgymnastics.com/adults')
     await comparison.getByRole('link', { name: 'See Typhoons drop-in dates' }).click()
@@ -321,6 +328,19 @@ test.describe('Client-critical smoke flows', () => {
       .toHaveAttribute('href', 'https://unitedclubgymnastics.org/join/')
     await expect(competition.getByRole('link', { name: 'Browse the meet calendar' }))
       .toHaveAttribute('href', 'https://unitedclubgymnastics.org/events/')
+
+    await page.goto('/adult-gymnastics#returning-gymnasts')
+    await page.getByRole('link', { name: 'Find adult gymnastics with bars, beam, or vault' }).click()
+    await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult#adult-gymnastics-apparatus')
+    const apparatus = page.locator('#adult-gymnastics-apparatus')
+    await expect(apparatus.getByRole('heading', { name: 'Where can adults practice bars, beam, and vault?' })).toBeInViewport()
+    await expect(apparatus.getByRole('link', { name: 'See Dynamite’s adult apparatus classes' }))
+      .toHaveAttribute('href', 'https://www.dynamitegc.com/adult-gymnastics')
+    await expect(apparatus.getByRole('link', { name: 'See MGA’s open gym equipment' }))
+      .toHaveAttribute('href', 'https://www.mga-gymnastics.com/opengym.html')
+    await apparatus.getByRole('link', { name: 'Ask Vortex about Typhoons equipment' }).click()
+    await expect(page).toHaveURL('/contact#inquiry')
+    await expect(page.locator('#inquiry').getByRole('heading')).toBeInViewport()
   })
 
   test('competitive gymnastics leads to team evaluation guidance and the scoped enrollment catalog', async ({ page }) => {

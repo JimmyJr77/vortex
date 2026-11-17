@@ -849,6 +849,9 @@ const verifyHtml = (
         `${label}: adult gymnastics must link to the guide for returning gymnasts`)
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#nearby-adult-gymnastics`),
         `${label}: adult gymnastics must link to the local class and open-gym comparison`)
+      const returning = format.match(/<article\b[^>]*\sid=["']returning-gymnasts["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(anchorUrls(returning).some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#adult-gymnastics-apparatus`),
+        `${label}: returning gymnasts must be able to find the apparatus practice comparison`)
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#adult-gymnastics-competition`),
         `${label}: the adult program must link to the competition guidance`)
     }
@@ -893,6 +896,16 @@ const verifyHtml = (
       nearbyLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
       nearbyLinks.some(url => url.href === 'https://www.mga-gymnastics.com/opengym.html'),
       `${label}: missing adult county classes or the Upper Marlboro open gym and their official links`)
+    assert(nearbyLinks.some(url => url.href === 'https://www.eagcgym.com/recclasses'),
+      `${label}: missing the coached floor and trampoline class in Laurel`)
+    const apparatus = html.match(/<section\b[^>]*\sid=["']adult-gymnastics-apparatus["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const apparatusLinks = anchorUrls(apparatus)
+    assert(tags(html, 'a').some(tag => attribute(tag, 'href') === '#adult-gymnastics-apparatus') &&
+      apparatusLinks.some(url => url.href === 'https://www.dynamitegc.com/adult-gymnastics') &&
+      apparatusLinks.some(url => url.href === 'https://www.mga-gymnastics.com/opengym.html') &&
+      apparatusLinks.some(url => url.href === `${HUB_ORIGIN}/contact#gymnastics-equipment`) &&
+      apparatusLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
+      `${label}: missing coached apparatus, open gym, or Vortex inquiry links in the adult apparatus comparison`)
   }
 
   if (shouldIndex) {
@@ -1090,6 +1103,7 @@ const verifyHtml = (
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#homeschool-pe') &&
       homeschoolLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#youth-gymnastics-schedule`) &&
       homeschoolLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#first-visit`) &&
+      hasDropInProgramLink(homeschoolLinks, 'Developmental Gymnastics') &&
       homeschoolLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
       homeschoolLinks.some(url => url.href === 'https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex') &&
       /individual enrollment/.test(homeschool) && /homeschool groups ages 5–17/.test(homeschool),

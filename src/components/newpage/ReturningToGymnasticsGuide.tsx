@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { BUSINESS_FACILITY_PHOTO } from '../../config/contact'
+import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from '../../config/contact'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
 import { ADULT_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
@@ -45,6 +45,7 @@ export default function ReturningToGymnasticsGuide() {
           <ul>
             <li><a href="#class-format">Choose a class format</a></li>
             <li><a href="#nearby-adult-gymnastics">Compare nearby classes and open gym</a></li>
+            <li><a href="#adult-gymnastics-apparatus">Bars, beam, and vault</a></li>
             <li><a href="#adult-gymnastics-competition">Adult gymnastics competition</a></li>
             <li><a href="#what-to-tell-your-coach">What to tell your coach</a></li>
             <li><a href="#choose-a-starting-movement">Choose a starting movement</a></li>
@@ -87,6 +88,11 @@ export default function ReturningToGymnasticsGuide() {
               {' '}<a href="https://www.pgparks.com/your-guide">Browse the county’s seasonal class guide</a>
             </li>
             <li>
+              <strong>Emilia’s Acrobatics, Gymnastics, &amp; Cheer in Laurel.</strong> Its coached adult class
+              serves ages 18 and up and focuses on floor and trampoline tumbling.{' '}
+              <a href="https://www.eagcgym.com/recclasses">See Emilia’s adult gymnastics class</a>
+            </li>
+            <li>
               <strong>University of Maryland Gymkana in College Park.</strong> Gymkana offers instructor-led
               tumbling and trampoline classes for ages 14 and up. Choose a class from its multi-week session schedule.
               {' '}<a href="https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes">See Gymkana’s adult class options</a>
@@ -102,6 +108,33 @@ export default function ReturningToGymnasticsGuide() {
               {' '}<a href="https://www.docksidersgymnastics.com/adults">See Docksiders’ adult open gym details</a>
             </li>
           </ul>
+        </section>
+
+        <section id="adult-gymnastics-apparatus">
+          <h2>Where can adults practice bars, beam, and vault?</h2>
+          <p>
+            If you want feedback on a beam turn or a bar swing, ask whether a coach teaches that event
+            during class. If you already know what you want to practice, check which equipment is available
+            at open gym.
+          </p>
+          <ul>
+            <li>
+              <strong>Coached apparatus practice.</strong> Dynamite in North Bethesda lists balance beam basics,
+              uneven bar skills, and vault progressions in its adult gymnastics classes.{' '}
+              <a href="https://www.dynamitegc.com/adult-gymnastics">See Dynamite’s adult apparatus classes</a>.
+            </li>
+            <li>
+              <strong>Independent practice.</strong> MGA’s open gym in Upper Marlboro welcomes adults and lists
+              bars, rings, and beams. Coaches can help set up equipment.{' '}
+              <a href="https://www.mga-gymnastics.com/opengym.html">See MGA’s open gym equipment</a>.
+            </li>
+          </ul>
+          <p className="mt-4">
+            At Vortex, Typhoons combines conditioning, mobility, and introductory acrobatics.{' '}
+            <Link to={GYMNASTICS_EQUIPMENT_PATH}>See Vortex’s practice beams and training rings</Link>.{' '}
+            <Link to={CONTACT_INQUIRY_PATH}>Ask Vortex about Typhoons equipment</Link> before you book if you
+            have a specific apparatus or skill in mind.
+          </p>
         </section>
 
         <section id="adult-gymnastics-competition">

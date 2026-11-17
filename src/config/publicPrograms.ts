@@ -492,12 +492,17 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'returning-gymnasts',
             heading: 'Returning to gymnastics',
-            description: 'Tell your coach what you used to practice and what you’d like to work toward now. Start with movements you can repeat comfortably and ask what to practice before revisiting a previous skill.',
+            description: 'Tell your coach what you used to practice and what you’d like to work toward now. Start with movements you can repeat comfortably and ask what to practice before revisiting a previous skill. If you want to train on specific apparatus, check which equipment is available before choosing a class or open gym.',
             links: [
               {
                 href: RETURNING_TO_GYMNASTICS_GUIDE.path,
                 label: 'Read the guide to returning as an adult',
                 analyticsKey: 'read_returning_to_gymnastics_guide',
+              },
+              {
+                href: `${RETURNING_TO_GYMNASTICS_GUIDE.path}#adult-gymnastics-apparatus`,
+                label: 'Find adult gymnastics with bars, beam, or vault',
+                analyticsKey: 'compare_adult_gymnastics_apparatus',
               },
               {
                 href: `${RETURNING_TO_GYMNASTICS_GUIDE.path}#adult-gymnastics-competition`,

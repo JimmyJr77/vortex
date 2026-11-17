@@ -5,7 +5,7 @@ import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuid
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
-import { FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
+import { DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
@@ -296,7 +296,7 @@ export default function BowieYouthSportsGuide() {
               trial.{' '}
               <Link to="/gymnastics#youth-gymnastics-schedule">Check Vortex’s weekly gymnastics times</Link> ·{' '}
               <Link to="/gymnastics#first-visit">Find a gymnastics trial</Link> ·{' '}
-              <Link to="/drop-in">Browse available drop-in classes</Link>
+              <Link to={DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF}>Browse youth gymnastics drop-in classes</Link>
             </li>
             <li>
               <strong>Daytime homeschool gymnastics in Landover.</strong> Prince George’s Sports &amp; Learning
