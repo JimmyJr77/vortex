@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import GuideBreadcrumb from './GuideBreadcrumb'
@@ -8,6 +9,15 @@ import './AthleticDevelopmentGuide.css'
 
 export default function GymnasticsVsTumblingGuide() {
   const guide = GYMNASTICS_VS_TUMBLING_GUIDE
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash])
 
   return (
     <article className="athletic-guide" aria-labelledby="gymnastics-tumbling-title">
@@ -19,7 +29,7 @@ export default function GymnasticsVsTumblingGuide() {
             <p className="athletic-guide-lead">
               Tumbling is a group of acrobatic skills children practice on a floor or track.
               A gymnastics class can teach tumbling alongside other skills, such as balancing or working
-              on apparatus. The right starting class depends on what your child wants to practice.
+              on apparatus. Compare what kids practice in each format and where to find a dedicated tumbling class near Bowie.
             </p>
             <GuideByline datePublished={guide.datePublished} dateModified={guide.dateModified} />
           </div>
@@ -33,6 +43,7 @@ export default function GymnasticsVsTumblingGuide() {
           <ul>
             <li><a href="#where-tumbling-fits">Where tumbling fits</a></li>
             <li><a href="#choose-a-class">Which class to try</a></li>
+            <li><a href="#nearby-tumbling-classes">Dedicated tumbling classes near Bowie</a></li>
             <li><a href="#questions-for-the-coach">Questions for the coach</a></li>
           </ul>
         </nav>
@@ -74,6 +85,10 @@ export default function GymnasticsVsTumblingGuide() {
               and jump training with drills on trampolines and tumble tracks. Fit &amp; Flip Cyclones trial
               groups cover ages 8–11 and 12–15.
             </li>
+            <li>
+              <strong>To focus on floor or track skills.</strong> Look for a dedicated class where most of the session
+              goes toward tumbling. <a href="#nearby-tumbling-classes">Compare nearby tumbling classes</a>.
+            </li>
           </ul>
           <p className="mt-4">
             A 10-year-old who wants to learn a cartwheel can start with Tornadoes. A 10-year-old cheer athlete
@@ -81,6 +96,34 @@ export default function GymnasticsVsTumblingGuide() {
             a specific skill in mind, tell the coach what they can already do and ask which class works on it.
           </p>
           <p>For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what kids practice in preschool gymnastics</Link>.</p>
+        </section>
+
+        <section id="nearby-tumbling-classes">
+          <h2>Dedicated tumbling classes near Bowie</h2>
+          <p>Compare the starting skills and class format, especially if your child is trying tumbling for the first time.</p>
+          <ul>
+            <li>
+              <strong>Marlboro Cheer in Upper Marlboro.</strong> It lists preschool tumbling for ages 3–5 and a Level 1
+              class for ages 5–8 that teaches skills such as rolls and cartwheels. It also lists open tumbling for extra practice.
+              {' '}<a href="https://www.marlborocheer.org/tumbling.php">Compare Marlboro Cheer classes and open tumbling</a>
+            </li>
+            <li>
+              <strong>MGA Gymnastics in Upper Marlboro.</strong> Its one-hour classes start at age 5 and run from beginner to advanced.
+              MGA lists equipment such as a tumble track and spring floor. Ask which equipment your child’s group will use.
+              {' '}<a href="https://www.mga-gymnastics.com/tumbling.html">See MGA’s tumbling groups and equipment</a>
+            </li>
+            <li>
+              <strong>Platinum Force Athletics in Crofton.</strong> Its recreational program offers weekly one-hour classes and
+              welcomes children without prior tumbling experience. Confirm your child’s age group before registering.
+              {' '}<a href="https://www.platinumforceathletics.com/tumbling-classes">Check Platinum Force’s recreational tumbling</a>
+            </li>
+            <li>
+              <strong>Prince George’s County Parks and Recreation.</strong> The seasonal guide lists floor tumbling and
+              Trampoline &amp; Tumbling courses at Fairland in Laurel and the Sports &amp; Learning Complex in Landover.
+              Some beginner listings already require a forward roll and a handstand skill.
+              {' '}<a href="https://www.pgparks.com/your-guide">Check the county’s current guide for tumbling prerequisites</a>
+            </li>
+          </ul>
         </section>
 
         <section id="questions-for-the-coach">

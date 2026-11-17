@@ -46,6 +46,14 @@ test.describe('Client-critical smoke flows', () => {
       await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible()
     }
 
+    await page.goto('/gymnastics#trampoline-tumbling')
+    await page.getByRole('link', { name: 'Compare tumbling classes near Bowie', exact: true }).click()
+    await expect(page).toHaveURL('/blog/gymnastics-vs-tumbling#nearby-tumbling-classes')
+    const nearbyTumbling = page.locator('#nearby-tumbling-classes')
+    await expect(nearbyTumbling.getByRole('heading')).toBeInViewport()
+    await expect(nearbyTumbling.getByRole('link', { name: /county’s current guide/ }))
+      .toHaveAttribute('href', 'https://www.pgparks.com/your-guide')
+
     await page.goto('/fit-and-flip')
     await page.getByRole('link', { name: 'Compare youth athletic training in Bowie' }).click()
     await expect(page).toHaveURL('/blog/youth-sports-bowie#compare-athletic-training')

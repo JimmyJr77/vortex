@@ -221,8 +221,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'trampoline-tumbling',
             heading: 'Trampoline and tumbling',
-            description: 'Athletes work on rebounds, aerial awareness, and floor tumbling with a focus on control through the landing.',
-            link: TUMBLING_GUIDE_ACTION,
+            description: 'Tumbling skills are part of developmental gymnastics. Fit & Flip also uses trampoline and track drills to teach body control alongside strength work. If your child wants a class focused on tumbling, compare nearby programs and their starting skills.',
+            link: { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
           },
         ],
         links: [{ href: trainingFilm.path, label: 'Watch gymnastics and athletic training at Vortex', analyticsKey: 'watch_training_film' }],

@@ -808,7 +808,7 @@ const verifyHtml = (
     for (const path of [
       '/gymnastics', '/gymnastics#first-visit', '/gymnastics#youth-gymnastics-schedule', '/gymnastics#youth-gymnastics-pricing',
       '/fit-and-flip', '/fit-and-flip#fit-flip-class-pricing', '/read-board',
-      YOUTH_ATHLETIC_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
+      YOUTH_ATHLETIC_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH, `${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#nearby-tumbling-classes`,
     ]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable guide link to ${path}`)
@@ -871,7 +871,8 @@ const verifyHtml = (
     const tumblingTopicId = pagePath === '/gymnastics' ? 'trampoline-tumbling' : 'body-control'
     const articleTag = tags(html, 'article').find(tag => attribute(tag, 'id') === tumblingTopicId)
     const topic = articleTag ? html.slice(html.indexOf(articleTag)).split('</article>', 1)[0] : ''
-    assert(anchorUrls(topic).some((url) => url.href === tumblingGuideCanonical),
+    const guideDestination = pagePath === '/gymnastics' ? `${tumblingGuideCanonical}#nearby-tumbling-classes` : tumblingGuideCanonical
+    assert(anchorUrls(topic).some((url) => url.href === guideDestination),
       `${label}: the tumbling topic must link to the comparison guide`)
   }
   if (shouldIndex && canonical === tumblingGuideCanonical) {
@@ -880,6 +881,17 @@ const verifyHtml = (
     for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control', '/read-board#classes', '/#free-trial']) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable comparison guide link to ${path}`)
+    }
+    const nearbyTumbling = content.match(/<section\b[^>]*\sid=["']nearby-tumbling-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const nearbyTumblingLinks = anchorUrls(nearbyTumbling)
+    for (const provider of [
+      'https://www.marlborocheer.org/tumbling.php',
+      'https://www.mga-gymnastics.com/tumbling.html',
+      'https://www.platinumforceathletics.com/tumbling-classes',
+      'https://www.pgparks.com/your-guide',
+    ]) {
+      assert(nearbyTumblingLinks.some(url => url.href === provider),
+        `${label}: missing the dedicated tumbling provider link to ${provider}`)
     }
   }
 
