@@ -421,9 +421,11 @@ const verifyHtml = (
     }
     const headerBrand = brandImage('header')
     const footerBrand = brandImage('footer')
+    const footerSources = attribute(footerBrand, 'srcset')
     assert(/\b480w\b/.test(attribute(headerBrand, 'srcset')) && attribute(headerBrand, 'sizes'),
       `${label}: the header logo must offer a compact responsive asset`)
-    assert(attribute(footerBrand, 'loading') === 'lazy', `${label}: the footer logo must load lazily`)
+    assert(attribute(footerBrand, 'loading') === 'lazy' && /\b640w\b/.test(footerSources) && !/\b1086w\b/.test(footerSources),
+      `${label}: the compact footer logo must load lazily`)
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
     if (pagePath === '/gymnastics') {

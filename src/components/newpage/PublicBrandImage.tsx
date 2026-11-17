@@ -7,12 +7,13 @@ const headerSizes = [
   '(min-width: 861px) and (max-width: 1150px) clamp(176px, calc(100vw - 686px), 300px)',
   '300px',
 ].join(', ')
+const compactSources = `${brandLogo480} 480w, ${brandLogo640} 640w`
 
 export default function PublicBrandImage({ footer = false }: { footer?: boolean }) {
   return (
     <img
-      src={brandLogo}
-      srcSet={`${brandLogo480} 480w, ${brandLogo640} 640w, ${brandLogo} 1086w`}
+      src={footer ? brandLogo640 : brandLogo}
+      srcSet={footer ? compactSources : `${compactSources}, ${brandLogo} 1086w`}
       sizes={footer ? 'min(300px, calc(100vw - 44px))' : headerSizes}
       width={1086}
       height={171}
