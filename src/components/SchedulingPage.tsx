@@ -242,6 +242,25 @@ const SchedulingPage = () => {
   return (
     <div className="np-enrollment-page">
       <EnrollmentHero />
+      {!urlProgramName && urlProgramsId == null && urlFormId == null && (
+        <section className="np-enrollment-wrap np-enrollment-class-selection" aria-labelledby="enrollment-class-selection">
+          <h2 id="enrollment-class-selection">Find a class by age and experience</h2>
+          <ul>
+            <li>
+              <Link to="/gymnastics">Youth gymnastics</Link>
+              <p>Look for parent-and-child or preschool gymnastics for younger children, or Tornadoes for school-age beginners.</p>
+            </li>
+            <li>
+              <Link to="/fit-and-flip">Fit &amp; Flip youth fitness</Link>
+              <p>Build strength, power, and body control with coached training for kids starting out or conditioning for a sport.</p>
+            </li>
+            <li>
+              <Link to="/adult-gymnastics">Typhoons adult gymnastics</Link>
+              <p>Work on strength and mobility and learn introductory acrobatics. Beginners and returning gymnasts are welcome.</p>
+            </li>
+          </ul>
+        </section>
+      )}
       <section className="np-enrollment-content" data-prerender-dynamic="">
         {loading ? (
           <div className="np-enrollment-state" role="status">
