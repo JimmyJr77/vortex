@@ -112,6 +112,64 @@ test('keeps filtered enrollment available if weekly times cannot load', async ({
   await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
 })
 
+test('starts a mobile form link at the selected cohort while the other schedule still loads', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await mockSchedule(page)
+
+  let releaseOlderSchedule = () => {}
+  const olderScheduleReady = new Promise<void>(resolve => { releaseOlderSchedule = resolve })
+  await page.route('**/api/signup/catalog/classes/{60,61}/offerings', async (route) => {
+    const isOlder = new URL(route.request().url()).pathname.includes('/61/')
+    if (isOlder) await olderScheduleReady
+    await route.fulfill({ json: { success: true, data: {
+      formId: isOlder ? 31 : 30,
+      scheduleOptions: [{
+        slotGroupId: 2, timeSlotId: 3, offeringId: 4, scheduleMode: 'day',
+        scheduleLabel: isOlder ? 'Tuesday · 7:00 PM' : 'Tuesday · 6:00 PM', priceCents: 15000,
+      }],
+    } } })
+  })
+
+  try {
+    await page.goto(`${bookingPath}&form=30`)
+    const cards = page.locator('.np-enrollment-class')
+    const selected = cards.first()
+    const heading = selected.getByRole('heading', { name: younger })
+    const date = page.getByLabel('Enrollment start date')
+    const time = selected.getByRole('checkbox', { name: /Tuesday/ })
+    await expect(heading).toBeFocused()
+    await expect(heading).toBeInViewport({ ratio: 1 })
+    await expect(selected.getByLabel('Enrollment start date')).toBeInViewport({ ratio: 1 })
+    await expect(time).toBeInViewport({ ratio: 1 })
+    await expect(cards.filter({ hasText: older })).toContainText('Loading schedule…')
+
+    releaseOlderSchedule()
+    await expect(cards.filter({ hasText: older }).getByRole('checkbox', { name: /Tuesday/ })).toBeVisible()
+    await expect(heading).toBeFocused()
+    await expect(heading).toBeInViewport({ ratio: 1 })
+
+    await time.check()
+    const checkout = page.getByRole('button', { name: 'Continue to account setup' })
+    await checkout.click()
+    await expect(date).toBeFocused()
+    await date.fill('2026-11-19')
+    const search = page.getByRole('searchbox', { name: 'Search classes' })
+    await search.fill('unmatched class')
+    await expect(selected).toHaveCount(0)
+    await expect(date).toHaveValue('2026-11-19')
+    await search.clear()
+    await expect(time).toBeChecked()
+    await expect(date).toHaveCount(1)
+    await checkout.click()
+    await expect(page).toHaveURL('/signup/family?source=enroll')
+    const cart = await page.evaluate(() => JSON.parse(sessionStorage.getItem('vortex_public_enrollment_cart_v1') ?? '[]'))
+    expect(cart).toMatchObject([{ classEventId: 60, schedulingFormId: 30, slotGroupId: 2, timeSlotId: 3, enrollmentStartDate: '2026-11-19' }])
+  } finally {
+    releaseOlderSchedule()
+  }
+})
+
 for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', 'Search drop-in classes']]) {
   test(`finds Fit & Flip by athletic training terms on ${path}`, async ({ page }) => {
     await mockSchedule(page)

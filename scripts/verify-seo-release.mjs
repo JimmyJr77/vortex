@@ -565,7 +565,10 @@ const verifyHtml = (
     const introduction = [...html.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
       .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
     const links = anchorUrls(introduction)
-    for (const path of HUB_PROGRAM_PATHS) {
+    const programTargets = pagePath === '/drop-in'
+      ? ['/gymnastics#youth-gymnastics-schedule', '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics#adult-class-schedule']
+      : HUB_PROGRAM_PATHS
+    for (const path of programTargets) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing a crawlable program link to ${path} near the main heading`)
     }

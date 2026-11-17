@@ -76,6 +76,13 @@ export default function BowieYouthSportsGuide() {
               <a href="https://bowiesoccer.com/programs/">Compare Bowie FC soccer programs</a>
             </li>
             <li>
+              <strong>BallerTykes basketball.</strong> The Bowie program serves ages 2–8. Its Rookies group
+              introduces ages 2–3 to handling the ball through games. Use the registration page to confirm your
+              child’s age group and current Bowie sessions.{' '}
+              <a href="https://www.ballertykes.com/rookies">See what Rookies practice</a> ·{' '}
+              <a href="https://www.ballertykes.com/register">Check BallerTykes sessions in Bowie</a>
+            </li>
+            <li>
               <strong>South Bowie Boys &amp; Girls Club.</strong> For 2026–27, Sharks basketball serves ages 5–14.
               The coed Sharks Squirts group introduces ages 5–8 to basketball with three players per side and
               eight-foot baskets. The club also offers sports such as soccer and cheerleading.{' '}

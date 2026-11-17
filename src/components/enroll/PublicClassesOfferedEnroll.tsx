@@ -195,8 +195,9 @@ export default function PublicClassesOfferedEnroll({
   )
   const [startDateError, setStartDateError] = useState<string | null>(null)
   const startDateInputRef = useRef<HTMLInputElement>(null)
+  const linkedClassHeadingRef = useRef<HTMLHeadingElement>(null)
 
-  const classesWithForm = useMemo<CatalogClass[]>(() => {
+  const { classesWithForm, linkedClassId } = useMemo(() => {
     const result: CatalogClass[] = []
     for (const program of programs) {
       for (const classItem of program.classes) {
@@ -215,8 +216,21 @@ export default function PublicClassesOfferedEnroll({
         })
       }
     }
-    return result
-  }, [programs])
+    const linkedIndex = result.findIndex(({ formId, programsId }) => formId === initialFocusedFormId && programsId === initialProgramId)
+    const linkedClassId = result[linkedIndex]?.classEventId ?? null
+    if (linkedIndex > 0) result.unshift(result.splice(linkedIndex, 1)[0])
+    return { classesWithForm: result, linkedClassId }
+  }, [initialFocusedFormId, initialProgramId, programs])
+
+  useEffect(() => {
+    if (linkedClassId === null) return
+    const frame = requestAnimationFrame(() => {
+      const heading = linkedClassHeadingRef.current
+      heading?.focus({ preventScroll: true })
+      heading?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [linkedClassId])
 
   const validClassIds = useMemo(
     () => new Set(classesWithForm.map((classItem) => classItem.classEventId)),
@@ -473,6 +487,22 @@ export default function PublicClassesOfferedEnroll({
     ...filteredProgramSections.map((section) => ({ ...section, resultGroup: 'filtered' as const })),
     ...acrossFilterProgramSections.map((section) => ({ ...section, resultGroup: 'across' as const })),
   ]
+  const hasLinkedClass = displayedProgramSections.some(({ programClasses }) =>
+    programClasses.some(({ classEventId }) => classEventId === linkedClassId),
+  )
+  const startDateField = (
+    <EnrollmentStartDateField
+      id="public-enrollment-start-date"
+      value={enrollmentStartDate}
+      onChange={(value) => {
+        setEnrollmentStartDate(value)
+        if (value) setStartDateError(null)
+      }}
+      error={startDateError}
+      inputRef={startDateInputRef}
+      className="max-w-sm"
+    />
+  )
 
   return (
     <div className="np-enrollment-catalog space-y-6">
@@ -497,17 +527,7 @@ export default function PublicClassesOfferedEnroll({
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <input type="search" aria-label="Search classes" value={searchQuery} onChange={(event) => setSearchQuery(event.target.value)} placeholder="Search classes…" className="h-10 w-full rounded-lg border border-gray-300 bg-white pl-9 pr-3 text-sm" />
         </div>
-        <EnrollmentStartDateField
-          id="public-enrollment-start-date"
-          value={enrollmentStartDate}
-          onChange={(value) => {
-            setEnrollmentStartDate(value)
-            if (value) setStartDateError(null)
-          }}
-          error={startDateError}
-          inputRef={startDateInputRef}
-          className="max-w-sm"
-        />
+        {!hasLinkedClass && startDateField}
         <div className="np-enrollment-filter-fields flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           <label className="flex flex-col gap-1 min-w-[10rem] flex-1 sm:max-w-[14rem]">
             <span className="text-xs font-semibold text-gray-600">Program</span>
@@ -579,11 +599,12 @@ export default function PublicClassesOfferedEnroll({
               const selectedKeys = cart
                 .filter((item) => item.classEventId === classItem.classEventId)
                 .map((item) => slotOptionKey(item.slotGroupId, item.timeSlotId))
-              const focused = classItem.formId === initialFocusedFormId
+              const focused = classItem.classEventId === linkedClassId
               return (
                 <div key={classItem.classEventId} className={`np-enrollment-class rounded-xl border bg-gray-50 p-4 space-y-3 ${focused ? 'border-red-300 ring-1 ring-red-200' : 'border-gray-100'}`}>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">{classItem.label}</h3>
+                    <h3 className="text-base font-bold text-gray-900" tabIndex={focused ? -1 : undefined}
+                      ref={focused ? linkedClassHeadingRef : undefined}>{classItem.label}</h3>
                     <div className="np-enrollment-class-meta mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500">
                       <span>Age: {formatAgeRange(classItem.ageMin, classItem.ageMax)}</span>
                       <span>Level: {formatSkillLevel(classItem.skillLevel)}</span>
@@ -594,6 +615,7 @@ export default function PublicClassesOfferedEnroll({
                       {classItem.skillRequirements}
                     </p>}
                   </div>
+                  {focused && startDateField}
                   {catalog === 'loading' && <p className="inline-flex items-center gap-2 text-sm text-gray-500"><Loader2 className="w-4 h-4 animate-spin" /> Loading schedule…</p>}
                   {catalog === 'error' && <p className="text-sm text-red-600">Could not load this class&apos;s schedule.</p>}
                   {catalog && catalog !== 'loading' && catalog !== 'error' && (

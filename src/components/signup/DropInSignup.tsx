@@ -205,6 +205,10 @@ function DropInCheckout({ memberId, token, session, onCancel, onChangeAthlete, a
         returnUrl.searchParams.set('trial', '0')
         const program = getScopedDropInProgram(params.get('program')) ?? (isAdultBookingProgram(session.programName) ? ADULT_BOOKING_PROGRAM : null)
         if (program) returnUrl.searchParams.set('program', program)
+        const cohort = params.get('cohort')
+        if (program === FIT_AND_FLIP_BOOKING_PROGRAM && cohort === String(session.classId)) {
+          returnUrl.searchParams.set('cohort', cohort)
+        }
         const checkout = await createAnnualMembershipCheckoutSession(token, {
           memberId,
           successUrl: `${returnUrl.href}&membership=paid&session_id={CHECKOUT_SESSION_ID}`,

@@ -39,6 +39,10 @@ const fitFlipDropInClass = {
 const fitFlipSession = {
   ...session, ...fitFlipDropInClass, slotGroupId: 202, startTime: '18:00', endTime: '19:30',
 }
+const olderFitFlipSession = {
+  ...fitFlipSession, formId: 8, classId: 15, className: 'Cyclones (12-15)', ageMin: 12, ageMax: 15,
+  slotGroupId: 203, startTime: '19:00', endTime: '20:30',
+}
 
 async function acceptAnalytics(page: Page) {
   await page.addInitScript(({ consentKey, policyVersion }) => {
@@ -58,6 +62,7 @@ async function mockDropInApi(page: Page, options: {
   membershipRequiresReview?: boolean
   includeAdultClass?: boolean
   includeFitFlipClass?: boolean
+  includeBothFitFlipCohorts?: boolean
   mixedAdultTrialFlags?: boolean
 } = {}) {
   const submitted: { path: string; body: Record<string, unknown> }[] = []
@@ -119,6 +124,11 @@ async function mockDropInApi(page: Page, options: {
             ] : []),
           ] : []),
           ...(options.includeFitFlipClass ? [fitFlipSession] : []),
+          ...(options.includeBothFitFlipCohorts ? [
+            { ...olderFitFlipSession, date: '2027-01-15' },
+            olderFitFlipSession,
+            { ...olderFitFlipSession, date: '2027-01-13', isFull: true, spotsRemaining: 0 },
+          ] : []),
         ],
         benefits: {
           annualMember: membershipActive, annualCreditsRemaining: membershipActive ? 4 : 0,
@@ -365,7 +375,7 @@ test('general drop-in catalog retains its curated programs when Typhoons is avai
 
 test('Fit & Flip drop-in link shows Cyclones dates and keeps the program through signup', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2027-01-10T17:00:00Z'))
-  await mockDropInApi(page, { includeFitFlipClass: true })
+  await mockDropInApi(page, { includeFitFlipClass: true, includeBothFitFlipCohorts: true })
   await page.goto('/fit-and-flip')
   await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
   const findDates = page.getByRole('link', { name: 'See Fit & Flip drop-in dates', exact: true })
@@ -380,6 +390,19 @@ test('Fit & Flip drop-in link shows Cyclones dates and keeps the program through
   await expect(page.getByRole('heading', { name: 'Fit & Flip drop-ins.', exact: true })).toBeVisible()
   await expect(availableDates).toBeVisible()
   await expect(dateOption).toBeVisible()
+  const ageGroup = page.getByRole('combobox', { name: 'Age group', exact: true })
+  await expect(ageGroup.locator('option')).toHaveText(['All age groups', 'Ages 8–11', 'Ages 12–15'])
+  await ageGroup.selectOption({ label: 'Ages 12–15' })
+  await expect(page).toHaveURL(url => url.searchParams.get('cohort') === '15')
+  await expect(dateOption).toHaveCount(0)
+  const olderDates = page.getByRole('button', { name: /Cyclones \(12-15\)/ })
+  await expect(olderDates).toHaveCount(2)
+  await expect(olderDates.first()).toContainText('Jan 12, 2027')
+  await page.reload()
+  await expect(ageGroup).toHaveValue('15')
+  await expect(olderDates).toHaveCount(2)
+  await ageGroup.selectOption({ label: 'Ages 8–11' })
+  await expect(olderDates).toHaveCount(0)
   await expect(dateOption.getByText('Accepts free trials', { exact: true })).toHaveCount(0)
   await expect(cyclones).toHaveCount(0)
   await expect(gymnastics).toHaveCount(0)
@@ -388,10 +411,12 @@ test('Fit & Flip drop-in link shows Cyclones dates and keeps the program through
   await expect(page.getByRole('heading', { name: 'Register for your drop-in' })).toBeVisible()
   await expect(page).toHaveURL(url => url.pathname === '/drop-in' &&
     url.searchParams.get('program') === fitFlipProgram &&
+    url.searchParams.get('cohort') === '14' &&
     url.searchParams.get('signupSlot') === '202' && url.searchParams.get('signupDate') === classDate)
   await page.getByRole('button', { name: 'Cancel', exact: true }).click()
   await expect(page).toHaveURL(url => url.pathname === '/drop-in' && url.searchParams.get('program') === fitFlipProgram && !url.searchParams.has('signupSlot'))
   await expect(availableDates).toBeVisible()
+  await expect(ageGroup).toHaveValue('14')
   await expect(dateOption).toBeVisible()
   await expect(gymnastics).toHaveCount(0)
 

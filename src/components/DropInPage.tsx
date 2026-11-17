@@ -24,14 +24,14 @@ const SCOPED_DROP_IN_COPY = {
   [DEVELOPMENTAL_GYMNASTICS_PROGRAM]: {
     heading: 'Youth gymnastics drop-ins.',
     intro: 'Reserve a single youth gymnastics class in Bowie. Pick a date to see available classes and times.',
-    programHref: '/gymnastics#youth-gymnastics-pricing',
-    programLink: 'youth gymnastics tuition and class options',
+    programHref: '/gymnastics#youth-gymnastics-schedule',
+    programLink: 'youth gymnastics weekly times and tuition',
   },
   [ADULT_BOOKING_PROGRAM]: {
     heading: 'Adult gymnastics drop-ins.',
     intro: 'Reserve one coach-led Typhoons class for adults 18 and up in Bowie.',
-    programHref: '/adult-gymnastics',
-    programLink: 'adult gymnastics class times',
+    programHref: '/adult-gymnastics#adult-class-schedule',
+    programLink: 'adult gymnastics weekly times and tuition',
     datesHeading: 'Available Typhoons drop-in dates',
     empty: 'There are no Typhoons drop-in openings right now.',
     contactLink: 'Ask about adult gymnastics',
@@ -39,8 +39,8 @@ const SCOPED_DROP_IN_COPY = {
   [FIT_AND_FLIP_BOOKING_PROGRAM]: {
     heading: 'Fit & Flip drop-ins.',
     intro: 'Reserve one coach-led Cyclones class in Bowie. Choose a date for your child’s age group, 8–11 or 12–15.',
-    programHref: '/fit-and-flip',
-    programLink: 'Fit & Flip class options',
+    programHref: '/fit-and-flip#fit-flip-schedule',
+    programLink: 'Fit & Flip weekly times and tuition',
     datesHeading: 'Available Cyclones drop-in dates',
     empty: 'There are no Cyclones drop-in openings right now.',
     contactLink: 'Ask about Fit & Flip',
@@ -82,7 +82,8 @@ export default function DropInPage() {
   const [params, setParams] = useSearchParams()
   const scopedProgram = getScopedDropInProgram(params.get('program'))
   const scopedCopy = scopedProgram ? SCOPED_DROP_IN_COPY[scopedProgram] : null
-  const showScopedDates = scopedProgram === ADULT_BOOKING_PROGRAM || scopedProgram === FIT_AND_FLIP_BOOKING_PROGRAM
+  const isFitFlip = scopedProgram === FIT_AND_FLIP_BOOKING_PROGRAM
+  const showScopedDates = scopedProgram === ADULT_BOOKING_PROGRAM || isFitFlip
   const signupSlotGroupId = Number(params.get('signupSlot'))
   const signupDate = params.get('signupDate')
   const bookingId = Number(params.get('booking'))
@@ -178,6 +179,17 @@ export default function DropInPage() {
     .filter((session) => getScopedDropInProgram(session.programName) === scopedProgram && !session.excludedFromDropIns && !session.isFull)
     .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime)) : [], [sessions, scopedProgram, showScopedDates])
 
+  const fitCohorts = useMemo(() => {
+    if (!isFitFlip) return []
+    const matching = sessions.filter(session =>
+      getScopedDropInProgram(session.programName) === FIT_AND_FLIP_BOOKING_PROGRAM && !session.excludedFromDropIns,
+    )
+    return [...new Map(matching.map(session => [session.classId, session])).values()]
+      .sort((left, right) => (left.ageMin ?? Infinity) - (right.ageMin ?? Infinity) || left.className.localeCompare(right.className))
+  }, [isFitFlip, sessions])
+  const selectedCohort = fitCohorts.find(({ classId }) => String(classId) === params.get('cohort'))
+  const displayedSessions = selectedCohort ? scopedSessions.filter(({ classId }) => classId === selectedCohort.classId) : scopedSessions
+
   const programSections = useMemo(() => {
     const query = searchQuery.trim().toLowerCase()
     const filtered = classes.filter((row) =>
@@ -207,13 +219,17 @@ export default function DropInPage() {
     setError(null)
     const signupParams = new URLSearchParams({ signupSlot: String(session.slotGroupId), signupDate: session.date })
     if (scopedProgram) signupParams.set('program', scopedProgram)
+    if (selectedCohort?.classId === session.classId) signupParams.set('cohort', String(selectedCohort.classId))
     setParams(signupParams)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const closeSignup = (programName: string | null = null) => {
     const program = scopedProgram ?? (isAdultBookingProgram(programName) ? ADULT_BOOKING_PROGRAM : null)
-    setParams(program ? { program } : {})
+    const next = new URLSearchParams()
+    if (program) next.set('program', program)
+    if (selectedCohort) next.set('cohort', String(selectedCohort.classId))
+    setParams(next)
     setSelectedClassId(null)
     setError(null)
     setCatalogVersion(current => current + 1)
@@ -266,10 +282,10 @@ export default function DropInPage() {
           </>}
         </p> : <>
           <p className="np-drop-in-intro">
-            Find an available single-day class or schedule a make-up. For starting ages and class levels, see{' '}
-            <Link className="font-semibold underline underline-offset-4" to="/gymnastics">youth gymnastics</Link>,{' '}
-            <Link className="font-semibold underline underline-offset-4" to="/fit-and-flip">Fit &amp; Flip</Link>, or{' '}
-            <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics">adult gymnastics</Link>.
+            Find an available single-day class or schedule a make-up. Compare weekly times and tuition for{' '}
+            <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[DEVELOPMENTAL_GYMNASTICS_PROGRAM].programHref}>youth gymnastics</Link>,{' '}
+            <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[FIT_AND_FLIP_BOOKING_PROGRAM].programHref}>Fit &amp; Flip youth fitness</Link>, or{' '}
+            <Link className="font-semibold underline underline-offset-4" to={SCOPED_DROP_IN_COPY[ADULT_BOOKING_PROGRAM].programHref}>adult gymnastics</Link>.
             {' '}See <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">what to expect in a first adult class</Link>.
           </p>
           <nav aria-label="Drop-in calendars by program" className="mt-4 flex flex-wrap gap-x-5 text-sm font-semibold underline underline-offset-4">
@@ -300,11 +316,29 @@ export default function DropInPage() {
       {loading ? <div className="flex min-h-64 items-center justify-center"><Loader2 className="h-9 w-9 animate-spin text-vortex-red" /></div> : scopedCopy && 'datesHeading' in scopedCopy ? (
         <section aria-labelledby="program-drop-in-dates" className="space-y-4">
           <h2 id="program-drop-in-dates" className="text-2xl font-bold text-gray-900">{scopedCopy.datesHeading}</h2>
-          {error || scopedSessions.length === 0 ? <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">
-            {error ? 'We couldn’t load the current drop-in dates.' : scopedCopy.empty}{' '}
+          {fitCohorts.length > 1 && (
+            <label className="flex w-full max-w-64 flex-col gap-1 text-sm font-semibold text-gray-700">
+              Age group
+              <select className="min-h-11 rounded-lg border border-gray-300 bg-white px-3"
+                value={selectedCohort ? String(selectedCohort.classId) : ''}
+                onChange={(event) => {
+                  const next = new URLSearchParams(params)
+                  if (event.target.value) next.set('cohort', event.target.value)
+                  else next.delete('cohort')
+                  setParams(next, { replace: true })
+                }}>
+                <option value="">All age groups</option>
+                {fitCohorts.map(({ classId, ageMin, ageMax, className }) => (
+                  <option key={classId} value={classId}>{ageMin != null && ageMax != null ? `Ages ${ageMin}–${ageMax}` : className}</option>
+                ))}
+              </select>
+            </label>
+          )}
+          {error || displayedSessions.length === 0 ? <p className="rounded-xl border border-gray-200 bg-white p-5 text-gray-700">
+            {error ? 'We couldn’t load the current drop-in dates.' : selectedCohort ? 'There are no Cyclones drop-in openings for this age group right now.' : scopedCopy.empty}{' '}
             <Link className="font-semibold text-vortex-red underline" to="/contact">{scopedCopy.contactLink}</Link>.
           </p> : <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {scopedSessions.map((session) => <li key={`${session.slotGroupId}:${session.date}:${session.startTime}`}>
+            {displayedSessions.map((session) => <li key={`${session.slotGroupId}:${session.date}:${session.startTime}`}>
               <DropInSessionOption session={session} showClassName onSelect={selectSession} />
             </li>)}
           </ul>}
