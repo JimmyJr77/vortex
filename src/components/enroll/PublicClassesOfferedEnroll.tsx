@@ -2,6 +2,7 @@ import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from 'rea
 import { useNavigate } from 'react-router-dom'
 import { LayoutGrid, Loader2, Search, ShoppingCart, Trash2, X } from 'lucide-react'
 import type { PublicProgramOffered } from '../../utils/publicClassesApi'
+import { getPublicBookingDescription, matchesPublicBookingSearch } from '../../utils/publicBookingPrograms'
 import {
   CLASS_SKILL_LEVEL_FILTER_OPTIONS,
   formatAgeRange,
@@ -258,16 +259,9 @@ export default function PublicClassesOfferedEnroll({
     for (const program of programs) {
       const programClasses = classesWithForm
         .filter((classItem) => classItem.programsId === program.id)
-        .filter((classItem) => {
-          if (!query) return true
-          return [
-            classItem.label,
-            classItem.description ?? '',
-            classItem.programName,
-            classItem.skillLevel ?? '',
-            program.primarySportName ?? '',
-          ].join(' ').toLowerCase().includes(query)
-        })
+        .filter((classItem) => matchesPublicBookingSearch(query, program.displayName, [
+          classItem.label, classItem.description, classItem.programName, classItem.skillLevel, program.primarySportName,
+        ]))
 
 
       const programMatchesFilters =
@@ -545,6 +539,7 @@ export default function PublicClassesOfferedEnroll({
 
       {displayedProgramSections.map(({ program, programClasses, resultGroup }, index) => {
         const selectedCount = cartByProgram.get(program.id)?.length ?? 0
+        const description = getPublicBookingDescription(program.displayName, program.description)
         const maxSlots = programUsesWeeklyTierPricing(program)
           ? maxEnabledWeeklySlots(program.pricingCostOptions ?? [])
           : 0
@@ -562,7 +557,7 @@ export default function PublicClassesOfferedEnroll({
             <div className="np-enrollment-program rounded-xl border border-vortex-red bg-white p-4 md:p-5 space-y-4 shadow-sm">
             <div className="np-enrollment-program-heading">
               <h2 className="text-lg font-bold text-vortex-red">{program.displayName}</h2>
-              {program.description && <p className="text-sm text-gray-600 mt-1">{program.description}</p>}
+              {description && <p className="text-sm text-gray-600 mt-1">{description}</p>}
               {programUsesWeeklyTierPricing(program) && maxSlots > 0 && (
                 <p className="text-xs text-gray-500 mt-2">
                   {selectedCount > 0 ? `${selectedCount} of ${maxSlots} weekly class slots selected.` : `Select up to ${maxSlots} weekly class slots.`}

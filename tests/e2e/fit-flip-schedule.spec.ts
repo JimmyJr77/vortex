@@ -5,6 +5,7 @@ const bookingPath = `/enroll?program=${encodeURIComponent(fitAndFlip)}`
 const younger = 'Cyclones ages 8–11'
 const older = 'Cyclones ages 12–15'
 const currentDay = '2026-11-17'
+const staleDescription = 'Legacy catalog wording about ninja course dynamics.'
 
 function recurringGroup(formId: number, groupId: number, offeringId: number, dayOfWeek: number, startTime: string, endTime: string) {
   return {
@@ -23,15 +24,24 @@ async function mockSchedule(page: Page, unavailableForms: number[] = []) {
     const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
     if (path === '/api/public/classes-offered') {
       return json({ programs: [
-        { id: 9, displayName: fitAndFlip, classes: [
-          { displayName: older, ageMin: 12, formId: 31, enrollVisible: true },
-          { displayName: younger, ageMin: 8, formId: 30, enrollVisible: true },
-          { displayName: 'Unpublished Cyclones', formId: 32, enrollVisible: false },
+        { id: 9, displayName: fitAndFlip, primarySportName: 'Gymnastics', description: staleDescription, classes: [
+          { id: 61, displayName: older, ageMin: 12, ageMax: 15, formId: 31, enrollVisible: true },
+          { id: 60, displayName: younger, ageMin: 8, ageMax: 11, formId: 30, enrollVisible: true },
+          { id: 62, displayName: 'Unpublished Cyclones', formId: 32, enrollVisible: false, excludeFromDropIns: true },
         ] },
         { id: 5, displayName: 'Adult Fitness & Acrobatics', classes: [
-          { displayName: 'Typhoons', ageMin: 18, formId: 3, enrollVisible: true },
+          { id: 63, displayName: 'Typhoons', ageMin: 18, formId: 3, enrollVisible: true },
+        ] },
+        { id: 2, displayName: 'Development Gymnastics', classes: [
+          { id: 64, displayName: 'Tornadoes', ageMin: 6, formId: 5, enrollVisible: true },
         ] },
       ] })
+    }
+    if (path === '/api/public/drop-ins') {
+      return json({ classes: [{
+        classId: 60, formId: 30, className: younger, programId: 9, programName: fitAndFlip,
+        programDescription: staleDescription, ageMin: 8, ageMax: 11,
+      }], sessions: [] })
     }
 
     const formMatch = path.match(/^\/api\/scheduling\/forms\/(\d+)(\/offerings)?$/)
@@ -65,6 +75,7 @@ test('shows the current Eastern schedule by age and keeps the enrollment link on
   const formRequests = await mockSchedule(page)
   await page.goto('/fit-and-flip')
   const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
+  await schedule.scrollIntoViewIfNeeded()
   const cohorts = schedule.locator('.np-recurring-schedule > ul > li')
   await expect(cohorts).toHaveCount(2)
   await expect(cohorts.nth(0)).toContainText(younger)
@@ -85,6 +96,7 @@ test('keeps the healthy Fit & Flip group visible when the other form fails', asy
   await mockSchedule(page, [30])
   await page.goto('/fit-and-flip')
   const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
+  await schedule.scrollIntoViewIfNeeded()
   const cohorts = schedule.locator('.np-recurring-schedule > ul > li')
   await expect(cohorts).toHaveCount(1)
   await expect(cohorts).toContainText(older)
@@ -95,6 +107,30 @@ test('keeps filtered enrollment available if weekly times cannot load', async ({
   await mockSchedule(page, [30, 31])
   await page.goto('/fit-and-flip')
   const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
+  await schedule.scrollIntoViewIfNeeded()
   await expect(schedule.getByText('Check enrollment for current class times or contact Vortex for help.')).toBeVisible()
   await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
 })
+
+for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', 'Search drop-in classes']]) {
+  test(`finds Fit & Flip by athletic training terms on ${path}`, async ({ page }) => {
+    await mockSchedule(page)
+    await page.goto(path)
+    const search = page.getByRole('searchbox', { name: searchLabel })
+    const fitAndFlipHeading = page.getByRole('heading', { name: fitAndFlip, exact: true })
+    const gymnasticsHeading = page.getByRole('heading', { name: 'Developmental Gymnastics', exact: true })
+    await expect(fitAndFlipHeading).toBeVisible()
+    await expect(gymnasticsHeading).toBeVisible()
+    await expect(page.getByText(staleDescription)).toHaveCount(0)
+    await expect(page.getByText(/Fit & Flip is a coached fitness class for ages 8–15/)).toBeVisible()
+
+    for (const term of ['youth fitness', 'athletic training', 'strength training', 'sports performance', 'Cyclones']) {
+      await search.fill(term)
+      await expect(fitAndFlipHeading).toBeVisible()
+      await expect(page.getByText(younger, { exact: true })).toBeVisible()
+      await expect(page.getByText(older, { exact: true })).toBeVisible()
+      await expect(gymnasticsHeading).toHaveCount(0)
+      await expect(page.getByText('Typhoons', { exact: true })).toHaveCount(0)
+    }
+  })
+}

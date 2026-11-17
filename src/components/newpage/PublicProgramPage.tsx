@@ -4,9 +4,12 @@ import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import {
   BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, PARKING_AND_ACCESSIBILITY_PATH, TEAM_PHONE, TEAM_PHONE_E164,
 } from '../../config/contact'
+import { publicAdultBooking, type PublicAdultBooking } from '../../config/publicAdultBooking'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
+import { formatCents } from '../../utils/money'
+import { ADULT_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import PublicDialog from './PublicDialog'
 import PublicRecurringSchedule from './PublicRecurringSchedule'
 import './PublicProgramPage.css'
@@ -22,6 +25,40 @@ const HERO_IMAGE_SIZES = [
   '(min-width: 1440px) 582px',
   '557px',
 ].join(', ')
+
+const bookingDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' })
+const bookingWeekday = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'UTC' })
+const bookingTime = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
+
+function BookingDate({ date }: { date: string }) {
+  return <time dateTime={date}>{bookingDate.format(new Date(date))}</time>
+}
+
+function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
+  const { monthlyTuitionCents, dropIn, checkedOn } = booking
+  const weekly = dropIn && dropIn.firstDate !== dropIn.lastDate
+  return (
+    <div id="adult-booking-summary" className="np-adult-booking-summary">
+      <ul>
+        {dropIn && (
+          <li>
+            <strong>{formatCents(dropIn.priceCents)} per nonmember drop-in.</strong>{' '}
+            {weekly ? `Listed ${bookingWeekday.format(new Date(dropIn.firstDate))} drop-ins are ` : 'The next listed drop-in is '}
+            {bookingTime.format(new Date(`1970-01-01T${dropIn.startTime}:00Z`))}–{bookingTime.format(new Date(`1970-01-01T${dropIn.endTime}:00Z`))} Eastern
+            {weekly ? ' from ' : ' on '}<BookingDate date={dropIn.firstDate} />
+            {weekly && <> through <BookingDate date={dropIn.lastDate} /></>}.
+            {dropIn.freeTrial && ' These dates accept eligible one-time free trials.'}{' '}
+            <Link to={ADULT_DROP_IN_HREF} data-analytics-cta="browse_drop_ins" data-analytics-section="adult_booking_summary">Check drop-in dates</Link>.
+          </li>
+        )}
+        {monthlyTuitionCents !== null && (
+          <li><strong>{formatCents(monthlyTuitionCents)} base tuition per month.</strong> Recurring enrollment requires an active annual membership.</li>
+        )}
+      </ul>
+      <p>Catalog checked <BookingDate date={checkedOn} />. Confirm current prices and availability when you book.</p>
+    </div>
+  )
+}
 
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
   const program = PUBLIC_PROGRAMS[path]
@@ -92,6 +129,7 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
           <section className="np-program-section np-program-schedule" id={recurringSchedule.id} aria-labelledby={`${recurringSchedule.id}-heading`}>
             <h2 id={`${recurringSchedule.id}-heading`}>{recurringSchedule.heading}</h2>
             {recurringSchedule.description && <p>{recurringSchedule.description}</p>}
+            {path === '/adult-gymnastics' && publicAdultBooking && <AdultBookingSummary booking={publicAdultBooking} />}
             <PublicRecurringSchedule
               key={recurringSchedule.programName}
               programName={recurringSchedule.programName}

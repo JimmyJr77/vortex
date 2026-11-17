@@ -674,6 +674,21 @@ const verifyHtml = (
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
         url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
         `${label}: the recurring adult schedule must link to Typhoons enrollment`)
+      const publishedBooking = schedule.match(/<div\b[^>]*\sid=["']adult-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
+      if (publishedBooking) {
+        assert(/Catalog checked <time\b[^>]*\bdatetime=["']\d{4}-\d{2}-\d{2}["']/i.test(publishedBooking) &&
+          /\$[\d,.]+ (?:base tuition per month|per nonmember drop-in)/.test(publishedBooking),
+          `${label}: the published adult booking summary must show a dated catalog check and verified price`)
+        if (publishedBooking.includes('per nonmember drop-in')) {
+          assert(tags(publishedBooking, 'time').length >= 2 && /Eastern/.test(publishedBooking) &&
+            hasDropInProgramLink(anchorUrls(publishedBooking), 'Adult Fitness & Acrobatics'),
+            `${label}: the adult drop-in summary must show a dated time and link to the live calendar`)
+        }
+        if (publishedBooking.includes('base tuition per month')) {
+          assert(/Recurring enrollment requires an active annual membership/.test(publishedBooking),
+            `${label}: the adult monthly tuition summary must explain the annual membership requirement`)
+        }
+      }
       const pricing = schedule.match(/<details\b[^>]*\sid=["']adult-class-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
       assert(/Compare adult gymnastics prices/i.test(pricing) && /Paid monthly enrollment requires an active annual membership/i.test(pricing) &&
         hasDropInProgramLink(anchorUrls(pricing), 'Adult Fitness & Acrobatics') &&

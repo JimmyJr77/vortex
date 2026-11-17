@@ -8,7 +8,8 @@ import {
   ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
   DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM,
   FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
-  getPublicBookingPrograms, getScopedDropInProgram, isAdultBookingProgram,
+  getPublicBookingDescription, getPublicBookingPrograms, getScopedDropInProgram,
+  isAdultBookingProgram, matchesPublicBookingSearch,
 } from '../utils/publicBookingPrograms'
 import { getDropInDateOptions } from '../utils/dropInDateOptions'
 import { getMemberSessionToken } from '../utils/portalSession'
@@ -147,17 +148,22 @@ export default function DropInPage() {
       setProgramOptions(publicPrograms)
       setClasses(publicPrograms.flatMap((program) => program.classes
         .filter((classItem) => classItem.formId != null && !(classItem.excludeFromDropIns ?? program.excludeFromDropIns))
-        .map((classItem): DropInClass => ({
-          ...(dropInClassById.get(classItem.id) ?? {
-            formId: Number(classItem.formId), classId: classItem.id,
-            className: classItem.displayName, classDescription: classItem.description,
-            programId: program.id, programName: program.displayName,
-            programDescription: program.description, sportName: program.primarySportName ?? null,
-            skillLevel: classItem.skillLevel, ageMin: classItem.ageMin, ageMax: classItem.ageMax,
-            monthlyCents: 0, baseCents: 0, discountPercent: 0, discountCents: 0, totalCents: 0,
-          }),
-          programName: program.displayName,
-        }))))
+        .map((classItem): DropInClass => {
+          const dropInClass = dropInClassById.get(classItem.id)
+          return {
+            ...(dropInClass ?? {
+              formId: Number(classItem.formId), classId: classItem.id,
+              className: classItem.displayName, classDescription: classItem.description,
+              programId: program.id, sportName: program.primarySportName ?? null,
+              skillLevel: classItem.skillLevel, ageMin: classItem.ageMin, ageMax: classItem.ageMax,
+              monthlyCents: 0, baseCents: 0, discountPercent: 0, discountCents: 0, totalCents: 0,
+            }),
+            programName: program.displayName,
+            programDescription: getPublicBookingDescription(
+              program.displayName, dropInClass ? dropInClass.programDescription : program.description,
+            ),
+          }
+        })))
       setSessions(data.sessions)
     }).catch((err) => {
       if (active) setError(err instanceof Error ? err.message : 'Unable to load classes')
@@ -180,7 +186,7 @@ export default function DropInPage() {
       (!dropInDate || sessions.some(
         (session) => session.classId === row.classId && session.date === dropInDate,
       )) &&
-      (!query || [row.sportName, row.programName, row.className, row.skillLevel, row.classDescription].filter(Boolean).join(' ').toLowerCase().includes(query)),
+      matchesPublicBookingSearch(query, row.programName, [row.sportName, row.programName, row.className, row.skillLevel, row.classDescription]),
     )
     const grouped = new Map<number, DropInClass[]>()
     for (const row of filtered) grouped.set(row.programId, [...(grouped.get(row.programId) ?? []), row])

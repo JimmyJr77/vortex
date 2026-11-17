@@ -1,3 +1,5 @@
+import { FIT_AND_FLIP_PUBLIC_COPY } from '../config/fitAndFlipCopy'
+import { ADULT_BOOKING_PROGRAM } from '../config/publicCatalog'
 import type { PublicClassOffered, PublicProgramOffered } from './publicClassesApi'
 
 export const DEVELOPMENTAL_GYMNASTICS_PROGRAM = 'Developmental Gymnastics'
@@ -15,13 +17,14 @@ const PUBLIC_BOOKING_PROGRAMS = [
   { name: FIT_AND_FLIP_BOOKING_PROGRAM, aliases: [FIT_AND_FLIP_BOOKING_PROGRAM] },
 ] as const
 
-export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
+export { ADULT_BOOKING_PROGRAM }
 export const ADULT_BOOKING_HREF = `/enroll?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 export const ADULT_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_AND_FLIP_BOOKING_PROGRAM | typeof DEVELOPMENTAL_GYMNASTICS_PROGRAM
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
+const fitAndFlipSearchCopy = Object.values(FIT_AND_FLIP_PUBLIC_COPY).join(' ')
 
 export function isAdultBookingProgram(name: string | null): boolean {
   return name !== null && normalize(name) === normalizedAdultBookingProgram
@@ -53,6 +56,18 @@ export function getScopedDropInProgram(name: string | null) {
   if (isAdultBookingProgram(name)) return ADULT_BOOKING_PROGRAM
   const program = name ? getPublicBookingProgramName(name) : null
   return program === FIT_AND_FLIP_BOOKING_PROGRAM || program === DEVELOPMENTAL_GYMNASTICS_PROGRAM ? program : null
+}
+
+export function getPublicBookingDescription(programName: string, catalogDescription: string | null) {
+  return programName === FIT_AND_FLIP_BOOKING_PROGRAM ? FIT_AND_FLIP_PUBLIC_COPY.intro : catalogDescription
+}
+
+export function matchesPublicBookingSearch(
+  query: string, programName: string | null, fields: readonly (string | null | undefined)[],
+) {
+  if (!query) return true
+  const programCopy = programName === FIT_AND_FLIP_BOOKING_PROGRAM ? fitAndFlipSearchCopy : ''
+  return [...fields, programCopy].filter(Boolean).join(' ').toLowerCase().includes(query)
 }
 
 export function getPublicBookingPrograms<T extends { displayName: string; enrollmentSortOrder?: number | null }>(programs: readonly T[]): T[] {

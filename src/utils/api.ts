@@ -1,3 +1,5 @@
+import { PUBLIC_API_ORIGIN } from '../config/publicCatalog'
+
 /**
  * Get the API URL based on environment
  * - Uses VITE_API_URL if set (for local development)
@@ -12,7 +14,7 @@ export const getApiUrl = (): string => {
   
   // In production builds, use production backend
   if (import.meta.env.PROD) {
-    return 'https://vortex-backend-qybl.onrender.com'
+    return PUBLIC_API_ORIGIN
   }
   
   // In development, use localhost
