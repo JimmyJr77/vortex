@@ -14,6 +14,21 @@ const cyclones: SchedulingCalendarEvent = {
 }
 
 test.describe('Client-critical smoke flows', () => {
+  test('families can compare boys’ apparatus classes and find a first gymnastics visit', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/gymnastics#artistic')
+    await page.getByRole('link', { name: 'Compare boys’ gymnastics and apparatus classes' }).click()
+    await expect(page).toHaveURL('/blog/gymnastics-vs-tumbling#boys-gymnastics')
+
+    const comparison = page.locator('#boys-gymnastics')
+    await expect(comparison.getByRole('heading')).toBeInViewport()
+    await expect(comparison.getByRole('link', { name: 'See MGA’s boys’ gymnastics class' }))
+      .toHaveAttribute('href', 'https://www.mga-gymnastics.com/boys.html')
+    await comparison.getByRole('link', { name: 'See how a Vortex trial works' }).click()
+    await expect(page).toHaveURL('/gymnastics#first-visit')
+    await expect(page.locator('#first-visit').getByRole('heading', { level: 2 })).toBeInViewport()
+  })
+
   test('Fit & Flip links families to fitness alternatives by age', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/fit-and-flip#fit-flip-trial-age')

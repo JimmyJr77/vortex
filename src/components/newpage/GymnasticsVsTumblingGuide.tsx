@@ -43,6 +43,7 @@ export default function GymnasticsVsTumblingGuide() {
           <ul>
             <li><a href="#where-tumbling-fits">Where tumbling fits</a></li>
             <li><a href="#choose-a-class">Which class to try</a></li>
+            <li><a href="#boys-gymnastics">Boys’ gymnastics and apparatus classes</a></li>
             <li><a href="#nearby-tumbling-classes">Dedicated tumbling classes near Bowie</a></li>
             <li><a href="#questions-for-the-coach">Questions for the coach</a></li>
           </ul>
@@ -96,6 +97,36 @@ export default function GymnasticsVsTumblingGuide() {
             a specific skill in mind, tell the coach what they can already do and ask which class works on it.
           </p>
           <p>For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what kids practice in preschool gymnastics</Link>.</p>
+        </section>
+
+        <section id="boys-gymnastics">
+          <h2>Boys’ gymnastics and apparatus classes near Bowie</h2>
+          <p>
+            If your child wants to work on rings, pommel horse, or high bar, check which apparatus their group
+            will use. Those are events in men’s artistic gymnastics, along with floor, vault, and parallel bars.{' '}
+            <a href="https://members.usagym.org/pages/gymnastics101/men/events.html">See the men’s artistic events from USA Gymnastics</a>.
+          </p>
+          <ul>
+            <li>
+              <strong>General gymnastics foundations in Bowie.</strong> Vortex’s beginner Tornadoes classes teach
+              rolls, cartwheels, handstands, and controlled landings. First-time gymnasts ages 6–17 can look for a
+              trial. Ask which equipment your child’s group uses.{' '}
+              <Link to="/gymnastics#first-visit">See how a Vortex trial works</Link>
+            </li>
+            <li>
+              <strong>Boys’ gymnastics in Upper Marlboro.</strong> MGA lists a class that teaches skills across
+              all six men’s artistic events, including pommel horse and rings. Ask MGA which starting group fits
+              your child’s age and experience.{' '}
+              <a href="https://www.mga-gymnastics.com/boys.html">See MGA’s boys’ gymnastics class</a>
+            </li>
+            <li>
+              <strong>County gymnastics in Landover.</strong> The seasonal guide lists Boys Bronze and Boys Silver
+              at the Prince George’s Sports &amp; Learning Complex. Bronze listings have no prerequisites. For
+              Silver, the guide calls for independent rolls and cartwheels as well as strength on the apparatus.
+              Check the age and prerequisites for the current session.{' '}
+              <a href="https://www.pgparks.com/your-guide">Look up boys’ gymnastics in the county guide</a>
+            </li>
+          </ul>
         </section>
 
         <section id="nearby-tumbling-classes">

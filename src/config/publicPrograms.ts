@@ -214,7 +214,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         heading: 'Gymnastics disciplines',
         description: 'Developmental gymnastics builds foundations shared across disciplines. These are some of the skills athletes can encounter as they progress. Ask Vortex about the current class or team pathway for a particular discipline.',
         topics: [
-          { id: 'artistic', heading: 'Artistic gymnastics', description: 'Floor skills and apparatus work develop strength, balance, swings, and controlled landings.' },
+          {
+            id: 'artistic',
+            heading: 'Artistic gymnastics',
+            description: 'Floor skills and apparatus work develop strength, balance, swings, and controlled landings.',
+            link: { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#boys-gymnastics`, label: 'Compare boys’ gymnastics and apparatus classes' },
+          },
           { id: 'rhythmic', heading: 'Rhythmic gymnastics', description: 'Gymnasts combine movement, balance, and coordination with hand apparatus such as a hoop or ribbon.' },
           { id: 'acro', heading: 'Acrobatic gymnastics', description: 'Partner and group work adds timing, communication, and shared balance to individual gymnastics skills.' },
           { id: 'aerobic', heading: 'Aerobic gymnastics', description: 'Continuous sequences combine dynamic movement, rhythm, coordination, and endurance.' },

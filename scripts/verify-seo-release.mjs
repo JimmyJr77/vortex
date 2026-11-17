@@ -898,6 +898,7 @@ const verifyHtml = (
     const teen = html.match(/<article\b[^>]*\sid=["']teen["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const artistic = html.match(/<article\b[^>]*\sid=["']artistic["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const homeschool = html.match(/<section\b[^>]*\sid=["']homeschool["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const teamLinks = anchorUrls(team)
@@ -909,6 +910,8 @@ const verifyHtml = (
       `${label}: missing the crawlable guide link in the preschool class section`)
     assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),
       `${label}: missing the placement link for experienced and returning gymnasts`)
+    assert(anchorUrls(artistic).some(url => url.href === `${tumblingGuideCanonical}#boys-gymnastics`),
+      `${label}: artistic gymnastics must link to the local boys’ apparatus comparison`)
     assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones/.test(placement) && /Advanced Vortex A4 Elite/.test(placement) &&
       /front limber/.test(placement) && /front or back handspring/.test(placement) && /finish in balance/.test(placement) &&
       /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
@@ -958,6 +961,17 @@ const verifyHtml = (
     ]) {
       assert(nearbyTumblingLinks.some(url => url.href === provider),
         `${label}: missing the dedicated tumbling provider link to ${provider}`)
+    }
+    const boysGymnastics = content.match(/<section\b[^>]*\sid=["']boys-gymnastics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const boysGymnasticsLinks = anchorUrls(boysGymnastics)
+    for (const destination of [
+      `${HUB_ORIGIN}/gymnastics#first-visit`,
+      'https://members.usagym.org/pages/gymnastics101/men/events.html',
+      'https://www.mga-gymnastics.com/boys.html',
+      'https://www.pgparks.com/your-guide',
+    ]) {
+      assert(boysGymnasticsLinks.some(url => url.href === destination),
+        `${label}: the boys’ gymnastics comparison is missing ${destination}`)
     }
   }
 

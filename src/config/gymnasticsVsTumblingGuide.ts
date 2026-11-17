@@ -7,7 +7,7 @@ export const GYMNASTICS_VS_TUMBLING_GUIDE = {
   title: 'Gymnastics vs. Tumbling for Kids in Bowie, MD | Vortex',
   heading: 'Gymnastics vs. tumbling for kids',
   description:
-    'Compare gymnastics, youth strength training, and dedicated tumbling classes near Bowie, MD. Check class formats and beginner skill requirements.',
+    'Compare developmental gymnastics, boys’ apparatus classes, and dedicated tumbling near Bowie, MD. See beginner requirements and where to try a first class.',
   image: searchPhotos.tumbling,
   cardImage: searchPhotos.tumbling,
   imageAlt: 'A Vortex athlete flipping above a tumble track in Bowie, Maryland',
