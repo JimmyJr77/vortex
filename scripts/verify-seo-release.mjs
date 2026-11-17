@@ -293,15 +293,35 @@ const verifyHtml = (
 
   const pagePath = new URL(canonical).pathname
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
-  if (shouldIndex && [
+  const usesLegacyHeader = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service'].includes(pagePath)
+  if (shouldIndex && (usesLegacyHeader || [
     '/', ...HUB_PROGRAM_PATHS, '/read-board', '/enroll', '/drop-in',
     YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH,
-  ].includes(pagePath)) {
+  ].includes(pagePath))) {
     const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(navigation)
-    for (const path of [...HUB_PROGRAM_PATHS, BOWIE_YOUTH_SPORTS_GUIDE_PATH, '/#programs']) {
+    const expectedPaths = [...HUB_PROGRAM_PATHS, BOWIE_YOUTH_SPORTS_GUIDE_PATH]
+    if (!usesLegacyHeader) expectedPaths.push('/#programs')
+    for (const path of expectedPaths) {
       assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
         `${label}: expected one crawlable main navigation link to ${path}`)
+    }
+    if (usesLegacyHeader) {
+      const footer = html.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/i)?.[0] ?? ''
+      const footerLinks = anchorUrls(footer)
+      for (const path of HUB_PROGRAM_PATHS) {
+        assert(footerLinks.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
+          `${label}: expected one crawlable footer link to ${path}`)
+      }
+
+      const header = html.match(/<header\b[^>]*>[\s\S]*?<\/header>/i)?.[0] ?? ''
+      const chromeLinks = [...anchorUrls(header), ...footerLinks]
+      assert(!chromeLinks.some((url) => STUB_SEO_ENTRIES.some(({ host }) => url.hostname.replace(/^www\./, '') === host)),
+        `${label}: header or footer links to a placeholder sport domain`)
+      for (const path of ['/#gymnastics', '/#fit-flip']) {
+        assert(!chromeLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+          `${label}: header or footer links to superseded program entry ${path}`)
+      }
     }
   }
   if (pagePath === '/' && shouldIndex) {

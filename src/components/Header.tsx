@@ -51,9 +51,9 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in"
     >
-      <div className="container-custom">
+      <div className="container-custom flex max-h-[100dvh] flex-col">
         {/* Mobile Layout: Logo on top, buttons below */}
-        <div className="flex flex-col min-[1075px]:flex-row min-[1075px]:items-center min-[1075px]:justify-between py-4 min-[1075px]:py-0 min-[1075px]:h-20">
+        <div className="flex shrink-0 flex-col min-[1075px]:flex-row min-[1075px]:items-center min-[1075px]:justify-between py-4 min-[1075px]:py-0 min-[1075px]:h-20">
           {/* Logo - Clickable - Full width on mobile, auto on desktop */}
           <div
             className={`flex items-center justify-between gap-5 px-1 min-[1075px]:justify-start min-[1075px]:px-0 ${
@@ -83,6 +83,8 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
                 className="text-white hover:text-vortex-red transition-colors duration-300"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
                 aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+                aria-expanded={isMenuOpen}
+                aria-controls="hub-main-navigation"
               >
                 {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
               </button>
@@ -157,6 +159,8 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
               className="text-white hover:text-vortex-red transition-colors duration-300 hidden min-[1075px]:block"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label={isMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+              aria-expanded={isMenuOpen}
+              aria-controls="hub-main-navigation"
             >
               {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -165,7 +169,9 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
 
         {/* Navigation Menu (Mobile & Desktop) */}
         <motion.nav
-          className={`${isMenuOpen ? 'block' : 'hidden'}`}
+          id="hub-main-navigation"
+          aria-label="Main navigation"
+          className={`${isMenuOpen ? 'block' : 'hidden'} min-h-0 overflow-y-auto overscroll-contain`}
           initial={{ opacity: 0, height: 0 }}
           animate={{ 
             opacity: isMenuOpen ? 1 : 0, 
@@ -189,7 +195,7 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
                 )
               }
 
-              if ('onHold' in entry && entry.onHold) {
+              if (entry.onHold) {
                 return (
                   <span
                     key={entry.label}
@@ -200,21 +206,6 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
                     {entry.label}
                     <span className="sr-only"> (on hold)</span>
                   </span>
-                )
-              }
-
-              if ('href' in entry) {
-                return (
-                  <a
-                    key={entry.label}
-                    href={entry.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setIsMenuOpen(false)}
-                    className={linkClass(false)}
-                  >
-                    {entry.label}
-                  </a>
                 )
               }
 
