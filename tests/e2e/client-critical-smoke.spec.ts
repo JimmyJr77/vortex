@@ -419,9 +419,13 @@ test.describe('Client-critical smoke flows', () => {
       { id: 41, formId: 30, displayName: 'Cyclones (8–11)', ageMin: 8, priceCents: 15000 },
       { id: 42, formId: 31, displayName: 'Cyclones (12–15)', ageMin: 12, priceCents: 16000 },
     ]
-    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: { success: true, data: {
-      programs: [{ id: 9, displayName: program, classes: groups.map(group => ({ ...group, enrollVisible: true })) }],
-    } } }))
+    let scheduleRequests = 0
+    await page.route('**/api/public/classes-offered', route => {
+      scheduleRequests += 1
+      return route.fulfill({ json: { success: true, data: {
+        programs: [{ id: 9, displayName: program, classes: groups.map(group => ({ ...group, enrollVisible: true })) }],
+      } } })
+    })
     const priceRequests: { path: string; authorization?: string }[] = []
     for (const { id, formId, priceCents } of groups) {
       const offeringId = formId + 100
@@ -456,9 +460,12 @@ test.describe('Client-critical smoke flows', () => {
       ] } } })
     })
 
-    await page.goto('/fit-and-flip')
+    await page.goto('/fit-and-flip', { waitUntil: 'networkidle' })
+    expect(scheduleRequests).toBe(0)
     const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
+    await schedule.locator('.np-class-pricing').scrollIntoViewIfNeeded()
     await expect(schedule.locator('.np-recurring-schedule > ul > li')).toContainText(['Cyclones (8–11)', 'Cyclones (12–15)'])
+    expect(scheduleRequests).toBe(1)
     expect(priceRequests).toEqual([])
     await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
     await page.goto('/blog/youth-sports-bowie')

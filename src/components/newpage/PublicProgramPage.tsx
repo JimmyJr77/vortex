@@ -92,7 +92,11 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
           <section className="np-program-section np-program-schedule" id={recurringSchedule.id} aria-labelledby={`${recurringSchedule.id}-heading`}>
             <h2 id={`${recurringSchedule.id}-heading`}>{recurringSchedule.heading}</h2>
             {recurringSchedule.description && <p>{recurringSchedule.description}</p>}
-            <PublicRecurringSchedule key={recurringSchedule.programName} programName={recurringSchedule.programName} />
+            <PublicRecurringSchedule
+              key={recurringSchedule.programName}
+              programName={recurringSchedule.programName}
+              scheduleId={recurringSchedule.id}
+            />
             <Link to={primaryAction.href} className="np-program-plain-link" data-analytics-cta={primaryAction.analyticsKey} data-analytics-section={recurringSchedule.id.replaceAll('-', '_')}>
               Check dates and availability <ArrowUpRight size={16} aria-hidden="true" />
             </Link>

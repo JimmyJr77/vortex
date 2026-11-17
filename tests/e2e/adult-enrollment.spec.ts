@@ -75,7 +75,7 @@ async function mockClasses(page: Page, {
 
 test('adult gymnastics, general enrollment, and published form links open the current Typhoons schedule', async ({ page }) => {
   await mockClasses(page)
-  await page.goto('/adult-gymnastics')
+  await page.goto('/adult-gymnastics#adult-class-schedule')
   await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toBeVisible()
   await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   await expect(page.getByText('All times Eastern. Check enrollment for dates and availability.')).toBeVisible()
@@ -119,7 +119,9 @@ test('adult gymnastics, general enrollment, and published form links open the cu
 test('only the adult program page loads recurring adult class times', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const formRequests = await mockClasses(page, { multipleAdultClasses: true })
-  await page.goto('/adult-gymnastics')
+  await page.goto('/adult-gymnastics', { waitUntil: 'networkidle' })
+  expect(formRequests).toEqual([])
+  await page.locator('#adult-class-pricing').scrollIntoViewIfNeeded()
   await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toBeVisible()
   await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   await expect(page.getByText('Second adult class', { exact: true })).toHaveCount(0)
@@ -141,17 +143,18 @@ test('the adult hero stays in place while recurring times load on mobile', async
   await page.goto('/adult-gymnastics')
   const heroImage = page.locator('.np-program-hero-image')
   const schedule = page.getByRole('region', { name: scheduleHeading, exact: true })
-  let before: number | undefined
+  let before: number
   try {
+    await expect(schedule.getByText('Checking recurring class times…')).toHaveCount(0)
+    await schedule.locator('#adult-class-pricing').scrollIntoViewIfNeeded()
     await expect(schedule.getByText('Checking recurring class times…')).toBeVisible()
     await page.evaluate(() => document.fonts.ready.then(() => undefined))
-    before = (await heroImage.boundingBox())?.y
+    before = await heroImage.evaluate(image => image.getBoundingClientRect().top + window.scrollY)
   } finally {
     releaseCatalog()
   }
   await expect(schedule.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
-  const after = (await heroImage.boundingBox())?.y
-  if (before === undefined || after === undefined) throw new Error('The adult hero image must stay visible')
+  const after = await heroImage.evaluate(image => image.getBoundingClientRect().top + window.scrollY)
   expect(Math.abs(before - after)).toBeLessThanOrEqual(1)
   await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', adultBookingPath)
 })
@@ -180,8 +183,9 @@ test('adults can compare live monthly and nonmember drop-in rates on demand', as
     ] } } })
   })
   await page.goto('/adult-gymnastics')
-  await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   const pricing = page.locator('#adult-class-pricing')
+  await pricing.scrollIntoViewIfNeeded()
+  await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   await expect(pricing).not.toHaveAttribute('open', '')
   expect(pricingRequests).toEqual([])
   await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
@@ -235,7 +239,7 @@ for (const [scenario, mockOptions, expectsFormRequest] of [
 ] as const) {
   test(`the adult landing page keeps the enrollment link for ${scenario}`, async ({ page }) => {
     const formRequests = await mockClasses(page, mockOptions)
-    await page.goto('/adult-gymnastics')
+    await page.goto('/adult-gymnastics#adult-class-schedule')
     await expect(page.getByText('Check enrollment for current class times or contact Vortex for help.')).toBeVisible()
     const schedule = page.getByRole('region', { name: scheduleHeading, exact: true })
     await expect(schedule.getByRole('list')).toHaveCount(0)

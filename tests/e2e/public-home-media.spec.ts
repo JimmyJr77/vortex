@@ -21,11 +21,16 @@ test.describe('phone homepage video', () => {
     await expect(page.locator('.np-hero-poster')).toBeVisible()
     await expect(page.locator(backgroundVideo)).not.toHaveAttribute('src', /.+/)
     expect(requestedMedia).toHaveLength(0)
+    const galleryHeading = page.getByRole('heading', { name: 'THE COMPLETE ATHLETE', exact: true })
+    await expect(galleryHeading).not.toHaveClass(/\bfont-display\b/)
 
     await page.getByRole('button', { name: 'Necessary only' }).click()
     await page.getByRole('button', { name: 'Play background video' }).click()
     await expect(page.locator(backgroundVideo)).toHaveAttribute('src', trainingLoop)
     await expect.poll(() => requestedMedia.length).toBeGreaterThan(0)
+
+    await galleryHeading.scrollIntoViewIfNeeded()
+    await expect(galleryHeading).toHaveClass(/\bfont-display\b/)
   })
 
   test('the training film has a direct, user-controlled player on mobile', async ({ page }) => {

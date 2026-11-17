@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { formatSkillLevel } from '../../utils/classDisplayUtils'
 import { DEVELOPMENTAL_GYMNASTICS_PROGRAM, getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
@@ -73,13 +74,36 @@ async function loadSchedule(programName: RecurringBookingProgram): Promise<Extra
   }
 }
 
-export default function PublicRecurringSchedule({ programName }: {
+export default function PublicRecurringSchedule({ programName, scheduleId }: {
   programName: RecurringBookingProgram
+  scheduleId: string
 }) {
+  const { hash } = useLocation()
+  const controlsRef = useRef<HTMLDivElement>(null)
+  const [requested, setRequested] = useState(false)
   const [schedule, setSchedule] = useState<ScheduleState>({ status: 'loading' })
   const isDevelopmentalGymnastics = programName === DEVELOPMENTAL_GYMNASTICS_PROGRAM
 
   useEffect(() => {
+    if (requested) return
+    if (hash === `#${scheduleId}` || typeof IntersectionObserver === 'undefined') {
+      setRequested(true)
+      return
+    }
+    const controls = controlsRef.current
+    if (!controls) return
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        observer.disconnect()
+        setRequested(true)
+      }
+    }, { rootMargin: '0px 0px 64px' })
+    observer.observe(controls)
+    return () => observer.disconnect()
+  }, [hash, requested, scheduleId])
+
+  useEffect(() => {
+    if (!requested) return
     let current = true
     void loadSchedule(programName).then((result) => {
       if (current) setSchedule(result)
@@ -87,11 +111,11 @@ export default function PublicRecurringSchedule({ programName }: {
       if (current) setSchedule({ status: 'unavailable' })
     })
     return () => { current = false }
-  }, [programName])
+  }, [programName, requested])
 
-  return (<>
+  return <div ref={controlsRef}>
     <div className="np-recurring-schedule" data-prerender-dynamic="" aria-live="polite">
-      {schedule.status === 'loading' ? (
+      {!requested ? null : schedule.status === 'loading' ? (
         <p>Checking recurring class times…</p>
       ) : schedule.status === 'loaded' && schedule.classes.length ? (
         <>
@@ -121,6 +145,7 @@ export default function PublicRecurringSchedule({ programName }: {
       program={programName}
       classes={schedule.status === 'loaded' ? schedule.classes : schedule.status === 'loading' ? null : NO_CLASSES}
       usesClassTuition={!isDevelopmentalGymnastics || (schedule.status === 'loaded' && schedule.usesClassTuition)}
+      onOpen={() => setRequested(true)}
     />
-  </>)
+  </div>
 }

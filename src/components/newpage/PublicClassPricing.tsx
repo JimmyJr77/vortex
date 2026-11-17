@@ -90,10 +90,11 @@ function describePrices(prices: number[], unit: string, fallback: string) {
   return unit ? `${amount} ${unit}` : amount
 }
 
-export default function PublicClassPricing({ program, classes, usesClassTuition }: {
+export default function PublicClassPricing({ program, classes, usesClassTuition, onOpen }: {
   program: RecurringBookingProgram
   classes: readonly RecurringPriceClass[] | null
   usesClassTuition: boolean
+  onOpen: () => void
 }) {
   const { id, label, comparisonKey, scheduleSection, bookingHref, dropInHref, trial } = PRICING_DETAILS[program]
   const { hash, key } = useLocation()
@@ -122,7 +123,10 @@ export default function PublicClassPricing({ program, classes, usesClassTuition 
 
   return (
     <details className={`np-class-pricing${isYouthGymnastics ? ' np-youth-gymnastics-pricing' : ''}`} id={id} ref={detailsRef} onToggle={event => {
-      if (event.currentTarget.open) setRequested(true)
+      if (event.currentTarget.open) {
+        onOpen()
+        setRequested(true)
+      }
     }}>
       <summary data-analytics-cta={comparisonKey} data-analytics-section={scheduleSection}>
         {label}

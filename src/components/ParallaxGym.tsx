@@ -34,6 +34,8 @@ export default function ParallaxGym({ paused = false }: { paused?: boolean }) {
     return () => observer.disconnect()
   }, [])
 
+  const displayFont = nearViewport === null ? '' : 'font-display'
+
   return (
     <section ref={containerRef} className="relative h-[100svh] min-h-[38rem] overflow-hidden bg-black">
       {nearViewport === null ? <GymPoster /> : (
@@ -41,10 +43,10 @@ export default function ParallaxGym({ paused = false }: { paused?: boolean }) {
           <ParallaxGymMotion containerRef={containerRef} paused={paused || !nearViewport} />
         </Suspense>
       )}
-      <h2 className="absolute inset-x-0 top-[9%] z-20 px-4 text-center text-5xl font-display font-bold text-white drop-shadow-2xl sm:text-6xl md:text-7xl">
+      <h2 className={`absolute inset-x-0 top-[9%] z-20 px-4 text-center text-5xl font-bold text-white drop-shadow-2xl sm:text-6xl md:text-7xl ${displayFont}`}>
         THE COMPLETE ATHLETE
       </h2>
-      <p className="absolute inset-x-0 bottom-[9%] z-20 px-4 text-center text-5xl font-display font-bold text-white drop-shadow-2xl sm:text-6xl md:text-7xl">
+      <p className={`absolute inset-x-0 bottom-[9%] z-20 px-4 text-center text-5xl font-bold text-white drop-shadow-2xl sm:text-6xl md:text-7xl ${displayFont}`}>
         NEEDS A COMPLETE GYM
       </p>
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/15 via-transparent to-black/15" />
