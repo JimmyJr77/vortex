@@ -3,6 +3,8 @@ import { join } from 'node:path'
 import {
   BOWIE_YOUTH_SPORTS_GUIDE_PATH,
   GYMNASTICS_ORIGIN,
+  GYMNASTICS_VS_TUMBLING_GUIDE_PATH,
+  HUB_ARTICLE_PATHS,
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
   HUB_PRERENDER_PATHS,
@@ -314,8 +316,7 @@ const verifyHtml = (
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
   const usesLegacyHeader = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service'].includes(pagePath)
   if (shouldIndex && (usesLegacyHeader || [
-    '/', ...HUB_PROGRAM_PATHS, '/read-board', '/enroll', '/drop-in',
-    YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
+    '/', ...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in',
   ].includes(pagePath))) {
     const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(navigation)
@@ -448,6 +449,7 @@ const verifyHtml = (
   const guideCanonical = canonicalFor(HUB_ORIGIN, YOUTH_ATHLETIC_GUIDE_PATH)
   const bowieGuideCanonical = canonicalFor(HUB_ORIGIN, BOWIE_YOUTH_SPORTS_GUIDE_PATH)
   const preschoolGuideCanonical = canonicalFor(HUB_ORIGIN, PRESCHOOL_GYMNASTICS_GUIDE_PATH)
+  const tumblingGuideCanonical = canonicalFor(HUB_ORIGIN, GYMNASTICS_VS_TUMBLING_GUIDE_PATH)
   const fitAndFlipCanonical = canonicalFor(HUB_ORIGIN, '/fit-and-flip')
   if (shouldIndex && [HUB_ORIGIN, guideCanonical, fitAndFlipCanonical].includes(canonical)) {
     const content = (canonical === guideCanonical
@@ -529,6 +531,21 @@ const verifyHtml = (
     assert(['ages-2-3', 'ages-4-5', 'progress'].every((id) => pageIds.has(id)),
       `${label}: missing preschool curriculum or progress sections`)
   }
+  if (shouldIndex && (pagePath === '/gymnastics' || pagePath === '/fit-and-flip')) {
+    const tumblingTopicId = pagePath === '/gymnastics' ? 'trampoline-tumbling' : 'body-control'
+    const articleTag = tags(html, 'article').find(tag => attribute(tag, 'id') === tumblingTopicId)
+    const topic = articleTag ? html.slice(html.indexOf(articleTag)).split('</article>', 1)[0] : ''
+    assert(anchorUrls(topic).some((url) => url.href === tumblingGuideCanonical),
+      `${label}: the tumbling topic must link to the comparison guide`)
+  }
+  if (shouldIndex && canonical === tumblingGuideCanonical) {
+    const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const links = anchorUrls(content)
+    for (const path of ['/gymnastics#beginner', '/fit-and-flip#body-control', '/read-board#classes', '/#free-trial']) {
+      assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: missing the crawlable comparison guide link to ${path}`)
+    }
+  }
 
   if (requireSchema) {
     assert(jsonLd.length >= 2, `${label}: expected Organization and WebSite JSON-LD`)
@@ -547,7 +564,7 @@ const verifyHtml = (
     assert(types.includes('Organization'), `${label}: Organization JSON-LD is missing`)
     assert(types.includes('WebSite'), `${label}: WebSite JSON-LD is missing`)
 
-    if ([guideCanonical, bowieGuideCanonical, preschoolGuideCanonical].includes(canonical)) {
+    if (HUB_ARTICLE_PATHS.includes(pagePath)) {
       const article = parsed.find((item) => item?.['@type'] === 'Article')
       assert(article?.mainEntityOfPage === canonical && article?.headline === h1s[0],
         `${label}: Article JSON-LD must match the canonical URL and visible heading`)
@@ -837,9 +854,7 @@ if (live) {
     await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path])
   }
 
-  for (const path of [
-    ...HUB_PROGRAM_PATHS, YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
-  ]) {
+  for (const path of [...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS]) {
     await verifyTrackedRedirect(`${path}/`, path)
   }
 
@@ -947,7 +962,7 @@ const redirectFor = (host, source, destination) =>
       redirect.has?.some((condition) => condition.type === 'host' && new RegExp(`^(?:${condition.value})$`).test(host)),
   )
 const hubPages = HUB_PRERENDER_PATHS.filter((path) => /^\/[^/]+$/.test(path)).map((path) => path.slice(1))
-const hubArticles = HUB_PRERENDER_PATHS.filter((path) => path.startsWith('/blog/')).map((path) => path.slice('/blog/'.length))
+const hubArticles = HUB_ARTICLE_PATHS.map((path) => path.slice('/blog/'.length))
 const snapshotRedirectRules = [
   [snapshotAliasFor('/'), '/'],
   [snapshotAliasFor(`/:page(${hubPages.join('|')})`), '/:page'],

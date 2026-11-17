@@ -9,24 +9,20 @@ import { createServer } from 'node:net'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  BOWIE_YOUTH_SPORTS_GUIDE_PATH,
   DEFAULT_OG_IMAGE,
+  HUB_ARTICLE_PATHS,
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
-  PRESCHOOL_GYMNASTICS_GUIDE_PATH,
   SITE_NAME,
   SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
-  YOUTH_ATHLETIC_GUIDE_PATH,
 } from './seo-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
 // These public pages use Inter for both headings and body text.
-const interOnlyContentPaths = new Set([
-  ...HUB_PROGRAM_PATHS, YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH, PRESCHOOL_GYMNASTICS_GUIDE_PATH,
-])
+const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS])
 let previewPort = 0
 let previewOrigin = ''
 

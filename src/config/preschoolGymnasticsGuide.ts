@@ -1,8 +1,8 @@
-import articleDates from './publicArticleDates.json'
+import publicArticles from './publicArticles.json'
 
 export const PRESCHOOL_GYMNASTICS_GUIDE = {
-  ...articleDates.preschoolGymnastics,
-  path: '/blog/preschool-gymnastics-what-toddlers-learn',
+  ...publicArticles.preschoolGymnastics,
+  breadcrumbLabel: 'Preschool Gymnastics Guide',
   title: 'What Kids Learn in Preschool Gymnastics | Vortex',
   heading: 'What children learn in preschool gymnastics',
   description:

@@ -8,9 +8,7 @@ import {
   TEAM_EMAIL,
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
-import { ATHLETIC_DEVELOPMENT_GUIDE } from '../config/athleticDevelopmentGuide'
-import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
-import { PRESCHOOL_GYMNASTICS_GUIDE } from '../config/preschoolGymnasticsGuide'
+import { PUBLIC_GUIDES } from '../config/publicGuides'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -272,15 +270,13 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/enroll': 'Classes & Enrollment',
     '/drop-in': 'Drop-In Classes',
     '/contact': 'Contact & Location',
-    [ATHLETIC_DEVELOPMENT_GUIDE.path]: 'Youth Athletic Development Guide',
-    [BOWIE_YOUTH_SPORTS_GUIDE.path]: 'Bowie Youth Sports Guide',
-    [PRESCHOOL_GYMNASTICS_GUIDE.path]: 'Preschool Gymnastics Guide',
     '/support': 'Customer Support',
     '/store': 'Vortex Athletics Store',
     '/privacy-policy': 'Privacy Policy',
     '/terms-of-service': 'Terms of Service',
   }
-  const name = breadcrumbName[pathname]
+  const guide = PUBLIC_GUIDES.find(({ path }) => path === pathname)
+  const name = breadcrumbName[pathname] ?? guide?.breadcrumbLabel
   if (name) {
     schema.push(
       breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, name, pathname)]),
@@ -328,8 +324,6 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   if (pathname === '/contact') {
     schema.push(sportsActivityLocationSchema())
   }
-  const guide = [ATHLETIC_DEVELOPMENT_GUIDE, BOWIE_YOUTH_SPORTS_GUIDE, PRESCHOOL_GYMNASTICS_GUIDE]
-    .find(({ path }) => path === pathname)
   if (guide) {
     schema.push({
       '@context': 'https://schema.org',

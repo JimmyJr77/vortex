@@ -180,7 +180,7 @@
       "permanent": true
     },
     {
-      "source": "/blog/:article(athletic-development-young-athletes|youth-sports-bowie|preschool-gymnastics-what-toddlers-learn)/index.html",
+      "source": "/blog/:article(athletic-development-young-athletes|youth-sports-bowie|preschool-gymnastics-what-toddlers-learn|gymnastics-vs-tumbling)/index.html",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/blog/:article",
       "permanent": true
@@ -348,6 +348,10 @@
     {
       "source": "/blog/preschool-gymnastics-what-toddlers-learn",
       "destination": "/blog/preschool-gymnastics-what-toddlers-learn/index.html"
+    },
+    {
+      "source": "/blog/gymnastics-vs-tumbling",
+      "destination": "/blog/gymnastics-vs-tumbling/index.html"
     },
     {
       "source": "/ninja",

@@ -1,6 +1,7 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BUSINESS_FACILITY_PHOTO } from './contact'
+import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
 import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../utils/publicBookingPrograms'
@@ -39,6 +40,11 @@ type PublicProgram = {
 
 const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
 const FREE_TRIAL_ACTION = { href: '/#free-trial', label: 'Try a free class', analyticsKey: 'free_trial_section' }
+const TUMBLING_GUIDE_ACTION = {
+  href: GYMNASTICS_VS_TUMBLING_GUIDE.path,
+  label: 'Compare gymnastics and tumbling for kids',
+  analyticsKey: 'read_gymnastics_vs_tumbling_guide',
+}
 
 export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   '/gymnastics': {
@@ -106,7 +112,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           { id: 'rhythmic', heading: 'Rhythmic gymnastics', description: 'Gymnasts combine movement, balance, and coordination with hand apparatus such as a hoop or ribbon.' },
           { id: 'acro', heading: 'Acrobatic gymnastics', description: 'Partner and group work adds timing, communication, and shared balance to individual gymnastics skills.' },
           { id: 'aerobic', heading: 'Aerobic gymnastics', description: 'Continuous sequences combine dynamic movement, rhythm, coordination, and endurance.' },
-          { id: 'trampoline-tumbling', heading: 'Trampoline and tumbling', description: 'Athletes work on rebounds, aerial awareness, and floor tumbling with a focus on control through the landing.' },
+          {
+            id: 'trampoline-tumbling',
+            heading: 'Trampoline and tumbling',
+            description: 'Athletes work on rebounds, aerial awareness, and floor tumbling with a focus on control through the landing.',
+            link: TUMBLING_GUIDE_ACTION,
+          },
         ],
       },
       {
@@ -145,7 +156,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         topics: [
           { id: 'strength', heading: 'Youth strength training', description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. An athlete might start with bodyweight and add resistance once they can repeat the movement with control. That foundation helps them hold a stable shape in gymnastics or stay balanced when changing direction on the court.' },
           { id: 'explosiveness', heading: 'Explosiveness', description: 'Jumps, takeoffs, and dynamic movement teach athletes to produce force quickly. That carries over to a first step on the field or a stronger takeoff in cheer and tumbling.' },
-          { id: 'body-control', heading: 'Body control and tumbling', description: 'Coaches use trampolines and tumble tracks to teach athletes how to hold a body shape and land steadily. Beginners can start with those skills and work toward connected tumbling as their control improves.' },
+          {
+            id: 'body-control',
+            heading: 'Body control and tumbling',
+            description: 'Coaches use trampolines and tumble tracks to teach athletes how to hold a body shape and land steadily. Beginners can start with those skills and work toward connected tumbling as their control improves.',
+            link: TUMBLING_GUIDE_ACTION,
+          },
         ],
       },
       {
