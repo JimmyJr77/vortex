@@ -75,6 +75,11 @@ Set a route's `lastmod` to its most recent substantive content or search
 metadata change. Leave it out when the date is unknown. The build preserves
 each configured date across deployments.
 
+The production prerender publishes the IndexNow ownership text file from
+Vercel's production-only `INDEXNOW_KEY`. Keep the key out of the public
+repository. In OpenSEO, submit primary-domain URLs when their content or
+routing changes. IndexNow notifies participating search engines such as Bing.
+
 ## Metadata, content, and structured data
 
 - `src/config/hubSeo.ts` owns unified site titles, descriptions, canonicals, and

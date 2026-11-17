@@ -30,6 +30,9 @@ type PublicProgram = {
   relatedPaths: readonly PublicProgramPath[]
 }
 
+const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
+const FREE_TRIAL_FINDER_HREF = '/#free-trial'
+
 export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
   '/gymnastics': {
     name: 'Youth Gymnastics',
@@ -42,18 +45,28 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageAlt: 'Young gymnasts learning together with a coach at Vortex',
     imageWidth: 1600,
     imageHeight: 1200,
-    primaryAction: { href: '/enroll?program=Developmental%20Gymnastics', label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
-    trialHref: '/#free-trial',
+    primaryAction: { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
+    trialHref: FREE_TRIAL_FINDER_HREF,
     sections: [
       {
         id: 'choose-a-class',
         heading: 'Find the right starting class',
         description: 'The gymnastics trial finder uses your child’s age and experience to show the right type of class. Current openings appear when you choose Gymnastics in the finder.',
         topics: [
-          { id: 'preschool', heading: 'Toddler and preschool gymnastics', description: 'The Mommy & Me trial is for potty-trained children ages 2–3. Ages 4–5 are directed to a preschool class, where coaches introduce balance, coordination, and basic gymnastics shapes through movement.' },
+          {
+            id: 'preschool',
+            heading: 'Mommy & Me and preschool gymnastics',
+            description:
+              'Dirt Devils is the Mommy & Me gymnastics class for toddlers ages 2–3. Children must be potty trained for a Dirt Devils trial. ' +
+              'Twisters is the preschool gymnastics class for ages 4–5, where coaches introduce balance, coordination, and basic gymnastics shapes through movement.',
+          },
           { id: 'beginner', heading: 'First gymnastics class', description: 'Ages 6–17 with no prior gymnastics experience start with a Tornadoes trial when available. Coaches introduce the foundations of gymnastics and help athletes learn to move, support their body weight, and land with control.' },
           { id: 'youth', heading: 'Developmental and team pathways', description: 'Developmental classes let athletes build skills without competing. Team gymnastics adds competition for athletes placed in that pathway. Families can ask the coaching team how progression and team placement work.' },
           { id: 'teen', heading: 'Teens and experienced gymnasts', description: 'New teen gymnasts can enter through the beginner trial finder. Athletes ages 6–17 who have done gymnastics before are directed to a Trial Assessment, where a coach can help place them at a suitable level.' },
+        ],
+        links: [
+          { href: FREE_TRIAL_FINDER_HREF, label: 'Find a gymnastics trial', analyticsKey: 'free_trial_section' },
+          { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse developmental gymnastics classes', analyticsKey: 'browse_classes' },
         ],
       },
       {

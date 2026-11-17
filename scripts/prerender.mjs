@@ -309,8 +309,14 @@ const main = async () => {
     process.exit(1)
   }
 
+  const indexNowKey = process.env.VERCEL_ENV === 'production' ? process.env.INDEXNOW_KEY : undefined
+  if (indexNowKey && !/^[a-z0-9-]{8,128}$/i.test(indexNowKey)) {
+    throw new Error('Invalid IndexNow verification key')
+  }
+
   generateShellHtml()
   await prerenderAppRoutes()
+  if (indexNowKey) writeFileSync(join(distDir, `${indexNowKey}.txt`), indexNowKey, 'utf8')
   console.log('[prerender] Done')
 }
 
