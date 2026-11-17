@@ -18,8 +18,9 @@ const ReadBoardScheduleTab = ({ showCalendar }: { showCalendar: boolean }) => (
         <li><Link to="/#free-trial">Find a youth trial</Link></li>
         <li><Link to="/enroll">Browse recurring classes</Link></li>
         <li><Link to="/gymnastics#youth-gymnastics-schedule">Check youth gymnastics class times</Link></li>
+        <li><Link to="/fit-and-flip#fit-flip-schedule">Check Fit &amp; Flip class times</Link></li>
         <li><Link to="/drop-in">Find a youth drop-in</Link></li>
-        <li><Link to="/adult-gymnastics">Check adult class times</Link></li>
+        <li><Link to="/adult-gymnastics#adult-class-schedule">Check adult class times</Link></li>
       </ul>
     </div>
   </section>

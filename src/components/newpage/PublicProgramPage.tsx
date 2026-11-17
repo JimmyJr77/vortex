@@ -23,7 +23,7 @@ const HERO_IMAGE_SIZES = [
 
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
   const program = PUBLIC_PROGRAMS[path]
-  const { hash } = useLocation()
+  const { hash, key } = useLocation()
   const { primaryAction, secondaryAction, recurringSchedule, trial } = program
   const [trialOpen, setTrialOpen] = useState(false)
 
@@ -33,7 +33,7 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
       document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
     })
     return () => cancelAnimationFrame(frame)
-  }, [hash, path])
+  }, [hash, key, path])
 
   function renderTrialButton(section: string, label = trial?.label) {
     if (!trial || !label) return null

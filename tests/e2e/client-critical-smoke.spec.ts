@@ -173,11 +173,18 @@ test.describe('Client-critical smoke flows', () => {
     await page.setViewportSize({ width: 390, height: 844 })
     const scheduleUrl = '/read-board?utm_source=schedule-qa#schedule'
     const eventsUrl = '/read-board?utm_source=schedule-qa#events'
+    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: { success: true, data: { programs: [
+      { id: 10, displayName: 'Adult Fitness & Acrobatics', classes: [
+        { id: 20, displayName: 'Typhoons (Adult)', enrollVisible: true, formId: 3, signupUrl: '/enroll?form=3', ageMin: 18 },
+        { id: 21, displayName: 'Unpublished adult class', enrollVisible: false, formId: 23 },
+      ] },
+    ] } } }))
     await page.goto(scheduleUrl, { waitUntil: 'domcontentloaded' })
 
     const tabs = page.getByRole('navigation', { name: 'Browse classes and updates' })
     const scheduleTab = tabs.getByRole('link', { name: 'Schedule', exact: true })
     const eventsTab = tabs.getByRole('link', { name: 'Events', exact: true })
+    const classesTab = tabs.getByRole('link', { name: 'Classes Offered', exact: true })
     const calendar = page.locator('section#schedule').getByRole('button', { name: 'By class', exact: true })
     await expect(scheduleTab).toHaveAttribute('aria-current', 'location')
     await expect(calendar).toBeVisible()
@@ -196,6 +203,14 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page).toHaveURL(scheduleUrl)
     await expect(scheduleTab).toHaveAttribute('aria-current', 'location')
     await expect(calendar).toBeVisible()
+
+    await classesTab.click()
+    await expect(page).toHaveURL('/read-board?utm_source=schedule-qa#classes')
+    const classes = page.getByRole('region', { name: 'Gymnastics and fitness classes in Bowie' })
+    await expect(classes.getByRole('link', { name: 'Typhoons adult gymnastics' })).toHaveAttribute('href', '/adult-gymnastics')
+    await expect(classes.getByRole('heading', { name: 'Typhoons (Adult)', exact: true })).toBeVisible()
+    await expect(classes.getByRole('link', { name: 'Sign Up', exact: true })).toHaveAttribute('href', '/enroll?form=3')
+    await expect(classes.getByText('Unpublished adult class')).toHaveCount(0)
   })
 
   test('the youth gymnastics page lists published weekly times and keeps class levels distinct', async ({ page }) => {
@@ -335,15 +350,16 @@ test.describe('Client-critical smoke flows', () => {
       ] } } })
     })
 
-    await page.goto('/blog/youth-sports-bowie')
-    await page.getByRole('link', { name: 'Compare Fit & Flip prices', exact: true }).click()
-    await expect(page).toHaveURL('/fit-and-flip#fit-flip-class-pricing')
+    await page.goto('/fit-and-flip')
     const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
     await expect(schedule.locator('.np-recurring-schedule > ul > li')).toContainText(['Cyclones (8–11)', 'Cyclones (12–15)'])
     expect(priceRequests).toEqual([])
     await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
+    await page.goto('/blog/youth-sports-bowie')
+    await page.getByRole('link', { name: 'Compare Fit & Flip prices', exact: true }).click()
+    await expect(page).toHaveURL('/fit-and-flip#fit-flip-class-pricing')
     const pricing = page.locator('#fit-flip-class-pricing')
-    await pricing.locator('summary').click()
+    await expect(pricing).toHaveAttribute('open', '')
     await expect(pricing.getByText('$150.00–$160.00 per month', { exact: true })).toBeVisible()
     await expect(pricing.getByText('$50.00–$60.00 per class', { exact: true })).toBeVisible()
     await expect(pricing.getByText('$0 on qualifying dates', { exact: true })).toBeVisible()
@@ -354,6 +370,11 @@ test.describe('Client-critical smoke flows', () => {
     expect(priceRequests.map(({ path }) => path).sort()).toEqual([
       '/api/public/drop-ins', '/api/signup/catalog/classes/41/offerings', '/api/signup/catalog/classes/42/offerings',
     ])
+    await pricing.locator('summary').click()
+    await expect(pricing).not.toHaveAttribute('open', '')
+    await page.getByRole('link', { name: 'Compare monthly and drop-in prices', exact: true }).click()
+    await expect(pricing).toHaveAttribute('open', '')
+    await expect(pricing.getByText('$150.00–$160.00 per month', { exact: true })).toBeVisible()
     expect(priceRequests.every(({ authorization }) => authorization === undefined)).toBe(true)
   })
 

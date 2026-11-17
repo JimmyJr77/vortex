@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { getApiUrl } from '../../utils/api'
 import { fetchNonmemberDropIns } from '../../utils/dropInApi'
@@ -96,29 +96,32 @@ export default function PublicClassPricing({ program, classes, usesClassTuition 
   usesClassTuition: boolean
 }) {
   const { id, label, comparisonKey, scheduleSection, bookingHref, dropInHref, trial } = PRICING_DETAILS[program]
-  const { hash } = useLocation()
+  const { hash, key } = useLocation()
+  const detailsRef = useRef<HTMLDetailsElement>(null)
   const isYouthGymnastics = program === DEVELOPMENTAL_GYMNASTICS_PROGRAM
-  const openFromLink = isYouthGymnastics && hash === `#${id}`
   const analyticsSection = id.replaceAll('-', '_')
   const [requested, setRequested] = useState(false)
   const [monthly, setMonthly] = useState<number[][] | null>(null)
   const [dropIn, setDropIn] = useState<Awaited<ReturnType<typeof fetchDropInPrices>> | null>(null)
-  const showPrices = requested || openFromLink
   const uniformClassTuition = monthly?.every(prices => prices.length > 0 && prices.every(price => price === prices[0]))
     ? monthly.map(prices => prices[0]) : []
 
   useEffect(() => {
-    if (showPrices && classes !== null && usesClassTuition) {
-      return requestPrices(signal => fetchMonthlyPrices(classes, signal), setMonthly)
-    }
-  }, [classes, showPrices, usesClassTuition])
+    if (hash === `#${id}` && detailsRef.current) detailsRef.current.open = true
+  }, [hash, id, key])
 
   useEffect(() => {
-    if (showPrices) return requestPrices(signal => fetchDropInPrices(program, signal), setDropIn)
-  }, [program, showPrices])
+    if (requested && classes !== null && usesClassTuition) {
+      return requestPrices(signal => fetchMonthlyPrices(classes, signal), setMonthly)
+    }
+  }, [classes, requested, usesClassTuition])
+
+  useEffect(() => {
+    if (requested) return requestPrices(signal => fetchDropInPrices(program, signal), setDropIn)
+  }, [program, requested])
 
   return (
-    <details className={`np-class-pricing${isYouthGymnastics ? ' np-youth-gymnastics-pricing' : ''}`} id={id} open={openFromLink || undefined} onToggle={event => {
+    <details className={`np-class-pricing${isYouthGymnastics ? ' np-youth-gymnastics-pricing' : ''}`} id={id} ref={detailsRef} onToggle={event => {
       if (event.currentTarget.open) setRequested(true)
     }}>
       <summary data-analytics-cta={comparisonKey} data-analytics-section={scheduleSection}>
@@ -128,7 +131,7 @@ export default function PublicClassPricing({ program, classes, usesClassTuition 
         <p>Compare base tuition for a weekly class and the nonmember price for a single visit. Check the right level for your child before choosing a time.</p>
       )}
       <p>Paid monthly enrollment requires an active annual membership. Membership is optional for drop-ins and eligible free trials. Review fees, first-month adjustments, and any benefits during booking.</p>
-      {isYouthGymnastics && showPrices && (
+      {isYouthGymnastics && requested && (
         <div aria-live="polite" data-prerender-dynamic="">
           {classes === null ? <p>Checking current class prices…</p> : classes.length ? (
             <table>
@@ -152,7 +155,7 @@ export default function PublicClassPricing({ program, classes, usesClassTuition 
           ) : <p>Check enrollment or available drop-in dates for current prices.</p>}
         </div>
       )}
-      {!isYouthGymnastics && showPrices && (
+      {!isYouthGymnastics && requested && (
         <dl aria-live="polite" data-prerender-dynamic="">
           <div>
             <dt>Listed base tuition</dt>

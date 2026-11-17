@@ -40,7 +40,7 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     path: '/read-board',
     title: 'Class Schedules, Camps & Events in Bowie, MD | Vortex',
     description:
-      'Explore gymnastics and Fit & Flip classes, training schedules, camps, and events at Vortex Athletics in Bowie, MD.',
+      'Find youth gymnastics, Fit & Flip youth fitness, and Typhoons adult gymnastics at Vortex in Bowie, MD. See class times, camps, and events.',
   },
   {
     path: '/enroll',

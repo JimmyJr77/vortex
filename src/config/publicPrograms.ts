@@ -392,7 +392,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'adult-handstand-preparation',
             heading: 'What a first step toward a handstand could look like',
-            description: 'A coach might start you in a supported position so you can practice putting some weight through your hands while keeping your feet on the floor. They can help you find a version you can hold steadily and explain what to look for before moving on.',
+            description: 'A coach might start you in a supported position with your feet on the floor. They can watch whether your shoulders stay steady as you put weight through your hands and whether you can come out of the position with control. If you used to do handstands, ask what the coach notices about your balance and alignment today.',
+            link: { href: `${trainingFilm.path}#strength-and-handstand`, label: 'Watch a handstand in the Vortex training film', analyticsKey: 'watch_training_film' },
           },
           {
             id: 'returning-gymnasts',

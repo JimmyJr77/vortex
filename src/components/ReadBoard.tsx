@@ -55,10 +55,7 @@ const ReadBoard = () => {
             <p className="np-browse-eyebrow">Find your next step</p>
             <h1>Classes &amp; schedules.</h1>
             <p className="np-browse-description">
-              Find classes, schedules, camps, and events in Bowie, MD. Explore{' '}
-              <Link className="underline" to="/gymnastics">youth gymnastics</Link> and{' '}
-              <Link className="underline" to="/fit-and-flip">Fit &amp; Flip</Link>, or see how to get started with{' '}
-              <Link className="underline" to="/adult-gymnastics">adult gymnastics</Link>.
+              Browse class times, camps, and events at our Bowie gym.
               {' '}For competition, see <Link className="underline" to="/gymnastics#competitive-gymnastics-team">how gymnastics team placement works</Link>.
               {' '}If you’re still choosing an activity, <Link className="underline" to={BOWIE_YOUTH_SPORTS_GUIDE.path}>compare youth sports in Bowie</Link>.
             </p>
@@ -87,9 +84,9 @@ const ReadBoard = () => {
         </div>
       </section>
 
-      {activeTab !== 'schedule' && (
+      {activeTab === 'classes' && <ReadBoardClassesTab />}
+      {(activeTab === 'events' || activeTab === 'highlights') && (
         <div data-prerender-dynamic="">
-          {activeTab === 'classes' && <ReadBoardClassesTab />}
           {activeTab === 'events' && <ReadBoardEventsTab />}
           {activeTab === 'highlights' && <ReadBoardHighlightsTab />}
         </div>

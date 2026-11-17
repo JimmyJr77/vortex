@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { Loader2 } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
-import { getPublicBookingPrograms } from '../../utils/publicBookingPrograms'
+import { getAdultBookingProgram, getPublicBookingPrograms } from '../../utils/publicBookingPrograms'
 import ClassesOfferedList from '../classes/ClassesOfferedList'
 
 const ReadBoardClassesTab = () => {
@@ -19,7 +19,11 @@ const ReadBoardClassesTab = () => {
       setError(null)
       try {
         const data = await fetchClassesOffered()
-        if (!cancelled) setPrograms(getPublicBookingPrograms(data.programs))
+        if (!cancelled) {
+          const youthPrograms = getPublicBookingPrograms(data.programs)
+          const adultProgram = getAdultBookingProgram(data.programs)
+          setPrograms(adultProgram?.classes.length ? [...youthPrograms, adultProgram] : youthPrograms)
+        }
       } catch (e) {
         if (!cancelled) {
           setPrograms([])
@@ -36,18 +40,24 @@ const ReadBoardClassesTab = () => {
   }, [])
 
   return (
-    <section className="np-browse-section section-padding bg-white">
+    <section className="np-browse-section section-padding bg-white" aria-labelledby="read-board-classes-heading">
       <div className="container-custom">
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
-          viewport={{ once: true }}
-        >
-          <h2 className="np-browse-section-title text-4xl md:text-5xl font-display font-bold text-black mb-12 text-center">
-            Classes <span className="text-vortex-red">Offered</span>
-          </h2>
-
+        <h2 id="read-board-classes-heading" className="np-browse-section-title">Gymnastics and fitness classes in Bowie</h2>
+        <ul className="np-browse-program-links" role="list">
+          <li>
+            <Link to="/gymnastics#choose-a-class">Youth gymnastics</Link>
+            <p>Start with preschool movement or choose a developmental level for kids and teens.</p>
+          </li>
+          <li>
+            <Link to="/fit-and-flip#fit-flip-schedule">Fit &amp; Flip youth fitness</Link>
+            <p>Cyclones classes for ages 8–11 and 12–15 combine strength, jumps, and body control.</p>
+          </li>
+          <li>
+            <Link to="/adult-gymnastics">Typhoons adult gymnastics</Link>
+            <p>Coach-led gymnastics and introductory acrobatics for ages 18 and up.</p>
+          </li>
+        </ul>
+        <div data-prerender-dynamic="">
           {loading && (
             <div className="flex items-center justify-center py-16 text-gray-500">
               <Loader2 className="w-6 h-6 animate-spin mr-2" />
@@ -68,7 +78,7 @@ const ReadBoardClassesTab = () => {
           {!loading && !error && programs.length > 0 && (
             <ClassesOfferedList programs={programs} className="np-browse-class-list" />
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

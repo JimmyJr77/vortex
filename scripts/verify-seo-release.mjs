@@ -652,7 +652,8 @@ const verifyHtml = (
         `${label}: missing the adult price comparison and its crawlable booking links`)
       assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
       const format = mainHtml.match(/<section\b[^>]*\sid=["']class-format["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
-      assert(/Can I start adult gymnastics with no experience\?/i.test(format) && /keeping your feet on the floor/i.test(format),
+      assert(/Can I start adult gymnastics with no experience\?/i.test(format) && /with your feet on the floor/i.test(format) &&
+        anchorUrls(format).some(url => url.href === `${watchUrl}#strength-and-handstand`),
         `${label}: missing the beginner answer or a concrete example of a starting exercise`)
       assert(anchorUrls(format).some((url) => url.href === `${HUB_ORIGIN}/adult-gymnastics#adult-availability`),
         `${label}: missing the first-visit link from the adult class format section`)
@@ -804,11 +805,18 @@ const verifyHtml = (
       assert(viewLinks.some((url) => url.href === `${HUB_ORIGIN}/read-board${hash}`) && pageIds.has(hash.slice(1)),
         `${label}: missing a working static link for ${hash}`)
     }
+    const classes = html.match(/<section\b[^>]*\baria-labelledby=["']read-board-classes-heading["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const classLinks = anchorUrls(classes)
+    assert(/Cyclones classes for ages 8–11 and 12–15/.test(classes) && /Typhoons adult gymnastics/.test(classes),
+      `${label}: missing crawlable youth fitness age groups or adult gymnastics class information`)
+    for (const path of ['/gymnastics#choose-a-class', '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics']) {
+      assert(classLinks.some(url => url.href === `${HUB_ORIGIN}${path}`), `${label}: missing class board program link to ${path}`)
+    }
     const schedule = html.match(/<section\b[^>]*\sid=["']schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     assert(/<h2\b[^>]*>Class schedule in Bowie, MD<\/h2>/i.test(schedule),
       `${label}: missing the static class schedule heading`)
     const bookingLinks = anchorUrls(schedule)
-    for (const path of ['/#free-trial', '/enroll', '/gymnastics#youth-gymnastics-schedule', '/drop-in', '/adult-gymnastics']) {
+    for (const path of ['/#free-trial', '/enroll', '/gymnastics#youth-gymnastics-schedule', '/fit-and-flip#fit-flip-schedule', '/drop-in', '/adult-gymnastics#adult-class-schedule']) {
       assert(bookingLinks.some((url) => url.href === `${HUB_ORIGIN}${path}`),
         `${label}: missing a static schedule link to ${path}`)
     }
