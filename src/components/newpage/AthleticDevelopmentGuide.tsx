@@ -18,6 +18,7 @@ const sections = [
   { id: 'strength-training-readiness', label: 'When to start strength training' },
   { id: 'first-class', label: 'What to watch for in class' },
   { id: 'progress', label: 'How coaches check progress' },
+  { id: 'youth-performance-assessment', label: 'First class or performance assessment' },
   { id: 'questions', label: 'Questions for the coach' },
 ] as const
 
@@ -272,6 +273,25 @@ export default function AthleticDevelopmentGuide() {
             After class, ask the coach which movement they’d check again and what change they’d look for.
             Ask your child what felt easier and what they’d like to practice again.
           </p>
+          <div id="youth-performance-assessment" className="scroll-mt-24">
+            <h3 className="athletic-guide-subheading">Should my child start with a class or a performance assessment?</h3>
+            <p>
+              Start with a class if you want to see how your child responds to coaching and whether they enjoy
+              the activities. A Fit &amp; Flip trial is a regular 90-minute Cyclones class for ages 8–11 or 12–15.{' '}
+              <Link to="/fit-and-flip#training-fit">See what to expect in a Fit &amp; Flip trial</Link>.
+            </p>
+            <p>
+              If you’re deciding what your child should work on next, a separate assessment can give you
+              a starting measure. In Bowie, the GOAT Lab’s Athlete Analysis looks at speed, coordination,
+              how the athlete moves, and readiness for strength work.{' '}
+              <a href="https://www.goatlabperformance.com/programs/get-started">See the GOAT Lab’s Athlete Analysis</a>.
+            </p>
+            <p>
+              A test score reflects what an athlete did that day. Before booking, ask how the result would
+              change what your child practices next.{' '}
+              <a href="https://www.nsca.com/contentassets/ab5588fbc53347ee85929947645c8011/coach5.3.7-using-ltad-to-program-for-a-middle-school-athlete-and-a-high-school-athlete-part-2creating-a-developmentally-appropriate-strength-and-conditioning-program.pdf">Read the NSCA’s guidance on youth testing</a>.
+            </p>
+          </div>
         </section>
 
         <section id="questions">

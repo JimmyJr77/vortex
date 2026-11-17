@@ -378,7 +378,9 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
           switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
         }}
       /></Suspense>}
-      <div id={isModernPublicPage && !programPage ? 'public-content' : undefined} role={isModernPublicPage && !isLeadRegistration && !programPage ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
+      <div id={isModernPublicPage && !programPage ? 'public-content' : undefined}
+        tabIndex={isModernPublicPage && !programPage ? -1 : undefined}
+        role={isModernPublicPage && !isLeadRegistration && !programPage ? 'main' : undefined} className={isModernPublicPage ? `np-public-content${isPublicRegistrationPage ? ' np-public-registration' : ''}` : undefined}>
       <Suspense fallback={<PageLoader />}>
       <PublicSiteAnalytics disabled={Boolean((publicLandingRedirects as Record<string, string>)[location.pathname.toLowerCase().replace(/\/+$/, '')])} />
         <Routes>

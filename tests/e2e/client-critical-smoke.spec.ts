@@ -64,6 +64,34 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('heading', { name: 'Adult gymnastics and acrobatics in Bowie, MD', exact: true })).toBeVisible()
   })
 
+  test('the shared skip link moves keyboard focus to public content', async ({ page }) => {
+    for (const path of ['/read-board', '/enroll', '/drop-in', '/blog/youth-sports-bowie', '/gymnastics']) {
+      await page.goto(path)
+      const skip = page.getByRole('link', { name: 'Skip to content', exact: true })
+      await skip.press('Enter')
+      await expect(page).toHaveURL(`${path}#public-content`)
+      const content = page.locator('#public-content')
+      await expect(content).toBeFocused()
+      await page.keyboard.press('Tab')
+      await expect(content.locator(':focus')).toHaveCount(1)
+    }
+  })
+
+  test('families can find beginner and recreational hockey from the Bowie skating entry', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/blog/youth-sports-bowie#local-programs')
+    await page.getByRole('link', { name: 'Compare youth ice hockey programs' }).click()
+    await expect(page).toHaveURL('/blog/youth-sports-bowie#youth-ice-hockey')
+    const winter = page.locator('#indoor-winter-sports')
+    await expect(winter.getByRole('heading', { name: 'Youth ice hockey in Bowie' })).toBeInViewport()
+    await expect(winter.getByRole('link', { name: 'Learn-to-Skate group lessons' }))
+      .toHaveAttribute('href', 'https://www.cityofbowie.org/485/Lessons-Camps')
+    await expect(winter.getByRole('link', { name: 'Future Bruins Learn-to-Play program' }))
+      .toHaveAttribute('href', 'https://www.bowiehockey.org/program/bhc-learn-to-play/13025')
+    await expect(winter.getByRole('link', { name: 'recreational hockey program' }))
+      .toHaveAttribute('href', 'https://www.bowiehockey.org/program/bhc-recreational-program/12276')
+  })
+
   test('families can compare boys’ apparatus classes and find a first gymnastics visit', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics#artistic')
@@ -102,6 +130,20 @@ test.describe('Client-critical smoke flows', () => {
     await comparison.getByRole('link', { name: 'Check the intermediate gymnastics Cyclones skills' }).click()
     await expect(page).toHaveURL('/gymnastics#gymnastics-level-intermediate')
     await expect(intermediate.getByRole('heading', { name: 'Intermediate Cyclones' })).toBeInViewport()
+  })
+
+  test('families can compare a Fit & Flip trial with a youth performance assessment', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/fit-and-flip#first-fit-flip-class')
+    await page.getByRole('link', { name: 'Compare a trial class with a youth performance assessment' }).click()
+    await expect(page).toHaveURL('/blog/athletic-development-young-athletes#youth-performance-assessment')
+    const comparison = page.locator('#youth-performance-assessment')
+    await expect(comparison.getByRole('heading', { name: 'Should my child start with a class or a performance assessment?' })).toBeInViewport()
+    await expect(comparison.getByRole('link', { name: 'See the GOAT Lab’s Athlete Analysis' }))
+      .toHaveAttribute('href', 'https://www.goatlabperformance.com/programs/get-started')
+    await comparison.getByRole('link', { name: 'See what to expect in a Fit & Flip trial' }).click()
+    await expect(page).toHaveURL('/fit-and-flip#training-fit')
+    await expect(page.locator('#training-fit').getByRole('heading', { level: 2 })).toBeInViewport()
   })
 
   test('Fit & Flip links families to fitness alternatives by age', async ({ page }) => {

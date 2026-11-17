@@ -105,7 +105,8 @@ export default function BowieYouthSportsGuide() {
               to group lessons. Check the public session schedule and skate rental details, or look for a Learn-to-Skate
               group that fits your child.{' '}
               <a href="https://www.cityofbowie.org/650/Public-Skating-Sessions">Check public skating</a> ·{' '}
-              <a href="https://www.cityofbowie.org/485/Lessons-Camps">View skating lessons</a>
+              <a href="https://www.cityofbowie.org/485/Lessons-Camps">View skating lessons</a> ·{' '}
+              <a href="#youth-ice-hockey">Compare youth ice hockey programs</a>
             </li>
             <li>
               <strong>Learn to swim in Bowie and nearby.</strong> NotYetPro offers private, semi-private, and trio
@@ -148,6 +149,22 @@ export default function BowieYouthSportsGuide() {
               <Link to="/fit-and-flip#fit-flip-schedule">See weekly Fit &amp; Flip times</Link>
             </li>
           </ul>
+          <h3 id="youth-ice-hockey" className="athletic-guide-subheading scroll-mt-24">Youth ice hockey in Bowie</h3>
+          <p>
+            If your child is new to the ice, try a{' '}
+            <a href="https://www.cityofbowie.org/650/Public-Skating-Sessions">public skating session</a> at Bowie Ice
+            Arena or build basic skills in the city’s{' '}
+            <a href="https://www.cityofbowie.org/485/Lessons-Camps">Learn-to-Skate group lessons</a>. Once they can
+            skate, Bowie Hockey Club’s{' '}
+            <a href="https://www.bowiehockey.org/program/bhc-learn-to-play/13025">Future Bruins Learn-to-Play program</a>{' '}
+            introduces hockey skating and stickhandling. Ask the club which session fits your child’s age and skills.
+          </p>
+          <p>
+            The club’s{' '}
+            <a href="https://www.bowiehockey.org/program/bhc-recreational-program/12276">recreational hockey program</a>{' '}
+            lists coed divisions for ages 4–18 and requires no tryout. The club expects basic skating skills and
+            welcomes players who are new to hockey. Check division and equipment requirements with the club.
+          </p>
         </section>
 
         <section id="choose-an-activity">

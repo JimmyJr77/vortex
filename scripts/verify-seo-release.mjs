@@ -965,7 +965,7 @@ const verifyHtml = (
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
       if (canonical === fitAndFlipCanonical) {
-        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility']) {
+        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility', '#youth-performance-assessment']) {
           assert(links.some((url) => url.href === `${guideCanonical}${hash}`),
             `${label}: missing the link to the parent guide at ${hash}`)
         }
@@ -994,7 +994,7 @@ const verifyHtml = (
         `${label}: missing the crawlable youth soccer example, sources, or Cyclones schedule link`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
-      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress']) {
+      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress', '#youth-performance-assessment']) {
         assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === hash),
           `${label}: missing the link to ${hash} in the guide outline`)
       }
@@ -1012,6 +1012,12 @@ const verifyHtml = (
         `${label}: missing the coached strength progression or training film example`)
       assert(/The first two steps of a sprint/i.test(progress) && /counts controlled starts/i.test(progress),
         `${label}: missing the Athleticism Accelerator coaching example for checking progress`)
+      const assessment = progress.match(/<div\b[^>]*\sid=["']youth-performance-assessment["'][^>]*>[\s\S]*?<\/div>/i)?.[0] ?? ''
+      const assessmentLinks = anchorUrls(assessment)
+      assert(assessmentLinks.some(url => url.href === `${fitAndFlipCanonical}#training-fit`) &&
+        assessmentLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/get-started') &&
+        assessmentLinks.some(url => url.hostname === 'www.nsca.com' && url.pathname.endsWith('.pdf')),
+        `${label}: missing the first-class and youth performance assessment comparison or its sources`)
       assert(links.some((url) => url.href === fitAndFlipCanonical),
         `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
       assert(links.some((url) => url.href === `${fitAndFlipCanonical}#strength`),
@@ -1083,6 +1089,11 @@ const verifyHtml = (
       winterLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
       hasDropInProgramLink(winterLinks, 'Fit & Flip'),
       `${label}: missing crawlable links to the winter youth sports options`)
+    assert(pageIds.has('youth-ice-hockey') && tags(content, 'a').some(tag => attribute(tag, 'href') === '#youth-ice-hockey') &&
+      winterLinks.some(url => url.href === 'https://www.cityofbowie.org/485/Lessons-Camps') &&
+      winterLinks.some(url => url.href === 'https://www.bowiehockey.org/program/bhc-learn-to-play/13025') &&
+      winterLinks.some(url => url.href === 'https://www.bowiehockey.org/program/bhc-recreational-program/12276'),
+      `${label}: missing the crawlable path from beginner skating to youth ice hockey`)
     const lowerCost = content.match(/<section\b[^>]*\sid=["']lower-cost-youth-sports["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const lowerCostLinks = anchorUrls(lowerCost)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#lower-cost-youth-sports') &&

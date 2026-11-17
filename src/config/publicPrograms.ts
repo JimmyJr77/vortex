@@ -403,7 +403,10 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             heading: 'Find a first class',
             description:
               'Beginners can try a regular 90-minute Cyclones class without prior sports or gymnastics experience. Choose an available trial or drop-in date, or browse recurring classes for a weekly option.',
-            link: { href: '/fit-and-flip#fit-flip-class-pricing', label: 'Compare monthly and drop-in prices', analyticsKey: 'compare_fit_flip_class_prices' },
+            links: [
+              { href: '/fit-and-flip#fit-flip-class-pricing', label: 'Compare monthly and drop-in prices', analyticsKey: 'compare_fit_flip_class_prices' },
+              { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#youth-performance-assessment`, label: 'Compare a trial class with a youth performance assessment', analyticsKey: 'compare_youth_performance_assessment' },
+            ],
           },
           {
             id: 'compare-cyclones-classes',
