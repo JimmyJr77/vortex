@@ -79,6 +79,12 @@ its selected canonical URL. These rows represent Google's reported pages and
 should be compared with the intended program pages. Query strings and unknown
 paths are hidden in the report.
 
+Choose **Program page visibility** to compare Google-reported impressions for
+the five canonical program and guide pages across the latest and preceding 28
+finalized Pacific dates. It measures web search exposure for the pages across all
+queries. A missing row is shown as no data reported, and a change is shown when
+Google reports impressions in both periods.
+
 An empty topic means Google returned no reportable data for its query filter.
 Google can omit some search terms, and topic filters overlap, so do not add the
 topic counts together. The report shows missing configuration and provider

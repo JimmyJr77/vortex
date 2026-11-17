@@ -222,6 +222,37 @@ export async function fetchSearchConsoleTopics(scope: SearchConsoleQueryScope = 
   return report
 }
 
+export interface SearchConsoleProgramPageWindow {
+  startDate: string
+  endDate: string
+  status: 'ok' | 'error' | 'unavailable'
+  reason?: SearchConsoleTopicFailure
+}
+
+export interface SearchConsoleProgramPageReport {
+  status: SearchConsoleTopicReport['status']
+  reason?: SearchConsoleTopicReport['reason']
+  timeZone: 'America/Los_Angeles'
+  current: SearchConsoleProgramPageWindow
+  previous: SearchConsoleProgramPageWindow
+  pages: Array<{
+    page: string
+    label: string
+    currentImpressions: number | null
+    previousImpressions: number | null
+  }>
+}
+
+export async function fetchSearchConsoleProgramPages(): Promise<SearchConsoleProgramPageReport> {
+  const response = await adminApiRequest('/api/admin/analytics/seo/program-pages')
+  const result = await response.json()
+  const report: SearchConsoleProgramPageReport | undefined = result.data
+  if (!response.ok || !result.success || !report?.current || !report.previous || !Array.isArray(report.pages)) {
+    throw new Error('Could not load the Search Console program page report.')
+  }
+  return report
+}
+
 export interface CompetitorRow {
   id: number
   name: string

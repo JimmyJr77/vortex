@@ -3,7 +3,7 @@ import test from 'node:test'
 import { google } from 'googleapis'
 
 import { createAdminAnalyticsHandlers } from '../adminHandlers.js'
-import { getSearchConsoleTopics } from '../gscClient.js'
+import { getSearchConsoleProgramPages, getSearchConsoleTopics } from '../gscClient.js'
 
 const PROPERTY = 'sc-domain:example.test'
 const NOW = new Date('2026-11-16T07:59:59.000Z')
@@ -215,4 +215,82 @@ test('reports a bounded set of pages per topic without exposing unknown paths or
   ])
   assert.deepEqual(report.topics.map(topic => topic.status), ['reported', 'no_data', 'error', 'error', 'no_data', 'no_data'])
   assert.ok(!JSON.stringify(report).includes('private-'))
+})
+
+test('compares all fixed canonical program pages in two finalized windows without filtering search terms', async t => {
+  configure(t, { GSC_SITE_URL: PROPERTY, GOOGLE_APPLICATION_CREDENTIALS_JSON: '{}' })
+  const pages = [
+    'https://vortexathletics.com/gymnastics',
+    'https://vortexathletics.com/fit-and-flip',
+    'https://vortexathletics.com/adult-gymnastics',
+    'https://vortexathletics.com/blog/youth-sports-bowie',
+    'https://vortexathletics.com/blog/athletic-development-young-athletes',
+  ]
+  const query = t.mock.fn(async ({ requestBody }) => ({ data: { rows: requestBody.startDate === '2026-10-16'
+    ? [{ keys: [pages[2]], impressions: 0, clicks: 0 }, { keys: [pages[0]], impressions: 30, clicks: 0 }]
+    : [{ keys: [pages[0]], impressions: 21, clicks: 1 }, { keys: [pages[1]], impressions: 15, clicks: 1 }] } }))
+  t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
+
+  const report = await getSearchConsoleProgramPages(NOW)
+  assert.equal(report.timeZone, 'America/Los_Angeles')
+  assert.equal(report.status, 'ok')
+  assert.deepEqual(report.current, { startDate: '2026-10-16', endDate: '2026-11-12', status: 'ok' })
+  assert.deepEqual(report.previous, { startDate: '2026-09-18', endDate: '2026-10-15', status: 'ok' })
+  assert.deepEqual(report.pages.map(({ page }) => page), pages)
+  assert.deepEqual(report.pages.map(({ currentImpressions, previousImpressions }) => [currentImpressions, previousImpressions]),
+    [[30, 21], [null, 15], [0, null], [null, null], [null, null]])
+  assert.equal(query.mock.callCount(), 2)
+  for (const [index, { arguments: [request, options] }] of query.mock.calls.entries()) {
+    const { dimensionFilterGroups, ...body } = request.requestBody
+    const { startDate, endDate } = [report.current, report.previous][index]
+    assert.equal(request.siteUrl, PROPERTY)
+    assert.deepEqual(body, {
+      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 5,
+    })
+    assert.deepEqual(options, { timeout: 10000, retry: false })
+    assert.equal(dimensionFilterGroups.length, 1)
+    const [{ groupType, filters }] = dimensionFilterGroups
+    assert.equal(groupType, 'and')
+    assert.equal(filters.length, 1)
+    assert.equal(filters[0].dimension, 'page')
+    assert.equal(filters[0].operator, 'includingRegex')
+    const filter = new RegExp(filters[0].expression)
+    for (const page of pages) assert.match(page, filter)
+    for (const page of [pages[0] + '?private=1', pages[0] + '/', 'https://www.vortexathletics.com/gymnastics',
+      'https://vortexathleticsXcom/gymnastics', 'https://vortexathletics.com/enroll']) assert.doesNotMatch(page, filter)
+  }
+})
+
+test('keeps absent program page impressions distinct from failed and unconfigured windows', async t => {
+  configure(t, {})
+  const query = t.mock.fn(async ({ requestBody }) => {
+    if (requestBody.startDate === '2026-10-16') {
+      throw Object.assign(new Error('private provider response'), { response: { status: 403 } })
+    }
+    return { data: { rows: [] } }
+  })
+  const factory = t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
+  const headers = new Map()
+  let response
+  await createAdminAnalyticsHandlers(null).getSeoProgramPages({}, {
+    set: (key, value) => headers.set(key, value),
+    json: value => { response = value },
+  })
+  assert.equal(headers.get('Cache-Control'), 'no-store')
+  assert.equal(response.success, true)
+  assert.equal(response.data.status, 'unconfigured')
+  assert.equal(response.data.reason, 'missing_property')
+  assert.equal(response.data.current.status, 'unavailable')
+  assert.equal(response.data.previous.status, 'unavailable')
+  assert.equal(factory.mock.callCount(), 0)
+
+  process.env.GSC_SITE_URL = PROPERTY
+  process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON = '{}'
+  const partial = await getSearchConsoleProgramPages(NOW)
+  assert.equal(partial.status, 'partial')
+  assert.equal(partial.current.status, 'error')
+  assert.equal(partial.current.reason, 'access_denied')
+  assert.equal(partial.previous.status, 'ok')
+  assert.ok(partial.pages.every(page => page.currentImpressions === null && page.previousImpressions === null))
+  assert.doesNotMatch(JSON.stringify(partial), /private provider response/)
 })
