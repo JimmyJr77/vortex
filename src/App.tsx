@@ -88,6 +88,7 @@ function App() {
     setPendingWaiverToken(pending => pending === memberToken ? null : pending)
   }, [memberToken])
   const [showMemberDashboard, setShowMemberDashboard] = useState(false)
+  const [adultEnrollmentLocationKey, setAdultEnrollmentLocationKey] = useState<string | null>(null)
   const [activePortal, setActivePortal] = useState<PortalId>(() => {
     // The redesign preview should open even when a portal session is stored.
     if (window.location.pathname.replace(/\/$/, '') === '/newpage') return 'website'
@@ -100,7 +101,10 @@ function App() {
   const programPage = Object.values(PUBLIC_PROGRAMS).find(({ path }) => Boolean(matchPath(path, location.pathname)))
   const isEnrollmentPage = Boolean(matchPath('/enroll', location.pathname))
   const isAdultProgram = programPage?.path === '/adult-gymnastics'
-    || (isEnrollmentPage && isAdultBookingProgram(new URLSearchParams(location.search).get('program')))
+    || (isEnrollmentPage && (
+      adultEnrollmentLocationKey === location.key
+      || isAdultBookingProgram(new URLSearchParams(location.search).get('program'))
+    ))
   const isModernPublicPage =
     Boolean(programPage)
     || isPublicRegistrationPage
@@ -377,7 +381,7 @@ function App() {
           />
           <Route
             path="/enroll"
-            element={<SchedulingPage />}
+            element={<SchedulingPage onAdultEnrollmentResolved={setAdultEnrollmentLocationKey} />}
           />
           <Route
             path="/store"

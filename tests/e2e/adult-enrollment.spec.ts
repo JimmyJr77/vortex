@@ -75,6 +75,13 @@ test('adult gymnastics, general enrollment, and published form links open the cu
 
   await page.goto(`/enroll?form=${adultFormId}`)
   await expect(page.getByRole('heading', { name: adultName })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Ask about adult gymnastics classes' })).toHaveAttribute('href', '/contact')
+
+  await page.goto(`/enroll?form=${adultFormId}&offeringId=701&slotGroupId=${slot.slotGroupId}&timeSlotId=${slot.id}`)
+  await expect(page.getByRole('heading', { name: 'Adult gymnastics classes' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Ask about adult gymnastics classes' })).toHaveAttribute('href', '/contact')
+  await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveCount(0)
+
   await page.goto('/enroll')
   await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveAttribute('href', '/#free-trial')
   await expect(page.getByRole('heading', { name: 'Cyclones' })).toBeVisible()
@@ -105,5 +112,6 @@ test('unpublished adult classes lead to contact without opening their signup for
   await expect(page.getByRole('link', { name: 'Contact us about adult classes' })).toHaveAttribute('href', '/contact')
   await page.goto(`/enroll?form=${adultFormId}`)
   await expect(page.getByRole('heading', { name: 'Cyclones' })).toBeVisible()
+  await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveAttribute('href', '/#free-trial')
   expect(formRequests).toEqual([])
 })

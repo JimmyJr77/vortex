@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowUpRight, Calendar, Loader2 } from 'lucide-react'
 import {
   saveSchedulingMemberEmail,
@@ -85,8 +85,11 @@ function EnrollmentHero({ mode = 'browse' }: { mode?: keyof typeof enrollmentHer
   )
 }
 
-const SchedulingPage = () => {
+const SchedulingPage = ({ onAdultEnrollmentResolved }: {
+  onAdultEnrollmentResolved?: (locationKey: string | null) => void
+}) => {
   const apiUrl = getApiUrl()
+  const { key: locationKey } = useLocation()
   const [searchParams] = useSearchParams()
   const urlFormId = useMemo(
     () => parseOptionalInt(searchParams.get('form')) ?? null,
@@ -144,6 +147,11 @@ const SchedulingPage = () => {
     ? adultClasses.find((classItem) => classItem.formId === urlFormId)
     : wantsAdultClasses && adultClasses.length === 1 ? adultClasses[0] : undefined
   const signupFormId = shouldOpenSignupDirectly ? selectedFormId : linkedAdultClass?.formId ?? null
+  const isAdultSignup = signupFormId != null && linkedAdultClass?.formId === signupFormId
+
+  useEffect(() => {
+    onAdultEnrollmentResolved?.(isAdultSignup ? locationKey : null)
+  }, [isAdultSignup, locationKey, onAdultEnrollmentResolved])
 
   const initialProgramId = useMemo(() => {
     if (urlProgramsId != null && offeredPrograms.some((program) => program.id === urlProgramsId)) {
@@ -170,14 +178,14 @@ const SchedulingPage = () => {
   }, [])
 
   if (signupFormId != null) {
-    const backDestination = linkedAdultClass && adultClasses.length === 1 ? 'adult gymnastics' : 'classes'
+    const backDestination = isAdultSignup && adultClasses.length === 1 ? 'adult gymnastics' : 'classes'
     const backLabel = `${signupComplete ? 'Return to' : 'Back to'} ${backDestination}`
     return (
       <div className="np-enrollment-page">
-        <EnrollmentHero mode={linkedAdultClass ? 'adult' : 'signup'} />
+        <EnrollmentHero mode={isAdultSignup ? 'adult' : 'signup'} />
         <section className="np-enrollment-content">
           <div className="np-enrollment-wrap np-enrollment-signup space-y-6">
-            {linkedAdultClass ? (
+            {isAdultSignup ? (
               <Link to={adultClasses.length > 1 ? ADULT_BOOKING_HREF : '/adult-gymnastics'} className="np-enrollment-button np-enrollment-button-secondary" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }}>
                 <ArrowLeft className="w-4 h-4" /> {backLabel}
               </Link>
