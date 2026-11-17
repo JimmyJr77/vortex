@@ -65,6 +65,45 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()
   })
 
+  test('competitive gymnastics leads to team evaluation guidance and the scoped enrollment catalog', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: { success: true, data: { programs: [
+      { id: 2, displayName: 'Development Gymnastics', classes: [
+        { id: 26, formId: 11, displayName: 'Dirt Devils', enrollVisible: true },
+      ] },
+      { id: 13, displayName: 'Vortex Gymnastics Team', classes: [
+        { id: 40, formId: 29, displayName: 'Vortex Gymnastics Team', ageMin: 6, skillRequirements: 'Evaluation is required.', enrollVisible: true },
+      ] },
+    ] } } }))
+    await page.route('**/api/signup/catalog/classes/40/offerings', route => route.fulfill({ json: {
+      success: true, data: { formId: 29, offerings: [], costUnit: 'per_month', scheduleOptions: [
+        { slotGroupId: 20, timeSlotId: 21, offeringId: null, scheduleMode: 'day', scheduleLabel: 'Monday · 17:30–19:00', priceCents: 15000 },
+      ] },
+    } }))
+
+    await page.goto('/read-board')
+    await page.getByRole('link', { name: 'how gymnastics team placement works' }).click()
+    await expect(page).toHaveURL('/gymnastics#competitive-gymnastics-team')
+    const team = page.locator('#competitive-gymnastics-team')
+    await expect(team.getByRole('heading', { level: 2 })).toBeInViewport()
+    await expect(team.getByRole('link', { name: 'Find a developmental Trial Assessment' })).toHaveAttribute('href', '/gymnastics#class-placement')
+    await team.getByRole('link', { name: 'Contact Vortex about a team evaluation' }).click()
+    await expect(page).toHaveURL('/contact#inquiry')
+    const inquiry = page.locator('#inquiry')
+    await expect(inquiry.getByRole('heading', { name: 'What to include in your inquiry' })).toBeInViewport()
+    await inquiry.getByRole('button', { name: 'Ask Our Team' }).click()
+    await expect(page.getByRole('heading', { name: 'Athlete Inquiry' })).toBeVisible()
+
+    await page.goto('/gymnastics#competitive-gymnastics-team')
+    await team.getByRole('link', { name: 'View team practice times' }).click()
+    await expect(page).toHaveURL('/enroll?program=Vortex%20Gymnastics%20Team')
+    await expect(page.getByRole('combobox', { name: 'Program', exact: true })).toHaveValue('13')
+    await expect(page.getByRole('heading', { name: 'Dirt Devils', level: 3 })).toHaveCount(0)
+    const teamCard = page.locator('.np-enrollment-class').filter({ has: page.getByRole('heading', { name: 'Vortex Gymnastics Team', level: 3 }) })
+    await expect(teamCard.getByText(/Evaluation is required\./)).toBeVisible()
+    await expect(teamCard.getByRole('checkbox', { name: /Monday.*17:30/ })).toBeVisible()
+  })
+
   test('mobile visitors can go from a program page to facility photos and back to a starting class', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics')

@@ -7,6 +7,9 @@ export const TEAM_EMAIL = 'team@vortexathletics.com'
 export const TEAM_PHONE = '443-422-4794'
 export const TEAM_PHONE_E164 = `+1${TEAM_PHONE.replaceAll('-', '')}`
 
+export const CONTACT_INQUIRY_ID = 'inquiry'
+export const CONTACT_INQUIRY_PATH = `/contact#${CONTACT_INQUIRY_ID}`
+
 /** Jackrabbit Parent Portal (member account login). */
 export const JACKRABBIT_PARENT_PORTAL_URL =
   'https://app.jackrabbitclass.com/jr4.0/ParentPortal/Login?orgId=557920'

@@ -1,7 +1,7 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from './bowieYouthSportsGuide'
-import { BUSINESS_FACILITY_PHOTO } from './contact'
+import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH } from './contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
@@ -13,6 +13,7 @@ import {
   ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
   DEVELOPMENTAL_GYMNASTICS_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM,
   FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
+  GYMNASTICS_TEAM_BOOKING_HREF,
   type RecurringBookingProgram,
 } from '../utils/publicBookingPrograms'
 
@@ -75,7 +76,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Youth gymnastics classes',
     path: '/gymnastics',
     title: 'Youth Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Compare weekly times, tuition, and drop-in prices or find a free trial.',
+    description: 'Find youth gymnastics classes in Bowie, MD, from preschool and beginner classes to competitive team. Compare weekly times, prices, trials, and placement options.',
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: searchPhotos.youthGymnastics,
@@ -111,7 +112,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             },
           },
           { id: 'beginner', heading: 'Beginner gymnastics for ages 6–17', description: 'Kids and teens with no gymnastics experience start with a Tornadoes trial when available. Athletes learn body shapes and controlled landings as they work toward skills such as rolls, cartwheels, and handstands.' },
-          { id: 'youth', heading: 'Developmental and team pathways', description: 'Developmental classes let athletes build skills without competing. Team gymnastics adds competition for athletes placed in that pathway. Families can ask the coaching team how progression and team placement work.' },
+          {
+            id: 'youth',
+            heading: 'Developmental and team pathways',
+            description: 'Athletes can build skills through developmental gymnastics or ask about an evaluation for the competitive team.',
+            link: { href: '/gymnastics#competitive-gymnastics-team', label: 'Compare developmental and competitive gymnastics', analyticsKey: 'compare_gymnastics_pathways' },
+          },
           {
             id: 'teen',
             heading: 'Gymnastics for teens and returning athletes',
@@ -141,6 +147,31 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           },
         ],
         trialLabel: 'Find a free Trial Assessment',
+      },
+      {
+        id: 'competitive-gymnastics-team',
+        heading: 'Competitive gymnastics team in Bowie',
+        description: 'Vortex Gymnastics Team is listed for ages 6 and up. The team requires an evaluation for placement. If your child wants to compete, tell the coaches their age, current level, and the discipline they’re interested in.',
+        topics: [
+          {
+            id: 'gymnastics-team-evaluation',
+            heading: 'Ask about a team evaluation',
+            description: 'Ask what the evaluation covers, which team placements are currently available, and what to bring. If your child trained or competed elsewhere, share their previous level and the skills they can repeat comfortably.',
+            link: { href: CONTACT_INQUIRY_PATH, label: 'Contact Vortex about a team evaluation', analyticsKey: 'inquire_gymnastics_team_evaluation' },
+          },
+          {
+            id: 'gymnastics-team-commitment',
+            heading: 'Review the team commitment',
+            description: 'Ask how often athletes practice, which meets they attend, and what to budget for beyond class tuition. After placement, see the current team class times in enrollment.',
+            link: { href: GYMNASTICS_TEAM_BOOKING_HREF, label: 'View team practice times', analyticsKey: 'browse_gymnastics_team_schedule' },
+          },
+          {
+            id: 'advanced-developmental-gymnastics',
+            heading: 'Advanced developmental gymnastics',
+            description: 'Gymnasts can work toward advanced skills in developmental classes such as Vortex A4 Elite and train without entering meets. A developmental Trial Assessment helps coaches recommend a starting class for experienced athletes.',
+            link: { href: '/gymnastics#class-placement', label: 'Find a developmental Trial Assessment', analyticsKey: 'read_gymnastics_placement' },
+          },
+        ],
       },
       {
         id: 'first-visit',
@@ -188,6 +219,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     faqs: [
       { question: 'Does my child need gymnastics experience to start?', answer: 'Beginners are welcome. The trial finder matches new gymnasts ages 6–17 with Tornadoes trials when available. If your athlete has trained before, choose the experienced pathway to look for a Trial Assessment.' },
       { question: 'Does my child have to compete?', answer: 'Competition is part of the team pathway. Athletes in developmental gymnastics can work on skills, strength, and body control without entering competitions.' },
+      { question: 'How do I ask about competitive team placement?', answer: 'Contact Vortex with your child’s age, current level, and discipline of interest. The Vortex Gymnastics Team is listed for ages 6 and up and requires an evaluation for placement.' },
       { question: 'How do I choose a gymnastics class?', answer: 'For a first visit, enter your child’s age and experience in the gymnastics trial finder. You can also browse the live class catalog or contact Vortex if you have a placement question.' },
       { question: 'How much do youth gymnastics classes cost?', answer: 'Monthly tuition depends on the class and schedule you choose. The price comparison shows current tuition and nonmember drop-in prices. Paid monthly enrollment requires an active annual membership for the athlete. A drop-in is for one class, and eligible athletes can book one free trial.' },
     ],

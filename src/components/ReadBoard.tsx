@@ -59,6 +59,7 @@ const ReadBoard = () => {
               <Link className="underline" to="/gymnastics">youth gymnastics</Link> and{' '}
               <Link className="underline" to="/fit-and-flip">Fit &amp; Flip</Link>, or see how to get started with{' '}
               <Link className="underline" to="/adult-gymnastics">adult gymnastics</Link>.
+              {' '}For competition, see <Link className="underline" to="/gymnastics#competitive-gymnastics-team">how gymnastics team placement works</Link>.
               {' '}If you’re still choosing an activity, <Link className="underline" to={BOWIE_YOUTH_SPORTS_GUIDE.path}>compare youth sports in Bowie</Link>.
             </p>
           </div>

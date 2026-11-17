@@ -5,6 +5,7 @@ import {
   BUSINESS_FACILITY_PHOTO,
   BUSINESS_HOURS,
   BUSINESS_NAP,
+  CONTACT_INQUIRY_ID,
   GOOGLE_DIRECTIONS_URL,
   GOOGLE_REVIEW_URL,
   INSIDE_THE_GYM_ID,
@@ -42,15 +43,6 @@ const trainingSpaces = [
 ] as const
 
 function InsideTheGym() {
-  const { hash, key } = useLocation()
-  useEffect(() => {
-    if (hash !== `#${INSIDE_THE_GYM_ID}`) return
-    const frame = requestAnimationFrame(() => {
-      document.getElementById(INSIDE_THE_GYM_ID)?.scrollIntoView({ block: 'start', behavior: 'instant' })
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [hash, key])
-
   return (
     <section id={INSIDE_THE_GYM_ID} aria-labelledby="inside-the-gym-heading"
       className="section-padding scroll-mt-[calc(var(--site-header-height,90px)_+_1rem)] bg-gray-50">
@@ -81,8 +73,17 @@ interface ContactLocationPageProps {
   onInquireClick: () => void
 }
 
-const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
-  <main className="min-h-screen bg-white pt-below-site-header">
+export default function ContactLocationPage({ onInquireClick }: ContactLocationPageProps) {
+  const { hash, key } = useLocation()
+  useEffect(() => {
+    if (!hash) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash, key])
+
+  return <main className="min-h-screen bg-white pt-below-site-header">
     <section className="bg-gradient-to-br from-black via-gray-950 to-red-950 px-4 py-20 text-center text-white">
       <div className="container-custom max-w-4xl">
         <p className="font-bold uppercase tracking-[0.2em] text-red-300">Visit Vortex</p>
@@ -162,7 +163,7 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
             className="mt-6 h-auto w-full rounded-2xl" loading="lazy" decoding="async"
           />
         </div>
-        <div className="rounded-3xl bg-white/10 p-8">
+        <div id={CONTACT_INQUIRY_ID} className="scroll-mt-[calc(var(--site-header-height,90px)_+_1rem)] rounded-3xl bg-white/10 p-8">
           <h2 className="text-2xl font-bold">What to include in your inquiry</h2>
           <ul className="mt-5 space-y-3 text-gray-200">
             <li>• Athlete age and activity of interest</li>
@@ -170,6 +171,7 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
             <li>• Preferred days or general availability</li>
             <li>• Whether you are interested in a trial, drop-in, or ongoing class</li>
           </ul>
+          <p className="mt-4 text-sm text-gray-200">For a gymnastics team evaluation, tell us your child’s current level and which discipline they want to pursue.</p>
           <button type="button" onClick={onInquireClick} className="mt-7 rounded-xl bg-white px-7 py-3 font-bold text-vortex-red hover:bg-gray-100">
             Ask Our Team
           </button>
@@ -178,6 +180,4 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
     </section>
     <InsideTheGym />
   </main>
-)
-
-export default ContactLocationPage
+}

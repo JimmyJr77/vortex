@@ -495,6 +495,8 @@ const verifyHtml = (
         `${label}: missing a crawlable program link to ${path} near the main heading`)
     }
     if (pagePath === '/contact') {
+      assert(pageIds.has('inquiry') && /For a gymnastics team evaluation/.test(html),
+        `${label}: the contact inquiry destination must explain what to share for team evaluation`)
       assert(links.some(isBowieDirections) && links.some((url) => url.href === galleryUrl),
         `${label}: the contact introduction must link to Maps and the facility photos`)
       const gallery = html.match(/<section\b[^>]*\sid=["']inside-the-gym["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -752,6 +754,8 @@ const verifyHtml = (
       .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
     assert(anchorUrls(introduction).some((url) => url.href === bowieGuideCanonical),
       `${label}: missing the crawlable Bowie youth sports guide link near the main heading`)
+    assert(anchorUrls(introduction).some(url => url.href === `${HUB_ORIGIN}/gymnastics#competitive-gymnastics-team`),
+      `${label}: the class board must link to competitive gymnastics placement guidance`)
     const viewLinks = anchorUrls(introduction.match(/<nav\b[^>]*\baria-label=["']Browse classes and updates["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? '')
     for (const hash of ['#classes', '#schedule', '#events', '#highlights']) {
       assert(viewLinks.some((url) => url.href === `${HUB_ORIGIN}/read-board${hash}`) && pageIds.has(hash.slice(1)),
@@ -791,6 +795,9 @@ const verifyHtml = (
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const teen = html.match(/<article\b[^>]*\sid=["']teen["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const teamLinks = anchorUrls(team)
     assert(anchorUrls(preschool).some((url) => url.href === preschoolGuideCanonical),
       `${label}: missing the crawlable guide link in the preschool class section`)
     assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),
@@ -798,6 +805,14 @@ const verifyHtml = (
     assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones in developmental gymnastics/.test(placement) &&
       /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement),
       `${label}: missing the placement comparison or assessment action in the rendered page`)
+    assert(anchorUrls(pathways).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
+      `${label}: the youth class choices must link to the team comparison`)
+    assert(/Competitive gymnastics team in Bowie/.test(team) && /ages 6 and up/.test(team) &&
+      /requires an evaluation for placement/.test(team) && /Vortex A4 Elite/.test(team) &&
+      teamLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`) &&
+      teamLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Vortex Gymnastics Team') &&
+      teamLinks.some(url => url.href === `${canonical}#class-placement`),
+      `${label}: the team section must explain evaluation, developmental options, and link to inquiry and team schedules`)
   }
   if (shouldIndex && canonical === preschoolGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''

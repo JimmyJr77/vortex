@@ -54,6 +54,7 @@ interface CatalogClass {
   label: string
   description: string | null
   skillLevel: string | null
+  skillRequirements: string | null
   ageMin: number | null
   ageMax: number | null
   programName: string
@@ -206,6 +207,7 @@ export default function PublicClassesOfferedEnroll({
           label: classItem.displayName,
           description: classItem.description,
           skillLevel: classItem.skillLevel,
+          skillRequirements: classItem.skillRequirements?.trim() || null,
           ageMin: classItem.ageMin,
           ageMax: classItem.ageMax,
           programName: program.displayName,
@@ -592,6 +594,10 @@ export default function PublicClassesOfferedEnroll({
                       <span>Level: {formatSkillLevel(classItem.skillLevel)}</span>
                     </div>
                     {classItem.description && <p className="text-sm text-gray-600 mt-1">{classItem.description}</p>}
+                    {classItem.skillRequirements && <p className="mt-1 text-sm text-gray-700">
+                      <strong className="block font-semibold">Class requirements</strong>
+                      {classItem.skillRequirements}
+                    </p>}
                   </div>
                   {catalog === 'loading' && <p className="inline-flex items-center gap-2 text-sm text-gray-500"><Loader2 className="w-4 h-4 animate-spin" /> Loading schedule…</p>}
                   {catalog === 'error' && <p className="text-sm text-red-600">Could not load this class&apos;s schedule.</p>}
