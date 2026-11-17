@@ -185,6 +185,7 @@ export default function ReturningToGymnasticsGuide() {
             preferred side. Next class I’ll ask what to adjust on the other side.” Bring the note to your
             next session so you and the coach can pick up from there.
           </p>
+          <p>If you’re planning around work or other activities, <Link to="/adult-gymnastics#adult-weekly-training">see how to start with one adult gymnastics class a week</Link>.</p>
         </section>
 
         <aside className="athletic-guide-next" aria-labelledby="returning-to-gymnastics-next">

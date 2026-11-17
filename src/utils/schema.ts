@@ -247,7 +247,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
         '@id': `${HUB_ORIGIN}/#webpage`,
         url: rootUrl(HUB_ORIGIN),
         about: { '@id': locationId },
-        primaryImageOfPage: `${HUB_ORIGIN}${searchPhotos.fitAndFlip}`,
+        primaryImageOfPage: `${HUB_ORIGIN}${searchPhotos.homepageGallery.strengthTraining.src}`,
       },
       faqPageSchema(HOME_FAQS),
     )

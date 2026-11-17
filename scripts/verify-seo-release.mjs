@@ -51,6 +51,7 @@ const accessibilityUrl = `${HUB_ORIGIN}/contact#parking-and-accessibility`
 const watchUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.path}`
 const videoUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.assetPath}`
 const videoThumbnailUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.thumbnail}`
+const homePreviewUrl = `${HUB_ORIGIN}${HOME_PREFERRED_PHOTO.src}`
 const videoDescriptionsPath = '/newpage/training-film-descriptions.vtt'
 const isBowieDirections = (url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
   url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
@@ -475,10 +476,22 @@ const verifyHtml = (
         `${label}: preload only the font used in the initial view`)
     }
     const images = HUB_SITEMAP_ENTRIES.find(({ path }) => path === pagePath)?.images ?? []
-    const rendered = tags(html, 'img').filter((tag) => attribute(tag, 'alt')).map((tag) => attribute(tag, 'src'))
+    const imagesWithAlt = tags(html, 'img').filter((tag) => attribute(tag, 'alt'))
+    const rendered = imagesWithAlt.map((tag) => attribute(tag, 'src'))
     for (const image of images) {
       const rotates = pagePath === '/' && HOME_ROTATING_SITEMAP_PHOTOS.includes(image)
       assert(rotates || rendered.includes(image), `${label}: sitemap photo must appear on the page with alt text (${image})`)
+    }
+    if (pagePath === '/') {
+      const twitterImages = metaValues(html, 'name', 'twitter:image')
+      const twitterImageAlts = metaValues(html, 'name', 'twitter:image:alt')
+      assert(ogImages[0] === homePreviewUrl && ogImageAlts[0] === HOME_PREFERRED_PHOTO.alt &&
+        twitterImages.length === 1 && twitterImages[0] === homePreviewUrl &&
+        twitterImageAlts.length === 1 && twitterImageAlts[0] === HOME_PREFERRED_PHOTO.alt,
+        `${label}: the homepage’s social previews must use its preferred training photo and alt text`)
+      assert(images.includes(HOME_PREFERRED_PHOTO.src) && imagesWithAlt.some((tag) =>
+        attribute(tag, 'src') === HOME_PREFERRED_PHOTO.src && attribute(tag, 'alt') === HOME_PREFERRED_PHOTO.alt),
+        `${label}: the preferred training photo must appear in the sitemap and on the homepage with matching alt text`)
     }
   }
   const snapshotRoot = tags(html, 'div').find((tag) => attribute(tag, 'id') === 'root') ?? ''
@@ -849,6 +862,10 @@ const verifyHtml = (
         `${label}: missing adult registration and first-visit guidance`)
       assert(hasDropInProgramLink(anchorUrls(firstVisit), 'Adult Fitness & Acrobatics'),
         `${label}: adult first-visit guidance must link to the Typhoons drop-in schedule`)
+      const weeklyTraining = firstVisit.match(/<article\b[^>]*\sid=["']adult-weekly-training["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(/one 90-minute Typhoons class a week/.test(weeklyTraining) &&
+        anchorUrls(weeklyTraining).some(url => url.href === `${HUB_ORIGIN}/adult-gymnastics#adult-class-schedule`),
+        `${label}: missing once-a-week adult training guidance and its current schedule link`)
       assert(mainLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, RETURNING_TO_GYMNASTICS_GUIDE_PATH)),
         `${label}: adult gymnastics must link to the guide for returning gymnasts`)
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#nearby-adult-gymnastics`),
@@ -879,7 +896,7 @@ const verifyHtml = (
     const guideLinks = anchorUrls(html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? '')
     assert(guideLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, '/adult-gymnastics')),
       `${label}: the guide must link to the adult gymnastics program`)
-    for (const hash of ['#class-format', '#adult-class-pricing']) {
+    for (const hash of ['#class-format', '#adult-class-pricing', '#adult-weekly-training']) {
       assert(guideLinks.some((url) => url.href === `${canonicalFor(HUB_ORIGIN, '/adult-gymnastics')}${hash}`),
         `${label}: the returning gymnastics guide must link to ${hash} on the adult program page`)
     }
@@ -930,7 +947,7 @@ const verifyHtml = (
       assert(graphTypes.length === 1 && graphTypes[0] === expectedType,
         `${label}: expected one Open Graph type of ${expectedType}`)
       const largePhotoPaths = [
-        '/gymnastics', '/adult-gymnastics', '/contact', YOUTH_ATHLETIC_GUIDE_PATH,
+        '/', '/gymnastics', '/adult-gymnastics', '/contact', YOUTH_ATHLETIC_GUIDE_PATH,
         PRESCHOOL_GYMNASTICS_GUIDE_PATH, GYMNASTICS_VS_TUMBLING_GUIDE_PATH, RETURNING_TO_GYMNASTICS_GUIDE_PATH,
       ]
       if (largePhotoPaths.includes(pagePath)) {
@@ -1305,7 +1322,7 @@ const verifyHtml = (
     }
     if (pagePath === '/') {
       const home = parsed.find(item => item?.['@type'] === 'WebPage')
-      assert(home?.url === HUB_ORIGIN && home?.primaryImageOfPage === `${HUB_ORIGIN}${HOME_PREFERRED_PHOTO}`,
+      assert(home?.url === HUB_ORIGIN && home?.primaryImageOfPage === homePreviewUrl,
         `${label}: the homepage must identify its published training photo as its preferred search image`)
     }
 

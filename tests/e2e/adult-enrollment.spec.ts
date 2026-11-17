@@ -75,7 +75,13 @@ async function mockClasses(page: Page, {
 
 test('adult gymnastics, general enrollment, and published form links open the current Typhoons schedule', async ({ page }) => {
   await mockClasses(page)
-  await page.goto('/adult-gymnastics#adult-class-schedule')
+  await page.goto('/blog/returning-to-gymnastics-as-an-adult#track-your-progress')
+  await page.getByRole('link', { name: 'see how to start with one adult gymnastics class a week' }).click()
+  await expect(page).toHaveURL('/adult-gymnastics#adult-weekly-training')
+  const weekly = page.locator('#adult-weekly-training')
+  await expect(weekly.getByRole('heading', { name: 'Can I start adult gymnastics with one class a week?' })).toBeInViewport()
+  await weekly.getByRole('link', { name: 'Check the weekly Typhoons schedule' }).click()
+  await expect(page).toHaveURL('/adult-gymnastics#adult-class-schedule')
   await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toBeVisible()
   await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   await expect(page.getByText('All times Eastern. Check enrollment for dates and availability.')).toBeVisible()

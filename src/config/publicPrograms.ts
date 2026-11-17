@@ -527,6 +527,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         topics: [
           { id: 'adult-registration', heading: 'Register yourself and sign your waiver', description: 'Sign in or create an account, select yourself as the participant, and complete any waiver requested during booking. Review your total before confirming.' },
           { id: 'adult-what-to-bring', heading: 'What to bring', description: 'Bring water and wear comfortable clothes you can move in. Ask Vortex before your visit if you have questions about footwear or what to bring.' },
+          {
+            id: 'adult-weekly-training',
+            heading: 'Can I start adult gymnastics with one class a week?',
+            description: 'Yes. You can start with one 90-minute Typhoons class a week. Before you leave, ask your coach which movement to revisit next class and whether they recommend any conditioning between sessions. If your schedule changes from week to week, check available drop-in dates.',
+            link: { href: '/adult-gymnastics#adult-class-schedule', label: 'Check the weekly Typhoons schedule', analyticsKey: 'view_adult_weekly_training' },
+          },
         ],
         links: [
           { href: ADULT_DROP_IN_HREF, label: 'Check Typhoons dates and prices', analyticsKey: 'browse_drop_ins' },

@@ -16,16 +16,19 @@ export interface HubRouteSeo {
   robots?: string
 }
 
+const LARGE_IMAGE_PREVIEW = 'max-image-preview:large'
+const homePreviewPhoto = searchPhotos.homepageGallery.strengthTraining
+
 export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
   title: 'Gymnastics & Youth Athletic Training in Bowie, MD | Vortex',
   description:
     'Find youth gymnastics, Fit & Flip athletic development, and adult gymnastics at Vortex in Bowie, MD. Compare programs and find your first class.',
-  ogImage: `${HUB_ORIGIN}/vortex-athletics-og.jpg`,
-  ogImageAlt: 'Vortex Athletics gymnastics and athletic development in Bowie, Maryland',
+  ogImage: `${HUB_ORIGIN}${homePreviewPhoto.src}`,
+  ogImageAlt: homePreviewPhoto.alt,
+  robots: LARGE_IMAGE_PREVIEW,
 }
 
-const LARGE_IMAGE_PREVIEW = 'max-image-preview:large'
 const wideGuideImages = new Set([
   searchPhotos.plyometrics, searchPhotos.preschoolGymnastics, searchPhotos.tumbling, BUSINESS_FACILITY_PHOTO.src,
 ])
