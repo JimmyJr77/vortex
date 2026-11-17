@@ -1,4 +1,7 @@
+import articleDates from './publicArticleDates.json'
+
 export const BOWIE_YOUTH_SPORTS_GUIDE = {
+  ...articleDates.bowieYouthSports,
   path: '/blog/youth-sports-bowie',
   title: 'Youth Sports & Athletics in Bowie, MD | A Parent’s Guide',
   heading: 'A parent’s guide to youth sports in Bowie, MD',

@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
 export default function BowieYouthSportsGuide() {
@@ -20,7 +21,7 @@ export default function BowieYouthSportsGuide() {
               Want to find a team, try a new sport, or give your child a regular way to move?
               Here’s where to look in Bowie and what to check before you sign up.
             </p>
-            <p className="athletic-guide-byline">By Vortex Athletics</p>
+            <GuideByline datePublished={BOWIE_YOUTH_SPORTS_GUIDE.datePublished} dateModified={BOWIE_YOUTH_SPORTS_GUIDE.dateModified} />
           </div>
           <img className="athletic-guide-image" src={BOWIE_YOUTH_SPORTS_GUIDE.image}
             alt={BOWIE_YOUTH_SPORTS_GUIDE.imageAlt} width={900} height={675} fetchPriority="high" />

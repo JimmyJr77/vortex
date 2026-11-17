@@ -339,6 +339,8 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       headline: guide.heading,
       description: guide.description,
       image: `${HUB_ORIGIN}${guide.image}`,
+      datePublished: guide.datePublished,
+      dateModified: guide.dateModified,
       author: { '@id': `${HUB_ORIGIN}/#organization` },
       publisher: { '@id': `${HUB_ORIGIN}/#organization` },
       inLanguage: 'en-US',

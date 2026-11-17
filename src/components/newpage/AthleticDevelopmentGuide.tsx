@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
 const sections = [
@@ -29,7 +30,7 @@ export default function AthleticDevelopmentGuide() {
               sports and active play. Here’s what those skills look like in a coached class and how to decide
               if the class fits your child.
             </p>
-            <p className="athletic-guide-byline">By Vortex Athletics</p>
+            <GuideByline datePublished={ATHLETIC_DEVELOPMENT_GUIDE.datePublished} dateModified={ATHLETIC_DEVELOPMENT_GUIDE.dateModified} />
           </div>
           <img
             className="athletic-guide-image"

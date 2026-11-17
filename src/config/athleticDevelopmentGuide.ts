@@ -1,4 +1,7 @@
+import articleDates from './publicArticleDates.json'
+
 export const ATHLETIC_DEVELOPMENT_GUIDE = {
+  ...articleDates.athleticDevelopment,
   path: '/blog/athletic-development-young-athletes',
   title: 'A Parent’s Guide to Youth Athletic Development | Vortex',
   heading: 'Athletic development for young athletes',

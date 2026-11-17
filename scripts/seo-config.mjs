@@ -1,4 +1,7 @@
 /** Shared SEO data for build scripts (keep in sync with src/config/*.ts). */
+import { readFileSync } from 'node:fs'
+
+const articleDates = JSON.parse(readFileSync(new URL('../src/config/publicArticleDates.json', import.meta.url), 'utf8'))
 
 export const YOUTH_ATHLETIC_GUIDE_PATH = '/blog/athletic-development-young-athletes'
 export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = '/blog/youth-sports-bowie'
@@ -26,8 +29,8 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
-  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-17' },
-  { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-16' },
+  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: articleDates.athleticDevelopment.dateModified },
+  { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: articleDates.bowieYouthSports.dateModified },
 ]
 
 export const HUB_NOINDEX_PRERENDER_PATHS = ['/ninja']

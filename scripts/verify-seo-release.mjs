@@ -149,6 +149,12 @@ const extractSitemapRows = (xml) =>
     lastmodCount: tags(match[1], 'lastmod').length,
   }))
 
+const isCalendarDate = (value) => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? '')) return false
+  const date = new Date(`${value}T00:00:00Z`)
+  return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
+}
+
 function verifySitemapLastmod(label, xml, { origin, entries }) {
   const rows = new Map(extractSitemapRows(xml).map((row) => [row.loc, row]))
   for (const { path, lastmod } of entries) {
@@ -157,9 +163,7 @@ function verifySitemapLastmod(label, xml, { origin, entries }) {
     if (lastmod === undefined) {
       assert(row?.lastmodCount === 0, `${label}: ${url} should omit lastmod`)
     } else {
-      const date = new Date(`${lastmod}T00:00:00Z`)
-      assert(/^\d{4}-\d{2}-\d{2}$/.test(lastmod) && Number.isFinite(date.getTime()) &&
-        date.toISOString().slice(0, 10) === lastmod, `${label}: invalid configured lastmod for ${url}`)
+      assert(isCalendarDate(lastmod), `${label}: invalid configured lastmod for ${url}`)
       assert(row?.lastmodCount === 1 && row.lastmod === lastmod, `${label}: ${url} must have one lastmod of ${lastmod}`)
     }
   }
@@ -476,6 +480,12 @@ const verifyHtml = (
       const article = parsed.find((item) => item?.['@type'] === 'Article')
       assert(article?.mainEntityOfPage === canonical && article?.headline === h1s[0],
         `${label}: Article JSON-LD must match the canonical URL and visible heading`)
+      const visibleDates = tags(html, 'time').map((tag) => attribute(tag, 'datetime'))
+      const sitemapDate = HUB_SITEMAP_ENTRIES.find(({ path }) => path === pagePath)?.lastmod
+      assert(isCalendarDate(article?.datePublished) && isCalendarDate(article?.dateModified) && article.datePublished <= article.dateModified,
+        `${label}: Article JSON-LD must have a publication date on or before the update date`)
+      assert(article?.dateModified === sitemapDate && [article?.datePublished, article?.dateModified].every((date) => visibleDates.includes(date)),
+        `${label}: Article dates must match the visible dates and sitemap update date`)
     }
 
     if (
