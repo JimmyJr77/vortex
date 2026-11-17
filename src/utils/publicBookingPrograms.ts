@@ -13,6 +13,7 @@ const PUBLIC_BOOKING_PROGRAMS = [
 export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
 export const ADULT_BOOKING_HREF = `/enroll?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 export const ADULT_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
+export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_AND_FLIP_BOOKING_PROGRAM
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
@@ -22,10 +23,18 @@ export function isAdultBookingProgram(name: string | null): boolean {
 }
 
 export function getAdultBookingProgram(programs: readonly PublicProgramOffered[]) {
-  const program = programs.find(({ displayName }) => isAdultBookingProgram(displayName))
+  return getRecurringBookingProgram(programs, ADULT_BOOKING_PROGRAM)
+}
+
+export function getRecurringBookingProgram(programs: readonly PublicProgramOffered[], name: RecurringBookingProgram) {
+  const normalizedName = normalize(name)
+  const program = programs.find(({ displayName }) => typeof displayName === 'string' && normalize(displayName) === normalizedName)
   if (!program) return null
   const classes = program.classes.filter((classItem): classItem is PublicClassOffered & { formId: number } =>
     classItem.enrollVisible === true && classItem.formId != null)
+  if (name === FIT_AND_FLIP_BOOKING_PROGRAM) {
+    classes.sort((left, right) => (left.ageMin ?? Number.MAX_SAFE_INTEGER) - (right.ageMin ?? Number.MAX_SAFE_INTEGER))
+  }
   return { id: program.id, classes }
 }
 

@@ -436,6 +436,11 @@ const verifyHtml = (
       const exampleTopics = tags(classExample, 'article').map((tag) => attribute(tag, 'id'))
       assert(['landing-rehearsal', 'strength-practice', 'jump-practice'].every((topic) => exampleTopics.includes(topic)),
         `${label}: missing the three parts of the Fit & Flip landing example`)
+      const schedule = mainHtml.match(/<section\b[^>]*\sid=["']fit-flip-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(/<h2\b[^>]*>Recurring Fit &amp; Flip class times<\/h2>/i.test(schedule) && /8–11 and 12–15/.test(schedule),
+        `${label}: missing the crawlable Fit & Flip schedule heading or age groups`)
+      assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
+        `${label}: the Fit & Flip schedule must link to filtered enrollment`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
     }
     if (pagePath === '/adult-gymnastics') {

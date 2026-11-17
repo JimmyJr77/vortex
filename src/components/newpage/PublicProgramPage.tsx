@@ -3,7 +3,8 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import { BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
-import PublicAdultSchedule from './PublicAdultSchedule'
+import { ADULT_BOOKING_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM } from '../../utils/publicBookingPrograms'
+import PublicRecurringSchedule from './PublicRecurringSchedule'
 import './PublicProgramPage.css'
 
 const HERO_IMAGE_SIZES = [
@@ -51,7 +52,9 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                 </Link>
               )}
             </div>
-            {path === '/adult-gymnastics' && <PublicAdultSchedule />}
+            {path === '/adult-gymnastics' && (
+              <PublicRecurringSchedule programName={ADULT_BOOKING_PROGRAM} heading="Recurring class times" />
+            )}
           </div>
           <img
             className="np-program-hero-image"
@@ -67,6 +70,17 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
       </section>
 
       <div className="np-container">
+        {path === '/fit-and-flip' && (
+          <section className="np-program-section np-fit-flip-schedule" id="fit-flip-schedule" aria-labelledby="fit-flip-schedule-heading">
+            <h2 id="fit-flip-schedule-heading">Recurring Fit &amp; Flip class times</h2>
+            <p>Check weekly Cyclones times for ages 8–11 and 12–15. Enrollment shows available spots and start dates.</p>
+            <PublicRecurringSchedule programName={FIT_AND_FLIP_BOOKING_PROGRAM} />
+            <Link to={primaryAction.href} className="np-program-plain-link" data-analytics-cta={primaryAction.analyticsKey} data-analytics-section="fit_flip_schedule">
+              Check dates and availability <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+          </section>
+        )}
+
         {program.sections.map(section => (
           <section key={section.id} id={section.id} className="np-program-section">
             <h2>{section.heading}</h2>

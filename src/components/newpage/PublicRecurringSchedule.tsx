@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { getAdultBookingProgram } from '../../utils/publicBookingPrograms'
+import { getRecurringBookingProgram, type RecurringBookingProgram } from '../../utils/publicBookingPrograms'
 import { fetchClassesOffered } from '../../utils/publicClassesApi'
 import {
   fetchPublicSchedulingForm,
@@ -22,9 +22,9 @@ function includesDate(date: string, start?: string | null, end?: string | null) 
   return (!start || start <= date) && (!end || end >= date)
 }
 
-async function loadAdultClassTimes(): Promise<ClassTimes[]> {
+async function loadClassTimes(programName: RecurringBookingProgram): Promise<ClassTimes[]> {
   const { programs } = await fetchClassesOffered()
-  const program = getAdultBookingProgram(programs)
+  const program = getRecurringBookingProgram(programs, programName)
   if (!program) return []
 
   const dateParts = easternDate.formatToParts(new Date())
@@ -56,26 +56,29 @@ async function loadAdultClassTimes(): Promise<ClassTimes[]> {
   return classes.flatMap((result) => result.status === 'fulfilled' && result.value ? [result.value] : [])
 }
 
-export default function PublicAdultSchedule() {
+export default function PublicRecurringSchedule({ programName, heading }: {
+  programName: RecurringBookingProgram
+  heading?: string
+}) {
   const [schedule, setSchedule] = useState<ScheduleState>({ status: 'loading' })
 
   useEffect(() => {
     let current = true
-    void loadAdultClassTimes().then((classes) => {
+    void loadClassTimes(programName).then((classes) => {
       if (current) setSchedule({ status: 'loaded', classes })
     }).catch(() => {
       if (current) setSchedule({ status: 'unavailable' })
     })
     return () => { current = false }
-  }, [])
+  }, [programName])
 
   return (
-    <div className="np-adult-schedule" data-prerender-dynamic="" aria-live="polite">
+    <div className="np-recurring-schedule" data-prerender-dynamic="" aria-live="polite">
       {schedule.status === 'loading' ? (
         <p>Checking recurring class times…</p>
       ) : schedule.status === 'loaded' && schedule.classes.length ? (
         <>
-          <h2>Recurring class times</h2>
+          {heading && <h2>{heading}</h2>}
           <ul>
             {schedule.classes.map(({ formId, name, times }) => (
               <li key={formId}>

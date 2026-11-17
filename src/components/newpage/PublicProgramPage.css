@@ -86,7 +86,7 @@
   text-underline-offset: 3px;
 }
 
-.np-adult-schedule {
+.np-recurring-schedule {
   display: grid;
   gap: 6px;
   margin-top: 20px;
@@ -94,14 +94,25 @@
   font-size: 14px;
 }
 
-.np-program-page .np-adult-schedule h2 {
+.np-program-page .np-recurring-schedule h2 {
   color: var(--np-ink);
   font-size: 16px;
   letter-spacing: normal;
 }
 
-.np-adult-schedule > ul > li {
+.np-recurring-schedule > ul > li {
   font-weight: 650;
+}
+
+.np-fit-flip-schedule .np-recurring-schedule > ul {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 185px), 1fr));
+  gap: 12px 24px;
+  max-width: 430px;
+}
+
+.np-fit-flip-schedule .np-recurring-schedule > ul > li > ul {
+  font-weight: 400;
 }
 
 .np-program-section {
