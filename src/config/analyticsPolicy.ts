@@ -5,7 +5,7 @@ export const CONSENT_STORAGE_KEY = 'vortex_consent'
 /** First-party cookie mirroring consent on each Vortex domain. */
 export const CONSENT_COOKIE_NAME = '_vortex_consent'
 
-/** Correlates consent across unrelated Vortex domains (synced via API + link param). */
+/** Correlates consent across unrelated Vortex domains (synced via API and link handoff). */
 export const CONSENT_ID_COOKIE_NAME = '_vortex_cid'
 
 export const CONSENT_ID_QUERY_PARAM = 'vcid'

@@ -328,7 +328,7 @@ const verifyHtml = (
       if (shouldIndex) {
         assert(url.origin === HUB_ORIGIN,
           `${label}: crawlable link for ${url.pathname} must use the primary host`)
-        assert(!url.searchParams.has(consentQueryParam),
+        assert(!url.searchParams.has(consentQueryParam) && !new URLSearchParams(url.hash.slice(1)).has(consentQueryParam),
           `${label}: crawlable link for ${url.pathname} includes a consent identifier`)
       }
       assert(!Object.hasOwn(legacyLandingRedirects, url.pathname.replace(/\/+$/, '').toLowerCase()),

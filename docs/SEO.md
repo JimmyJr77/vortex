@@ -143,10 +143,12 @@ After deployment, verify the live hosts and redirect destinations:
 npm run test:seo-live
 ```
 
-The release checks require clean internal links on indexable pages. The live
-check also fetches the three program pages, class board, contact page, and
-drop-in page with a test `vcid` parameter to verify their canonical and Open
-Graph URLs still point to the clean pages.
+The release checks require clean links on indexable pages. Cross-domain consent
+links for returning visitors carry `vcid` in a browser-only fragment. On arrival,
+the app restores any section anchor and keeps the rest of the query string.
+The live check still tests legacy query-based `vcid` links on program pages, the
+class board, contact, and drop-in pages to verify their canonical and Open Graph
+URLs point to the clean pages.
 
 ## Page quality and performance guardrails
 

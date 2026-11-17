@@ -54,6 +54,42 @@ async function grantAnalyticsOnly(page: Page) {
   await expect(page.getByRole('button', { name: 'Open cookie settings' })).toBeVisible()
 }
 
+test('moves cross-domain consent out of requested URLs and restores the original section', async ({ page, context, baseURL }) => {
+  await mockSite(page)
+  const consentId = 'c_test_fragment_handoff'
+  await context.addCookies([{ name: '_vortex_cid', value: consentId, url: baseURL! }])
+  await page.goto('/contact')
+
+  const footer = page.getByRole('contentinfo')
+  await expect(footer.getByRole('link', { name: 'Classes & Events' }))
+    .toHaveAttribute('href', `https://vortexathletics.com/read-board#vcid=${consentId}`)
+  await expect(footer.getByRole('link', { name: 'Drop-In Classes' }))
+    .toHaveAttribute('href', `https://vortexathletics.com/drop-in#vcid=${consentId}`)
+  const triadLink = footer.getByRole('link', { name: 'The Triad of Athleticism' })
+  await expect(triadLink).toHaveAttribute('href', `https://vortexathletics.com/#vcid=${consentId}&anchor=triad`)
+  const destination = new URL((await triadLink.getAttribute('href'))!)
+
+  await context.clearCookies()
+  const synced = page.waitForRequest(request => new URL(request.url()).pathname === `/api/consent/sync/${consentId}`)
+  await page.goto('/?utm_campaign=training%20guide' + destination.hash)
+  await synced
+  await expect(page).toHaveURL('/?utm_campaign=training%20guide#triad')
+  await expect(page.locator('#triad h2').first()).toBeInViewport()
+  expect((await context.cookies()).find(cookie => cookie.name === '_vortex_cid')?.value).toBe(consentId)
+})
+
+test('still accepts legacy consent links while retaining filters, campaigns, and anchors', async ({ page, context }) => {
+  await mockSite(page)
+  const consentId = 'c_test_legacy_handoff'
+  const synced = page.waitForRequest(request => new URL(request.url()).pathname === `/api/consent/sync/${consentId}`)
+  await page.goto(`/read-board?program=Fit+%26+Flip&vcid=${consentId}&utm_source=club#schedule`)
+  await synced
+  await expect(page).toHaveURL('/read-board?program=Fit+%26+Flip&utm_source=club#schedule')
+  const tabs = page.getByRole('navigation', { name: 'Browse classes and updates' })
+  await expect(tabs.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('aria-current', 'location')
+  expect((await context.cookies()).find(cookie => cookie.name === '_vortex_cid')?.value).toBe(consentId)
+})
+
 test('uses explicit analytics consent, preserves campaign labels and records one view per route', async ({ page, context }) => {
   const events = await mockSite(page)
   const query = '?utm_source=school_newsletter&utm_medium=email&utm_campaign=fall_trials&utm_term=visitor%40example.invalid&session_id=private-token'

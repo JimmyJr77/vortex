@@ -9,6 +9,11 @@ import {
 import { getApiUrl } from './api'
 
 const HUB_HOSTS = ['vortexathletics.com', 'www.vortexathletics.com']
+const CONSENT_FRAGMENT_PREFIX = `#${CONSENT_ID_QUERY_PARAM}=`
+const CONSENT_FRAGMENT_ANCHOR = 'anchor'
+
+const readConsentFragment = (hash: string): URLSearchParams | null =>
+  hash.startsWith(CONSENT_FRAGMENT_PREFIX) ? new URLSearchParams(hash.slice(1)) : null
 
 const randomConsentId = () =>
   `c_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 12)}`
@@ -67,7 +72,8 @@ export const ensureConsentId = (): string => {
 
 /**
  * When navigating between Vortex domains, pass the consent id so the destination
- * can load the same preference from the API.
+ * can load the same preference from the API. Fragments keep the id out of the
+ * requested page URL and can carry any original section anchor.
  */
 export const appendCrossDomainConsentId = (url: string): string => {
   if (typeof window === 'undefined') return url
@@ -79,7 +85,12 @@ export const appendCrossDomainConsentId = (url: string): string => {
     const parsed = new URL(url, origin)
     if (parsed.origin === origin) return url
     if (!isVortexConsentHost(parsed.hostname)) return url
-    parsed.searchParams.set(CONSENT_ID_QUERY_PARAM, consentId)
+    const previousTransfer = readConsentFragment(parsed.hash)
+    const anchor = previousTransfer ? previousTransfer.get(CONSENT_FRAGMENT_ANCHOR) : parsed.hash.slice(1)
+    const transfer = new URLSearchParams({ [CONSENT_ID_QUERY_PARAM]: consentId })
+    if (anchor) transfer.set(CONSENT_FRAGMENT_ANCHOR, anchor)
+    if (parsed.searchParams.has(CONSENT_ID_QUERY_PARAM)) parsed.searchParams.delete(CONSENT_ID_QUERY_PARAM)
+    parsed.hash = transfer.toString()
     return parsed.toString()
   } catch {
     return url
@@ -92,19 +103,19 @@ export const getHubSiteUrl = (path = '/'): string => {
   return appendCrossDomainConsentId(`${base}${normalized}`)
 }
 
-/** Apply ?vcid= from inbound cross-domain navigation. */
+/** Apply an inbound fragment or legacy query handoff before mounting the router. */
 export const captureConsentIdFromUrl = (): void => {
   if (typeof window === 'undefined') return
 
-  const params = new URLSearchParams(window.location.search)
-  const fromUrl = params.get(CONSENT_ID_QUERY_PARAM)
+  const url = new URL(window.location.href)
+  const transfer = readConsentFragment(url.hash)
+  const fromUrl = transfer?.get(CONSENT_ID_QUERY_PARAM) || url.searchParams.get(CONSENT_ID_QUERY_PARAM)
   if (!fromUrl) return
 
   setConsentId(fromUrl)
-  params.delete(CONSENT_ID_QUERY_PARAM)
-  const query = params.toString()
-  const next = `${window.location.pathname}${query ? `?${query}` : ''}${window.location.hash}`
-  window.history.replaceState({}, '', next)
+  if (url.searchParams.has(CONSENT_ID_QUERY_PARAM)) url.searchParams.delete(CONSENT_ID_QUERY_PARAM)
+  if (transfer) url.hash = transfer.get(CONSENT_FRAGMENT_ANCHOR) ?? ''
+  window.history.replaceState(window.history.state, '', url)
 }
 
 export const pickNewestConsent = (
