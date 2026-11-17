@@ -5,7 +5,9 @@ import {
   CONSENT_ID_QUERY_PARAM,
 } from '../src/config/analyticsPolicy.js'
 
-export default function legacyFitFlipConsent(request: IncomingMessage, response: ServerResponse) {
+const publicPaths = new Set(['/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support'])
+
+export default function legacyPublicConsent(request: IncomingMessage, response: ServerResponse) {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
     response.setHeader('Allow', 'GET, HEAD')
     response.statusCode = 405
@@ -15,7 +17,7 @@ export default function legacyFitFlipConsent(request: IncomingMessage, response:
 
   const url = new URL(request.url ?? '/', 'https://vortexathletics.com')
   const consentIds = url.searchParams.getAll(CONSENT_ID_QUERY_PARAM)
-  if (!consentIds.length) {
+  if (!publicPaths.has(url.pathname) || !consentIds.length || url.searchParams.has('sport')) {
     response.statusCode = 404
     response.end()
     return
@@ -30,7 +32,7 @@ export default function legacyFitFlipConsent(request: IncomingMessage, response:
   }
 
   // A fragment-free Location lets the browser carry the original section anchor.
-  response.setHeader('Location', '/fit-and-flip' + url.search)
+  response.setHeader('Location', url.pathname + url.search)
   response.setHeader('Cache-Control', 'private, no-store')
   response.statusCode = 308
   response.end()

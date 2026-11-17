@@ -57,8 +57,8 @@ const isBowieDirections = (url) => url.origin === 'https://www.google.com' && ur
   url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const consentQueryParam = 'vcid'
-const normalizedConsentPath = '/fit-and-flip'
-const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS.filter(path => path !== normalizedConsentPath), '/read-board', '/contact', '/drop-in', '/support', '/terms-of-service']
+const normalizedConsentPaths = ['/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support']
+const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS.filter(path => !normalizedConsentPaths.includes(path)), '/terms-of-service']
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -1351,30 +1351,32 @@ for (const set of expectedSets) {
       verifyHtml(`live ${canonical}`, await response.text(), canonical)
     }
 
-    const consentDestination = new URL(normalizedConsentPath, set.origin)
-    consentDestination.searchParams.append('utm_source', 'seo_release_check')
-    consentDestination.searchParams.append('tag', 'one')
-    consentDestination.searchParams.append('tag', 'two')
-    const consentId = 'c_fit_flip_release_check'
-    const consentSource = new URL(consentDestination)
-    consentSource.searchParams.set(consentQueryParam, consentId)
-    const consentRedirect = await fetch(consentSource, { redirect: 'manual' })
-    await consentRedirect.body?.cancel()
-    const consentLocation = consentRedirect.headers.get('location')
-    const consentTarget = consentLocation ? new URL(consentLocation, consentSource) : null
-    assert(consentRedirect.status === 308 && consentTarget?.origin === consentDestination.origin &&
-      consentTarget?.pathname === normalizedConsentPath && !consentTarget.hash && !consentTarget.searchParams.has(consentQueryParam) &&
-      consentTarget.searchParams.get('utm_source') === 'seo_release_check' &&
-      consentTarget.searchParams.getAll('tag').join(',') === 'one,two',
-      'Fit & Flip: legacy consent redirect must remove vcid and preserve campaign and repeated parameters without adding a fragment')
-    assert(/\bprivate\b/.test(consentRedirect.headers.get('cache-control') ?? '') && /\bno-store\b/.test(consentRedirect.headers.get('cache-control') ?? '') &&
-      (consentRedirect.headers.get('set-cookie') ?? '').startsWith('_vortex_cid=' + consentId + ';') &&
-      !/\bnoindex\b/i.test(consentRedirect.headers.get('x-robots-tag') ?? ''),
-      'Fit & Flip: the indexable redirect must preserve the necessary consent cookie and forbid shared caching')
-    const normalizedConsentPage = await fetch(consentDestination, { redirect: 'manual' })
-    assert(normalizedConsentPage.ok && !/\bnoindex\b/i.test(normalizedConsentPage.headers.get('x-robots-tag') ?? '') &&
-      linkValues(await normalizedConsentPage.text(), 'canonical').includes(canonicalFor(set.origin, normalizedConsentPath)),
-      'Fit & Flip: the clean consent destination must stay indexable and self-canonical')
+    await Promise.all(normalizedConsentPaths.map(async (path) => {
+      const consentDestination = new URL(path, set.origin)
+      consentDestination.searchParams.append('utm_source', 'seo_release_check')
+      consentDestination.searchParams.append('tag', 'one')
+      consentDestination.searchParams.append('tag', 'two')
+      const consentId = 'c_consent_release_check'
+      const consentSource = new URL(consentDestination)
+      consentSource.searchParams.set(consentQueryParam, consentId)
+      const consentRedirect = await fetch(consentSource, { redirect: 'manual' })
+      await consentRedirect.body?.cancel()
+      const consentLocation = consentRedirect.headers.get('location')
+      const consentTarget = consentLocation ? new URL(consentLocation, consentSource) : null
+      assert(consentRedirect.status === 308 && consentTarget?.origin === consentDestination.origin &&
+        consentTarget?.pathname === path && !consentTarget.hash && !consentTarget.searchParams.has(consentQueryParam) &&
+        consentTarget.searchParams.get('utm_source') === 'seo_release_check' &&
+        consentTarget.searchParams.getAll('tag').join(',') === 'one,two',
+        path + ': legacy consent redirect must remove vcid and preserve campaign and repeated parameters without adding a fragment')
+      assert(/\bprivate\b/.test(consentRedirect.headers.get('cache-control') ?? '') && /\bno-store\b/.test(consentRedirect.headers.get('cache-control') ?? '') &&
+        (consentRedirect.headers.get('set-cookie') ?? '').startsWith('_vortex_cid=' + consentId + ';') &&
+        !/\bnoindex\b/i.test(consentRedirect.headers.get('x-robots-tag') ?? ''),
+        path + ': the indexable redirect must preserve the necessary consent cookie and forbid shared caching')
+      const normalizedConsentPage = await fetch(consentDestination, { redirect: 'manual' })
+      assert(normalizedConsentPage.ok && !/\bnoindex\b/i.test(normalizedConsentPage.headers.get('x-robots-tag') ?? '') &&
+        linkValues(await normalizedConsentPage.text(), 'canonical').includes(canonicalFor(set.origin, path)),
+        path + ': the clean consent destination must stay indexable and self-canonical')
+    }))
 
     await Promise.all(consentVariantPaths.map(async (path) => {
       const canonical = canonicalFor(set.origin, path)
@@ -1690,17 +1692,18 @@ for (const [source, destination] of snapshotRedirectRules) {
 const hasNoindexHeader = (rule) => (rule.headers ?? []).some((header) =>
   header.key?.toLowerCase() === 'x-robots-tag' && /\bnoindex\b/i.test(header.value ?? ''),
 )
-assert(headers.some(rule => rule.source === '/:path((?!fit-and-flip$).*)' && hasNoindexHeader(rule) &&
+const normalizedConsentSlugs = normalizedConsentPaths.map(path => path.slice(1)).join('|')
+assert(headers.some(rule => rule.source === '/:path((?!(?:' + normalizedConsentSlugs + ')$).*)' && hasNoindexHeader(rule) &&
   rule.has?.some(condition => condition.type === 'host' && condition.value === 'vortexathletics\\.com') &&
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam)),
-  'vercel.json: legacy consent query URLs outside the Fit & Flip normalization must have a noindex header on the canonical host')
-const consentHandler = 'api/legacy-fit-flip-consent.ts'
-const consentRewrite = vercelConfig.routes?.find(rule => rule.src === '^' + normalizedConsentPath + '$' &&
+  'vercel.json: legacy consent query URLs outside the normalized paths must have a noindex header on the canonical host')
+const consentHandler = 'api/legacy-public-consent.ts'
+const consentRewrite = vercelConfig.routes?.find(rule => rule.src === '^/(' + normalizedConsentSlugs + ')$' &&
   rule.dest === '/' + consentHandler && !rule.check &&
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam))
 assert(vercelConfig.builds?.some(build => build.src === consentHandler && build.use === '@vercel/node') &&
   consentRewrite,
-  'vercel.json: Fit & Flip consent requests must reach the deployed Node handler before the static page')
+  'vercel.json: normalized consent requests must reach the Node handler before the static pages')
 for (const [source, path] of Object.entries(legacyLandingRedirects)) {
   const destination = new URL(path, HUB_ORIGIN)
   assert(
@@ -1783,7 +1786,7 @@ assert(
   'vercel.json: generic robots fallback routing is missing',
 )
 assert(vercelConfig.routes?.length === 1 && consentRewrite,
-  'vercel.json: only the Fit & Flip consent rewrite belongs before static routing')
+  'vercel.json: only the scoped consent rewrite belongs before static routing')
 const cacheHeaderValues = headers.flatMap((rule) =>
   (rule.headers ?? [])
     .filter((header) => header.key?.toLowerCase() === 'cache-control')
