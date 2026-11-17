@@ -43,7 +43,7 @@ const adultProgramName = normalizeFilterName(ADULT_BOOKING_PROGRAM)
 const enrollmentHeroCopy = {
   browse: {
     heading: 'Classes Offered',
-    intro: 'Explore gymnastics and Fit & Flip classes in Bowie, MD. Choose class times, review pricing, then enroll each athlete through your family account.',
+    intro: 'Explore youth gymnastics, Fit & Flip, and adult gymnastics in Bowie, MD. See class times and pricing, then enroll through your Vortex account.',
   },
   signup: {
     heading: 'Enroll',

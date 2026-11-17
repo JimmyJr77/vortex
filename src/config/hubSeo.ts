@@ -45,7 +45,7 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     path: '/enroll',
     title: 'Enroll in Gymnastics & Fit & Flip in Bowie, MD | Vortex',
     description:
-      'Browse gymnastics and Fit & Flip classes in Bowie, MD. Choose a program, review class times and pricing, and enroll with your family account.',
+      'See class times and pricing for youth gymnastics, Fit & Flip, and adult gymnastics in Bowie, MD. Find your program and enroll through Vortex.',
   },
   {
     path: '/drop-in',
