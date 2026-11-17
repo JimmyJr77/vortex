@@ -30,6 +30,28 @@ test.describe('Client-critical smoke flows', () => {
     await expect(startingClasses.getByRole('link', { name: /Ages 18 and up.*adult gymnastics/i })).toHaveAttribute('href', '/adult-gymnastics')
   })
 
+  test('mobile visitors can open the guide beside each starting class', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const guides = [
+      { link: 'What children learn in preschool gymnastics', path: 'preschool-gymnastics-what-toddlers-learn', heading: 'What children learn in preschool gymnastics' },
+      { link: 'Compare gymnastics and tumbling for kids', path: 'gymnastics-vs-tumbling', heading: 'Gymnastics vs. tumbling for kids' },
+      { link: 'Compare youth sports and fitness in Bowie', path: 'youth-sports-bowie', heading: 'A parent’s guide to youth sports in Bowie, MD' },
+      { link: 'Returning to gymnastics as an adult', path: 'returning-to-gymnastics-as-an-adult', heading: 'Returning to gymnastics as an adult' },
+    ]
+    for (const { link, path, heading } of guides) {
+      await page.goto('/')
+      const startingClasses = page.getByRole('region', { name: 'Find a class by age and experience' })
+      await startingClasses.getByRole('link', { name: link, exact: true }).click()
+      await expect(page).toHaveURL(`/blog/${path}`)
+      await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible()
+    }
+
+    await page.goto('/fit-and-flip')
+    await page.getByRole('link', { name: 'Compare local youth sports and fitness options' }).click()
+    await expect(page).toHaveURL('/blog/youth-sports-bowie#choose-an-activity')
+    await expect(page.getByRole('heading', { name: 'Choose an activity your child wants to come back to' })).toBeInViewport()
+  })
+
   test('mobile visitors can go from a program page to facility photos and back to a starting class', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics')

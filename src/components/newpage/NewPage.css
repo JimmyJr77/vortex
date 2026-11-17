@@ -640,6 +640,16 @@
   font-size: 14px;
   line-height: 1.55;
 }
+.np-class-guide-link {
+  min-height: 44px;
+  margin-top: 2px;
+  font-size: 14px;
+  text-underline-offset: .2em;
+  text-decoration: underline;
+}
+.np-class-guide-link svg {
+  flex: none;
+}
 .np-path-help {
   display: flex;
   justify-content: center;

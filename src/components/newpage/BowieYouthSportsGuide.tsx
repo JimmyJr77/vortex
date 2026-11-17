@@ -1,5 +1,6 @@
+import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
@@ -9,6 +10,16 @@ import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
 export default function BowieYouthSportsGuide() {
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash])
+
   return (
     <article className="athletic-guide" aria-labelledby="bowie-youth-sports-title">
       <header className="athletic-guide-hero">
@@ -41,11 +52,16 @@ export default function BowieYouthSportsGuide() {
           <p>Start with the organization that runs the program. It can confirm age groups, locations, and registration.</p>
           <ul>
             <li>
-              <strong>Bowie Boys &amp; Girls Club.</strong> Look here for team sports such as soccer, basketball, and
-              recreational baseball. The club’s track and field program serves ages 5–18, with indoor and outdoor
-              seasons. Check each program’s practice location before registering.{' '}
-              <a href="https://www.bbgc.com/programs">View club programs</a> ·{' '}
-              <a href="https://www.bbgc.com/programs/track-and-field">View track and field</a>
+              <strong>Bowie Boys &amp; Girls Club.</strong> The club’s track and field program serves ages 5–18,
+              with indoor and outdoor seasons. Check the practice location before registering.{' '}
+              <a href="https://www.bbgc.com/programs/track-and-field">View track and field</a> ·{' '}
+              <a href="https://www.bbgc.com/programs">View all club programs</a>
+            </li>
+            <li>
+              <strong>Bowie recreational baseball.</strong> Bowie Boys &amp; Girls Club offers recreational baseball
+              for ages 4–14, with games and practices in Bowie. Start with T-ball in 4U or 5U and coach pitch in
+              6U through 8U. Use the club’s birthdate chart to find your child’s division.{' '}
+              <a href="https://www.bbgc.com/programs/baseball">Compare Bowie baseball divisions</a>
             </li>
             <li>
               <strong>Bowie FC soccer.</strong> The club’s Developmental program is part of Bowie Boys &amp; Girls Club
@@ -54,8 +70,10 @@ export default function BowieYouthSportsGuide() {
               <a href="https://bowiesoccer.com/programs/">Compare Bowie FC soccer programs</a>
             </li>
             <li>
-              <strong>South Bowie Boys &amp; Girls Club.</strong> The Sharks offer youth sports including basketball,
-              soccer, and cheerleading. Check their registration page to see which sports are accepting signups.{' '}
+              <strong>South Bowie Boys &amp; Girls Club.</strong> For 2026–27, Sharks basketball serves ages 5–14.
+              The coed Sharks Squirts group introduces ages 5–8 to basketball with three players per side and
+              eight-foot baskets. The club also offers sports such as soccer and cheerleading.{' '}
+              <a href="https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/">Check South Bowie basketball</a> ·{' '}
               <a href="https://southbowiesharks.org/open-sports/">Check South Bowie Sharks registrations</a>
             </li>
             <li>

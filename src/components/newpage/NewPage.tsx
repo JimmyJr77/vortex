@@ -10,8 +10,12 @@ import PublicNavigationLinks from './PublicNavigationLinks'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
+import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import { PUBLIC_PROGRAMS } from '../../config/publicPrograms'
 import searchPhotos from '../../config/publicSearchPhotos.json'
+import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
 import { getHubSchema } from '../../utils/schema'
 import { liveTrainingEmbedUrl, trainingVideoUrl } from './media'
 import { trackEvent } from '../../utils/analyticsClient'
@@ -55,6 +59,11 @@ const startingClasses = [
     detail: 'Ages 2–3 join a caregiver in Dirt Devils and must be potty trained for a trial. Ages 4–5 learn balance and basic gymnastics shapes in Twisters.',
     href: '/gymnastics#preschool',
     analyticsKey: 'explore_preschool_gymnastics',
+    guide: {
+      href: PRESCHOOL_GYMNASTICS_GUIDE.path,
+      label: PRESCHOOL_GYMNASTICS_GUIDE.heading,
+      analyticsKey: 'read_preschool_gymnastics_guide',
+    },
   },
   {
     ages: 'Ages 6–17',
@@ -62,6 +71,11 @@ const startingClasses = [
     detail: 'Beginners can try Tornadoes when a trial is available. Gymnasts with experience can start with a coach-led Trial Assessment.',
     href: '/gymnastics#choose-a-class',
     analyticsKey: 'explore_youth_gymnastics',
+    guide: {
+      href: GYMNASTICS_VS_TUMBLING_GUIDE.path,
+      label: 'Compare gymnastics and tumbling for kids',
+      analyticsKey: 'read_gymnastics_vs_tumbling_guide',
+    },
   },
   {
     ages: 'Ages 8–15',
@@ -69,6 +83,11 @@ const startingClasses = [
     detail: 'Cyclones classes build strength, speed, and body control for sports and general fitness. See times for ages 8–11 and 12–15.',
     href: '/fit-and-flip#fit-flip-schedule',
     analyticsKey: 'explore_fit-flip',
+    guide: {
+      href: BOWIE_YOUTH_SPORTS_GUIDE.path,
+      label: 'Compare youth sports and fitness in Bowie',
+      analyticsKey: 'read_bowie_youth_sports_guide',
+    },
   },
   {
     ages: 'Ages 18 and up',
@@ -76,6 +95,11 @@ const startingClasses = [
     detail: 'Typhoons welcomes first-time and returning gymnasts for coached gymnastics and acrobatics.',
     href: '/adult-gymnastics',
     analyticsKey: 'explore_adult_gymnastics',
+    guide: {
+      href: RETURNING_TO_GYMNASTICS_GUIDE.path,
+      label: RETURNING_TO_GYMNASTICS_GUIDE.heading,
+      analyticsKey: 'read_returning_to_gymnastics_guide',
+    },
   },
 ] as const
 
@@ -252,7 +276,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           <section className="np-class-paths" id="starting-classes" aria-labelledby="np-starting-classes-heading">
             <h3 id="np-starting-classes-heading">Find a class by age and experience</h3>
             <ul className="np-class-paths-list" role="list">
-              {startingClasses.map(({ ages, name, detail, href, analyticsKey }) => (
+              {startingClasses.map(({ ages, name, detail, href, analyticsKey, guide }) => (
                 <li key={href}>
                   <h4>
                     <Link to={href} data-analytics-cta={analyticsKey} data-analytics-section="starting_classes">
@@ -261,6 +285,10 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
                     </Link>
                   </h4>
                   <p>{detail}</p>
+                  <Link className="np-text-button np-class-guide-link" to={guide.href}
+                    data-analytics-cta={guide.analyticsKey} data-analytics-section="starting_classes">
+                    {guide.label} <ArrowUpRight size={16} aria-hidden="true" />
+                  </Link>
                 </li>
               ))}
             </ul>

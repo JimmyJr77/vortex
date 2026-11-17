@@ -421,6 +421,11 @@ const verifyHtml = (
     for (const ages of ['2–5', '6–17', '8–15', '18 and up']) {
       assert(startingClasses.includes(`Ages ${ages}`), `${label}: the guide to starting classes is missing ages ${ages}`)
     }
+    for (const path of [PRESCHOOL_GYMNASTICS_GUIDE_PATH, GYMNASTICS_VS_TUMBLING_GUIDE_PATH,
+      BOWIE_YOUTH_SPORTS_GUIDE_PATH, RETURNING_TO_GYMNASTICS_GUIDE_PATH]) {
+      assert(classLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: starting classes must link directly to the matching guide at ${path}`)
+    }
     const visit = html.match(/<section\b[^>]*\sid=["']visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const visitLinks = anchorUrls(visit)
     assert(/<address\b[^>]*>4961 Tesla Dr Suite E/i.test(visit) && visit.includes('Mon-Fri: 4:00-8:30 PM') &&
@@ -523,6 +528,8 @@ const verifyHtml = (
         `${label}: missing the trial finder button in the first visit section`)
     }
     if (pagePath === '/fit-and-flip') {
+      assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#choose-an-activity`),
+        `${label}: Fit & Flip must link to the local sports and fitness comparison`)
       const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/<h3\b[^>]*>Speed and agility for youth sports<\/h3>/i.test(speedAgility),
         `${label}: missing the crawlable speed and agility heading at #speed-agility`)
@@ -716,6 +723,12 @@ const verifyHtml = (
     assert(hasDropInProgramLink(links, 'Fit & Flip'), `${label}: missing the guide link to Cyclones drop-in dates`)
     assert(links.some((url) => url.href === 'https://bowiesoccer.com/programs/') && /U4–U10 players without tryouts/.test(content),
       `${label}: missing the sourced comparison of Bowie FC soccer pathways`)
+    assert(links.some(url => url.href === 'https://www.bbgc.com/programs/baseball') &&
+      /T-ball in 4U or 5U and coach pitch/.test(content),
+      `${label}: missing the sourced Bowie recreational baseball divisions`)
+    assert(links.some(url => url.href === 'https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/') &&
+      /Sharks Squirts group introduces ages 5–8/.test(content),
+      `${label}: missing the sourced South Bowie introductory basketball group`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
