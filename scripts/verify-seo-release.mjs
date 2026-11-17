@@ -6,6 +6,8 @@ import {
   getIndexNowVerificationKey,
   GYMNASTICS_ORIGIN,
   GYMNASTICS_VS_TUMBLING_GUIDE_PATH,
+  HOME_PREFERRED_PHOTO,
+  HOME_ROTATING_SITEMAP_PHOTOS,
   HUB_ARTICLE_PATHS,
   HUB_GUIDE_INDEX_PATH,
   HUB_NOINDEX_PRERENDER_PATHS,
@@ -13,6 +15,7 @@ import {
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
+  IMAGE_SITEMAP_NAMESPACE,
   PRESCHOOL_GYMNASTICS_GUIDE_PATH,
   RETIRED_GYMNASTICS_HOST_SNAPSHOT_REDIRECTS,
   RETIRED_LANDING_SNAPSHOT_PATHS,
@@ -166,6 +169,8 @@ const extractSitemapRows = (xml) =>
     loc: match[1].match(/<loc>(.*?)<\/loc>/)?.[1] ?? '',
     lastmod: match[1].match(/<lastmod>(.*?)<\/lastmod>/)?.[1],
     lastmodCount: tags(match[1], 'lastmod').length,
+    images: [...match[1].matchAll(/<image:image>\s*<image:loc>(.*?)<\/image:loc>\s*<\/image:image>/g)]
+      .map((image) => decodeHtml(image[1])),
   }))
 
 const isCalendarDate = (value) => {
@@ -174,9 +179,11 @@ const isCalendarDate = (value) => {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
-function verifySitemapLastmod(label, xml, { origin, entries }) {
+function verifySitemapEntries(label, xml, { origin, entries }) {
   const rows = new Map(extractSitemapRows(xml).map((row) => [row.loc, row]))
-  for (const { path, lastmod } of entries) {
+  assert(attribute(tags(xml, 'urlset')[0] ?? '', 'xmlns:image') === IMAGE_SITEMAP_NAMESPACE,
+    `${label}: missing the Google image sitemap namespace`)
+  for (const { path, lastmod, images = [] } of entries) {
     const url = canonicalFor(origin, path)
     const row = rows.get(url)
     if (lastmod === undefined) {
@@ -185,7 +192,14 @@ function verifySitemapLastmod(label, xml, { origin, entries }) {
       assert(isCalendarDate(lastmod), `${label}: invalid configured lastmod for ${url}`)
       assert(row?.lastmodCount === 1 && row.lastmod === lastmod, `${label}: ${url} must have one lastmod of ${lastmod}`)
     }
+    const listed = row?.images ?? []
+    const expected = images.map((image) => new URL(image, origin).href)
+    assert(listed.length === expected.length && new Set(listed).size === listed.length &&
+      expected.every((image) => listed.includes(image)), `${label}: ${url} must list exactly its configured photos`)
   }
+  const count = [...rows.values()].reduce((sum, row) => sum + row.images.length, 0)
+  assert(tags(xml, 'image:image').length === count && tags(xml, 'image:loc').length === count,
+    `${label}: malformed or misplaced image entry`)
 }
 
 const expectedSets = [
@@ -318,6 +332,14 @@ const verifyHtml = (
 
   const pageUrl = new URL(canonical)
   const pagePath = pageUrl.pathname
+  if (shouldIndex && pageUrl.origin === HUB_ORIGIN) {
+    const images = HUB_SITEMAP_ENTRIES.find(({ path }) => path === pagePath)?.images ?? []
+    const rendered = tags(html, 'img').filter((tag) => attribute(tag, 'alt')).map((tag) => attribute(tag, 'src'))
+    for (const image of images) {
+      const rotates = pagePath === '/' && HOME_ROTATING_SITEMAP_PHOTOS.includes(image)
+      assert(rotates || rendered.includes(image), `${label}: sitemap photo must appear on the page with alt text (${image})`)
+    }
+  }
   const snapshotRoot = tags(html, 'div').find((tag) => attribute(tag, 'id') === 'root') ?? ''
   const expectedProgramSnapshot = shouldIndex && HUB_PROGRAM_PATHS.includes(pagePath) ? pagePath : ''
   assert(attribute(snapshotRoot, 'data-prerendered-program') === expectedProgramSnapshot,
@@ -721,6 +743,11 @@ const verifyHtml = (
     assert(location?.legalName === 'Vortex Athletics, LLC' && location?.logo === `${HUB_ORIGIN}/red_vortex.png` &&
       location?.contactPoint?.telephone === location.telephone, `${label}: missing business identity or contact information`)
     assert(website?.publisher?.['@id'] === locationId, `${label}: website publisher must reference the Bowie business`)
+    if (pagePath === '/') {
+      const home = parsed.find(item => item?.['@type'] === 'WebPage')
+      assert(home?.url === HUB_ORIGIN && home?.primaryImageOfPage === `${HUB_ORIGIN}${HOME_PREFERRED_PHOTO}`,
+        `${label}: the homepage must identify its published training photo as its preferred search image`)
+    }
 
     if (pagePath === '/adult-gymnastics') {
       const question = 'Can I try adult gymnastics for free?'
@@ -831,6 +858,16 @@ const verifyHtml = (
   }
 }
 
+const sitemapImages = [...new Set(HUB_SITEMAP_ENTRIES.flatMap(({ images = [] }) => images))]
+  .map((image) => new URL(image, HUB_ORIGIN))
+for (const url of sitemapImages) {
+  assert(url.origin === HUB_ORIGIN && !url.search && !url.hash && /\.(webp|png|jpe?g|avif)$/i.test(url.pathname),
+    `sitemap: expected an unparameterized photo on the canonical host (${url.href})`)
+  const file = join(root, 'dist', url.pathname.replace(/^\//, ''))
+  assert(existsSync(file) && statSync(file).size > 0 && statSync(file).size <= 1024 * 1024,
+    `sitemap: expected a valid photo of at most 1 MiB (${url.pathname})`)
+}
+
 for (const set of expectedSets) {
   const xml = readFileSync(join(root, set.sitemapPath), 'utf8')
   const actualUrls = extractUrls(xml)
@@ -839,7 +876,7 @@ for (const set of expectedSets) {
   assert(actualUrls.length === expectedUrls.length, `${set.label} sitemap: found ${actualUrls.length}, expected ${expectedUrls.length}`)
   assert(new Set(actualUrls).size === actualUrls.length, `${set.label} sitemap: duplicate URLs found`)
   assert(expectedUrls.every((url) => actualUrls.includes(url)), `${set.label} sitemap: URL set differs from SEO configuration`)
-  verifySitemapLastmod(`${set.label} sitemap`, xml, set)
+  verifySitemapEntries(`${set.label} sitemap`, xml, set)
   for (const url of actualUrls) {
     try {
       assert(new URL(url).origin === set.origin, `${set.label} sitemap: cross-host URL ${url}`)
@@ -894,7 +931,7 @@ for (const set of expectedSets) {
         remoteUrls.length === expectedUrls.length && expectedUrls.every((url) => remoteUrls.includes(url)),
         `${set.label} live sitemap does not match the release sitemap`,
       )
-      verifySitemapLastmod(`${set.label} live sitemap`, remoteXml, set)
+      verifySitemapEntries(`${set.label} live sitemap`, remoteXml, set)
     }
 
     const robotsResponse = await fetch(set.remoteRobots, { redirect: 'follow' })
@@ -1121,6 +1158,14 @@ if (live) {
     assert(response.ok, `${url}: social image returned HTTP ${response.status}`)
     assert(!cacheControl.includes('no-store'), `${url}: public social image must not use no-store`)
   }
+  await Promise.all(sitemapImages.map(async (url) => {
+    const response = await fetch(url, { redirect: 'manual' })
+    await response.body?.cancel()
+    assert(response.ok && (response.headers.get('content-type') ?? '').startsWith('image/'),
+      `${url.href}: sitemap photo must return an image directly (HTTP ${response.status})`)
+    assert(!/\b(?:noindex|noimageindex)\b/i.test(response.headers.get('x-robots-tag') ?? ''),
+      `${url.href}: sitemap photo is excluded from image indexing`)
+  }))
 }
 
 assert(

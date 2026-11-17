@@ -4,21 +4,26 @@ import { fileURLToPath } from 'node:url'
 import {
   HUB_ORIGIN,
   HUB_SITEMAP_ENTRIES,
+  IMAGE_SITEMAP_NAMESPACE,
 } from './seo-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const publicDir = join(__dirname, '..', 'public')
 
-const urlEntry = ({ path, priority, changefreq, lastmod }) => `  <url>
+const imageEntry = (path) => `    <image:image>
+      <image:loc>${new URL(path, HUB_ORIGIN).href.replaceAll('&', '&amp;')}</image:loc>
+    </image:image>`
+
+const urlEntry = ({ path, priority, changefreq, lastmod, images = [] }) => `  <url>
     <loc>${HUB_ORIGIN}${path === '/' ? '' : path}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ''}
     <changefreq>${changefreq}</changefreq>
-    <priority>${priority}</priority>
+    <priority>${priority}</priority>${images.length ? `\n${images.map(imageEntry).join('\n')}` : ''}
   </url>`
 
 const hubUrls = HUB_SITEMAP_ENTRIES.map(urlEntry)
 
 const wrapUrlset = (urls) => `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="${IMAGE_SITEMAP_NAMESPACE}">
 ${urls.join('\n')}
 </urlset>
 `

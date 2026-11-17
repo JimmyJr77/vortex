@@ -11,6 +11,7 @@ import {
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { PUBLIC_GUIDES } from '../config/publicGuides'
 import guideIndex from '../config/publicGuideIndex.json'
+import searchPhotos from '../config/publicSearchPhotos.json'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -238,7 +239,17 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   ]
 
   if (pathname === '/') {
-    schema.push(faqPageSchema(HOME_FAQS))
+    schema.push(
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        '@id': `${HUB_ORIGIN}/#webpage`,
+        url: rootUrl(HUB_ORIGIN),
+        about: { '@id': locationId },
+        primaryImageOfPage: `${HUB_ORIGIN}${searchPhotos.fitAndFlip}`,
+      },
+      faqPageSchema(HOME_FAQS),
+    )
     return schema
   }
 

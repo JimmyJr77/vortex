@@ -68,8 +68,9 @@ data only on pages that display them.
 
 `npm run prebuild` writes:
 
-- `public/sitemap.xml` — canonical URLs on the primary domain. The retired
-  gymnastics sitemap redirects here.
+- `public/sitemap.xml` — canonical pages and selected public photos on the
+  primary domain. It includes gym photos loaded by the homepage carousel.
+  The retired gymnastics sitemap redirects here.
 - `public/robots-hub.txt` — served as `/robots.txt` on the athletics host.
 - `public/robots-generic.txt` — safe fallback for other attached hosts; it does
   not advertise a cross-host sitemap. Do not create `public/robots.txt` because
@@ -83,6 +84,11 @@ directive, so robots.txt allows crawling of these and other noindex pages.
 Set a route's `lastmod` to its most recent substantive content or search
 metadata change. Leave it out when the date is unknown. The build preserves
 each configured date across deployments.
+
+`src/config/publicSearchPhotos.json` holds the photo URLs shared by the page
+components and sitemap. Use one image URL per photo and associate it with
+pages that display it. The homepage identifies its training photo as the
+preferred search image in `WebPage` JSON-LD.
 
 The production prerender publishes the IndexNow ownership text file from
 Vercel's production-only `INDEXNOW_KEY`. Keep the value out of the repository

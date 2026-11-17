@@ -11,6 +11,7 @@ import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { PUBLIC_PROGRAMS } from '../../config/publicPrograms'
+import searchPhotos from '../../config/publicSearchPhotos.json'
 import { getHubSchema } from '../../utils/schema'
 import { liveTrainingEmbedUrl, trainingVideoUrl } from './media'
 import { trackEvent } from '../../utils/analyticsClient'
@@ -37,7 +38,7 @@ const programs = {
   },
   'fit-flip': {
     name: 'Fit & Flip', eyebrow: 'ATHLETIC DEVELOPMENT. WITH AN EDGE.',
-    image: '/fit-and-flip-card.webp', alt: 'A Vortex athlete developing aerial body control on a trampoline',
+    image: searchPhotos.fitAndFlip, alt: 'A Vortex athlete developing aerial body control on a trampoline',
     summary: 'Get stronger. Become more explosive. Learn to own your movement—on the floor, in the air, and in your sport.',
     detail: 'Athletic development built around the Triad of Athleticism: Strength, Explosiveness, and Body Control. Purposeful strength and power training meets gymnastics-inspired tumbling and movement for athletes across sports.',
     points: ['Strength and explosiveness to support more powerful movement and tumbling.', 'Gymnastics-inspired body control, coordination, aerial awareness, and landing mechanics.', 'For cheer, acro, dance, gymnasts seeking extra physical development, and athletes in every sport.'],
@@ -80,8 +81,8 @@ const startingClasses = [
 
 const triad = [
   { name: 'Strength', number: '01', line: 'Build the engine.', image: '/lifting-fundamentals-card.webp', alt: 'A young Vortex athlete practicing a barbell lift', text: 'Develop the physical capacity behind better movement. Build a strong foundation through progressive, coached strength work that meets athletes where they are.', application: 'From holding a handstand to holding your ground.', cues: ['Progressive resistance', 'Full-body strength', 'Strong foundations'] },
-  { name: 'Explosiveness', number: '02', line: 'Turn strength into power.', image: '/plyometrics-1600.webp', alt: 'A young athlete practicing an explosive jump at Vortex', text: 'Learn to produce force with purpose. Jumps, takeoffs, and dynamic movement help athletes express their strength with speed and intent.', application: 'From a stronger tumbling takeoff to a more powerful first step.', cues: ['Powerful takeoffs', 'Reactive movement', 'Force production'] },
-  { name: 'Body Control', number: '03', line: 'Own every movement.', image: '/fit-and-flip-card.webp', alt: 'A Vortex athlete rotating in the air above a trampoline', text: 'Connect strength and power with the ability to use them. Gymnastics-inspired training develops spatial awareness, coordination, and control on the ground and in the air.', application: 'From finding your landing to adapting on the field.', cues: ['Aerial awareness', 'Coordinated movement', 'Controlled landings'] },
+  { name: 'Explosiveness', number: '02', line: 'Turn strength into power.', image: searchPhotos.plyometrics, alt: 'A young athlete practicing an explosive jump at Vortex', text: 'Learn to produce force with purpose. Jumps, takeoffs, and dynamic movement help athletes express their strength with speed and intent.', application: 'From a stronger tumbling takeoff to a more powerful first step.', cues: ['Powerful takeoffs', 'Reactive movement', 'Force production'] },
+  { name: 'Body Control', number: '03', line: 'Own every movement.', image: searchPhotos.fitAndFlip, alt: 'A Vortex athlete rotating in the air above a trampoline', text: 'Connect strength and power with the ability to use them. Gymnastics-inspired training develops spatial awareness, coordination, and control on the ground and in the air.', application: 'From finding your landing to adapting on the field.', cues: ['Aerial awareness', 'Coordinated movement', 'Controlled landings'] },
 ] as const
 
 const goals = [
@@ -124,8 +125,8 @@ function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, full = fal
       }
     })
   }, [paused, inView, failed, sourceRequested, onPlaybackChange, onAutoplayBlocked])
-  if (failed) return <div className="np-video-fallback"><img src="/fit-and-flip-card.webp" alt="A Vortex athlete practicing a flip" />{full && <p>The training film is unavailable right now. <a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">Watch Vortex on YouTube <ArrowUpRight size={16} /></a></p>}</div>
-  return <video ref={videoRef} className={loaded ? 'np-video is-loaded' : 'np-video'} poster="/fit-and-flip-card.webp" src={sourceRequested ? trainingVideoUrl : undefined} muted loop={!full} playsInline controls={full} preload={paused ? 'none' : 'metadata'} aria-label="Vortex training film" onLoadedData={() => setLoaded(true)} onError={() => { setFailed(true); onPlaybackChange?.(false) }} onPlay={() => onPlaybackChange?.(true)} onPause={() => onPlaybackChange?.(false)} />
+  if (failed) return <div className="np-video-fallback"><img src={searchPhotos.fitAndFlip} alt="A Vortex athlete practicing a flip" />{full && <p>The training film is unavailable right now. <a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">Watch Vortex on YouTube <ArrowUpRight size={16} /></a></p>}</div>
+  return <video ref={videoRef} className={loaded ? 'np-video is-loaded' : 'np-video'} poster={searchPhotos.fitAndFlip} src={sourceRequested ? trainingVideoUrl : undefined} muted loop={!full} playsInline controls={full} preload={paused ? 'none' : 'metadata'} aria-label="Vortex training film" onLoadedData={() => setLoaded(true)} onError={() => { setFailed(true); onPlaybackChange?.(false) }} onPlay={() => onPlaybackChange?.(true)} onPause={() => onPlaybackChange?.(false)} />
 }
 
 export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; isLoggedIn: boolean }) {
@@ -206,7 +207,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
   return (
     <div className={`np-page${motionPaused ? ' np-motion-paused' : ''}`} id="top">
-      <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} preloadImage="/fit-and-flip-card.webp" />
+      <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} preloadImage={searchPhotos.fitAndFlip} />
       <a className="np-skip" href="#main">Skip to content</a>
       <header className="np-header">
         <div className="np-container np-nav">
@@ -230,7 +231,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
             <div className="np-hero-visual">
               <div className="np-orbit np-orbit-one" aria-hidden="true" /><div className="np-orbit np-orbit-two" aria-hidden="true" />
               <div className="np-hero-media">
-                <img className="np-hero-poster" src="/fit-and-flip-card.webp" alt="A young Vortex athlete in flight, practicing a flip on a trampoline" width="900" height="675" fetchPriority="high" onLoad={() => setPosterReady(true)} onError={() => setPosterReady(true)} />
+                <img className="np-hero-poster" src={searchPhotos.fitAndFlip} alt="A young Vortex athlete in flight, practicing a flip on a trampoline" width="900" height="675" fetchPriority="high" onLoad={() => setPosterReady(true)} onError={() => setPosterReady(true)} />
                 <TrainingVideo paused={!backgroundCanPlay || motionPaused || overlay !== null} onPlaybackChange={setVideoPlaying} onAutoplayBlocked={handleAutoplayBlocked} />
                 <div className="np-media-shade" />
                 <span className="np-media-label"><span /> THE WORK. THE PROGRESS. THE POSSIBILITY.</span>

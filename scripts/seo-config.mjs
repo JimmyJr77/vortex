@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 
 const publicArticles = JSON.parse(readFileSync(new URL('../src/config/publicArticles.json', import.meta.url), 'utf8'))
 const guideIndex = JSON.parse(readFileSync(new URL('../src/config/publicGuideIndex.json', import.meta.url), 'utf8'))
+const searchPhotos = JSON.parse(readFileSync(new URL('../src/config/publicSearchPhotos.json', import.meta.url), 'utf8'))
 
 export const YOUTH_ATHLETIC_GUIDE_PATH = publicArticles.athleticDevelopment.path
 export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = publicArticles.bowieYouthSports.path
@@ -14,6 +15,11 @@ export const HUB_GUIDE_INDEX_PATH = guideIndex.path
 
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
+export const IMAGE_SITEMAP_NAMESPACE = 'http://www.google.com/schemas/sitemap-image/1.1'
+export const HOME_GALLERY_POSTER = searchPhotos.homepageGallery.strengthTraining.src
+export const HOME_ROTATING_SITEMAP_PHOTOS = Object.values(searchPhotos.homepageGallery)
+  .map(({ src }) => src).filter(src => src !== HOME_GALLERY_POSTER)
+export const HOME_PREFERRED_PHOTO = searchPhotos.fitAndFlip
 
 export function getIndexNowVerificationKey() {
   const key = process.env.INDEXNOW_KEY?.trim()
@@ -24,28 +30,37 @@ export function getIndexNowVerificationKey() {
 }
 
 const HUB_PROGRAM_ENTRIES = [
-  { path: '/gymnastics', lastmod: '2026-11-17' },
-  { path: '/fit-and-flip', lastmod: '2026-11-17' },
-  { path: '/adult-gymnastics', lastmod: '2026-11-17' },
+  { path: '/gymnastics', lastmod: '2026-11-17', images: [searchPhotos.youthGymnastics] },
+  { path: '/fit-and-flip', lastmod: '2026-11-17', images: [searchPhotos.fitAndFlip] },
+  { path: '/adult-gymnastics', lastmod: '2026-11-17', images: [searchPhotos.facility] },
 ]
 export const HUB_PROGRAM_PATHS = HUB_PROGRAM_ENTRIES.map(({ path }) => path)
+
+const guidePhotos = {
+  athleticDevelopment: searchPhotos.plyometrics,
+  bowieYouthSports: searchPhotos.fitAndFlip,
+  preschoolGymnastics: searchPhotos.preschoolGymnastics,
+  gymnasticsVsTumbling: searchPhotos.tumbling,
+  returningToGymnastics: searchPhotos.facility,
+}
 
 // Use the date of the last known substantive update to each page's content or
 // metadata. Omit lastmod when that date cannot be confirmed.
 export const HUB_SITEMAP_ENTRIES = [
-  { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-17' },
+  { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-17',
+    images: [HOME_PREFERRED_PHOTO, HOME_GALLERY_POSTER, ...HOME_ROTATING_SITEMAP_PHOTOS] },
   ...HUB_PROGRAM_ENTRIES.map((entry) => ({ ...entry, priority: '0.8', changefreq: 'monthly' })),
   { path: '/read-board', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
   { path: '/enroll', priority: '0.8', changefreq: 'weekly', lastmod: '2026-11-16' },
   { path: '/drop-in', priority: '0.8', changefreq: 'daily', lastmod: '2026-11-17' },
-  { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17' },
+  { path: '/contact', priority: '0.7', changefreq: 'monthly', lastmod: '2026-11-17', images: [searchPhotos.facility] },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
   { path: HUB_GUIDE_INDEX_PATH, priority: '0.6', changefreq: 'monthly', lastmod: guideIndex.dateModified },
-  ...Object.values(publicArticles).map(({ path, dateModified }) => ({
-    path, priority: '0.6', changefreq: 'monthly', lastmod: dateModified,
+  ...Object.entries(publicArticles).map(([key, { path, dateModified }]) => ({
+    path, priority: '0.6', changefreq: 'monthly', lastmod: dateModified, images: guidePhotos[key] ? [guidePhotos[key]] : [],
   })),
 ]
 

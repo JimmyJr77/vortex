@@ -1,4 +1,5 @@
 import publicArticles from './publicArticles.json'
+import searchPhotos from './publicSearchPhotos.json'
 
 export const GYMNASTICS_VS_TUMBLING_GUIDE = {
   ...publicArticles.gymnasticsVsTumbling,
@@ -7,7 +8,7 @@ export const GYMNASTICS_VS_TUMBLING_GUIDE = {
   heading: 'Gymnastics vs. tumbling for kids',
   description:
     'Learn how tumbling fits into gymnastics and which Bowie class to try for gymnastics skills, tumbling foundations, or strength and power for sports.',
-  image: '/tramp-tumble-hero-1600.webp',
-  cardImage: '/tramp-tumble-hero-1600.webp',
+  image: searchPhotos.tumbling,
+  cardImage: searchPhotos.tumbling,
   imageAlt: 'A Vortex athlete flipping above a tumble track in Bowie, Maryland',
 } as const

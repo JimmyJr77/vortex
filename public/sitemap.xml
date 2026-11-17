@@ -1,28 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://vortexathletics.com</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/fit-and-flip-card.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://vortexathletics.com/strength-1600.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://vortexathletics.com/agility-1600.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gym-DSC02689-1600.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gym-DSC02700-1600.webp</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gym-DSC02724-1600.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/gymnastics</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gymnastics-hero.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/fit-and-flip</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/fit-and-flip-card.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/adult-gymnastics</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gym-DSC02636-1600.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/read-board</loc>
@@ -47,6 +74,9 @@
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gym-DSC02636-1600.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/support</loc>
@@ -79,29 +109,44 @@
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/plyometrics-1600.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/blog/youth-sports-bowie</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/fit-and-flip-card.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/blog/preschool-gymnastics-what-toddlers-learn</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/campaign_early_dev_hero-1600.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/blog/gymnastics-vs-tumbling</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/tramp-tumble-hero-1600.webp</image:loc>
+    </image:image>
   </url>
   <url>
     <loc>https://vortexathletics.com/blog/returning-to-gymnastics-as-an-adult</loc>
     <lastmod>2026-11-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+    <image:image>
+      <image:loc>https://vortexathletics.com/gym-DSC02636-1600.webp</image:loc>
+    </image:image>
   </url>
 </urlset>

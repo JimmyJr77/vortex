@@ -1,4 +1,5 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
+import searchPhotos from '../config/publicSearchPhotos.json'
 import { lazyWithRetry } from '../utils/chunkLoadRecovery'
 
 const ParallaxGymMotion = lazyWithRetry(() => import('./ParallaxGymMotion'))
@@ -7,8 +8,8 @@ function GymPoster() {
   return <>
     <div className="absolute inset-0 flex items-center">
       <img
-        src="/strength-1600.webp"
-        alt="Strength training at Vortex"
+        src={searchPhotos.homepageGallery.strengthTraining.src}
+        alt={searchPhotos.homepageGallery.strengthTraining.alt}
         loading="lazy"
         decoding="async"
         className="relative h-auto w-full object-contain md:absolute md:inset-0 md:h-full md:object-cover"

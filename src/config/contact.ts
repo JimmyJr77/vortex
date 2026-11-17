@@ -1,3 +1,5 @@
+import searchPhotos from './publicSearchPhotos.json'
+
 /** Public contact email shown in footer, contact form, etc. */
 export const TEAM_EMAIL = 'team@vortexathletics.com'
 
@@ -55,7 +57,7 @@ export const BUSINESS_GEO = {
 } as const
 
 export const BUSINESS_FACILITY_PHOTO = {
-  src: '/gym-DSC02636-1600.webp',
+  src: searchPhotos.facility,
   srcSet: '/gym-DSC02636-768.webp 768w, /gym-DSC02636-1080.webp 1080w, /gym-DSC02636-1600.webp 1600w',
   width: 1600,
   height: 1066,

@@ -4,6 +4,7 @@ import { BUSINESS_FACILITY_PHOTO } from './contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
+import searchPhotos from './publicSearchPhotos.json'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
 import type { FreeTrialProgram } from '../utils/freeTrialApi'
 import {
@@ -70,7 +71,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Compare weekly class times and starting levels, or find a free trial.',
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
-    image: '/gymnastics-hero.webp',
+    image: searchPhotos.youthGymnastics,
     imageSrcSet: '/gymnastics-hero-768.webp 768w, /gymnastics-hero-1080.webp 1080w, /gymnastics-hero.webp 1600w',
     imageAlt: 'Young gymnasts learning together with a coach at Vortex',
     imageWidth: 1600,
@@ -190,7 +191,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     description: 'Fit & Flip offers coached youth fitness, strength training, and tumbling in Bowie, MD. Compare Cyclones prices, weekly times, and trials for ages 8–15.',
     heading: 'Youth athletic training in Bowie, MD',
     intro: 'Fit & Flip is a coached fitness class for ages 8–15. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
-    image: '/fit-and-flip-card.webp',
+    image: searchPhotos.fitAndFlip,
     imageAlt: 'A Vortex athlete practicing aerial body control on a trampoline',
     imageWidth: 900,
     imageHeight: 675,

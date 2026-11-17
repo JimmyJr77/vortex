@@ -1,12 +1,15 @@
 import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { useEffect, useState, type RefObject } from 'react'
+import searchPhotos from '../config/publicSearchPhotos.json'
+
+const { homepageGallery } = searchPhotos
 
 const ROTATING_GYM_IMAGES = [
-  { src: '/strength-1600.webp', alt: 'Strength training at Vortex' },
+  homepageGallery.strengthTraining,
   { src: '/ninja-1600.webp', alt: 'Ninja training at Vortex' },
   { src: '/plyometrics-1600.webp', alt: 'Plyometrics training at Vortex' },
   { src: '/gymnastics-1600.webp', alt: 'Gymnastics training at Vortex' },
-  { src: '/agility-1600.webp', alt: 'Agility drills at Vortex' },
+  homepageGallery.agilityDrills,
   { src: '/gym-DSC02672-1600.webp', alt: 'Vortex Athletics gymnastics training area' },
   { src: '/gym-DSC02674-1600.webp', alt: 'Ninja obstacle and climbing equipment at Vortex' },
   { src: '/gym-DSC02678-1600.webp', alt: 'Gymnastics equipment beneath the Vortex Athletics wall logo' },
@@ -14,12 +17,12 @@ const ROTATING_GYM_IMAGES = [
   { src: '/gym-DSC02683-1600.webp', alt: 'Ninja rigs, climbing wall, and basketball hoops at Vortex' },
   { src: '/gym-DSC02684-1600.webp', alt: 'Athlete cubbies and training equipment at Vortex' },
   { src: '/gym-DSC02688-1600.webp', alt: 'Tumbling track and gymnastics floor at Vortex' },
-  { src: '/gym-DSC02689-1600.webp', alt: 'Full spring floor and tumbling track at Vortex' },
+  homepageGallery.springFloor,
   { src: '/gym-DSC02690-1600.webp', alt: 'Wide view of the Vortex training gym' },
-  { src: '/gym-DSC02700-1600.webp', alt: 'In-ground trampoline training station at Vortex' },
+  homepageGallery.trampoline,
   { src: '/gym-DSC02703-1600.webp', alt: 'Gymnastics floor and ninja training area at Vortex' },
   { src: '/gym-DSC02711-1600.webp', alt: 'International flags displayed inside Vortex Athletics' },
-  { src: '/gym-DSC02724-1600.webp', alt: 'Medicine balls and strength equipment at Vortex' },
+  homepageGallery.strengthEquipment,
   { src: '/gym-DSC02726-1600.webp', alt: 'Hanging grip obstacles on the Vortex ninja rig' },
   { src: '/gym-DSC02636-1600.webp', alt: 'Vortex gymnastics area and brand mark' },
   { src: '/gym-DSC02646-1600.webp', alt: 'Vortex Athletics logo above the gymnastics floor' },
