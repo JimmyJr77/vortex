@@ -57,7 +57,8 @@ const isBowieDirections = (url) => url.origin === 'https://www.google.com' && ur
   url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const consentQueryParam = 'vcid'
-const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS, '/read-board', '/contact', '/drop-in', '/support', '/terms-of-service']
+const normalizedConsentPath = '/fit-and-flip'
+const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS.filter(path => path !== normalizedConsentPath), '/read-board', '/contact', '/drop-in', '/support', '/terms-of-service']
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -1350,6 +1351,31 @@ for (const set of expectedSets) {
       verifyHtml(`live ${canonical}`, await response.text(), canonical)
     }
 
+    const consentDestination = new URL(normalizedConsentPath, set.origin)
+    consentDestination.searchParams.append('utm_source', 'seo_release_check')
+    consentDestination.searchParams.append('tag', 'one')
+    consentDestination.searchParams.append('tag', 'two')
+    const consentId = 'c_fit_flip_release_check'
+    const consentSource = new URL(consentDestination)
+    consentSource.searchParams.set(consentQueryParam, consentId)
+    const consentRedirect = await fetch(consentSource, { redirect: 'manual' })
+    await consentRedirect.body?.cancel()
+    const consentLocation = consentRedirect.headers.get('location')
+    const consentTarget = consentLocation ? new URL(consentLocation, consentSource) : null
+    assert(consentRedirect.status === 308 && consentTarget?.origin === consentDestination.origin &&
+      consentTarget?.pathname === normalizedConsentPath && !consentTarget.hash && !consentTarget.searchParams.has(consentQueryParam) &&
+      consentTarget.searchParams.get('utm_source') === 'seo_release_check' &&
+      consentTarget.searchParams.getAll('tag').join(',') === 'one,two',
+      'Fit & Flip: legacy consent redirect must remove vcid and preserve campaign and repeated parameters without adding a fragment')
+    assert(/\bprivate\b/.test(consentRedirect.headers.get('cache-control') ?? '') && /\bno-store\b/.test(consentRedirect.headers.get('cache-control') ?? '') &&
+      (consentRedirect.headers.get('set-cookie') ?? '').startsWith('_vortex_cid=' + consentId + ';') &&
+      !/\bnoindex\b/i.test(consentRedirect.headers.get('x-robots-tag') ?? ''),
+      'Fit & Flip: the indexable redirect must preserve the necessary consent cookie and forbid shared caching')
+    const normalizedConsentPage = await fetch(consentDestination, { redirect: 'manual' })
+    assert(normalizedConsentPage.ok && !/\bnoindex\b/i.test(normalizedConsentPage.headers.get('x-robots-tag') ?? '') &&
+      linkValues(await normalizedConsentPage.text(), 'canonical').includes(canonicalFor(set.origin, normalizedConsentPath)),
+      'Fit & Flip: the clean consent destination must stay indexable and self-canonical')
+
     await Promise.all(consentVariantPaths.map(async (path) => {
       const canonical = canonicalFor(set.origin, path)
       const url = new URL(canonical)
@@ -1664,10 +1690,10 @@ for (const [source, destination] of snapshotRedirectRules) {
 const hasNoindexHeader = (rule) => (rule.headers ?? []).some((header) =>
   header.key?.toLowerCase() === 'x-robots-tag' && /\bnoindex\b/i.test(header.value ?? ''),
 )
-assert(headers.some(rule => rule.source === '/(.*)' && hasNoindexHeader(rule) &&
+assert(headers.some(rule => rule.source === '/:path((?!fit-and-flip$).*)' && hasNoindexHeader(rule) &&
   rule.has?.some(condition => condition.type === 'host' && condition.value === 'vortexathletics\\.com') &&
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam)),
-  'vercel.json: legacy consent query URLs must have a noindex header on the canonical host')
+  'vercel.json: legacy consent query URLs outside the Fit & Flip normalization must have a noindex header on the canonical host')
 for (const [source, path] of Object.entries(legacyLandingRedirects)) {
   const destination = new URL(path, HUB_ORIGIN)
   assert(
