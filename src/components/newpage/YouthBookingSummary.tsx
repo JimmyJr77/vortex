@@ -26,7 +26,7 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
         <p>All times Eastern.</p>
       </header>
       <ul className="np-youth-booking-classes">
-        {booking.classes.map(({ formId, name, times, monthlyTuition, dropIn, dropInDays, dropInExcluded }) => (
+        {booking.classes.map(({ formId, name, times, monthlyTuition, dropIn, dropInDays, dropInCapacity, dropInExcluded }) => (
           <li key={formId}>
             <h4>
               <Link to={`${enrollmentHref}&form=${formId}`} data-analytics-cta="browse_classes" data-analytics-section="youth_booking_summary">{name}</Link>
@@ -47,7 +47,12 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
                 )}
               </dl>
             )}
-            {dropInDays.length > 0 && <p className="mt-2 text-sm text-gray-600">Listed drop-ins include dates on {dayList.format(dropInDays)}.</p>}
+            {dropInDays.length > 0 && (
+              <p className="mt-2 text-sm text-gray-600">
+                Listed drop-ins include dates on {dayList.format(dropInDays)}.
+                {dropInCapacity != null && ` Up to ${dropInCapacity} athletes total per listed drop-in class.`}
+              </p>
+            )}
           </li>
         ))}
       </ul>

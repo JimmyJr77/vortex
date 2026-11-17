@@ -76,6 +76,7 @@ const programs = {
 const startingClasses = [
   {
     ages: 'Ages 2–5',
+    shortName: 'Preschool gymnastics',
     name: 'Toddler and preschool gymnastics',
     detail: 'Ages 2–3 join a caregiver in Dirt Devils and must be potty trained for a trial. Ages 4–5 learn balance and basic gymnastics shapes in Twisters.',
     href: '/gymnastics#preschool',
@@ -88,6 +89,7 @@ const startingClasses = [
   },
   {
     ages: 'Ages 6–17',
+    shortName: 'Youth gymnastics',
     name: 'Gymnastics for kids and teens',
     detail: 'Beginners can try Tornadoes when a trial is available. Gymnasts with experience can start with a coach-led Trial Assessment.',
     href: '/gymnastics#choose-a-class',
@@ -100,6 +102,7 @@ const startingClasses = [
   },
   {
     ages: 'Ages 8–15',
+    shortName: 'Fit & Flip',
     name: 'Fit & Flip youth fitness',
     detail: 'Cyclones classes build strength, speed, and body control for sports and general fitness. See times for ages 8–11 and 12–15.',
     href: '/fit-and-flip#fit-flip-schedule',
@@ -112,6 +115,7 @@ const startingClasses = [
   },
   {
     ages: 'Ages 18 and up',
+    shortName: 'Adult gymnastics',
     name: 'Adult gymnastics',
     detail: 'Typhoons welcomes first-time and returning gymnasts for coached gymnastics and acrobatics.',
     href: '/adult-gymnastics',
@@ -309,6 +313,17 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           </article>)}</div>
           <section className="np-class-paths" id="starting-classes" aria-labelledby="np-starting-classes-heading">
             <h3 id="np-starting-classes-heading">Find a class by age and experience</h3>
+            <nav className="np-class-options" aria-label="Choose a program by age">
+              <ul role="list">
+                {startingClasses.map(({ ages, shortName, href, analyticsKey }) => (
+                  <li key={href}>
+                    <Link to={href} data-analytics-cta={analyticsKey} data-analytics-section="starting_classes">
+                      <small>{ages}</small>{' '}<span>{shortName}</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
             <ul className="np-class-paths-list" role="list">
               {startingClasses.map(({ ages, name, detail, href, analyticsKey, guide }) => (
                 <li key={href}>

@@ -96,6 +96,12 @@ function datesForClass(sessions: DropInSession[], programId: number, classItem: 
   )
 }
 
+function consistentCapacity(sessions: DropInSession[]) {
+  const capacity = sessions[0]?.maxParticipants
+  return typeof capacity === 'number' && Number.isSafeInteger(capacity) && capacity > 0 &&
+    sessions.every(session => session.maxParticipants === capacity) ? capacity : null
+}
+
 async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: DropInSession[], checkedOn: string, signal: AbortSignal): Promise<PublicAdultBooking | null> {
   if (!program || !Number.isSafeInteger(program.id) || !Array.isArray(program.classes)) return null
   const adultClass = program.classes.filter(publishedClass).find(item => item.ageMin === 18 && /\btyphoons\b/i.test(item.displayName))
@@ -114,9 +120,6 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime))
 
   const first = sessions[0]
-  const capacity = first?.maxParticipants
-  const maxParticipants = typeof capacity === 'number' && Number.isSafeInteger(capacity) && capacity > 0 &&
-    sessions.every(session => session.maxParticipants === capacity) ? capacity : null
   // Give a weekly range only when every published session in it has the same terms.
   const sameWeeklyListing = first && sessions.every((session, index) =>
     Date.parse(session.date) === Date.parse(first.date) + index * millisecondsPerWeek &&
@@ -130,7 +133,7 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     endTime: first.endTime,
     priceCents: first.totalCents,
     freeTrial: first.allowsFreeTrial === true,
-    maxParticipants,
+    maxParticipants: consistentCapacity(sessions),
   } : null
 
   return monthlyTuitionCents || dropIn ? { checkedOn, monthlyTuitionCents, dropIn } : null
@@ -177,6 +180,7 @@ async function loadYouthBooking(program: CatalogProgram | undefined, dropIns: Dr
   if (!program || !Number.isSafeInteger(program.id) || !Array.isArray(program.classes)) return null
   const pricingCostOptions = Array.isArray(program.pricingCostOptions) ? program.pricingCostOptions.filter(Boolean) : []
   const showTuition = !programUsesWeeklyTierPricing({ pricingCostOptions }) && !publicEnrollmentPricingOptions(pricingCostOptions).length
+  const showDropInCapacity = program.displayName === FIT_AND_FLIP_BOOKING_PROGRAM
   const rank = (item: CatalogClass) => skillOrder.indexOf(item.skillLevel?.toLowerCase() ?? '')
   const classes = program.classes.filter(publishedClass).sort((left, right) =>
     (left.ageMin ?? Infinity) - (right.ageMin ?? Infinity) || rank(left) - rank(right) || left.displayName.localeCompare(right.displayName),
@@ -191,8 +195,9 @@ async function loadYouthBooking(program: CatalogProgram | undefined, dropIns: Dr
     const dropIn = priceRange(dropInDates.map(session => session.totalCents))
     const utcDays = new Set(dropInDates.map(({ date }) => new Date(date).getUTCDay()))
     const dropInDays = weekdays.filter((_, index) => utcDays.has((index + 1) % weekdays.length))
+    const dropInCapacity = showDropInCapacity ? consistentCapacity(dropInDates) : null
     if (times.length === 0 && monthlyTuition === null && dropIn === null) return null
-    return { formId: classItem.formId, name: classItem.displayName, times, monthlyTuition, dropIn, dropInDays, dropInExcluded }
+    return { formId: classItem.formId, name: classItem.displayName, times, monthlyTuition, dropIn, dropInDays, dropInCapacity, dropInExcluded }
   }))
   const verified = rows.flatMap(row => row.status === 'fulfilled' && row.value ? [row.value] : [])
   return verified.length ? { checkedOn, classes: verified } : null

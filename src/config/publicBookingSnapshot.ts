@@ -21,6 +21,7 @@ export type PublicYouthBooking = {
     monthlyTuition: [number, number] | null
     dropIn: [number, number] | null
     dropInDays: string[]
+    dropInCapacity: number | null
     dropInExcluded: boolean
   }[]
 }

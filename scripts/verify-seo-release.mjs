@@ -536,10 +536,14 @@ const verifyHtml = (
     assert(tags(html, 'a').some(tag => attribute(tag, 'data-analytics-cta') === 'explore_programs' &&
       attribute(tag, 'href') === '#starting-classes'),
       `${label}: the homepage Explore programs link must reach the age-based class choices`)
-    const classLinks = anchorUrls(startingClasses)
+    const classList = startingClasses.match(/<ul\b[^>]*\bclass=["']np-class-paths-list["'][^>]*>[\s\S]*?<\/ul>/i)?.[0] ?? ''
+    const classLinks = anchorUrls(classList)
+    const ageNav = startingClasses.match(/<nav\b[^>]*\baria-label=["']Choose a program by age["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
+    const ageLinks = anchorUrls(ageNav)
     for (const path of ['/gymnastics#preschool', '/gymnastics#choose-a-class', '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics']) {
-      assert(classLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
-        `${label}: the guide to starting classes must link directly to ${path}`)
+      assert(classLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)) &&
+        ageLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: the starting class details and age navigation must link directly to ${path}`)
     }
     for (const ages of ['2–5', '6–17', '8–15', '18 and up']) {
       assert(startingClasses.includes(`Ages ${ages}`), `${label}: the guide to starting classes is missing ages ${ages}`)

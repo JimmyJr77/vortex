@@ -147,10 +147,24 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page).toHaveURL('/#starting-classes')
     const startingClasses = page.getByRole('region', { name: 'Find a class by age and experience' })
     await expect(startingClasses.getByRole('heading', { level: 3 })).toBeInViewport()
-    await expect(startingClasses.getByRole('link', { name: /Ages 2–5.*preschool/i })).toHaveAttribute('href', '/gymnastics#preschool')
-    await expect(startingClasses.getByRole('link', { name: /Ages 6–17.*kids and teens/i })).toHaveAttribute('href', '/gymnastics#choose-a-class')
-    await expect(startingClasses.getByRole('link', { name: /Ages 8–15.*Fit & Flip/i })).toHaveAttribute('href', '/fit-and-flip#fit-flip-schedule')
-    await expect(startingClasses.getByRole('link', { name: /Ages 18 and up.*adult gymnastics/i })).toHaveAttribute('href', '/adult-gymnastics')
+    await expect(page.getByRole('dialog', { name: 'Cookie consent' })).toBeVisible()
+    const choices = startingClasses.getByRole('navigation', { name: 'Choose a program by age' })
+    const links = choices.getByRole('link')
+    await expect(links).toHaveCount(4)
+    await expect.poll(() => links.evaluateAll(items => items.every(link => {
+      const { x, y, width, height } = link.getBoundingClientRect()
+      return height >= 44 && width >= 44 &&
+        link.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+    }))).toBe(true)
+
+    for (const [name, href] of [
+      ['Ages 2–5 Preschool gymnastics', '/gymnastics#preschool'],
+      ['Ages 6–17 Youth gymnastics', '/gymnastics#choose-a-class'],
+      ['Ages 8–15 Fit & Flip', '/fit-and-flip#fit-flip-schedule'],
+      ['Ages 18 and up Adult gymnastics', '/adult-gymnastics'],
+    ]) {
+      await expect(choices.getByRole('link', { name, exact: true })).toHaveAttribute('href', href)
+    }
   })
 
   test('mobile visitors can open the guide beside each starting class', async ({ page }) => {
