@@ -5,7 +5,6 @@ import { SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../
 import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
 import PublicBrandImage from './PublicBrandImage'
 import PublicNavigationLinks from './PublicNavigationLinks'
-import './NewPage.css'
 import './PublicSiteChrome.css'
 
 function PublicBrand({ footer = false }: { footer?: boolean }) {

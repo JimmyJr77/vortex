@@ -138,7 +138,7 @@ const verifyLocalAssets = (label, html) => {
     ...metaValues(html, 'property', 'og:image'),
     ...tags(html, 'link')
       .filter((tag) => ['image', 'font'].includes(attribute(tag, 'as').toLowerCase()))
-      .map((tag) => attribute(tag, 'href')),
+      .flatMap((tag) => [attribute(tag, 'href'), attribute(tag, 'imagesrcset')]),
   ]
     .flatMap((value) => value.split(','))
     .map((value) => value.trim().split(/\s+/)[0])
@@ -376,6 +376,27 @@ const verifyHtml = (
   const pageUrl = new URL(canonical)
   const pagePath = pageUrl.pathname
   if (shouldIndex && pageUrl.origin === HUB_ORIGIN) {
+    const viewport = tags(html, 'meta').find(tag => attribute(tag, 'name') === 'viewport')
+    const preloads = tags(html, 'link').filter(tag => attribute(tag, 'rel') === 'preload')
+    const firstStylesheet = tags(html, 'link').find(tag => attribute(tag, 'rel') === 'stylesheet')
+    if (['/', ...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS].includes(pagePath)) {
+      const heroes = tags(html, 'img').filter(tag => attribute(tag, 'fetchpriority') === 'high')
+      const hints = preloads.filter(tag => attribute(tag, 'as') === 'image')
+      const hero = heroes[0] ?? ''
+      const hint = hints[0] ?? ''
+      const sourceSet = attribute(hero, 'srcset')
+      assert(heroes.length === 1 && hints.length === 1 && attribute(hint, 'fetchpriority') === 'high' &&
+        viewport && html.indexOf(viewport) < html.indexOf(hint) && firstStylesheet && html.indexOf(hint) < html.indexOf(firstStylesheet),
+        `${label}: the first image hint must follow the viewport and precede render-blocking styles`)
+      assert(sourceSet
+        ? !attribute(hint, 'href') && attribute(hint, 'imagesrcset') === sourceSet && attribute(hint, 'imagesizes') === attribute(hero, 'sizes')
+        : attribute(hint, 'href') === attribute(hero, 'src') && !attribute(hint, 'imagesrcset'),
+        `${label}: the hero image hint must match the displayed image without requesting a second candidate`)
+    }
+    if (['/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path].includes(pagePath)) {
+      assert(!preloads.some(tag => attribute(tag, 'href') === '/fonts/oswald-latin-variable.woff2'),
+        `${label}: preload only the font used in the initial view`)
+    }
     const images = HUB_SITEMAP_ENTRIES.find(({ path }) => path === pagePath)?.images ?? []
     const rendered = tags(html, 'img').filter((tag) => attribute(tag, 'alt')).map((tag) => attribute(tag, 'src'))
     for (const image of images) {

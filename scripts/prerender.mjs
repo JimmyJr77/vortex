@@ -25,8 +25,10 @@ import {
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
-// These public pages use Inter for both headings and body text.
-const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path])
+// These initial views use Inter. The homepage gallery uses Oswald farther down.
+const displayFontNotNeededAtStart = new Set([
+  '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path,
+])
 const publicPagePaths = new Set(HUB_SITEMAP_ENTRIES.map(({ path }) => path))
 let previewPort = 0
 let previewOrigin = ''
@@ -232,7 +234,7 @@ const prerenderAppRoutes = async () => {
       // Hub routes (vortexathletics.com) render on the default host.
       ...HUB_PRERENDER_PATHS.map((routePath) => ({
         url: `${previewOrigin}${routePath}`,
-        omitDisplayFontPreload: interOnlyContentPaths.has(routePath),
+        omitDisplayFontPreload: displayFontNotNeededAtStart.has(routePath),
         programPath: HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         publicPagePath: publicPagePaths.has(routePath) && !HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         watchVideoAssetPath: routePath === PUBLIC_TRAINING_VIDEO.path ? PUBLIC_TRAINING_VIDEO.assetPath : null,
@@ -272,6 +274,29 @@ const prerenderAppRoutes = async () => {
             })
             if (omitDisplayFontPreload) {
               html.querySelector('link[rel="preload"][href="/fonts/oswald-latin-variable.woff2"]')?.remove()
+            }
+            const heroImages = html.querySelectorAll('img[fetchpriority="high"][src]:not([loading="lazy"])')
+            const viewport = html.querySelector('head meta[name="viewport"]')
+            if (viewport && heroImages.length === 1) {
+              const hero = heroImages[0]
+              const source = hero.getAttribute('src')
+              if (source.startsWith('/') && !source.startsWith('//')) {
+                const preload = document.createElement('link')
+                preload.rel = 'preload'
+                preload.as = 'image'
+                preload.fetchPriority = 'high'
+                const srcSet = hero.getAttribute('srcset')
+                const sizes = hero.getAttribute('sizes')
+                if (srcSet) {
+                  // A fallback href can fetch an extra candidate in browsers without responsive preload support.
+                  preload.setAttribute('imagesrcset', srcSet)
+                  if (sizes) preload.setAttribute('imagesizes', sizes)
+                } else {
+                  preload.setAttribute('href', source)
+                }
+                html.querySelectorAll('head link[rel="preload"][as="image"]').forEach(node => node.remove())
+                viewport.after(preload)
+              }
             }
             if (programPath) html.querySelector('#root')?.setAttribute('data-prerendered-program', programPath)
             if (publicPagePath) html.querySelector('#root')?.setAttribute('data-prerendered-page', publicPagePath)

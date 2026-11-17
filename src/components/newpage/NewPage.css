@@ -1,17 +1,5 @@
 .np-page {
-  --np-red: #c9232c;
-  --np-ink: #202321;
-  --np-muted: #565d53;
-  --np-tag-ink: #4c5348;
-  --np-control-line: #8a9282;
-  --np-line: #dddfd9;
-  --np-paper: #f5f6f2;
   background: #fff;
-  color: var(--np-ink);
-  font-family: Inter,Arial,sans-serif;
-  font-size: 15px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
 }
 .np-page * {
   box-sizing: border-box;
@@ -29,184 +17,15 @@
   outline: 3px solid var(--np-red);
   outline-offset: 5px;
 }
-.np-page h1,.np-page h2,.np-page h3,.np-page p {
-  margin: 0;
-}
 .np-page a {
   text-decoration: none;
 }
 .np-page button {
   cursor: pointer;
 }
-.np-container {
-  max-width: 1320px;
-  margin: 0 auto;
-  padding-left: 56px;
-  padding-right: 56px;
-}
 .np-page section[id],
 .np-page article[id] {
   scroll-margin-top: 92px;
-}
-.np-skip {
-  position: fixed;
-  top: -80px;
-  left: 16px;
-  z-index: 1000;
-  background: #fff;
-  padding: 12px 20px;
-}
-.np-skip:focus {
-  top: 10px;
-}
-.np-header {
-  --np-navbar-height: 90px;
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  background: rgba(255,255,255,.96);
-  backdrop-filter: blur(18px);
-  border-bottom: 1px solid var(--np-line);
-}
-.np-nav {
-  height: var(--np-navbar-height);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-}
-.np-brand {
-  display: inline-flex;
-  align-items: center;
-  width: 300px;
-  max-width: 100%;
-  flex-shrink: 0;
-  color: var(--np-ink);
-}
-.np-brand img {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 2172 / 342;
-  /* Frame the artwork inside the supplied PNG’s transparent top/bottom space. */
-  object-fit: cover;
-  object-position: center 61.5%;
-}
-
-.np-desktop-nav {
-  display: flex;
-  align-items: center;
-  gap: 28px;
-  font-size: 12px;
-  font-weight: 500;
-}
-.np-desktop-nav :is(a, summary) {
-  display: flex;
-  align-items: center;
-  min-height: 44px;
-  white-space: nowrap;
-  transition: color .2s;
-}
-.np-desktop-nav :is(a, summary):hover {
-  color: var(--np-red);
-}
-.np-nav-programs {
-  position: relative;
-}
-.np-nav-programs summary {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  list-style: none;
-  cursor: pointer;
-}
-.np-nav-programs summary::-webkit-details-marker {
-  display: none;
-}
-.np-nav-programs[open] summary svg {
-  transform: rotate(180deg);
-}
-.np-nav-programs ul {
-  padding: 0;
-  margin: 0;
-  list-style: none;
-}
-.np-desktop-nav .np-nav-programs ul {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  min-width: 212px;
-  padding: 6px 14px;
-  background: #fff;
-  border: 1px solid var(--np-line);
-  border-radius: 4px;
-  box-shadow: 0 10px 28px #2023211a;
-}
-.np-mobile-nav {
-  max-height: calc(100dvh - var(--np-navbar-height) - 1px);
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
-}
-.np-mobile-nav > * {
-  flex-shrink: 0;
-}
-.np-mobile-nav .np-nav-programs ul {
-  padding-inline-start: 14px;
-  border-inline-start: 1px solid var(--np-line);
-}
-.np-desktop-nav .np-nav-schedule {
-  justify-content: center;
-  min-width: 44px;
-}
-.np-nav-label {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-}
-.np-nav-label svg {
-  flex-shrink: 0;
-}
-.np-nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-}
-.np-login {
-  display: flex;
-  gap: 6px;
-  align-items: center;
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-.np-button {
-  display: inline-flex;
-  gap: 24px;
-  align-items: center;
-  justify-content: center;
-  background: var(--np-red);
-  color: #fff;
-  padding: 16px 23px;
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid var(--np-red);
-  border-radius: 4px;
-  line-height: 1.5;
-  transition: background .2s,transform .2s;
-}
-.np-button:hover {
-  background: #a91c24;
-  transform: translateY(-2px);
-}
-.np-nav-cta {
-  padding: 12px 17px;
-  gap: 16px;
-  white-space: nowrap;
-  font-size: 11px;
-}
-.np-menu-toggle,.np-mobile-nav {
-  display: none;
 }
 .np-hero {
   background: var(--np-paper);
@@ -219,16 +38,6 @@
   align-items: center;
   padding-top: 68px;
   padding-bottom: 66px;
-}
-.np-eyebrow {
-  font-size: 9px;
-  font-weight: 600;
-  letter-spacing: 1.75px;
-  line-height: 1.6;
-  text-transform: uppercase;
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
 .np-red-dash {
   height: 2px;
@@ -1030,116 +839,11 @@
   text-decoration: underline;
   text-underline-offset: .2em;
 }
-.np-footer {
-  padding-top: 48px;
-  padding-bottom: 20px;
-}
-.np-footer-main {
-  display: grid;
-  grid-template-columns: 1.6fr 1.2fr 1fr auto;
-  gap: 25px;
-  padding-bottom: 44px;
-}
-.np-footer-main p {
-  font-size: 10px;
-  line-height: 1.9;
-  color: var(--np-muted);
-  margin-top: 18px;
-}
-.np-footer-label {
-  font-size: 8px;
-  letter-spacing: 1.4px;
-  display: block;
-  color: var(--np-muted);
-  margin-bottom: 15px;
-}
-.np-footer-main>div>a:not(.np-brand) {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  font-size: 11px;
-  line-height: 2.4;
-}
-.np-footer-main>div>a:hover {
-  color: var(--np-red);
-}
-.np-back-top {
-  display: flex;
-  gap: 8px;
-  align-items: flex-start;
-  font-size: 10px;
-}
-.np-footer-bottom {
-  border-top: 1px solid var(--np-line);
-  display: flex;
-  justify-content: space-between;
-  padding-top: 19px;
-  gap: 15px;
-  font-size: 9px;
-  color: var(--np-muted);
-}
-.np-footer-bottom>div {
-  display: flex;
-  gap: 23px;
-}
-.np-dialog {
-  border: none;
-  border-radius: 8px;
-  padding: 0;
-  width: min(740px,calc(100vw - 32px));
-  max-height: 90vh;
-  max-height: 90dvh;
-  background: #fff;
-  color: var(--np-ink);
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  box-shadow: 0 30px 100px #0003;
-}
-.np-dialog::backdrop {
-  background: #161b186b;
-  backdrop-filter: blur(6px);
-}
-.np-dialog[open] {
-  animation: np-dialog-in .25s ease-out;
-}
-.np-dialog-close {
-  position: sticky;
-  float: right;
-  top: 16px;
-  margin: 16px 16px -56px 0;
-  z-index: 2;
-  width: 38px;
-  height: 38px;
-  background: #fff;
-  border: 1px solid var(--np-control-line);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  box-shadow: 0 2px 12px #0001;
-}
-.np-dialog-close:hover {
-  background: #f1f3ed;
-}
-.np-dialog-content {
-  padding: 42px;
-}
 .np-dialog-image {
   height: 235px;
   width: 100%;
   object-fit: cover;
   object-position: center 60%;
-}
-.np-dialog h2 {
-  font-size: 38px;
-  letter-spacing: -1.5px;
-  line-height: 1.15;
-  font-weight: 500;
-  margin: 14px 28px 20px 0;
-}
-.np-dialog-content>p:not(.np-eyebrow) {
-  font-size: 13px;
-  color: var(--np-muted);
-  line-height: 1.9;
 }
 .np-dialog-points {
   list-style: none;
@@ -1302,50 +1006,18 @@
     transform: translateY(0);
   }
 }
-@keyframes np-dialog-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
 @media(min-width:1440px) {
-  .np-container {
-    max-width: 1400px;
-    padding-left: 70px;
-    padding-right: 70px;
-  }
   .np-hero-grid {
     gap: 90px;
   }
   .np-hero-media {
     height: 590px;
   }
-  .np-desktop-nav {
-    font-size: 13px;
-  }
   .np-hero-buttons {
     gap: 27px;
   }
 }
 @media(max-width:1150px) {
-  .np-container {
-    padding-left: 36px;
-    padding-right: 36px;
-  }
-  .np-desktop-nav {
-    gap: 18px;
-    font-size: 11px;
-  }
-  .np-nav-actions {
-    gap: 18px;
-  }
-  .np-login {
-    display: none;
-  }
   .np-hero-grid {
     gap: 40px;
   }
@@ -1395,36 +1067,6 @@
   }
 }
 @media(max-width:860px) {
-  .np-container {
-    padding-left: 28px;
-    padding-right: 28px;
-  }
-  .np-header { --np-navbar-height: 77px; }
-  .np-desktop-nav {
-    display: none;
-  }
-  .np-menu-toggle {
-    display: grid;
-    place-items: center;
-    width: 36px;
-    height: 36px;
-  }
-  .np-mobile-nav {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--np-line);
-    padding: 8px 28px 20px;
-  }
-  .np-mobile-nav a,.np-mobile-nav>button,.np-mobile-nav .np-nav-programs summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 12px 0;
-  }
-  .np-nav-actions {
-    gap: 14px;
-  }
   .np-hero-grid {
     gap: 30px;
     padding-top: 45px;
@@ -1562,43 +1204,8 @@
   .np-faq-list summary {
     font-size: 11px;
   }
-  .np-footer-main {
-    grid-template-columns: 1.4fr 1.2fr 1fr;
-  }
-  .np-back-top {
-    display: none;
-  }
-  .np-footer-main>div>a:not(.np-brand) {
-    font-size: 10px;
-  }
 }
 @media(max-width:620px) {
-  .np-container {
-    padding-left: 22px;
-    padding-right: 22px;
-  }
-  .np-header { --np-navbar-height: 73px; }
-  .np-nav {
-    gap: 12px;
-  }
-
-  .np-nav-cta {
-    padding: 10px 12px;
-    font-size: 9px;
-    gap: 10px;
-  }
-  .np-nav-cta svg {
-    width: 13px;
-  }
-  .np-nav-actions {
-    gap: 8px;
-  }
-  .np-menu-toggle {
-    width: 28px;
-  }
-  .np-menu-toggle svg {
-    width: 21px;
-  }
   .np-hero-grid {
     grid-template-columns: 1fr;
     gap: 42px;
@@ -1619,11 +1226,6 @@
   .np-hero-buttons {
     gap: 19px;
     margin-top: 24px;
-  }
-  .np-button {
-    padding: 15px 18px;
-    gap: 17px;
-    font-size: 11px;
   }
   .np-hero-buttons .np-text-button {
     font-size: 10px;
@@ -1694,10 +1296,6 @@
     max-width: none;
     margin-top: 20px;
     font-size: 12px;
-  }
-  .np-eyebrow {
-    font-size: 8px;
-    letter-spacing: 1.6px;
   }
   .np-program-grid {
     grid-template-columns: 1fr;
@@ -1846,50 +1444,8 @@
     padding: 14px 15px;
     gap: 12px;
   }
-  .np-footer {
-    padding-top: 37px;
-  }
-  .np-footer-main {
-    grid-template-columns: 1fr 1fr;
-    gap: 30px 15px;
-    padding-bottom: 30px;
-  }
-  .np-footer-main>div:first-child {
-    grid-column: 1/-1;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-  }
-  .np-footer-main p {
-    margin: 0;
-    font-size: 9px;
-  }
-  .np-footer-main>div>a:not(.np-brand) {
-    font-size: 11px;
-  }
-  .np-footer-bottom {
-    flex-direction: column;
-    font-size: 8px;
-    gap: 15px;
-  }
-  .np-footer-bottom>div {
-    gap: 20px;
-  }
-  .np-dialog-content {
-    padding: 30px 23px;
-  }
-  .np-dialog h2 {
-    font-size: 31px;
-    letter-spacing: -1px;
-    margin-top: 13px;
-  }
   .np-dialog-image {
     height: 190px;
-  }
-  .np-dialog .np-eyebrow {
-    font-size: 7px;
-    letter-spacing: 1.3px;
   }
   .np-dialog-points>li {
     font-size: 11px;
@@ -1946,7 +1502,7 @@
   color: var(--np-ink)!important;
   margin-top: 16px!important;
 }
-.np-dialog-close,.np-media-control {
+.np-media-control {
   min-width: 44px;
   min-height: 44px;
 }
@@ -1955,39 +1511,6 @@
     --np-paper: #f5f5f3;
     --np-muted: #616560;
     --np-line: #dcded8;
-  }
-  .np-nav {
-    padding-left: 16px;
-    padding-right: 16px;
-    gap: 8px;
-  }
-  .np-nav-cta {
-    min-height: 44px;
-    font-size: 11px;
-    padding: 10px 12px;
-    gap: 8px;
-    white-space: nowrap;
-  }
-  .np-menu-toggle {
-    width: 44px;
-    height: 44px;
-    flex-shrink: 0;
-  }
-  .np-brand {
-    min-height: 44px;
-    gap: 8px;
-  }
-
-  .np-nav-actions {
-    gap: 4px;
-  }
-  .np-mobile-nav {
-    padding-left: 22px;
-    padding-right: 22px;
-  }
-  .np-mobile-nav a,.np-mobile-nav>button,.np-mobile-nav .np-nav-programs summary {
-    min-height: 50px;
-    font-size: 16px;
   }
   .np-hero-grid {
     padding-top: 34px;
@@ -2006,12 +1529,6 @@
     display: grid;
     grid-template-columns: 1.15fr 1fr;
     gap: 14px;
-  }
-  .np-button {
-    min-height: 48px;
-    font-size: 12px;
-    padding: 14px 16px;
-    gap: 10px;
   }
   .np-hero-buttons .np-button {
     padding: 13px 11px;
@@ -2082,10 +1599,6 @@
   }
   .np-sport-strip>div i {
     font-size: 12px;
-  }
-  .np-eyebrow {
-    font-size: 10px;
-    letter-spacing: 1.3px;
   }
   .np-section {
     padding-top: 56px;
@@ -2254,73 +1767,8 @@
     padding: 14px 20px;
     gap: 20px;
   }
-  .np-footer-main>div:first-child {
-    display: block;
-  }
-  .np-footer-main p {
-    font-size: 13px;
-    margin-top: 16px;
-  }
-  .np-footer-label {
-    font-size: 9px;
-    letter-spacing: 1px;
-    margin-bottom: 8px;
-  }
-  .np-footer-main>div>a:not(.np-brand) {
-    font-size: 12px;
-    min-height: 44px;
-    line-height: 1.6;
-    overflow-wrap: anywhere;
-  }
-  .np-footer-main {
-    grid-template-columns: 1.4fr 1fr;
-    gap: 28px 16px;
-  }
-  .np-footer-bottom {
-    font-size: 11px;
-    gap: 5px;
-  }
-  .np-footer-bottom>div {
-    justify-content: space-between;
-    gap: 20px;
-  }
-  .np-footer-bottom>div>a,.np-footer-bottom>div>button {
-    display: flex;
-    align-items: center;
-    min-height: 44px;
-  }
-  .np-dialog {
-    width: 100%;
-    max-width: none;
-    max-height: 92dvh;
-    margin: auto 0 0;
-    border-radius: 16px 16px 0 0;
-    padding-bottom: max(16px,env(safe-area-inset-bottom));
-  }
-  .np-dialog-close {
-    top: 12px;
-    margin: 12px 14px -56px 0;
-    width: 44px;
-    height: 44px;
-  }
-  .np-dialog-content {
-    padding: 33px 23px;
-  }
   .np-dialog-image {
     height: 200px;
-  }
-  .np-dialog h2 {
-    font-size: 32px;
-    line-height: 1.2;
-  }
-  .np-dialog .np-eyebrow {
-    font-size: 9px;
-    letter-spacing: 1px;
-    padding-right: 30px;
-  }
-  .np-dialog-content>p:not(.np-eyebrow) {
-    font-size: 14px;
-    line-height: 1.8;
   }
   .np-dialog-points>li {
     font-size: 14px;
@@ -2403,12 +1851,6 @@
   }
 }
 
-@media (min-width: 861px) and (max-width: 1150px) {
-  .np-login { display: flex; }
-  .np-nav-actions { gap: 14px; }
-  .np-desktop-nav { gap: 14px; }
-}
-
 .np-live-stream {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -2421,9 +1863,6 @@
   margin-top: 20px;
 }
 @media (max-width: 359px) {
-  .np-nav { padding-left: 12px; padding-right: 12px; gap: 4px; }
-
-  .np-nav-cta { font-size: 10px; padding: 10px; }
   .np-hero-buttons { grid-template-columns: 1fr; gap: 7px; }
   .np-hero-buttons .np-text-button { justify-content: center; }
   .np-triad-tabs button { font-size: 12px; }
@@ -2443,7 +1882,6 @@
   .np-faq-list summary,
   .np-faq-list details>p,
   .np-visit p:not(.np-eyebrow),
-  .np-dialog-content>p:not(.np-eyebrow),
   .np-dialog-points>li,
   .np-goal-options strong,
   .np-recommendation>p:not(.np-eyebrow),
@@ -2451,8 +1889,6 @@
   .np-video-fallback p {
     font-size: 15px;
   }
-  .np-desktop-nav,
-  .np-button,
   .np-text-button,
   .np-program-link,
   .np-path-help,
@@ -2460,12 +1896,8 @@
   .np-triad-equation {
     font-size: 14px;
   }
-  .np-login,
-  .np-nav-cta,
   .np-hero-note,
   .np-sport-strip>div,
-  .np-footer-main p,
-  .np-footer-main>div>a:not(.np-brand),
   .np-pathways p,
   .np-goal-options small {
     font-size: 13px;
@@ -2475,17 +1907,13 @@
     font-size: 13px!important;
   }
   .np-tags>span,
-  .np-back-top,
-  .np-footer-bottom,
   .np-pathways span,
   .np-principles article>span {
     font-size: 12px;
   }
-  .np-eyebrow,
   .np-program-body>.np-eyebrow,
   .np-triad-copy .np-eyebrow,
   .np-sport-strip>span,
-  .np-footer-label,
   .np-triad-tabs button>span,
   .np-triad-image>span,
   .np-note-index {
@@ -2497,45 +1925,3 @@
     font-size: 10px;
   }
 }
-
-@media (min-width: 1280px) {
-  .np-nav { gap: 18px; }
-  .np-desktop-nav { gap: 22px; }
-}
-/* Collapse Schedule to its accessible icon before switching to the dropdown. */
-@media (min-width: 1280px) and (max-width: 1399px) {
-  .np-desktop-nav .np-nav-schedule .np-nav-text { display: none; }
-}
-
-/* Keep the full supplied logo clear without crowding the navigation. */
-@media (min-width: 861px) and (max-width: 1279px) {
-  .np-header .np-desktop-nav { display: none; }
-  .np-header .np-menu-toggle {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-  }
-  .np-header .np-mobile-nav {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--np-line);
-    padding: 8px 36px 20px;
-  }
-  .np-header .np-mobile-nav a,
-  .np-header .np-mobile-nav > button,
-  .np-header .np-mobile-nav .np-nav-programs summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 12px 0;
-  }
-}
-@media (min-width: 861px) and (max-width: 1150px) {
-  .np-header .np-brand { width: clamp(176px, calc(100vw - 686px), 300px); }
-}
-@media (max-width: 620px) {
-  .np-header .np-brand { width: clamp(120px, calc(100vw - 234px), 220px); }
-}
-.np-footer .np-brand { width: 300px; }
