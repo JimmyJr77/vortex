@@ -7,9 +7,11 @@ import {
   BUSINESS_NAP,
   CONTACT_INQUIRY_ID,
   GOOGLE_DIRECTIONS_URL,
+  GOOGLE_MAPS_URL,
   GOOGLE_REVIEW_URL,
   INSIDE_THE_GYM_ID,
   INSIDE_THE_GYM_PATH,
+  PARKING_AND_ACCESSIBILITY_ID,
   SERVICE_AREAS,
   TEAM_EMAIL,
   TEAM_PHONE,
@@ -137,6 +139,22 @@ export default function ContactLocationPage({ onInquireClick }: ContactLocationP
           </div>
         </div>
       </div>
+      <section id={PARKING_AND_ACCESSIBILITY_ID} aria-labelledby="parking-and-accessibility-heading"
+        className="container-custom mt-8 scroll-mt-[calc(var(--site-header-height,90px)_+_1rem)]">
+        <h2 id="parking-and-accessibility-heading" className="text-xl font-bold">Parking and accessibility</h2>
+        <p className="mt-2 max-w-2xl text-gray-700">
+          Our Google Maps listing shows wheelchair-accessible parking and a wheelchair-accessible entrance at the gym.{' '}
+          <a className="font-semibold underline underline-offset-4 hover:text-vortex-red" href={GOOGLE_MAPS_URL}>
+            View the Google Maps listing
+          </a>.
+        </p>
+        <p className="mt-2 max-w-2xl text-gray-700">
+          For questions about access inside the gym or during class,{' '}
+          <a className="font-semibold underline underline-offset-4 hover:text-vortex-red" href={`tel:${TEAM_PHONE_E164}`}>
+            call us at {TEAM_PHONE}
+          </a> before your visit.
+        </p>
+      </section>
       <p className="container-custom mt-6 text-sm text-gray-700">
         Have you or your child taken a class at Vortex?{' '}
         <a className="font-semibold underline underline-offset-4 hover:text-vortex-red" href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer">
@@ -148,9 +166,9 @@ export default function ContactLocationPage({ onInquireClick }: ContactLocationP
     <section className="section-padding bg-gray-950 text-white">
       <div className="container-custom grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-center">
         <div>
-          <h2 className="text-3xl font-display font-bold md:text-4xl">A Bowie gym serving central Maryland</h2>
+          <h2 className="text-3xl font-display font-bold md:text-4xl">Our Bowie gym at Melford Town Center</h2>
           <p className="mt-5 text-lg leading-relaxed text-gray-300">
-            Vortex is located near Routes 50 and 3 in Bowie. Families visit us from{' '}
+            Find Vortex at 4961 Tesla Drive, Suite E, near Routes 50 and 3. Families visit us from{' '}
             {SERVICE_AREAS.slice(0, 6).join(', ')}, and communities throughout Prince George&apos;s
             and Anne Arundel counties.
           </p>

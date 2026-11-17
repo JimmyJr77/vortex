@@ -174,10 +174,20 @@ test.describe('Client-critical smoke flows', () => {
     await expect(teamCard.getByRole('checkbox', { name: /Monday.*17:30/ })).toBeVisible()
   })
 
-  test('mobile visitors can go from a program page to facility photos and back to a starting class', async ({ page }) => {
+  test('mobile visitors can find accessibility details and gym photos from a program page', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics')
     const visit = page.getByRole('region', { name: 'Visit Vortex in Bowie' })
+    await visit.getByRole('link', { name: 'Parking and accessibility' }).click()
+    await expect(page).toHaveURL('/contact#parking-and-accessibility')
+    const accessibility = page.getByRole('region', { name: 'Parking and accessibility' })
+    await expect(accessibility.getByRole('heading')).toBeInViewport()
+    await expect(accessibility.getByText(/wheelchair-accessible parking and a wheelchair-accessible entrance/)).toBeVisible()
+    await expect(accessibility.getByRole('link', { name: 'View the Google Maps listing' }))
+      .toHaveAttribute('href', 'https://www.google.com/maps?cid=15262285316302188709')
+
+    await page.goBack()
+    await expect(page).toHaveURL('/gymnastics')
     await visit.getByRole('link', { name: 'See inside the Bowie gym' }).click()
     await expect(page).toHaveURL('/contact#inside-the-gym')
     const gym = page.getByRole('region', { name: 'Inside the Bowie gym' })

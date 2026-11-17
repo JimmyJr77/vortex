@@ -1,7 +1,9 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
-import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import {
+  BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, PARKING_AND_ACCESSIBILITY_PATH, TEAM_PHONE, TEAM_PHONE_E164,
+} from '../../config/contact'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -157,6 +159,9 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
             <a className="np-program-plain-link" href={GOOGLE_DIRECTIONS_URL} data-analytics-cta="get_directions" data-analytics-section="program">
               Get directions <ArrowUpRight size={16} aria-hidden="true" />
             </a>
+            <Link className="np-program-plain-link" to={PARKING_AND_ACCESSIBILITY_PATH}>
+              Parking and accessibility <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
             <a className="np-program-plain-link" href={`tel:${TEAM_PHONE_E164}`} data-analytics-cta="call" data-analytics-section="program">
               Call {TEAM_PHONE} <ArrowUpRight size={16} aria-hidden="true" />
             </a>

@@ -47,6 +47,7 @@ const programActions = new Map([
 const hasDropInProgramLink = (links, program) => links.some((url) => url.origin === HUB_ORIGIN &&
   url.pathname === '/drop-in' && url.searchParams.get('program') === program)
 const galleryUrl = `${HUB_ORIGIN}/contact#inside-the-gym`
+const accessibilityUrl = `${HUB_ORIGIN}/contact#parking-and-accessibility`
 const watchUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.path}`
 const videoUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.assetPath}`
 const videoThumbnailUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.thumbnail}`
@@ -526,6 +527,12 @@ const verifyHtml = (
         `${label}: the contact inquiry destination must explain what to share for team evaluation`)
       assert(links.some(isBowieDirections) && links.some((url) => url.href === galleryUrl),
         `${label}: the contact introduction must link to Maps and the facility photos`)
+      const accessibility = html.match(/<section\b[^>]*\sid=["']parking-and-accessibility["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const accessLinks = anchorUrls(accessibility)
+      assert(/wheelchair-accessible parking/.test(accessibility) && /wheelchair-accessible entrance/.test(accessibility) &&
+        accessLinks.some(url => url.href === 'https://www.google.com/maps?cid=15262285316302188709') &&
+        accessLinks.some(url => url.href === 'tel:+14434224794') && /Melford Town Center/.test(html),
+        `${label}: missing the facility arrival details, verified Maps listing, or contact number`)
       const gallery = html.match(/<section\b[^>]*\sid=["']inside-the-gym["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const galleryPhotos = tags(gallery, 'img')
       assert(/<h2\b[^>]*>Inside the Bowie gym<\/h2>/i.test(gallery) && galleryPhotos.length === 3 &&
@@ -576,8 +583,9 @@ const verifyHtml = (
     }
     if (HUB_PROGRAM_PATHS.includes(pagePath)) {
       const visit = mainHtml.match(/<section\b[^>]*\baria-labelledby=["']program-visit-heading["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
-      assert(anchorUrls(visit).some((url) => url.href === galleryUrl),
-        `${label}: the program visit section must link to the Bowie gym photos`)
+      const visitLinks = anchorUrls(visit)
+      assert([galleryUrl, accessibilityUrl].every(destination => visitLinks.some(url => url.href === destination)),
+        `${label}: the program visit section must link to the Bowie gym photos and accessibility details`)
     }
     if (pagePath === '/gymnastics') {
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
