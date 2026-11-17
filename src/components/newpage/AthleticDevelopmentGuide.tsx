@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import './AthleticDevelopmentGuide.css'
 
 const sections = [
@@ -61,6 +62,7 @@ export default function AthleticDevelopmentGuide() {
             Consider what your child wants to learn and what their week already includes. An athlete with games,
             practices, or gymnastics classes may benefit from a different starting point than a child looking for a
             new way to move. Leave room for enjoyable activities and active play.
+            {' '}If you’re weighing local options, see our <Link to={BOWIE_YOUTH_SPORTS_GUIDE.path}>guide to Bowie youth sports</Link>.
           </p>
         </section>
 

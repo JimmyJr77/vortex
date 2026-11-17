@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../config/bowieYouthSportsGuide'
 import { trackEvent } from '../utils/analyticsClient'
 import ReadBoardClassesTab from './readBoard/ReadBoardClassesTab'
 import ReadBoardScheduleTab from './readBoard/ReadBoardScheduleTab'
@@ -54,6 +55,7 @@ const ReadBoard = () => {
               <Link className="underline" to="/gymnastics">youth gymnastics</Link> and{' '}
               <Link className="underline" to="/fit-and-flip">Fit &amp; Flip</Link>, or see how to get started with{' '}
               <Link className="underline" to="/adult-gymnastics">adult gymnastics</Link>.
+              {' '}If you’re still choosing an activity, <Link className="underline" to={BOWIE_YOUTH_SPORTS_GUIDE.path}>compare youth sports in Bowie</Link>.
             </p>
           </div>
 

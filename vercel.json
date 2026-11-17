@@ -323,6 +323,10 @@
       "destination": "/blog/athletic-development-young-athletes/index.html"
     },
     {
+      "source": "/blog/youth-sports-bowie",
+      "destination": "/blog/youth-sports-bowie/index.html"
+    },
+    {
       "source": "/ninja",
       "destination": "/ninja/index.html"
     },

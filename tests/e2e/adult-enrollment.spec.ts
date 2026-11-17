@@ -48,7 +48,7 @@ async function mockClasses(page: Page, enrollVisible = true) {
   return formRequests
 }
 
-test('adult gymnastics and published form links open the current Typhoons schedule', async ({ page }) => {
+test('adult gymnastics, general enrollment, and published form links open the current Typhoons schedule', async ({ page }) => {
   await mockClasses(page)
   await page.goto('/adult-gymnastics')
   const booking = page.getByRole('link', { name: 'See adult class times' })
@@ -62,11 +62,16 @@ test('adult gymnastics and published form links open the current Typhoons schedu
   await page.goto('/enroll')
   await expect(page.getByRole('heading', { name: 'Cyclones' })).toBeVisible()
   await expect(page.getByRole('heading', { name: adultName })).toHaveCount(0)
+  await page.getByRole('link', { name: 'see adult gymnastics class times' }).click()
+  await expect(page).toHaveURL(adultBookingPath)
+  await expect(page.getByRole('heading', { name: adultName })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Monday.*7:00 PM/ })).toBeVisible()
 })
 
 test('unpublished adult classes lead to contact without opening their signup forms', async ({ page }) => {
   const formRequests = await mockClasses(page, false)
-  await page.goto(adultBookingPath)
+  await page.goto('/enroll')
+  await page.getByRole('link', { name: 'see adult gymnastics class times' }).click()
   await expect(page.getByText('There are no adult classes open for online enrollment right now.')).toBeVisible()
   await expect(page.getByRole('link', { name: 'Contact us about adult classes' })).toHaveAttribute('href', '/contact')
   await page.goto(`/enroll?form=${adultFormId}`)

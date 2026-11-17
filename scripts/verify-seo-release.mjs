@@ -1,6 +1,7 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 import {
+  BOWIE_YOUTH_SPORTS_GUIDE_PATH,
   GYMNASTICS_ORIGIN,
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
@@ -290,6 +291,16 @@ const verifyHtml = (
     }
   }
 
+  if (shouldIndex && ['/contact', '/drop-in'].includes(pagePath)) {
+    const introduction = [...html.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
+      .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
+    const links = anchorUrls(introduction)
+    for (const path of HUB_PROGRAM_PATHS) {
+      assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: missing a crawlable program link to ${path} near the main heading`)
+    }
+  }
+
   if (shouldIndex && (pagePath === '/' || HUB_PROGRAM_PATHS.includes(pagePath))) {
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
@@ -335,6 +346,7 @@ const verifyHtml = (
   }
 
   const guideCanonical = canonicalFor(HUB_ORIGIN, YOUTH_ATHLETIC_GUIDE_PATH)
+  const bowieGuideCanonical = canonicalFor(HUB_ORIGIN, BOWIE_YOUTH_SPORTS_GUIDE_PATH)
   const fitAndFlipCanonical = canonicalFor(HUB_ORIGIN, '/fit-and-flip')
   if (shouldIndex && [HUB_ORIGIN, guideCanonical, fitAndFlipCanonical].includes(canonical)) {
     const content = (canonical === guideCanonical
@@ -357,6 +369,21 @@ const verifyHtml = (
     }
   }
 
+  if (shouldIndex && pagePath === '/read-board') {
+    const introduction = [...html.matchAll(/<section\b[^>]*>[\s\S]*?<\/section>/gi)]
+      .find(([section]) => /<h1\b/i.test(section))?.[0] ?? ''
+    assert(anchorUrls(introduction).some((url) => url.href === bowieGuideCanonical),
+      `${label}: missing the crawlable Bowie youth sports guide link near the main heading`)
+  }
+  if (shouldIndex && canonical === bowieGuideCanonical) {
+    const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const links = anchorUrls(content)
+    for (const path of ['/gymnastics', '/fit-and-flip', '/read-board', YOUTH_ATHLETIC_GUIDE_PATH]) {
+      assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: missing the crawlable guide link to ${path}`)
+    }
+  }
+
   if (requireSchema) {
     assert(jsonLd.length >= 2, `${label}: expected Organization and WebSite JSON-LD`)
     const parsed = []
@@ -373,6 +400,12 @@ const verifyHtml = (
     })
     assert(types.includes('Organization'), `${label}: Organization JSON-LD is missing`)
     assert(types.includes('WebSite'), `${label}: WebSite JSON-LD is missing`)
+
+    if (canonical === guideCanonical || canonical === bowieGuideCanonical) {
+      const article = parsed.find((item) => item?.['@type'] === 'Article')
+      assert(article?.mainEntityOfPage === canonical && article?.headline === h1s[0],
+        `${label}: Article JSON-LD must match the canonical URL and visible heading`)
+    }
 
     if (
       normalizedUrl(canonical) === normalizedUrl(HUB_ORIGIN)

@@ -3,6 +3,7 @@ import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './config/athleticDevelopmentGuide'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from './config/bowieYouthSportsGuide'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import PortalTheme from './components/portal/PortalTheme'
 import { trackEngagement } from './utils/analytics'
@@ -45,6 +46,7 @@ const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/Enrollmen
 const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
 const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
 const AthleticDevelopmentGuide = lazyWithRetry(() => import('./components/newpage/AthleticDevelopmentGuide'))
+const BowieYouthSportsGuide = lazyWithRetry(() => import('./components/newpage/BowieYouthSportsGuide'))
 const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
 const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
@@ -97,6 +99,7 @@ function App() {
     Boolean(programPage)
     || isPublicRegistrationPage
     || Boolean(matchPath(ATHLETIC_DEVELOPMENT_GUIDE.path, location.pathname))
+    || Boolean(matchPath(BOWIE_YOUTH_SPORTS_GUIDE.path, location.pathname))
     || ['/enroll', '/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.
   useEffect(() => {
@@ -376,6 +379,7 @@ function App() {
           />
           <Route path="/drop-in" element={<DropInPage />} />
           <Route path={ATHLETIC_DEVELOPMENT_GUIDE.path} element={<AthleticDevelopmentGuide />} />
+          <Route path={BOWIE_YOUTH_SPORTS_GUIDE.path} element={<BowieYouthSportsGuide />} />
           <Route
             path="/contact"
             element={<ContactLocationPage onInquireClick={handleContactClick} />}

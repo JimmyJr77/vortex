@@ -180,8 +180,19 @@ export interface SeoData {
 }
 
 export type SearchConsoleTopicFailure = 'access_denied' | 'provider_error'
+export type SearchConsoleQueryScope = 'all' | 'without_vortex'
+export type SearchConsoleReportView = 'totals' | 'pages'
+
+interface SearchConsoleTopicMetrics {
+  clicks: number
+  impressions: number
+  ctr: number | null
+  position: number | null
+}
 
 export interface SearchConsoleTopicReport {
+  scope?: SearchConsoleQueryScope
+  view?: SearchConsoleReportView
   status: 'ok' | 'partial' | 'unconfigured' | 'error'
   reason?: 'missing_property' | 'missing_credentials' | SearchConsoleTopicFailure
   startDate: string
@@ -191,23 +202,24 @@ export interface SearchConsoleTopicReport {
     id: string
     label: string
     status: 'reported' | 'no_data' | 'error' | 'unavailable'
-    metrics: {
-      clicks: number
-      impressions: number
-      ctr: number | null
-      position: number | null
-    } | null
+    metrics: SearchConsoleTopicMetrics | null
+    pages?: Array<{ page: string | null; metrics: SearchConsoleTopicMetrics }>
     reason?: SearchConsoleTopicFailure
   }>
 }
 
-export async function fetchSearchConsoleTopics(): Promise<SearchConsoleTopicReport> {
-  const response = await adminApiRequest('/api/admin/analytics/seo/topics')
+export async function fetchSearchConsoleTopics(scope: SearchConsoleQueryScope = 'all', view: SearchConsoleReportView = 'totals'): Promise<SearchConsoleTopicReport> {
+  const params = new URLSearchParams()
+  if (scope !== 'all') params.set('scope', scope)
+  if (view !== 'totals') params.set('view', view)
+  const query = params.size ? `?${params}` : ''
+  const response = await adminApiRequest(`/api/admin/analytics/seo/topics${query}`)
   const result = await response.json()
-  if (!response.ok || !result.success) {
+  const report: SearchConsoleTopicReport | undefined = result.data
+  if (!response.ok || !result.success || !report || (report.scope ?? 'all') !== scope || (report.view ?? 'totals') !== view) {
     throw new Error('Could not load the Search Console topic report.')
   }
-  return result.data
+  return report
 }
 
 export interface CompetitorRow {
