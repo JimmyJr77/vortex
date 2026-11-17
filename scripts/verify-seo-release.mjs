@@ -636,8 +636,15 @@ const verifyHtml = (
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const teen = html.match(/<article\b[^>]*\sid=["']teen["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     assert(anchorUrls(preschool).some((url) => url.href === preschoolGuideCanonical),
       `${label}: missing the crawlable guide link in the preschool class section`)
+    assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),
+      `${label}: missing the placement link for experienced and returning gymnasts`)
+    assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones in developmental gymnastics/.test(placement) &&
+      /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement),
+      `${label}: missing the placement comparison or assessment action in the rendered page`)
   }
   if (shouldIndex && canonical === preschoolGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
@@ -659,7 +666,7 @@ const verifyHtml = (
   if (shouldIndex && canonical === tumblingGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
-    for (const path of ['/gymnastics#beginner', '/fit-and-flip#body-control', '/read-board#classes', '/#free-trial']) {
+    for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control', '/read-board#classes', '/#free-trial']) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable comparison guide link to ${path}`)
     }

@@ -22,6 +22,7 @@ type ProgramSection = {
   description: string
   topics?: readonly { id: string; heading: string; description: string; link?: ProgramAction }[]
   links?: readonly ProgramAction[]
+  trialLabel?: string
 }
 
 type PublicProgram = {
@@ -39,7 +40,7 @@ type PublicProgram = {
   imageHeight: number
   primaryAction: ProgramAction
   secondaryAction?: ProgramAction
-  trial?: { program: FreeTrialProgram; label: string; sectionId: string }
+  trial?: { program: FreeTrialProgram; label: string }
   recurringSchedule?: {
     id: string
     heading: string
@@ -52,6 +53,8 @@ type PublicProgram = {
 }
 
 const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
+const GYMNASTICS_TRIAL_LABEL = 'Find a free gymnastics trial'
+const FIT_AND_FLIP_TRIAL_LABEL = 'Find a free Fit & Flip trial'
 const TUMBLING_GUIDE_ACTION = {
   href: GYMNASTICS_VS_TUMBLING_GUIDE.path,
   label: 'Compare gymnastics and tumbling for kids',
@@ -73,7 +76,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 1600,
     imageHeight: 1200,
     primaryAction: { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
-    trial: { program: 'gymnastics', label: 'Find a free gymnastics trial', sectionId: 'first-visit' },
+    trial: { program: 'gymnastics', label: GYMNASTICS_TRIAL_LABEL },
     sections: [
       {
         id: 'choose-a-class',
@@ -94,7 +97,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           },
           { id: 'beginner', heading: 'Beginner gymnastics for ages 6–17', description: 'Kids and teens with no gymnastics experience start with a Tornadoes trial when available. Athletes learn body shapes and controlled landings as they work toward skills such as rolls, cartwheels, and handstands.' },
           { id: 'youth', heading: 'Developmental and team pathways', description: 'Developmental classes let athletes build skills without competing. Team gymnastics adds competition for athletes placed in that pathway. Families can ask the coaching team how progression and team placement work.' },
-          { id: 'teen', heading: 'Gymnastics for teens and returning athletes', description: 'Teens can start gymnastics with no prior experience. If your child has trained before and is between 6 and 17, choose the experience option in the trial finder. A coach uses a Trial Assessment to evaluate what they are ready to work on and recommend a group.' },
+          {
+            id: 'teen',
+            heading: 'Gymnastics for teens and returning athletes',
+            description: 'Teens can start gymnastics with no prior experience. If your child has taken classes before, check how Vortex coaches choose a starting level.',
+            link: { href: '/gymnastics#class-placement', label: 'Find the right gymnastics level', analyticsKey: 'read_gymnastics_placement' },
+          },
         ],
         links: [
           { href: '/gymnastics#first-visit', label: 'Prepare for your first visit', analyticsKey: 'read_first_visit' },
@@ -102,9 +110,28 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
       },
       {
+        id: 'class-placement',
+        heading: 'How do I know what gymnastics level my child is ready for?',
+        description: 'A cartwheel gives your coach one skill to build on. Beginner Tornadoes teaches rolls, cartwheels, and handstands. Intermediate Cyclones in developmental gymnastics expects several foundations together, including forward and backward rolls, handstands, cartwheels, and round-offs.',
+        topics: [
+          {
+            id: 'experienced-trial',
+            heading: 'How to find a Trial Assessment',
+            description: 'For a child ages 6–17 who has taken gymnastics before, enter their age and choose “Has gymnastics experience” to see available Trial Assessment dates.',
+          },
+          {
+            id: 'assessment-preparation',
+            heading: 'What to tell the coach',
+            description: 'Tell the coach which skills your child can repeat comfortably, including skills they learned at home or in cheer or tumbling. The coach will assess what your child is ready to work on and recommend a starting group.',
+          },
+        ],
+        trialLabel: 'Find a free Trial Assessment',
+      },
+      {
         id: 'first-visit',
         heading: 'What to expect at your child’s first gymnastics class',
         description: 'A trial lets your child meet the coaches and try a class matched to their age and experience at our Bowie gym.',
+        trialLabel: GYMNASTICS_TRIAL_LABEL,
         topics: [
           { id: 'gymnastics-attire', heading: GYMNASTICS_CLASS_ATTIRE.question, description: GYMNASTICS_CLASS_ATTIRE.answer },
           {
@@ -162,7 +189,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 900,
     imageHeight: 675,
     primaryAction: { href: FIT_AND_FLIP_BOOKING_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
-    trial: { program: 'fit-flip', label: 'Find a free Fit & Flip trial', sectionId: 'training-fit' },
+    trial: { program: 'fit-flip', label: FIT_AND_FLIP_TRIAL_LABEL },
     recurringSchedule: {
       id: 'fit-flip-schedule',
       heading: 'Recurring Fit & Flip class times',
@@ -226,6 +253,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         id: 'training-fit',
         heading: 'Youth fitness for beginners',
         description: 'New to training? Tell the coach which activities your child enjoys and what they want to try. Two athletes in the same age group can practice different versions of a movement based on what each can repeat with control.',
+        trialLabel: FIT_AND_FLIP_TRIAL_LABEL,
         topics: [
           {
             id: 'first-fit-flip-class',

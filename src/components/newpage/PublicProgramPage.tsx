@@ -35,15 +35,15 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
     return () => cancelAnimationFrame(frame)
   }, [hash, path])
 
-  function renderTrialButton(section: string) {
-    if (!trial) return null
+  function renderTrialButton(section: string, label = trial?.label) {
+    if (!trial || !label) return null
     return (
       <button type="button" className="np-program-plain-link" data-analytics-cta="free_trial" data-analytics-section={section}
         onClick={() => {
           trackEvent('trial_start', path, { properties: { section, program_slug: trial.program } })
           setTrialOpen(true)
         }}>
-        {trial.label} <ArrowUpRight size={16} aria-hidden="true" />
+        {label} <ArrowUpRight size={16} aria-hidden="true" />
       </button>
     )
   }
@@ -116,9 +116,9 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                 ))}
               </div>
             )}
-            {(section.links || trial?.sectionId === section.id) && (
+            {(section.links || section.trialLabel) && (
               <div className="np-program-page-actions">
-                {trial?.sectionId === section.id && renderTrialButton(section.id.replaceAll('-', '_'))}
+                {section.trialLabel && renderTrialButton(section.id.replaceAll('-', '_'), section.trialLabel)}
                 {section.links?.map(({ href, label, analyticsKey }) => (
                   <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={section.id}>
                     {label} <ArrowUpRight size={16} aria-hidden="true" />

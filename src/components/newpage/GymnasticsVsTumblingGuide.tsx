@@ -65,8 +65,8 @@ export default function GymnasticsVsTumblingGuide() {
               <strong>To learn gymnastics skills, including floor tumbling.</strong> Start with{' '}
               <Link to="/gymnastics#beginner">Vortex’s developmental gymnastics pathway</Link>. First-time
               gymnasts ages 6–17 can look for a Tornadoes trial. Coaches work on foundations such as rolls,
-              cartwheels, and handstands. Kids or teens with previous gymnastics experience can choose the
-              experienced pathway in the trial finder so a coach can assess their starting point.
+              cartwheels, and handstands. If your child has taken classes before, see{' '}
+              <Link to="/gymnastics#class-placement">how coaches choose a gymnastics level</Link>.
             </li>
             <li>
               <strong>To build strength and power for tumbling, cheer, or another sport.</strong> Explore{' '}

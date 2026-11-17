@@ -17,7 +17,7 @@ async function mockSite(page: Page) {
   const events: SiteEvent[] = []
   await page.route('**/api/**', async route => {
     const request = route.request()
-    const { pathname } = new URL(request.url())
+    const { pathname, searchParams } = new URL(request.url())
     let data: unknown = []
     if (pathname === '/api/analytics/event' && request.method() === 'POST') {
       events.push(...(request.postDataJSON() as { events: SiteEvent[] }).events)
@@ -26,7 +26,17 @@ async function mockSite(page: Page) {
       await route.fulfill({ json: { success: true, consent: null } })
       return
     }
-    if (pathname === '/api/public/free-trials') data = {
+    if (pathname === '/api/public/free-trials' && searchParams.get('program') === 'gymnastics') {
+      const experienced = searchParams.get('gymnasticsTrack') === 'experienced'
+      data = {
+        program: 'gymnastics', age: 10, ageBand: { min: 6, max: 17 }, classes: [],
+        gymnasticsRouting: { track: 'school-age' },
+        sessions: experienced ? [{
+          classId: 103, slotGroupId: 201, className: 'Trial Assessment', date: '2027-01-12',
+          startTime: '16:00:00', endTime: '17:00:00', enrolledCount: 1, spotsRemaining: 2, isFull: false,
+        }] : [],
+      }
+    } else if (pathname === '/api/public/free-trials') data = {
       program: 'fit-flip', age: 10, ageBand: { min: 8, max: 11 }, classes: [],
       sessions: [{
         classId: 104, slotGroupId: 200, className: 'Cyclones', date: '2027-01-12',
@@ -146,4 +156,26 @@ test('opens a preselected trial from the program page and credits the signup to 
   await expect(dialog.getByText('We’ll show the gymnastics classes available for their age.', { exact: false })).toBeVisible()
   await dialog.getByRole('button', { name: 'Close dialog' }).click()
   await expect(dialog).toHaveCount(0)
+})
+
+test('takes experienced gymnasts from the comparison guide to Trial Assessment dates', async ({ page }) => {
+  const events = await mockSite(page)
+  await page.goto('/blog/gymnastics-vs-tumbling')
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await grantAnalyticsOnly(page)
+
+  await page.getByRole('link', { name: 'how coaches choose a gymnastics level' }).click()
+  await expect(page).toHaveURL('/gymnastics#class-placement')
+  const placement = page.locator('#class-placement')
+  await expect(placement.getByRole('heading', { level: 2 })).toBeInViewport()
+  await placement.getByRole('button', { name: 'Find a free Trial Assessment' }).click()
+
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Your child’s age').fill('10')
+  await dialog.getByRole('button', { name: 'Find available classes' }).click()
+  await dialog.getByRole('button', { name: /^Has gymnastics experience/ }).click()
+  await expect(dialog.getByRole('button', { name: /Trial Assessment.*spots available/ })).toBeEnabled()
+  await expect.poll(() => events.find(event => event.eventName === 'trial_start')).toMatchObject({
+    pagePath: '/gymnastics', properties: { program_slug: 'gymnastics', section: 'class_placement' },
+  })
 })
