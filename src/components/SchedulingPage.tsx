@@ -12,9 +12,9 @@ import {
 } from '../utils/publicClassesApi'
 import {
   ADULT_BOOKING_HREF,
-  ADULT_BOOKING_PROGRAM,
   getPublicBookingProgramName,
   getPublicBookingPrograms,
+  isAdultBookingProgram,
 } from '../utils/publicBookingPrograms'
 import { getApiUrl } from '../utils/api'
 import SchedulingSignupEmbed from './SchedulingSignupEmbed'
@@ -37,8 +37,6 @@ function normalizeFilterName(value: string): string {
     .replace(/tumbling/g, 'tumble')
     .replace(/[^a-z0-9]+/g, '')
 }
-
-const adultProgramName = normalizeFilterName(ADULT_BOOKING_PROGRAM)
 
 const enrollmentHeroCopy = {
   browse: {
@@ -138,9 +136,9 @@ const SchedulingPage = () => {
   }, [urlEmail])
 
   const offeredPrograms = useMemo(() => getPublicBookingPrograms(catalogPrograms), [catalogPrograms])
-  const wantsAdultClasses = urlProgramName !== null && normalizeFilterName(urlProgramName) === adultProgramName
+  const wantsAdultClasses = isAdultBookingProgram(urlProgramName)
   const adultClasses = catalogPrograms
-    .find((program) => normalizeFilterName(program.displayName) === adultProgramName)
+    .find((program) => isAdultBookingProgram(program.displayName))
     ?.classes.filter((classItem) => classItem.enrollVisible === true && classItem.formId != null) ?? []
   const linkedAdultClass = urlFormId != null
     ? adultClasses.find((classItem) => classItem.formId === urlFormId)
@@ -172,10 +170,11 @@ const SchedulingPage = () => {
   }, [])
 
   if (signupFormId != null) {
-    const backLabel = signupComplete ? 'Return to classes' : 'Back to classes'
+    const backDestination = linkedAdultClass && adultClasses.length === 1 ? 'adult gymnastics' : 'classes'
+    const backLabel = `${signupComplete ? 'Return to' : 'Back to'} ${backDestination}`
     return (
       <div className="np-enrollment-page">
-        <EnrollmentHero mode="signup" />
+        <EnrollmentHero mode={linkedAdultClass ? 'adult' : 'signup'} />
         <section className="np-enrollment-content">
           <div className="np-enrollment-wrap np-enrollment-signup space-y-6">
             {linkedAdultClass ? (
@@ -220,7 +219,7 @@ const SchedulingPage = () => {
                 <ul className="space-y-3" aria-label="Available adult classes">
                   {adultClasses.map((classItem) => (
                     <li key={classItem.id}>
-                      <Link to={`/enroll?form=${classItem.formId}`} className="np-enrollment-button">
+                      <Link to={`${ADULT_BOOKING_HREF}&form=${classItem.formId}`} className="np-enrollment-button">
                         {classItem.displayName} <ArrowUpRight size={17} aria-hidden="true" />
                       </Link>
                     </li>

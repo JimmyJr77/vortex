@@ -8,6 +8,11 @@ export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
 export const ADULT_BOOKING_HREF = `/enroll?program=${encodeURIComponent(ADULT_BOOKING_PROGRAM)}`
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
+const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
+
+export function isAdultBookingProgram(name: string | null): boolean {
+  return name !== null && normalize(name) === normalizedAdultBookingProgram
+}
 
 /** Public booking labels only; retain catalog IDs, pricing, and portal names. */
 export function getPublicBookingProgramName(name: string): string | null {
