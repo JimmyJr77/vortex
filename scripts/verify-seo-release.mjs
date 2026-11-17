@@ -20,6 +20,8 @@ const live = process.argv.includes('--live')
 const legacyLandingRedirects = JSON.parse(
   readFileSync(join(root, 'src/config/publicLandingRedirects.json'), 'utf8'),
 )
+const unifiedHosts = new Set([HUB_ORIGIN, GYMNASTICS_ORIGIN]
+  .map((origin) => new URL(origin).hostname.replace(/^www\./, '')))
 const legacyDestinations = [...new Set(Object.values(legacyLandingRedirects))]
   .map((destination) => new URL(destination, HUB_ORIGIN))
 const programActions = new Map([
@@ -291,7 +293,15 @@ const verifyHtml = (
     `${label}: a link must not contain another keyboard focus target`,
   )
 
-  const pagePath = new URL(canonical).pathname
+  const pageUrl = new URL(canonical)
+  const pagePath = pageUrl.pathname
+  if (pageUrl.origin === HUB_ORIGIN) {
+    for (const url of anchorUrls(html)) {
+      if (!unifiedHosts.has(url.hostname.replace(/^www\./, ''))) continue
+      assert(!Object.hasOwn(legacyLandingRedirects, url.pathname.replace(/\/+$/, '').toLowerCase()),
+        `${label}: link points to retired landing URL ${url.pathname}; use its destination directly`)
+    }
+  }
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
   const usesLegacyHeader = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service'].includes(pagePath)
   if (shouldIndex && (usesLegacyHeader || [
