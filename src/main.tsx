@@ -1,4 +1,4 @@
-import { StrictMode, Suspense } from 'react'
+import { StrictMode, Suspense, type ReactNode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
@@ -17,7 +17,9 @@ import { updateGoogleConsent } from './utils/googleAnalytics.ts'
 import { captureConsentIdFromUrl } from './utils/crossDomainConsent.ts'
 import { getStoredConsent, initCrossDomainConsent } from './utils/consent.ts'
 import { ChunkLoadErrorBoundary } from './components/ChunkLoadErrorBoundary.tsx'
-import { clearChunkReloadFlag, initChunkLoadRecovery, lazyWithRetry } from './utils/chunkLoadRecovery.ts'
+import { hasAdminSession } from './utils/api.ts'
+import { clearChunkReloadFlag, initChunkLoadRecovery, isChunkLoadError, lazyWithRetry, reloadForStaleChunks } from './utils/chunkLoadRecovery.ts'
+import { getMemberSessionToken } from './utils/portalSession.ts'
 
 const CookieConsent = lazyWithRetry(() => import('./components/CookieConsent.tsx'))
 const PublicSiteAnalytics = lazyWithRetry(() => import('./components/analytics/PublicSiteAnalytics.tsx'))
@@ -26,6 +28,18 @@ const ComingSoon = lazyWithRetry(() => import('./components/stub/ComingSoon.tsx'
 const App = lazyWithRetry(() => import('./App.tsx'))
 
 const appLoader = <div className="min-h-screen bg-white" aria-busy="true" />
+const root = document.getElementById('root')!
+
+// Alternate hosts and existing sessions keep their normal startup path.
+const stubSite = resolveStubSite(window.location.hostname, window.location.search)
+const stubPreview = stubSite
+  ? isStubPreviewOnNonStubHost(window.location.hostname, window.location.search)
+  : false
+const isLegacyGymnasticsHost = /^(www\.)?vortex-gymnastics\.com$/i.test(window.location.hostname)
+const snapshotPath = root.dataset.prerenderedProgram
+const currentPath = window.location.pathname.toLowerCase().replace(/\/+$/, '')
+const keepProgramSnapshot = snapshotPath !== undefined && snapshotPath === currentPath &&
+  !stubSite && !isLegacyGymnasticsHost && !hasAdminSession() && !getMemberSessionToken()
 
 /**
  * Production route snapshots contain a complete SEO head for non-JavaScript
@@ -48,10 +62,42 @@ const clearPrerenderedSeoHead = () => {
   document.querySelectorAll(selectors.join(',')).forEach((node) => node.remove())
 }
 
-clearPrerenderedSeoHead()
+function prepareReactMount() {
+  clearPrerenderedSeoHead()
+  initChunkLoadRecovery()
+  clearChunkReloadFlag()
+}
 
-initChunkLoadRecovery()
-clearChunkReloadFlag()
+function renderWebsite(app: ReactNode) {
+  createRoot(root).render(
+    <StrictMode>
+      <ChunkLoadErrorBoundary>
+        <HelmetProvider>
+          <Suspense fallback={appLoader}>
+            <BrowserRouter>{app}</BrowserRouter>
+          </Suspense>
+        </HelmetProvider>
+      </ChunkLoadErrorBoundary>
+    </StrictMode>,
+  )
+}
+
+async function mountProgramSnapshot() {
+  try {
+    // Render the resolved components so React can replace the snapshot in one commit.
+    const [{ default: Website }, { default: ProgramPage }] = await Promise.all([
+      import('./App.tsx'), import('./components/newpage/PublicProgramPage.tsx'),
+    ])
+    prepareReactMount()
+    renderWebsite(<Website programPageComponent={ProgramPage} />)
+  } catch (error) {
+    // Keep the readable snapshot while the existing one-reload recovery runs.
+    if (isChunkLoadError(error)) reloadForStaleChunks()
+    else console.error('Could not start the program page', error)
+  }
+}
+
+if (!keepProgramSnapshot) prepareReactMount()
 
 initGoogleAnalyticsConsent()
 initGoogleAnalyticsLinker()
@@ -93,16 +139,8 @@ if (cdnBaseUrl && import.meta.env.PROD) {
   }
 }
 
-// If the current domain is one of the vortex-<sport>.com stub sites, render the
-// lightweight "League Coming Soon" stub instead of the full Vortex Athletics app.
-const stubSite = resolveStubSite(window.location.hostname, window.location.search)
-const stubPreview = stubSite
-  ? isStubPreviewOnNonStubHost(window.location.hostname, window.location.search)
-  : false
-
 // Vercel handles this before serving HTML. Keep the same canonical redirect
 // for alternate/static hosting so this domain never renders a separate app.
-const isLegacyGymnasticsHost = /^(www\.)?vortex-gymnastics\.com$/i.test(window.location.hostname)
 if (isLegacyGymnasticsHost) {
   const path = window.location.pathname.replace(/\/$/, '') || '/'
   const destination = (publicLandingRedirects as Record<string, string>)[path] || path
@@ -111,7 +149,7 @@ if (isLegacyGymnasticsHost) {
   if (!target.hash) target.hash = window.location.hash
   window.location.replace(target.href)
 } else if (stubSite && stubSite.key !== 'gymnastics') {
-  createRoot(document.getElementById('root')!).render(
+  createRoot(root).render(
     <StrictMode>
       <ChunkLoadErrorBoundary>
         <HelmetProvider>
@@ -129,18 +167,8 @@ if (isLegacyGymnasticsHost) {
       </ChunkLoadErrorBoundary>
     </StrictMode>,
   )
+} else if (keepProgramSnapshot) {
+  void mountProgramSnapshot()
 } else {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <ChunkLoadErrorBoundary>
-        <HelmetProvider>
-          <Suspense fallback={appLoader}>
-            <BrowserRouter>
-              <App />
-            </BrowserRouter>
-          </Suspense>
-        </HelmetProvider>
-      </ChunkLoadErrorBoundary>
-    </StrictMode>,
-  )
+  renderWebsite(<App />)
 }

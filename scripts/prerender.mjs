@@ -230,6 +230,7 @@ const prerenderAppRoutes = async () => {
       ...HUB_PRERENDER_PATHS.map((routePath) => ({
         url: `${previewOrigin}${routePath}`,
         omitDisplayFontPreload: interOnlyContentPaths.has(routePath),
+        programPath: HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         outFile:
           routePath === '/'
             ? join(distDir, 'index.html')
@@ -258,15 +259,16 @@ const prerenderAppRoutes = async () => {
           )
           // Static HTML must be independent of live catalogs, schedules and
           // account state. Keep the poster and defer every video URL to React.
-          const snapshot = await page.evaluate((omitDisplayFontPreload) => {
+          const snapshot = await page.evaluate(({ omitDisplayFontPreload, programPath }) => {
             const html = document.documentElement.cloneNode(true)
             html.querySelectorAll('[data-prerender-dynamic]').forEach((node) => node.remove())
             html.querySelectorAll('video[src], video source[src]').forEach((node) => node.removeAttribute('src'))
             if (omitDisplayFontPreload) {
               html.querySelector('link[rel="preload"][href="/fonts/oswald-latin-variable.woff2"]')?.remove()
             }
+            if (programPath) html.querySelector('#root')?.setAttribute('data-prerendered-program', programPath)
             return { html: `<!doctype html>\n${html.outerHTML}`, title: document.title }
-          }, target.omitDisplayFontPreload)
+          }, { omitDisplayFontPreload: target.omitDisplayFontPreload, programPath: target.programPath })
           const html = dedupeHeadTags(snapshot.html, snapshot.title)
           snapshots.push({ outFile: target.outFile, html })
           lastError = null

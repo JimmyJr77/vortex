@@ -312,6 +312,10 @@ const verifyHtml = (
 
   const pageUrl = new URL(canonical)
   const pagePath = pageUrl.pathname
+  const snapshotRoot = tags(html, 'div').find((tag) => attribute(tag, 'id') === 'root') ?? ''
+  const expectedProgramSnapshot = shouldIndex && HUB_PROGRAM_PATHS.includes(pagePath) ? pagePath : ''
+  assert(attribute(snapshotRoot, 'data-prerendered-program') === expectedProgramSnapshot,
+    `${label}: the prerendered program marker must match the program route`)
   if (pageUrl.origin === HUB_ORIGIN) {
     for (const url of anchorUrls(html)) {
       if (!unifiedHosts.has(url.hostname.replace(/^www\./, ''))) continue

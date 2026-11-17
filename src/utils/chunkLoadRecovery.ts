@@ -19,6 +19,7 @@ export function isChunkLoadError(error: unknown): boolean {
     message.includes('importing a module script failed') ||
     message.includes('error loading dynamically imported module') ||
     message.includes('dynamically imported module') ||
+    message.includes('unable to preload css') ||
     message.includes('loading chunk') ||
     message.includes('load failed') ||
     message.includes('mime type')

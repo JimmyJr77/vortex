@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback, type ComponentType } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
@@ -24,7 +24,7 @@ import {
 } from './utils/portalSession'
 import CookieConsent from './components/CookieConsent'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
-import { PUBLIC_PROGRAMS } from './config/publicPrograms'
+import { PUBLIC_PROGRAMS, type PublicProgramPath } from './config/publicPrograms'
 import { isAdultBookingProgram } from './utils/publicBookingPrograms'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
 const Header = lazyWithRetry(() => import('./components/Header'))
@@ -81,7 +81,9 @@ function PublicLandingRedirect({ destination }: { destination: string }) {
   return <Navigate to={{ pathname: pathname || '/', search: location.search, hash: anchor ? `#${anchor}` : location.hash }} replace />
 }
 
-function App() {
+function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
+  programPageComponent?: ComponentType<{ path: PublicProgramPath }>
+}) {
   // Mount on first use, then retain each dialog's state across close and reopen.
   const [isContactFormOpen, setIsContactFormOpen] = useState<boolean | null>(null)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
@@ -371,7 +373,7 @@ function App() {
               switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
             } else setIsLoginOpen(true)
           }} />} />
-          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => <Route key={path} path={path} element={<PublicProgramPage path={path} />} />)}
+          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => <Route key={path} path={path} element={<ProgramPage path={path} />} />)}
           {Object.entries(publicLandingRedirects).map(([path, destination]) => <Route key={path} path={path} element={<PublicLandingRedirect destination={destination} />} />)}
           <Route path="/copy" element={<CopyPage />} />
           <Route path="/camp_interest" element={<CampInterestPage />} />
