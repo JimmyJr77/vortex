@@ -47,9 +47,14 @@ test.describe('Client-critical smoke flows', () => {
     }
 
     await page.goto('/fit-and-flip')
-    await page.getByRole('link', { name: 'Compare local youth sports and fitness options' }).click()
-    await expect(page).toHaveURL('/blog/youth-sports-bowie#choose-an-activity')
-    await expect(page.getByRole('heading', { name: 'Choose an activity your child wants to come back to' })).toBeInViewport()
+    await page.getByRole('link', { name: 'Compare youth athletic training in Bowie' }).click()
+    await expect(page).toHaveURL('/blog/youth-sports-bowie#compare-athletic-training')
+    const youthTraining = page.locator('#compare-athletic-training')
+    await expect(youthTraining.getByRole('heading')).toBeInViewport()
+    await expect(youthTraining.getByRole('link', { name: 'See Redline’s first-session format and ages' })).toBeVisible()
+    await expect(youthTraining.getByRole('link', { name: 'Check how teens start' })).toBeVisible()
+    await youthTraining.getByRole('link', { name: 'Check Cyclones trial and drop-in dates' }).click()
+    await expect(page).toHaveURL('/drop-in?program=Fit%20%26%20Flip')
   })
 
   test('adult gymnasts can compare nearby formats and reach Typhoons dates', async ({ page }) => {
@@ -59,7 +64,9 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult#nearby-adult-gymnastics')
     const comparison = page.locator('#nearby-adult-gymnastics')
     await expect(comparison.getByRole('heading')).toBeInViewport()
-    await expect(comparison.getByRole('listitem')).toHaveCount(3)
+    await expect(comparison.getByRole('listitem')).toHaveCount(5)
+    await expect(comparison.getByText(/MGA Gymnastics in Upper Marlboro/)).toBeVisible()
+    await expect(comparison.getByText(/Fairland/)).toBeVisible()
     await comparison.getByRole('link', { name: 'See Typhoons drop-in dates' }).click()
     await expect(page).toHaveURL('/drop-in?program=Adult%20Fitness%20%26%20Acrobatics')
     await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()

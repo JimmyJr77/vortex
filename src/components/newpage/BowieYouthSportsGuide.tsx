@@ -43,6 +43,7 @@ export default function BowieYouthSportsGuide() {
           <ul>
             <li><a href="#local-programs">Where to look</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
+            <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
           </ul>
         </nav>
@@ -125,6 +126,41 @@ export default function BowieYouthSportsGuide() {
           <p>
             A single-day class gives your child a chance to try an activity before committing to a weekly schedule.{' '}
             <Link to="/drop-in">See the current Vortex drop-in listings</Link>.
+          </p>
+        </section>
+
+        <section id="compare-athletic-training">
+          <h2>Compare youth fitness and athletic training in Bowie</h2>
+          <p>
+            If your child wants to get stronger, learn to tumble, or improve how they move for a sport,
+            compare what they’ll practice and how they can try a first session.
+          </p>
+          <ul>
+            <li>
+              <strong>Vortex Athletics Fit &amp; Flip.</strong> The 90-minute Cyclones classes serve ages 8–11 and 12–15.
+              Beginners can practice strength work, jumps, and tumbling progressions. Families can start with one
+              class or enroll weekly.{' '}
+              <Link to="/fit-and-flip#fit-flip-class-example">See a Fit &amp; Flip class example</Link> ·{' '}
+              <Link to={FIT_AND_FLIP_DROP_IN_HREF}>Check Cyclones trial and drop-in dates</Link>
+            </li>
+            <li>
+              <strong>Redline Athletics Bowie.</strong> The Bowie trial page describes a 60-minute small-group
+              session for ages 8–18 that includes speed, agility, strength, and power work. It also lists an Intro to
+              Sports program for ages 3–7.{' '}
+              <a href="https://booking.redlineathletics.com/free-trial-booking-page-bowie">See Redline’s first-session format and ages</a>
+            </li>
+            <li>
+              <strong>The GOAT Lab.</strong> Foundation Lab for ages 6–8 emphasizes coordination and basic
+              movements. Youth Lab for ages 9–12 adds running mechanics and changes of direction. Its Performance
+              Lab for ages 13 and up starts with an assessment.{' '}
+              <a href="https://www.goatlabperformance.com/programs/youth-athlete-development">See the younger age groups</a> ·{' '}
+              <a href="https://www.goatlabperformance.com/programs/the-performance-lab">Check how teens start</a>
+            </li>
+          </ul>
+          <p className="mt-4">
+            Before booking, ask what a coach will have your child try first and how they’ll adapt it for a
+            beginner. If your child already plays a sport, share their practice and game schedule with the coach.
+            Confirm whether your first visit is a regular class, a trial session, or a separate assessment.
           </p>
         </section>
 

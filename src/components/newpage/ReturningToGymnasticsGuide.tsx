@@ -68,7 +68,10 @@ export default function ReturningToGymnasticsGuide() {
 
         <section id="nearby-adult-gymnastics">
           <h2>Adult gymnastics classes and open gym near Bowie</h2>
-          <p>Ask what kind of instruction you’ll get and whether you can book one visit or need to enroll for a series.</p>
+          <p>
+            Look for a coached drop-in to try one class, a multi-week course for regular instruction, or open gym
+            for time to practice on your own. Ask the provider what feedback and equipment are available.
+          </p>
           <ul>
             <li>
               <strong>Vortex Athletics in Bowie.</strong> Typhoons is a 90-minute coached class for ages 18 and up
@@ -77,9 +80,20 @@ export default function ReturningToGymnasticsGuide() {
               <Link to={ADULT_DROP_IN_HREF}>See Typhoons drop-in dates</Link>
             </li>
             <li>
+              <strong>Prince George’s County Parks and Recreation in Laurel and Landover.</strong> The county lists
+              multi-week courses in basic gymnastics for ages 18 and up at Fairland Sports &amp; Aquatics Complex
+              and Prince George’s Sports &amp; Learning Complex. Look for adult gymnastics in the current guide.
+              {' '}<a href="https://www.pgparks.com/your-guide">Browse the county’s seasonal class guide</a>
+            </li>
+            <li>
               <strong>University of Maryland Gymkana in College Park.</strong> Gymkana offers instructor-led
               tumbling and trampoline classes for ages 14 and up. Choose a class from its multi-week session schedule.
               {' '}<a href="https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes">See Gymkana’s adult class options</a>
+            </li>
+            <li>
+              <strong>MGA Gymnastics in Upper Marlboro.</strong> Open gym is for ages 4 through adult and gives
+              participants time to practice on gymnastics and tumbling equipment. Coaches can help set up equipment.
+              {' '}<a href="https://www.mga-gymnastics.com/opengym.html">Check MGA’s open gym details</a>
             </li>
             <li>
               <strong>Docksiders Gymnastics in Millersville.</strong> Its adult open gym is self-paced for ages 16

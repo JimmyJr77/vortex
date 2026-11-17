@@ -213,6 +213,9 @@ export default function AthleticDevelopmentGuide() {
             <li>What do you change if a movement is too hard for my child to repeat with control?</li>
             <li>How would you fit this class around my child’s other practices and games?</li>
           </ul>
+          <p className="mt-4">
+            If you’re choosing a class nearby, <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#compare-athletic-training`}>compare youth athletic training options in Bowie</Link> and check how each program handles a first visit.
+          </p>
         </section>
 
         <aside className="athletic-guide-next" aria-labelledby="athletic-guide-next-title">

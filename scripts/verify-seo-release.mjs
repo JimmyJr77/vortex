@@ -598,8 +598,8 @@ const verifyHtml = (
         `${label}: missing the trial finder button in the first visit section`)
     }
     if (pagePath === '/fit-and-flip') {
-      assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#choose-an-activity`),
-        `${label}: Fit & Flip must link to the local sports and fitness comparison`)
+      assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#compare-athletic-training`),
+        `${label}: Fit & Flip must link to the Bowie youth athletic training comparison`)
       const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/<h3\b[^>]*>Speed and agility for youth sports<\/h3>/i.test(speedAgility),
         `${label}: missing the crawlable speed and agility heading at #speed-agility`)
@@ -691,7 +691,11 @@ const verifyHtml = (
       hasDropInProgramLink(nearbyLinks, 'Adult Fitness & Acrobatics') &&
       nearbyLinks.some(url => url.href === 'https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes') &&
       nearbyLinks.some(url => url.href === 'https://www.docksidersgymnastics.com/special-class-programs'),
-      `${label}: missing the three adult gymnastics options or links to their official class information`)
+      `${label}: missing adult gymnastics options or links to their official class information`)
+    assert(/Fairland/.test(nearby) && /Upper Marlboro/.test(nearby) &&
+      nearbyLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
+      nearbyLinks.some(url => url.href === 'https://www.mga-gymnastics.com/opengym.html'),
+      `${label}: missing adult county classes or the Upper Marlboro open gym and their official links`)
   }
 
   if (shouldIndex) {
@@ -772,6 +776,8 @@ const verifyHtml = (
           `${label}: missing the crawlable Fit & Flip guide link to ${hash}`)
       }
       assert(hasDropInProgramLink(links, 'Fit & Flip'), `${label}: missing the guide link to Cyclones drop-in dates`)
+      assert(links.some(url => url.href === `${bowieGuideCanonical}#compare-athletic-training`),
+        `${label}: missing the link to compare Bowie youth athletic training providers`)
     }
   }
 
@@ -816,6 +822,15 @@ const verifyHtml = (
     assert(links.some(url => url.href === 'https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/') &&
       /Sharks Squirts group introduces ages 5–8/.test(content),
       `${label}: missing the sourced South Bowie introductory basketball group`)
+    const training = content.match(/<section\b[^>]*\sid=["']compare-athletic-training["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const trainingLinks = anchorUrls(training)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#compare-athletic-training') &&
+      trainingLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-class-example`) &&
+      hasDropInProgramLink(trainingLinks, 'Fit & Flip') &&
+      trainingLinks.some(url => url.href === 'https://booking.redlineathletics.com/free-trial-booking-page-bowie') &&
+      trainingLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/youth-athlete-development') &&
+      trainingLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/the-performance-lab'),
+      `${label}: missing the crawlable comparison of Fit & Flip, Redline and The GOAT Lab`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
