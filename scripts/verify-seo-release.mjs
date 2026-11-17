@@ -460,6 +460,8 @@ const verifyHtml = (
     if (usesLegacyHeader) {
       const footer = html.match(/<footer\b[^>]*>[\s\S]*?<\/footer>/i)?.[0] ?? ''
       const footerLinks = anchorUrls(footer)
+      assert(!/\bstyle=["'][^"']*\bopacity\s*:\s*0(?:\s*[;"'])/i.test(footer),
+        `${label}: the static footer must be visible before JavaScript runs`)
       for (const path of HUB_PROGRAM_PATHS) {
         assert(footerLinks.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
           `${label}: expected one crawlable footer link to ${path}`)

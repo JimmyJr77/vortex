@@ -14,6 +14,25 @@ const cyclones: SchedulingCalendarEvent = {
 }
 
 test.describe('Client-critical smoke flows', () => {
+  test('the Contact menu supports keyboard navigation and restores focus on Escape', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/contact')
+    const openMenu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
+    const navigation = page.getByRole('navigation', { name: 'Main navigation' })
+    const adultGymnastics = navigation.getByRole('link', { name: 'Adult Gymnastics', exact: true })
+
+    await openMenu.press('Enter')
+    await expect(adultGymnastics).toBeVisible()
+    await adultGymnastics.press('Escape')
+    await expect(navigation).toBeHidden()
+    await expect(openMenu).toBeFocused()
+
+    await openMenu.press('Enter')
+    await adultGymnastics.press('Enter')
+    await expect(page).toHaveURL('/adult-gymnastics')
+    await expect(page.getByRole('heading', { name: 'Adult gymnastics and acrobatics in Bowie, MD', exact: true })).toBeVisible()
+  })
+
   test('families can compare boys’ apparatus classes and find a first gymnastics visit', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics#artistic')

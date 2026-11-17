@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { LayoutGrid, Menu, UserCircle, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useSiteHeaderHeight } from '../hooks/useSiteHeaderHeight'
@@ -51,7 +50,7 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
   return (
     <header
       ref={headerRef}
-      className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in"
+      className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in motion-reduce:animate-none"
       onKeyDown={(event) => {
         if (event.key !== 'Escape' || !isMenuOpen || event.defaultPrevented) return
         event.preventDefault()
@@ -71,19 +70,14 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
               hasMobilePrimaryActions ? 'mb-4' : 'mb-0'
             } min-[1075px]:mb-0`}
           >
-            <Link to="/" className="block min-w-0 flex-1 min-[1075px]:flex-none">
-              <motion.div 
-                className="flex items-center cursor-pointer"
-                whileHover={{ scale: 1.05 }}
-              >
-                <img 
-                  src={HUB_HEADER_LOGO} 
-                  alt="Vortex Athletics" 
-                  width="512"
-                  height="47"
-                  className="h-auto w-full max-w-64 min-[1075px]:max-w-80"
-                />
-              </motion.div>
+            <Link to="/" className="flex min-w-0 flex-1 items-center motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:scale-105 min-[1075px]:flex-none">
+              <img
+                src={HUB_HEADER_LOGO}
+                alt="Vortex Athletics"
+                width="512"
+                height="47"
+                className="h-auto w-full max-w-64 min-[1075px]:max-w-80"
+              />
             </Link>
 
             {/* Hamburger Menu Button - Only visible on mobile, next to logo */}
@@ -108,58 +102,42 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
             {showPrimaryActions && (
               <>
                 {/* Inquire Button */}
-                <motion.button
+                <button
+                  type="button"
                   onClick={onContactClick}
-                  className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm motion-safe:transition-all motion-safe:duration-300 hover:bg-red-700 motion-safe:hover:scale-105 motion-safe:active:scale-95 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"
                 >
                   Inquire
-                </motion.button>
+                </button>
 
                 {/* Classes & Events Button */}
                 <Link
                   to="/read-board"
-                  className="flex min-w-[3rem] flex-none items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black transition-all duration-300 hover:scale-105 hover:bg-gray-100 hover:shadow-lg min-[1075px]:min-w-0 min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
+                  className="flex min-w-[3rem] flex-none items-center justify-center gap-2 rounded-lg bg-white px-3 py-2 text-xs font-semibold text-black motion-safe:transition-all motion-safe:duration-300 motion-safe:hover:scale-105 motion-safe:active:scale-95 hover:bg-gray-100 hover:shadow-lg min-[1075px]:min-w-0 min-[1075px]:px-5 min-[1075px]:py-2.5 min-[1075px]:text-sm"
                   aria-label="Classes and Events"
                   title="Classes & Events"
                 >
-                  <motion.span
-                    tabIndex={-1}
-                    className="flex items-center justify-center gap-2"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    <span className="hidden min-[1075px]:inline">Classes &amp; Events</span>
-                  </motion.span>
+                  <LayoutGrid className="h-4 w-4 shrink-0" aria-hidden="true" />
+                  <span className="hidden min-[1075px]:inline">Classes &amp; Events</span>
                 </Link>
               </>
             )}
 
             {/* Member Dashboard or Login Button */}
             {isLoggedIn && onMemberDashboardClick ? (
-              <motion.button
+              <button
+                type="button"
                 onClick={onMemberDashboardClick}
-                className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm motion-safe:transition-all motion-safe:duration-300 hover:bg-red-700 motion-safe:hover:scale-105 motion-safe:active:scale-95 hover:shadow-lg flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0"
               >
                 Member Portal
-              </motion.button>
+              </button>
             ) : showPrimaryActions ? (
               <Link
                 to={getSiteEnrollHref()}
-                className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm transition-all duration-300 hover:bg-red-700 hover:scale-105 hover:shadow-lg inline-block flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0 text-center"
+                className="bg-vortex-red text-white px-4 py-2 min-[1075px]:px-5 min-[1075px]:py-2.5 rounded-lg font-semibold text-xs min-[1075px]:text-sm motion-safe:transition-all motion-safe:duration-300 hover:bg-red-700 motion-safe:hover:scale-105 motion-safe:active:scale-95 hover:shadow-lg inline-block flex-1 min-[1075px]:flex-none min-w-[80px] min-[1075px]:min-w-0 text-center"
               >
-                <motion.span
-                  tabIndex={-1}
-                  className="inline-block"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  Enroll
-                </motion.span>
+                Enroll
               </Link>
             ) : null}
 
@@ -181,16 +159,11 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
         </div>
 
         {/* Navigation Menu (Mobile & Desktop) */}
-        <motion.nav
+        <nav
           id="hub-main-navigation"
           aria-label="Main navigation"
-          className={`${isMenuOpen ? 'block' : 'hidden'} min-h-0 overflow-y-auto overscroll-contain`}
-          initial={{ opacity: 0, height: 0 }}
-          animate={{ 
-            opacity: isMenuOpen ? 1 : 0, 
-            height: isMenuOpen ? 'auto' : 0 
-          }}
-          transition={{ duration: 0.3 }}
+          className="min-h-0 overflow-y-auto overscroll-contain"
+          hidden={!isMenuOpen}
         >
           <div className={`py-4 space-y-4 ${NAV_MENU_DIVIDER_CLASS}`}>
             {HUB_NAV_MENU_ENTRIES.map((entry, index) => {
@@ -274,7 +247,7 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
               </Link>
             </div>
           </div>
-        </motion.nav>
+        </nav>
       </div>
     </header>
   )
