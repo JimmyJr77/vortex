@@ -250,6 +250,16 @@
   font-style: normal;
 }
 
+.np-program-visit-hours {
+  margin-top: 12px;
+  color: var(--np-muted);
+}
+
+.np-program-visit-hours h3 {
+  color: var(--np-ink);
+  font-weight: 650;
+}
+
 .np-program-visit .np-program-page-actions {
   margin-top: 0;
 }

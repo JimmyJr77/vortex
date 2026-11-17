@@ -48,37 +48,13 @@ const postalAddress = () => ({
   addressCountry: BUSINESS_NAP.addressCountry,
 })
 
-export const organizationSchema = (): JsonLd => ({
-  '@context': 'https://schema.org',
-  '@type': 'Organization',
-  '@id': `${HUB_ORIGIN}/#organization`,
-  name: SITE_NAME,
-  legalName: 'Vortex Athletics, LLC',
-  alternateName: ['Vortex Athletics and Gymnastics', 'Vortex Gymnastics'],
-  url: rootUrl(HUB_ORIGIN),
-  logo: `${HUB_ORIGIN}/red_vortex.png`,
-  address: postalAddress(),
-  email: TEAM_EMAIL,
-  telephone: BUSINESS_NAP.phone,
-  contactPoint: {
-    '@type': 'ContactPoint',
-    telephone: BUSINESS_NAP.phone,
-    email: TEAM_EMAIL,
-    contactType: 'customer service',
-    areaServed: 'US-MD',
-    availableLanguage: 'English',
-  },
-  location: { '@id': locationId },
-  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL],
-})
-
 export const webSiteSchema = (origin: string): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   '@id': `${origin}/#website`,
   url: rootUrl(origin),
   name: SITE_NAME,
-  publisher: { '@id': `${HUB_ORIGIN}/#organization` },
+  publisher: { '@id': locationId },
 })
 
 type ServiceDetails = { name: string; serviceType?: string; url: string }
@@ -102,19 +78,29 @@ const localServiceCatalog = () => ({
 })
 
 /** One stable local entity for the unified site, matching the Google profile. */
-const sportsActivityLocationSchema = ({ includeCatalog = false } = {}): JsonLd => ({
+const sportsActivityLocationSchema = ({ includeCatalog = false, includeHours = false } = {}): JsonLd => ({
   '@context': 'https://schema.org',
   '@type': 'SportsActivityLocation',
   '@id': locationId,
   name: BUSINESS_NAP.name,
+  legalName: 'Vortex Athletics, LLC',
   alternateName: [SITE_NAME, 'Vortex Gymnastics'],
   url: locationUrl,
   mainEntityOfPage: locationUrl,
+  logo: `${HUB_ORIGIN}/red_vortex.png`,
   description:
     'Youth and adult gymnastics plus Fit & Flip athletic development at Vortex Athletics and Gymnastics in Bowie, Maryland.',
   image: `${HUB_ORIGIN}${BUSINESS_FACILITY_PHOTO.src}`,
   telephone: BUSINESS_NAP.phone,
   email: TEAM_EMAIL,
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: BUSINESS_NAP.phone,
+    email: TEAM_EMAIL,
+    contactType: 'customer service',
+    areaServed: 'US-MD',
+    availableLanguage: 'English',
+  },
   address: postalAddress(),
   geo: {
     '@type': 'GeoCoordinates',
@@ -122,12 +108,14 @@ const sportsActivityLocationSchema = ({ includeCatalog = false } = {}): JsonLd =
     longitude: BUSINESS_GEO.longitude,
   },
   hasMap: GOOGLE_MAPS_URL,
-  openingHoursSpecification: BUSINESS_HOURS.map((slot) => ({
-    '@type': 'OpeningHoursSpecification',
-    dayOfWeek: slot.days.map((day) => `https://schema.org/${day}`),
-    opens: slot.opens,
-    closes: slot.closes,
-  })),
+  ...(includeHours ? {
+    openingHoursSpecification: BUSINESS_HOURS.map((slot) => ({
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: slot.days.map((day) => `https://schema.org/${day}`),
+      opens: slot.opens,
+      closes: slot.closes,
+    })),
+  } : {}),
   areaServed: localAreaServed,
   knowsAbout: [
     'Youth athletic development',
@@ -139,7 +127,6 @@ const sportsActivityLocationSchema = ({ includeCatalog = false } = {}): JsonLd =
     'Acrobatic gymnastics',
     'Trampoline and tumbling',
   ],
-  parentOrganization: { '@id': `${HUB_ORIGIN}/#organization` },
   ...(includeCatalog ? { hasOfferCatalog: localServiceCatalog() } : {}),
   sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL, NEXTDOOR_LOCATION_URL],
   potentialAction: {
@@ -219,10 +206,10 @@ export const eventSchema = (params: {
     address: postalAddress(),
   },
   organizer: {
-    '@type': 'Organization',
-    '@id': `${HUB_ORIGIN}/#organization`,
-    name: SITE_NAME,
-    url: rootUrl(HUB_ORIGIN),
+    '@type': 'SportsActivityLocation',
+    '@id': locationId,
+    name: BUSINESS_NAP.name,
+    url: locationUrl,
   },
 })
 
@@ -243,20 +230,22 @@ const crumb = (origin: string, name: string, path: string) => ({
 
 /** JSON-LD for a given hub (vortexathletics.com) route. */
 export const getHubSchema = (pathname: string): JsonLd[] => {
-  const schema: JsonLd[] = [organizationSchema(), webSiteSchema(HUB_ORIGIN)]
+  const program = Object.values(PUBLIC_PROGRAMS).find(({ path }) => path === pathname)
+  const includeHours = Boolean(program) || ['/', '/contact', '/support'].includes(pathname)
+  const schema: JsonLd[] = [
+    sportsActivityLocationSchema({ includeCatalog: pathname === '/', includeHours }),
+    webSiteSchema(HUB_ORIGIN),
+  ]
 
   if (pathname === '/') {
-    schema.push(sportsActivityLocationSchema({ includeCatalog: true }))
     schema.push(faqPageSchema(HOME_FAQS))
     return schema
   }
 
   const url = buildCanonical(HUB_ORIGIN, pathname)
-  const program = Object.values(PUBLIC_PROGRAMS).find(({ path }) => path === pathname)
   if (program) {
     return [
       ...schema,
-      sportsActivityLocationSchema(),
       breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, program.name, pathname)]),
       serviceSchema({ ...program, url }),
       faqPageSchema(program.faqs),
@@ -322,7 +311,6 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     )
   }
   if (pathname === '/vortex-athletics') {
-    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(YOUTH_TRAINING_FAQS))
     schema.push(
       serviceSchema({
@@ -344,12 +332,8 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     )
   }
   if (pathname === '/drop-in') {
-    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(DROP_IN_FAQS))
     schema.push(serviceSchema({ ...DROP_IN_SERVICE, url }))
-  }
-  if (pathname === '/contact') {
-    schema.push(sportsActivityLocationSchema())
   }
   if (guide) {
     schema.push({
@@ -361,8 +345,8 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       image: `${HUB_ORIGIN}${guide.image}`,
       datePublished: guide.datePublished,
       dateModified: guide.dateModified,
-      author: { '@id': `${HUB_ORIGIN}/#organization` },
-      publisher: { '@id': `${HUB_ORIGIN}/#organization` },
+      author: { '@id': locationId },
+      publisher: { '@id': locationId },
       inLanguage: 'en-US',
     })
   }
@@ -373,10 +357,9 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
 /** JSON-LD for a given gymnastics (vortex-gymnastics.com) route. */
 export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
   const origin = GYMNASTICS_ORIGIN
-  const schema: JsonLd[] = [organizationSchema(), webSiteSchema(origin)]
+  const schema: JsonLd[] = [sportsActivityLocationSchema(), webSiteSchema(origin)]
 
   if (pathname === '/' || pathname === '/gymnastics') {
-    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(GYMNASTICS_FAQS))
     if (pathname === '/gymnastics') {
       schema.push(
@@ -398,7 +381,6 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
         crumb(origin, 'Gymnastics Drop-In Classes', pathname),
       ]),
     )
-    schema.push(sportsActivityLocationSchema())
     schema.push(faqPageSchema(DROP_IN_FAQS))
     schema.push(
       courseSchema({
@@ -493,11 +475,9 @@ export const getGymnasticsSchema = (pathname: string): JsonLd[] => {
     )
     if (pathname === '/beginner-gymnastics') {
       schema.push(faqPageSchema(BEGINNER_GYMNASTICS_FAQS))
-      schema.push(sportsActivityLocationSchema())
     }
     if (pathname === '/homeschool-gymnastics') {
       schema.push(faqPageSchema(HOMESCHOOL_GYMNASTICS_FAQS))
-      schema.push(sportsActivityLocationSchema())
     }
   }
 

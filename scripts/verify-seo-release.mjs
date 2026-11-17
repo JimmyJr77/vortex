@@ -651,7 +651,7 @@ const verifyHtml = (
   }
 
   if (requireSchema) {
-    assert(jsonLd.length >= 2, `${label}: expected Organization and WebSite JSON-LD`)
+    assert(jsonLd.length >= 2, `${label}: expected the Bowie business and WebSite JSON-LD`)
     const parsed = []
     for (const [index, raw] of jsonLd.entries()) {
       try {
@@ -664,8 +664,15 @@ const verifyHtml = (
       const type = item?.['@type']
       return Array.isArray(type) ? type : [type]
     })
-    assert(types.includes('Organization'), `${label}: Organization JSON-LD is missing`)
-    assert(types.includes('WebSite'), `${label}: WebSite JSON-LD is missing`)
+    const locationId = `${HUB_ORIGIN}/#location`
+    const locations = parsed.filter(item => item?.['@type'] === 'SportsActivityLocation')
+    const location = locations[0]
+    const website = parsed.find(item => item?.['@type'] === 'WebSite')
+    assert(locations.length === 1 && location['@id'] === locationId && !types.includes('Organization'),
+      `${label}: one business entity must represent the local facility and organization`)
+    assert(location?.legalName === 'Vortex Athletics, LLC' && location?.logo === `${HUB_ORIGIN}/red_vortex.png` &&
+      location?.contactPoint?.telephone === location.telephone, `${label}: missing business identity or contact information`)
+    assert(website?.publisher?.['@id'] === locationId, `${label}: website publisher must reference the Bowie business`)
 
     if (pagePath === '/adult-gymnastics') {
       const question = 'Can I try adult gymnastics for free?'
@@ -684,6 +691,8 @@ const verifyHtml = (
         `${label}: article breadcrumb structured data must include the guide index`)
       assert(article?.mainEntityOfPage === canonical && article?.headline === h1s[0],
         `${label}: Article JSON-LD must match the canonical URL and visible heading`)
+      assert(article?.author?.['@id'] === locationId && article?.publisher?.['@id'] === locationId,
+        `${label}: the guide must credit the shared business entity`)
       const visibleDates = tags(html, 'time').map((tag) => attribute(tag, 'datetime'))
       const sitemapDate = HUB_SITEMAP_ENTRIES.find(({ path }) => path === pagePath)?.lastmod
       assert(isCalendarDate(article?.datePublished) && isCalendarDate(article?.dateModified) && article.datePublished <= article.dateModified,
@@ -703,18 +712,15 @@ const verifyHtml = (
     }
 
     if (['/', '/contact', ...publicServicePaths].includes(pagePath)) {
-      const location = parsed.find((item) => item?.['@type'] === 'SportsActivityLocation')
-      const locationId = `${HUB_ORIGIN}/#location`
       const locationUrl = `${HUB_ORIGIN}/contact`
-      const organization = parsed.find((item) => item?.['@type'] === 'Organization')
-      assert(location?.['@id'] === locationId && location.url === locationUrl && location.mainEntityOfPage === locationUrl &&
-        organization?.location?.['@id'] === locationId, `${label}: SportsActivityLocation must identify the shared Bowie location`)
+      assert(location?.url === locationUrl && location.mainEntityOfPage === locationUrl,
+        `${label}: SportsActivityLocation must identify the shared Bowie location`)
       assert(
         location?.name === 'Vortex Athletics and Gymnastics',
         `${label}: local business name does not match the Google Business Profile`,
       )
       assert(
-        location?.telephone === '+14434224794' && organization?.telephone === location.telephone,
+        location?.telephone === '+14434224794',
         `${label}: local business telephone is incorrect`,
       )
       assert(
@@ -763,6 +769,16 @@ const verifyHtml = (
           url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'),
         `${label}: expected directions to the verified Bowie listing`)
       }
+    }
+    const showsFacilityHours = ['/', '/contact', '/support', ...HUB_PROGRAM_PATHS].includes(pagePath)
+    if (showsFacilityHours) {
+      const hours = location?.openingHoursSpecification ?? []
+      assert(hours.length === 2 && hours[0]?.opens === '16:00' && hours[0]?.closes === '20:30' &&
+        hours[1]?.opens === '09:00' && hours[1]?.closes === '12:00' &&
+        decodeHtml(html).includes('Mon-Fri: 4:00-8:30 PM') && decodeHtml(html).includes('Sat: 9:00 AM-12:00 PM'),
+        `${label}: structured facility hours must match the visible hours`)
+    } else {
+      assert(!location?.openingHoursSpecification, `${label}: facility hours in structured data must be visible on the page`)
     }
   }
 }

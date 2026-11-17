@@ -55,8 +55,10 @@ internal links, GBP links, Search Console submissions, or citations.
 - Coordinates: `38.9564345, -76.7076355`
 
 These values live in `src/config/contact.ts`. Public location links and
-`SportsActivityLocation` JSON-LD must reuse that configuration. The location
-schema has the stable ID `https://vortexathletics.com/#location` on both sites.
+`SportsActivityLocation` JSON-LD must reuse that configuration. The facility,
+website publisher, and guide author share the business ID
+`https://vortexathletics.com/#location`. Include opening hours in the structured
+data only on pages that display them.
 
 ## Generated search files
 

@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
-import { BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -148,6 +148,10 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
               {BUSINESS_NAP.name}<br />
               {BUSINESS_NAP.streetAddress}, {BUSINESS_NAP.addressLocality}, {BUSINESS_NAP.addressRegion} {BUSINESS_NAP.postalCode}
             </address>
+            <div className="np-program-visit-hours">
+              <h3>Facility hours</h3>
+              <ul>{BUSINESS_HOURS.map(({ label }) => <li key={label}>{label}</li>)}</ul>
+            </div>
           </div>
           <div className="np-program-page-actions">
             <a className="np-program-plain-link" href={GOOGLE_DIRECTIONS_URL} data-analytics-cta="get_directions" data-analytics-section="program">
