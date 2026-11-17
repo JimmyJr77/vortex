@@ -395,7 +395,7 @@ test('Fit & Flip drop-in link shows Cyclones dates and keeps the program through
   await expect(dateOption).toBeVisible()
   await expect(gymnastics).toHaveCount(0)
 
-  await page.getByRole('link', { name: 'Browse all youth drop-ins', exact: true }).click()
+  await page.getByRole('link', { name: 'Browse all drop-in classes', exact: true }).click()
   await expect(page).toHaveURL('/drop-in')
   await expect(cyclones).toBeVisible()
   await expect(gymnastics).toBeVisible()

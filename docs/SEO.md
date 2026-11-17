@@ -152,9 +152,10 @@ npm run test:seo-live
 The release checks require clean links on indexable pages. Cross-domain consent
 links for returning visitors carry `vcid` in a browser-only fragment. On arrival,
 the app restores any section anchor and keeps the rest of the query string.
-The live check still tests legacy query-based `vcid` links on program pages, the
-class board, contact, and drop-in pages to verify their canonical and Open Graph
-URLs point to the clean pages.
+Legacy query-based `vcid` links still load so the browser can apply consent.
+They carry an HTTP `X-Robots-Tag: noindex`. The live check verifies that the
+response keeps its clean canonical and Open Graph URL and that ordinary
+booking and campaign parameters remain indexable.
 
 ## Page quality and performance guardrails
 

@@ -55,7 +55,7 @@ const isBowieDirections = (url) => url.origin === 'https://www.google.com' && ur
   url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const consentQueryParam = 'vcid'
-const consentVariantPaths = [...HUB_PROGRAM_PATHS, '/read-board', '/contact', '/drop-in']
+const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS, '/read-board', '/contact', '/drop-in', '/support', '/terms-of-service']
 const failures = []
 const indexedTitles = new Map()
 const indexedDescriptions = new Map()
@@ -1060,6 +1060,8 @@ const verifyHtml = (
           assert(items.some(({ itemOffered }) => itemOffered?.url === url && itemOffered['@id'] === `${url}#service` &&
             itemOffered.provider?.['@id'] === locationId), `${label}: the catalog must link ${path} to the Bowie facility`)
         }
+        const dropIn = items.find(({ itemOffered }) => itemOffered?.url === `${HUB_ORIGIN}/drop-in`)?.itemOffered
+        assert(/adult gymnastics/i.test(dropIn?.serviceType ?? ''), `${label}: the drop-in catalog must include adult gymnastics`)
       }
       if (publicServicePaths.includes(pagePath)) {
         const service = parsed.find((item) => item?.['@type'] === 'Service')
@@ -1067,6 +1069,9 @@ const verifyHtml = (
           `${label}: Service identity must match the canonical page`)
         assert(service?.provider?.['@id'] === locationId && service.availableChannel?.serviceLocation?.['@id'] === locationId &&
           service.areaServed === location?.areaServed, `${label}: Service must point to the Bowie facility`)
+        if (pagePath === '/drop-in') {
+          assert(/adult gymnastics/i.test(service?.serviceType ?? ''), `${label}: the drop-in service must include adult gymnastics`)
+        }
       }
       if (pagePath === '/contact') {
         assert(tags(html, 'img').some((tag) => `${HUB_ORIGIN}${attribute(tag, 'src')}` === location?.image && attribute(tag, 'alt')),
@@ -1215,10 +1220,13 @@ for (const set of expectedSets) {
       const canonical = canonicalFor(set.origin, path)
       const url = new URL(canonical)
       url.searchParams.set(consentQueryParam, 'c_seo_release_check')
+      url.searchParams.set('utm_source', 'seo_release_check')
       const label = `${canonical} with ${consentQueryParam}`
       const response = await fetch(url, { redirect: 'manual' })
       const html = await response.text()
       assert(response.ok, `${label}: returned HTTP ${response.status}; consent handoff requires a page response`)
+      assert(/\bnoindex\b/i.test(response.headers.get('x-robots-tag') ?? ''),
+        `${label}: legacy consent URLs must have an HTTP noindex directive`)
       const canonicals = linkValues(html, 'canonical')
       const ogUrls = metaValues(html, 'property', 'og:url')
       assert(canonicals.length === 1 && canonicals[0] === canonical,
@@ -1226,6 +1234,18 @@ for (const set of expectedSets) {
       assert(ogUrls.length === 1 && ogUrls[0] === canonical,
         `${label}: expected one og:url matching the clean URL`)
     }))
+
+    for (const path of ['/?utm_source=seo_release_check', '/drop-in?program=Adult+Fitness+%26+Acrobatics']) {
+      const response = await fetch(`${set.origin}${path}`, { redirect: 'manual' })
+      await response.body?.cancel()
+      assert(response.ok && !/\bnoindex\b/i.test(response.headers.get('x-robots-tag') ?? ''),
+        `${path}: booking and campaign URLs must remain available without a noindex header`)
+    }
+
+    const previewWithConsent = await fetch(`${set.origin}/?sport=soccer&${consentQueryParam}=c_seo_release_check`, { redirect: 'manual' })
+    await previewWithConsent.body?.cancel()
+    assert(previewWithConsent.ok && /\bnofollow\b/i.test(previewWithConsent.headers.get('x-robots-tag') ?? ''),
+      `${set.origin}: a legacy consent ID must not weaken the sport preview's nofollow header`)
 
     for (const path of ['/admin', '/?sport=soccer', ...SPA_ONLY_PATHS]) {
       const response = await fetch(`${set.origin}${path}`, { redirect: 'follow' })
@@ -1506,6 +1526,10 @@ for (const [source, destination] of snapshotRedirectRules) {
 const hasNoindexHeader = (rule) => (rule.headers ?? []).some((header) =>
   header.key?.toLowerCase() === 'x-robots-tag' && /\bnoindex\b/i.test(header.value ?? ''),
 )
+assert(headers.some(rule => rule.source === '/(.*)' && hasNoindexHeader(rule) &&
+  rule.has?.some(condition => condition.type === 'host' && condition.value === 'vortexathletics\\.com') &&
+  rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam)),
+  'vercel.json: legacy consent query URLs must have a noindex header on the canonical host')
 for (const [source, path] of Object.entries(legacyLandingRedirects)) {
   const destination = new URL(path, HUB_ORIGIN)
   assert(

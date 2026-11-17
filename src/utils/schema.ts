@@ -35,10 +35,10 @@ const localAreaServed = `${BUSINESS_NAP.addressLocality}, ${BUSINESS_NAP.address
 
 const DROP_IN_SERVICE = {
   path: '/drop-in',
-  name: 'Single-Day Drop-In Youth Classes',
-  serviceType: 'Single-day gymnastics and youth fitness classes',
+  name: 'Drop-In Gymnastics and Fitness Classes',
+  serviceType: 'Single-session youth gymnastics, youth fitness, and adult gymnastics',
   description:
-    'Single-day gymnastics, fitness, and youth athletic training classes in Bowie, MD without a monthly enrollment.',
+    'Book one available youth gymnastics, Fit & Flip youth fitness, or Typhoons adult gymnastics class in Bowie, MD.',
 } as const
 
 const postalAddress = () => ({

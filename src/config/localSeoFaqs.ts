@@ -2,9 +2,9 @@ import type { Faq } from './faqs'
 
 export const DROP_IN_FAQS: Faq[] = [
   {
-    question: 'Can my child attend one class without a monthly enrollment?',
+    question: 'Can I book just one class for myself or my child?',
     answer:
-      'Yes. Eligible drop-in openings let families reserve one available class date without starting a monthly enrollment. Availability depends on the class schedule and remaining capacity.',
+      'Yes. Choose an available youth gymnastics, Fit & Flip, or adult gymnastics date for the person attending. A drop-in reserves only that class.',
   },
   {
     question: 'Which drop-in dates accept a free trial?',

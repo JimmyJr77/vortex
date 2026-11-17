@@ -326,6 +326,14 @@
   ],
   "headers": [
     {
+      "source": "/(.*)",
+      "has": [
+        { "type": "host", "value": "vortexathletics\\.com" },
+        { "type": "query", "key": "vcid" }
+      ],
+      "headers": [{ "key": "X-Robots-Tag", "value": "noindex" }]
+    },
+    {
       "source": "/assets/(.*)",
       "headers": [
         {

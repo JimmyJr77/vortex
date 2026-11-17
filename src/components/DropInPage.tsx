@@ -256,7 +256,7 @@ export default function DropInPage() {
             <Link className="font-semibold underline underline-offset-4" to="/adult-gymnastics#class-format">See what to expect at your first adult class</Link>.
           </>}
           {scopedProgram !== ADULT_BOOKING_PROGRAM && <>{' '}
-            <Link className="font-semibold underline underline-offset-4" to="/drop-in">Browse all youth drop-ins</Link>.
+            <Link className="font-semibold underline underline-offset-4" to="/drop-in">Browse all drop-in classes</Link>.
           </>}
         </p> : <>
           <p className="np-drop-in-intro">
