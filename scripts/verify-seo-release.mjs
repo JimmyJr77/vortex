@@ -629,6 +629,8 @@ const verifyHtml = (
         `${label}: missing the Fit & Flip price comparison and its crawlable booking and trial links`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
       const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(anchorUrls(firstClass).some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#fitness-without-a-team`),
+        `${label}: Fit & Flip age guidance must link to the local fitness alternatives`)
       assert(tags(firstClass, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
         `${label}: missing the Fit & Flip trial finder button`)
       assert(anchorUrls(firstClass).some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-class-pricing`),
@@ -777,6 +779,9 @@ const verifyHtml = (
       assert(/Do kids need weights to get stronger\?/.test(readiness) &&
         anchorUrls(readiness).some(url => url.href === 'https://www.cdc.gov/physical-activity-basics/guidelines/children.html'),
         `${label}: missing the CDC-backed section on building strength through play`)
+      assert(/hip hinge/.test(readiness) && /light kettlebell/.test(readiness) &&
+        anchorUrls(readiness).some(url => url.href === `${watchUrl}#strength-and-handstand`),
+        `${label}: missing the coached strength progression or training film example`)
       assert(/The first two steps of a sprint/i.test(progress) && /counts controlled starts/i.test(progress),
         `${label}: missing the Athleticism Accelerator coaching example for checking progress`)
       assert(links.some((url) => url.href === fitAndFlipCanonical),
@@ -859,6 +864,13 @@ const verifyHtml = (
       homeschoolLinks.some(url => url.href === 'https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex') &&
       /individual enrollment/.test(homeschool) && /homeschool groups ages 5–17/.test(homeschool),
       `${label}: missing the comparison of regular gymnastics, daytime homeschool classes, and group PE`)
+    const fitness = content.match(/<section\b[^>]*\sid=["']fitness-without-a-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const fitnessLinks = anchorUrls(fitness)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#fitness-without-a-team') &&
+      fitnessLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#teen`) &&
+      fitnessLinks.some(url => url.href === 'https://www.pgparks.com/facilities/south-bowie-community-center') &&
+      fitnessLinks.some(url => url.href === 'https://www.cityofbowie.org/278/Programs-at-the-Gym'),
+      `${label}: missing the local comparison of coached youth gymnastics, open gym, and movement sessions`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''

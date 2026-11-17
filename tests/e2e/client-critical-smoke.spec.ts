@@ -14,6 +14,34 @@ const cyclones: SchedulingCalendarEvent = {
 }
 
 test.describe('Client-critical smoke flows', () => {
+  test('Fit & Flip links families to fitness alternatives by age', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/fit-and-flip#fit-flip-trial-age')
+    await page.getByRole('link', { name: 'Compare Bowie fitness options by age' }).click()
+
+    await expect(page).toHaveURL('/blog/youth-sports-bowie#fitness-without-a-team')
+    const fitness = page.locator('#fitness-without-a-team')
+    await expect(fitness.getByRole('heading')).toBeInViewport()
+    await expect(fitness.getByRole('link', { name: 'See South Bowie’s open gym hours' }))
+      .toHaveAttribute('href', 'https://www.pgparks.com/facilities/south-bowie-community-center')
+    await fitness.getByRole('link', { name: 'See gymnastics options for teens' }).click()
+    await expect(page).toHaveURL('/gymnastics#teen')
+    await expect(page.locator('#teen').getByRole('heading')).toBeInViewport()
+  })
+
+  test('Fit & Flip strength guidance leads to the kettlebell film moment', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/fit-and-flip#strength')
+    await page.getByRole('link', { name: 'See how kids progress from bodyweight to light resistance' }).click()
+
+    await expect(page).toHaveURL('/blog/athletic-development-young-athletes#strength-training-readiness')
+    const readiness = page.locator('#strength-training-readiness')
+    await expect(readiness.getByRole('heading', { level: 2 })).toBeInViewport()
+    await readiness.getByRole('link', { name: 'See a kettlebell swing in the Vortex training film' }).click()
+    await expect(page).toHaveURL('/watch/training-at-vortex#strength-and-handstand')
+    await expect(page.getByRole('link', { name: 'Play from 0:12', exact: true })).toBeInViewport()
+  })
+
   test('homeschool families can compare local options and return to gymnastics class times', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics#homeschool')

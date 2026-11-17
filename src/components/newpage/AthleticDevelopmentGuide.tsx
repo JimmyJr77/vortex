@@ -196,9 +196,22 @@ export default function AthleticDevelopmentGuide() {
             In a coached class, a child can get feedback on one movement and practice it before increasing the difficulty.
             {' '}<a href="https://www.cdc.gov/physical-activity-basics/guidelines/children.html">CDC guidance on age-appropriate activity</a>
           </p>
+          <h3 className="athletic-guide-subheading">What coaches look for before adding weight</h3>
           <p>
-            At Vortex, Fit &amp; Flip has Cyclones groups for ages 8–11 and 12–15. If you’re considering a class,
-            ask the coach what your child would start with and what they would look for before adding resistance.
+            A coach might teach a hip hinge by having an athlete move their hips back, then stand tall again.
+            The coach watches whether the athlete can repeat the motion while keeping their balance and controlling
+            the return to standing. Once the motion is consistent, the coach might add a light kettlebell for a
+            controlled lift and lower, then check whether the movement stays steady.{' '}
+            <a href="https://publications.aap.org/pediatrics/article/145/6/e20201011/76942/Resistance-Training-for-Children-and-Adolescents">Read the American Academy of Pediatrics’ guidance on adding resistance</a>.
+          </p>
+          <p>
+            A kettlebell swing uses the hip hinge to produce power. Watch how the athlete straightens
+            at the hips to move the weight.{' '}
+            <Link to={`${trainingFilm.path}#strength-and-handstand`}>See a kettlebell swing in the Vortex training film</Link>.
+          </p>
+          <p>
+            At Vortex, Fit &amp; Flip has Cyclones groups for ages 8–11 and 12–15. Ask the coach what movement
+            your child would start with.
             {' '}<Link to="/fit-and-flip#training-fit">See Fit &amp; Flip options for beginners</Link>.
           </p>
         </section>

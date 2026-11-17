@@ -279,7 +279,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. These patterns help athletes support their body weight in gymnastics and control their position when they change direction in sports.',
             link: {
               href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#strength-training-readiness`,
-              label: 'When kids are ready for strength training',
+              label: 'See how kids progress from bodyweight to light resistance',
               analyticsKey: 'read_youth_strength_readiness',
             },
           },
@@ -338,7 +338,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'fit-flip-trial-age',
             heading: 'Which Cyclones age group should I choose?',
-            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. Contact Vortex for options outside the 8–15 age range.',
+            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. If your child is under 8 or over 15, compare gymnastics, open gym, and movement classes by age.',
+            link: { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#fitness-without-a-team`, label: 'Compare Bowie fitness options by age', analyticsKey: 'read_bowie_youth_sports_guide' },
           },
           {
             id: 'book-fit-flip-trial',

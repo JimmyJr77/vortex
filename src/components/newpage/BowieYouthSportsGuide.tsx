@@ -45,6 +45,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#local-programs">Where to look</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
             <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
+            <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
             <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
           </ul>
@@ -84,9 +85,6 @@ export default function BowieYouthSportsGuide() {
               activities. Membership is limited to residents within Bowie’s city limits. Guests need to come with a
               member. Check youth supervision rules before visiting.{' '}
               <a href="https://www.cityofbowie.org/104/Gymnasium">Check city gym membership and rules</a>
-              {' '}The city also runs separate Wiggle and Giggle sessions for residents and nonresidents. They’re
-              designed for ages 1–6, and the city also welcomes ages 7–10.{' '}
-              <a href="https://www.cityofbowie.org/278/Programs-at-the-Gym">See the city’s gym programs</a>
             </li>
             <li>
               <strong>Bowie Ice Arena.</strong> A public skate gives beginners a chance to try the ice before committing
@@ -165,6 +163,35 @@ export default function BowieYouthSportsGuide() {
             beginner. If your child already plays a sport, share their practice and game schedule with the coach.
             Confirm whether your first visit is a regular class, a trial session, or a separate assessment.
           </p>
+        </section>
+
+        <section id="fitness-without-a-team">
+          <h2>Fitness without joining a team</h2>
+          <p>
+            A weekly class teaches skills in stages. A movement session or open gym gives kids a way to be active
+            on days that work for your family.
+          </p>
+          <ul>
+            <li>
+              <strong>Coached gymnastics for kids and teens.</strong> Vortex’s beginner Tornadoes classes teach
+              rolls, cartwheels, and landings. First-time gymnasts ages 6–17 can look for a trial. Teens who have
+              trained before can look for a placement assessment.{' '}
+              <Link to="/gymnastics#teen">See gymnastics options for teens</Link> ·{' '}
+              <Link to="/gymnastics#first-visit">Find a first gymnastics class</Link>
+            </li>
+            <li>
+              <strong>Recreational open gym for older kids.</strong> South Bowie Community Center lists separate
+              Pre-Teen Night sessions for ages 10–12 and Teen Night sessions for ages 13–17. Check current open gym
+              hours and admission before you go.{' '}
+              <a href="https://www.pgparks.com/facilities/south-bowie-community-center">See South Bowie’s open gym hours</a>
+            </li>
+            <li>
+              <strong>Playful movement for younger children.</strong> Bowie’s Wiggle and Giggle sessions are designed
+              for ages 1–6, and children ages 7–10 can also participate. Individual sessions can feature dance, yoga,
+              tumbling, or other movement activities.{' '}
+              <a href="https://www.cityofbowie.org/278/Programs-at-the-Gym">Check Bowie’s upcoming movement sessions</a>
+            </li>
+          </ul>
         </section>
 
         <section id="homeschool-pe">
