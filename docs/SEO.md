@@ -28,7 +28,7 @@ internal links, GBP links, Search Console submissions, or citations.
   | `/gymnastics` | Youth gymnastics in Bowie: beginner, developmental, team, and discipline options |
   | `/fit-and-flip` | Youth athleticism development, sports performance training, and youth fitness in Bowie |
   | `/adult-gymnastics` | Adult gymnastics, fitness, and introductory acrobatics in Bowie |
-  | `/blog` | Browse the published guides to youth sports, athletic development, and gymnastics |
+  | `/blog` | Browse the published guides to youth sports, athletic development, and youth and adult gymnastics |
 
 - Legacy gymnastics slugs and retired campaigns redirect permanently to the
   relevant youth gymnastics section. Legacy sports performance and conditioning
@@ -191,6 +191,7 @@ These actions require access to Google and cannot be completed by a code build.
    - `https://vortexathletics.com/blog/youth-sports-bowie`
    - `https://vortexathletics.com/blog/preschool-gymnastics-what-toddlers-learn`
    - `https://vortexathletics.com/blog/gymnastics-vs-tumbling`
+   - `https://vortexathletics.com/blog/returning-to-gymnastics-as-an-adult`
    - `https://vortexathletics.com/`
 4. Confirm Google-selected canonical equals the declared canonical after the
    next crawl. Monitor Page Indexing, Core Web Vitals, and non-brand queries.

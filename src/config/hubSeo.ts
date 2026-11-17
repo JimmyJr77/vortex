@@ -49,9 +49,9 @@ export const HUB_ROUTES: HubRouteSeo[] = [
   },
   {
     path: '/drop-in',
-    title: 'Drop-In Youth Classes in Bowie, MD | Vortex',
+    title: 'Drop-In Gymnastics & Fitness Classes in Bowie, MD | Vortex',
     description:
-      'Book a single gymnastics, fitness, or youth athletic training class in Bowie, MD without monthly enrollment. Browse live drop-in openings.',
+      'Book a single youth gymnastics, Fit & Flip, or adult gymnastics class in Bowie, MD. Check drop-in dates and prices for your program.',
   },
   {
     path: '/contact',

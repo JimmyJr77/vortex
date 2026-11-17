@@ -4,6 +4,7 @@ import { BUSINESS_FACILITY_PHOTO } from './contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
+import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
 import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF, FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
@@ -241,7 +242,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         description: 'Typhoons pairs strength, conditioning, and mobility with introductory acrobatics. Expect to practice supporting your body weight, balancing, and moving through a range you can control.',
         topics: [
           { id: 'adult-beginners', heading: 'Starting gymnastics as an adult', description: 'You can start without a gymnastics background. Tell your coach it’s your first class and ask for a starting version of each movement you can practice with control.' },
-          { id: 'returning-gymnasts', heading: 'Returning to gymnastics', description: 'Tell your coach what you used to practice and what you’d like to work toward now. Start with movements you can repeat comfortably and ask what to practice before revisiting a previous skill.' },
+          {
+            id: 'returning-gymnasts',
+            heading: 'Returning to gymnastics',
+            description: 'Tell your coach what you used to practice and what you’d like to work toward now. Start with movements you can repeat comfortably and ask what to practice before revisiting a previous skill.',
+            link: {
+              href: RETURNING_TO_GYMNASTICS_GUIDE.path,
+              label: 'Read the guide to returning as an adult',
+              analyticsKey: 'read_returning_to_gymnastics_guide',
+            },
+          },
         ],
       },
       {

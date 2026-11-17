@@ -13,6 +13,7 @@ import {
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
   PRESCHOOL_GYMNASTICS_GUIDE_PATH,
+  RETURNING_TO_GYMNASTICS_GUIDE_PATH,
   SITE_NAME,
   SPA_ONLY_PATHS,
   SPA_SHELL_PATH,
@@ -444,6 +445,8 @@ const verifyHtml = (
         `${label}: missing adult registration and first-visit guidance`)
       assert(hasDropInProgramLink(anchorUrls(firstVisit), 'Adult Fitness & Acrobatics'),
         `${label}: adult first-visit guidance must link to the Typhoons drop-in schedule`)
+      assert(mainLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, RETURNING_TO_GYMNASTICS_GUIDE_PATH)),
+        `${label}: adult gymnastics must link to the guide for returning gymnasts`)
     }
     if (pagePath === '/') {
       for (const path of HUB_PROGRAM_PATHS) {
@@ -459,6 +462,12 @@ const verifyHtml = (
         `${label}: missing a crawlable ${action?.path ?? 'program action'} link in main content`,
       )
     }
+  }
+
+  if (shouldIndex && pagePath === RETURNING_TO_GYMNASTICS_GUIDE_PATH) {
+    const guideLinks = anchorUrls(html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? '')
+    assert(guideLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, '/adult-gymnastics')),
+      `${label}: the guide must link to the adult gymnastics program`)
   }
 
   if (shouldIndex) {

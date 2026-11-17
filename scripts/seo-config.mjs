@@ -8,6 +8,7 @@ export const YOUTH_ATHLETIC_GUIDE_PATH = publicArticles.athleticDevelopment.path
 export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = publicArticles.bowieYouthSports.path
 export const PRESCHOOL_GYMNASTICS_GUIDE_PATH = publicArticles.preschoolGymnastics.path
 export const GYMNASTICS_VS_TUMBLING_GUIDE_PATH = publicArticles.gymnasticsVsTumbling.path
+export const RETURNING_TO_GYMNASTICS_GUIDE_PATH = publicArticles.returningToGymnastics.path
 export const HUB_ARTICLE_PATHS = Object.values(publicArticles).map(({ path }) => path)
 export const HUB_GUIDE_INDEX_PATH = guideIndex.path
 

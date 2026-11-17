@@ -14,8 +14,8 @@ export default function TrainingGuidesIndex() {
           <GuideBreadcrumb />
           <h1>{guideIndex.heading}</h1>
           <p className="athletic-guide-lead">
-            Find youth sports in Bowie, see what kids practice in gymnastics, and learn how
-            coaches build strength, speed, and body control.
+            Find youth sports in Bowie, see what kids practice in gymnastics, or plan your
+            return to gymnastics as an adult.
           </p>
         </div>
       </header>

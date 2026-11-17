@@ -32,6 +32,7 @@ test('consented editorial page views keep their canonical labels and discard pri
     '/blog/athletic-development-young-athletes',
     '/blog/preschool-gymnastics-what-toddlers-learn',
     '/blog/gymnastics-vs-tumbling',
+    '/blog/returning-to-gymnastics-as-an-adult',
   ]) {
     assert.equal(view(path.toUpperCase() + '/?vcid=private-token#private-anchor').page_path, path)
   }

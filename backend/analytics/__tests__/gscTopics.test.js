@@ -229,11 +229,12 @@ test('compares current and former landing pages in two finalized windows across 
   const trainingGuides = 'https://vortexathletics.com/blog'
   const preschoolGuide = 'https://vortexathletics.com/blog/preschool-gymnastics-what-toddlers-learn'
   const tumblingGuide = 'https://vortexathletics.com/blog/gymnastics-vs-tumbling'
+  const returningGuide = 'https://vortexathletics.com/blog/returning-to-gymnastics-as-an-adult'
   const pages = [
     homepage, gymnastics, fitAndFlip, formerYouthSports, adultGymnastics, trainingGuides,
     'https://vortexathletics.com/blog/youth-sports-bowie',
     'https://vortexathletics.com/blog/athletic-development-young-athletes',
-    preschoolGuide, tumblingGuide,
+    preschoolGuide, tumblingGuide, returningGuide,
   ]
   const query = t.mock.fn(async ({ requestBody }) => ({
     data: { rows: requestBody.startDate === '2026-10-16' ? [
@@ -245,6 +246,7 @@ test('compares current and former landing pages in two finalized windows across 
       { keys: [trainingGuides], impressions: 6, clicks: 1 },
       { keys: [preschoolGuide], impressions: 4, clicks: 0 },
       { keys: [tumblingGuide], impressions: 8, clicks: 1 },
+      { keys: [returningGuide], impressions: 5, clicks: 0 },
     ] : [
       { keys: [homepage.slice(0, -1)], impressions: 63, clicks: 2 },
       { keys: [gymnastics], impressions: 21, clicks: 1 },
@@ -261,14 +263,14 @@ test('compares current and former landing pages in two finalized windows across 
   assert.deepEqual(report.previous, { startDate: '2026-09-18', endDate: '2026-10-15', status: 'ok' })
   assert.deepEqual(report.pages.map(({ page }) => page), pages)
   assert.deepEqual(report.pages.map(({ currentImpressions, previousImpressions }) => [currentImpressions, previousImpressions]),
-    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [6, null], [null, null], [null, null], [4, null], [8, 3]])
+    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [6, null], [null, null], [null, null], [4, null], [8, 3], [5, null]])
   assert.equal(query.mock.callCount(), 2)
   for (const [index, { arguments: [request, options] }] of query.mock.calls.entries()) {
     const { dimensionFilterGroups, ...body } = request.requestBody
     const { startDate, endDate } = [report.current, report.previous][index]
     assert.equal(request.siteUrl, PROPERTY)
     assert.deepEqual(body, {
-      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 11,
+      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 12,
     })
     assert.deepEqual(options, { timeout: 10000, retry: false })
     assert.equal(dimensionFilterGroups.length, 1)

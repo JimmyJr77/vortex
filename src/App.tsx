@@ -52,6 +52,7 @@ const publicGuideRoutes = [
   { path: publicArticles.bowieYouthSports.path, Component: lazyWithRetry(() => import('./components/newpage/BowieYouthSportsGuide')) },
   { path: publicArticles.preschoolGymnastics.path, Component: lazyWithRetry(() => import('./components/newpage/PreschoolGymnasticsGuide')) },
   { path: publicArticles.gymnasticsVsTumbling.path, Component: lazyWithRetry(() => import('./components/newpage/GymnasticsVsTumblingGuide')) },
+  { path: publicArticles.returningToGymnastics.path, Component: lazyWithRetry(() => import('./components/newpage/ReturningToGymnasticsGuide')) },
 ]
 const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
 const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
