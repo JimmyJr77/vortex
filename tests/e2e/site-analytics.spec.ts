@@ -99,7 +99,7 @@ test('keeps mobile booking and consent choices reachable without opting in', asy
   const consent = page.getByRole('dialog', { name: 'Cookie consent' })
 
   for (const { path, name, role } of [
-    { path: '/gymnastics', name: 'Find a free gymnastics trial', role: 'button' },
+    { path: '/gymnastics', name: 'Find a free gymnastics trial', role: 'link' },
     { path: '/fit-and-flip', name: 'Browse Fit & Flip classes', role: 'link' },
     { path: '/adult-gymnastics', name: 'See Typhoons drop-in dates', role: 'link' },
   ] as const) {
@@ -121,7 +121,7 @@ test('keeps mobile booking and consent choices reachable without opting in', asy
   expect((await consent.boundingBox())?.height).toBeLessThanOrEqual(140)
   await expect(consent.getByRole('link', { name: 'Privacy Policy' })).toBeInViewport({ ratio: 1 })
 
-  const shortScreenTrial = page.getByRole('button', { name: 'Find a free gymnastics trial', exact: true }).first()
+  const shortScreenTrial = page.locator('.np-program-hero').getByRole('link', { name: 'Find a free gymnastics trial', exact: true })
   await page.mouse.move(160, 300)
   await page.mouse.wheel(0, 240)
   await expect.poll(() => shortScreenTrial.evaluate(element => {

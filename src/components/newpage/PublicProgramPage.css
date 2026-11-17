@@ -309,7 +309,8 @@
   border-bottom: 1px solid var(--np-line);
 }
 
-.np-program-page :is(section[id], article[id], details[id], .np-youth-booking-summary) {
+.np-program-page :is(section[id], article[id], details[id], .np-youth-booking-summary),
+.np-program-page #open-free-trial {
   scroll-margin-top: calc(var(--site-header-height, 90px) + 18px);
 }
 

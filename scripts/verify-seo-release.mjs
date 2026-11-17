@@ -35,6 +35,9 @@ const live = process.argv.includes('--live')
 const legacyLandingRedirects = JSON.parse(
   readFileSync(join(root, 'src/config/publicLandingRedirects.json'), 'utf8'),
 )
+const { fitAndFlip, fitAndFlipSrcSet, fitAndFlipPreview } = JSON.parse(
+  readFileSync(join(root, 'src/config/publicSearchPhotos.json'), 'utf8'),
+)
 const unifiedHosts = new Set([HUB_ORIGIN, GYMNASTICS_ORIGIN]
   .map((origin) => new URL(origin).hostname.replace(/^www\./, '')))
 const legacyDestinations = [...new Set(Object.values(legacyLandingRedirects))]
@@ -52,6 +55,8 @@ const watchUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.path}`
 const videoUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.assetPath}`
 const videoThumbnailUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.thumbnail}`
 const homePreviewUrl = `${HUB_ORIGIN}${HOME_PREFERRED_PHOTO.src}`
+const fitAndFlipPreviewUrl = `${HUB_ORIGIN}${fitAndFlipPreview}`
+const fitAndFlipPreviewPaths = ['/fit-and-flip', BOWIE_YOUTH_SPORTS_GUIDE_PATH]
 const videoDescriptionsPath = '/newpage/training-film-descriptions.vtt'
 const isBowieDirections = (url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
   url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
@@ -322,6 +327,8 @@ const verifyHtml = (
   const ogImageAlts = metaValues(html, 'property', 'og:image:alt')
   const ogSiteNames = metaValues(html, 'property', 'og:site_name')
   const twitterCards = metaValues(html, 'name', 'twitter:card')
+  const twitterImages = metaValues(html, 'name', 'twitter:image')
+  const twitterImageAlts = metaValues(html, 'name', 'twitter:image:alt')
   const h1s = h1Values(html)
   const jsonLd = jsonLdValues(html)
   const eagerThirdPartyScripts = tags(html, 'script')
@@ -470,6 +477,16 @@ const verifyHtml = (
         : attribute(hint, 'href') === attribute(hero, 'src') && !attribute(hint, 'imagesrcset')
       assert(matchingSource && attribute(hint, 'type') === (preferredSource ? 'image/avif' : ''),
         `${label}: the hero image hint must match the displayed image without requesting a second candidate`)
+      if (fitAndFlipPreviewPaths.includes(pagePath)) {
+        const heroAlt = attribute(hero, 'alt')
+        assert(ogImages[0] === fitAndFlipPreviewUrl && ogImageAlts[0] === heroAlt &&
+          twitterImages.length === 1 && twitterImages[0] === fitAndFlipPreviewUrl &&
+          twitterImageAlts.length === 1 && twitterImageAlts[0] === heroAlt,
+          `${label}: the social previews must use the original Fit & Flip photo with the hero alt text`)
+        assert(attribute(hero, 'src') === fitAndFlip && attribute(hero, 'srcset') === fitAndFlipSrcSet &&
+          attribute(hero, 'width') === '900' && attribute(hero, 'height') === '675',
+          `${label}: the displayed and preloaded hero must keep the responsive Fit & Flip crop`)
+      }
     }
     if (['/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path].includes(pagePath)) {
       assert(!preloads.some(tag => attribute(tag, 'href') === '/fonts/oswald-latin-variable.woff2'),
@@ -483,8 +500,6 @@ const verifyHtml = (
       assert(rotates || rendered.includes(image), `${label}: sitemap photo must appear on the page with alt text (${image})`)
     }
     if (pagePath === '/') {
-      const twitterImages = metaValues(html, 'name', 'twitter:image')
-      const twitterImageAlts = metaValues(html, 'name', 'twitter:image:alt')
       assert(ogImages[0] === homePreviewUrl && ogImageAlts[0] === HOME_PREFERRED_PHOTO.alt &&
         twitterImages.length === 1 && twitterImages[0] === homePreviewUrl &&
         twitterImageAlts.length === 1 && twitterImageAlts[0] === HOME_PREFERRED_PHOTO.alt,
@@ -702,6 +717,16 @@ const verifyHtml = (
     const mainLinks = anchorUrls(mainHtml)
     if (['/', '/gymnastics', '/fit-and-flip'].includes(pagePath)) {
       assert(mainLinks.some(url => url.href === watchUrl), `${label}: missing a crawlable link to the Vortex training film`)
+    }
+    if (pagePath === '/gymnastics' || pagePath === '/fit-and-flip') {
+      const hero = mainHtml.match(/<section\b[^>]*\bclass=["']np-program-hero["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const trialLink = tags(hero, 'a').find(tag => attribute(tag, 'data-analytics-cta') === 'free_trial') ?? ''
+      const fallbackId = pagePath === '/gymnastics' ? 'first-visit' : 'training-fit'
+      const fallback = mainHtml.match(new RegExp(`<section\\b[^>]*\\sid=["']${fallbackId}["'][^>]*>[\\s\\S]*?<\\/section>`, 'i'))?.[0] ?? ''
+      assert(attribute(trialLink, 'href') === '#open-free-trial' &&
+        attribute(trialLink, 'aria-haspopup') === 'dialog' &&
+        tags(fallback, 'h2').some(tag => attribute(tag, 'id') === 'open-free-trial'),
+        `${label}: the hero trial link must reach its visible first-class guidance before JavaScript starts`)
     }
     if (HUB_PROGRAM_PATHS.includes(pagePath)) {
       const visit = mainHtml.match(/<section\b[^>]*\baria-labelledby=["']program-visit-heading["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -947,7 +972,7 @@ const verifyHtml = (
       assert(graphTypes.length === 1 && graphTypes[0] === expectedType,
         `${label}: expected one Open Graph type of ${expectedType}`)
       const largePhotoPaths = [
-        '/', '/gymnastics', '/adult-gymnastics', '/contact', YOUTH_ATHLETIC_GUIDE_PATH,
+        '/', '/gymnastics', '/adult-gymnastics', '/contact', ...fitAndFlipPreviewPaths, YOUTH_ATHLETIC_GUIDE_PATH,
         PRESCHOOL_GYMNASTICS_GUIDE_PATH, GYMNASTICS_VS_TUMBLING_GUIDE_PATH, RETURNING_TO_GYMNASTICS_GUIDE_PATH,
       ]
       if (largePhotoPaths.includes(pagePath)) {
@@ -1350,6 +1375,7 @@ const verifyHtml = (
         `${label}: article breadcrumb structured data must include the guide index`)
       assert(article?.mainEntityOfPage === canonical && article?.headline === h1s[0],
         `${label}: Article JSON-LD must match the canonical URL and visible heading`)
+      assert(article?.image === ogImages[0], `${label}: Article JSON-LD must match the preferred preview image`)
       assert(article?.author?.['@id'] === locationId && article?.publisher?.['@id'] === locationId,
         `${label}: the guide must credit the shared business entity`)
       const visibleDates = tags(html, 'time').map((tag) => attribute(tag, 'datetime'))
@@ -1829,7 +1855,7 @@ if (live) {
       !/\b(?:noindex|noimageindex)\b/i.test(response.headers.get('x-robots-tag') ?? ''),
       `${url}: the responsive AVIF must be served directly as a crawlable image`)
   }))
-  await Promise.all([videoThumbnailUrl, `${HUB_ORIGIN}/favicon.png`].map(async (url) => {
+  await Promise.all([videoThumbnailUrl, fitAndFlipPreviewUrl, `${HUB_ORIGIN}/favicon.png`].map(async (url) => {
     const response = await fetch(url, { redirect: 'manual' })
     await response.body?.cancel()
     assert(response.ok && (response.headers.get('content-type') ?? '').startsWith('image/') &&

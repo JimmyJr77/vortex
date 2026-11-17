@@ -9,6 +9,7 @@ import {
   TEAM_EMAIL,
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
+import { getHubSeoForPath } from '../config/hubSeo'
 import { PUBLIC_GUIDES } from '../config/publicGuides'
 import guideIndex from '../config/publicGuideIndex.json'
 import searchPhotos from '../config/publicSearchPhotos.json'
@@ -404,7 +405,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       mainEntityOfPage: url,
       headline: guide.heading,
       description: guide.description,
-      image: `${HUB_ORIGIN}${guide.image}`,
+      image: getHubSeoForPath(pathname).ogImage ?? `${HUB_ORIGIN}${guide.image}`,
       datePublished: guide.datePublished,
       dateModified: guide.dateModified,
       author: { '@id': locationId },

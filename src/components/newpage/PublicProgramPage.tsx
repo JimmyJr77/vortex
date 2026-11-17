@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import {
@@ -16,6 +16,8 @@ import YouthBookingSummary from './YouthBookingSummary'
 import './PublicProgramPage.css'
 
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
+const TRIAL_ANCHOR = 'open-free-trial'
+const TRIAL_HASH = `#${TRIAL_ANCHOR}`
 
 const HERO_IMAGE_SIZES = [
   '(max-width: 620px) calc(100vw - 44px)',
@@ -77,6 +79,8 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
   const { hash, key } = useLocation()
   const { primaryAction, secondaryAction, recurringSchedule, trial } = program
   const [trialOpen, setTrialOpen] = useState(false)
+  const handledTrialLocation = useRef<string | null>(null)
+  const trialSectionId = trial && (trial.program === 'gymnastics' ? 'first-visit' : 'training-fit')
   const adultBooking = path === '/adult-gymnastics' ? publicBookingSnapshot?.[path] : null
   const youthBooking = path === '/adult-gymnastics' ? null : publicBookingSnapshot?.[path]
 
@@ -88,14 +92,34 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
     return () => cancelAnimationFrame(frame)
   }, [hash, key, path])
 
-  function renderTrialButton(section: string, label = trial?.label) {
-    if (!trial || !label) return null
+  const openTrial = useCallback((section: string) => {
+    if (!trial) return
+    trackEvent('trial_start', path, { properties: { section, program_slug: trial.program } })
+    setTrialOpen(true)
+  }, [path, trial])
+
+  useEffect(() => {
+    if (!trial || hash !== TRIAL_HASH) {
+      if (handledTrialLocation.current !== null) {
+        handledTrialLocation.current = null
+        setTrialOpen(false)
+      }
+      return
+    }
+
+    // React may start after a native click on the prerendered hero link.
+    // Treat its fragment like a direct link into this program’s trial.
+    if (handledTrialLocation.current === key) return
+    handledTrialLocation.current = key
+    document.getElementById(TRIAL_ANCHOR)?.focus({ preventScroll: true })
+    openTrial('program')
+  }, [hash, key, openTrial, trial])
+
+  function renderTrialButton(section: string, label: string) {
+    if (!trial) return null
     return (
       <button type="button" className="np-program-plain-link" data-analytics-cta="free_trial" data-analytics-section={section}
-        onClick={() => {
-          trackEvent('trial_start', path, { properties: { section, program_slug: trial.program } })
-          setTrialOpen(true)
-        }}>
+        onClick={() => openTrial(section)}>
         {label} <ArrowUpRight size={16} aria-hidden="true" />
       </button>
     )
@@ -122,7 +146,17 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                   {secondaryAction.label} <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
               )}
-              {renderTrialButton('program')}
+              {trial && (
+                <a href={TRIAL_HASH} className="np-program-plain-link" aria-haspopup="dialog"
+                  data-analytics-cta="free_trial" data-analytics-section="program"
+                  onClick={event => {
+                    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
+                    event.preventDefault()
+                    openTrial('program')
+                  }}>
+                  {trial.label} <ArrowUpRight size={16} aria-hidden="true" />
+                </a>
+              )}
             </div>
           </div>
           <picture>
@@ -166,7 +200,8 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
 
         {program.sections.map(section => (
           <section key={section.id} id={section.id} className="np-program-section">
-            <h2>{section.heading}</h2>
+            <h2 id={section.id === trialSectionId ? TRIAL_ANCHOR : undefined}
+              tabIndex={section.id === trialSectionId ? -1 : undefined}>{section.heading}</h2>
             <p>{section.description}</p>
             {section.topics && (
               <div className="np-program-topics">

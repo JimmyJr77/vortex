@@ -78,6 +78,38 @@ async function signTestWaivers(page: Page) {
   await page.getByLabel('Full Name (signature)', { exact: true }).fill('Test Parent')
 }
 
+test('a trial fragment opens the selected program and preserves the campaign URL', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const requests: string[] = []
+  page.on('request', request => {
+    if (new URL(request.url()).pathname === '/api/public/free-trials') requests.push(request.url())
+  })
+  const chooser = page.getByRole('dialog', { name: 'How old is your athlete?' })
+  for (const { path, info, link, program } of [
+    { path: '/gymnastics', info: 'first-visit', link: 'Find a free gymnastics trial', program: 'Gymnastics' },
+    { path: '/fit-and-flip', info: 'training-fit', link: 'Find a free Fit & Flip trial', program: 'Fit & Flip' },
+  ]) {
+    const url = `${path}?utm_source=trial-link`
+    await page.goto(`${url}#${info}`)
+    const action = page.locator('.np-program-hero').getByRole('link', { name: link })
+    await expect(action).toHaveAttribute('href', '#open-free-trial')
+    await expect(chooser).toHaveCount(0)
+
+    await page.goto(`${url}#open-free-trial`)
+    await expect(chooser.getByText(program, { exact: true })).toBeVisible()
+    await expect(page).toHaveURL(`${url}#open-free-trial`)
+    await chooser.getByRole('button', { name: 'Close dialog' }).click()
+    await expect(chooser).toHaveCount(0)
+    await expect(page.locator('#open-free-trial')).toBeFocused()
+
+    await action.press('Enter')
+    await expect(chooser.getByText(program, { exact: true })).toBeVisible()
+    await chooser.getByRole('button', { name: 'Close dialog' }).click()
+    await expect(action).toBeFocused()
+  }
+  expect(requests).toEqual([])
+})
+
 test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path after an empty result', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const requests: string[] = []
@@ -92,7 +124,7 @@ test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path af
 
   for (const age of [5, 6, 7, 8, 16]) {
     await page.goto('/fit-and-flip')
-    await page.locator('.np-program-hero').getByRole('button', { name: 'Find a free Fit & Flip trial' }).click()
+    await page.locator('.np-program-hero').getByRole('link', { name: 'Find a free Fit & Flip trial' }).click()
     const dialog = page.getByRole('dialog')
     await dialog.getByLabel('Your child’s age').fill(String(age))
     await dialog.getByRole('button', { name: 'Find available classes' }).click()
@@ -117,7 +149,7 @@ test('mobile new-family trial requires waivers and registers the child without c
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await page.getByRole('checkbox', { name: /^Analytics/ }).check()
   await page.getByRole('button', { name: 'Save preferences' }).click()
-  await page.locator('.np-program-hero').getByRole('button', { name: 'Find a free Fit & Flip trial' }).click()
+  await page.locator('.np-program-hero').getByRole('link', { name: 'Find a free Fit & Flip trial' }).click()
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Your child’s age').fill('10')
   await dialog.getByRole('button', { name: 'Find available classes' }).click()

@@ -18,6 +18,7 @@ export interface HubRouteSeo {
 
 const LARGE_IMAGE_PREVIEW = 'max-image-preview:large'
 const homePreviewPhoto = searchPhotos.homepageGallery.strengthTraining
+const previewImageFor = (image: string) => image === searchPhotos.fitAndFlip ? searchPhotos.fitAndFlipPreview : image
 
 export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
@@ -30,15 +31,16 @@ export const HUB_HOME_SEO: HubRouteSeo = {
 }
 
 const wideGuideImages = new Set([
-  searchPhotos.plyometrics, searchPhotos.preschoolGymnastics, searchPhotos.tumbling, BUSINESS_FACILITY_PHOTO.src,
+  searchPhotos.plyometrics, searchPhotos.fitAndFlipPreview, searchPhotos.preschoolGymnastics,
+  searchPhotos.tumbling, BUSINESS_FACILITY_PHOTO.src,
 ])
 
 export const HUB_ROUTES: HubRouteSeo[] = [
   HUB_HOME_SEO,
   ...Object.values(PUBLIC_PROGRAMS).map(({ path, title, description, image, imageAlt, imageWidth }) => ({
     path, title, description,
-    ...(image ? { ogImage: new URL(image, HUB_ORIGIN).href, ogImageAlt: imageAlt } : {}),
-    robots: imageWidth >= 1200 ? LARGE_IMAGE_PREVIEW : undefined,
+    ...(image ? { ogImage: new URL(previewImageFor(image), HUB_ORIGIN).href, ogImageAlt: imageAlt } : {}),
+    robots: imageWidth >= 1200 || image === searchPhotos.fitAndFlip ? LARGE_IMAGE_PREVIEW : undefined,
   })),
   {
     path: '/ninja',
@@ -82,11 +84,14 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     ogImage: new URL(trainingVideo.thumbnail, HUB_ORIGIN).href,
     ogImageAlt: trainingVideo.thumbnailAlt,
   },
-  ...PUBLIC_GUIDES.map(({ path, title, description, image, imageAlt }) => ({
-    path, title, description, ogImage: `${HUB_ORIGIN}${image}`, ogImageAlt: imageAlt,
-    ogType: 'article' as const,
-    robots: wideGuideImages.has(image) ? LARGE_IMAGE_PREVIEW : undefined,
-  })),
+  ...PUBLIC_GUIDES.map(({ path, title, description, image, imageAlt }) => {
+    const previewImage = previewImageFor(image)
+    return {
+      path, title, description, ogImage: `${HUB_ORIGIN}${previewImage}`, ogImageAlt: imageAlt,
+      ogType: 'article' as const,
+      robots: wideGuideImages.has(previewImage) ? LARGE_IMAGE_PREVIEW : undefined,
+    }
+  }),
   {
     path: '/support',
     title: 'Customer Support | Vortex Athletics',
