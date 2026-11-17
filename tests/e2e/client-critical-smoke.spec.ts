@@ -63,6 +63,16 @@ test.describe('Client-critical smoke flows', () => {
     await expect(youthTraining.getByRole('link', { name: 'Check how teens start' })).toBeVisible()
     await youthTraining.getByRole('link', { name: 'Check Cyclones trial and drop-in dates' }).click()
     await expect(page).toHaveURL('/drop-in?program=Fit%20%26%20Flip')
+
+    await page.goto('/fit-and-flip#speed-agility')
+    await page.getByRole('link', { name: 'Compare sprint starts, planned turns, and reacting' }).click()
+    await expect(page).toHaveURL('/blog/athletic-development-young-athletes#speed-vs-agility')
+    const agility = page.locator('#speed-vs-agility')
+    await expect(agility.getByRole('heading')).toBeInViewport()
+    await agility.getByRole('link', { name: 'See a change of direction in the Vortex training film' }).click()
+    await expect(page).toHaveURL('/watch/training-at-vortex#change-of-direction')
+    await expect(page.getByRole('link', { name: 'Play from 0:16', exact: true })).toBeInViewport()
+    await expect(page.getByRole('main').locator('video')).toHaveJSProperty('paused', true)
   })
 
   test('adult gymnasts can compare nearby formats and reach Typhoons dates', async ({ page }) => {

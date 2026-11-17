@@ -49,6 +49,7 @@ const galleryUrl = `${HUB_ORIGIN}/contact#inside-the-gym`
 const watchUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.path}`
 const videoUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.assetPath}`
 const videoThumbnailUrl = `${HUB_ORIGIN}${PUBLIC_TRAINING_VIDEO.thumbnail}`
+const videoDescriptionsPath = '/newpage/training-film-descriptions.vtt'
 const isBowieDirections = (url) => url.origin === 'https://www.google.com' && url.pathname === '/maps/dir/' &&
   url.searchParams.get('api') === '1' && url.searchParams.get('destination_place_id') === 'ChIJZ4XjEwDtt4kRpTDa0qGHztM' &&
   url.searchParams.get('destination') === '4961 Tesla Dr Suite E, Bowie, MD 20715'
@@ -298,6 +299,10 @@ const verifyHtml = (
       `${label}: the static page must show one user-controlled player with the configured video and poster`)
     assert(h1s[0] === PUBLIC_TRAINING_VIDEO.name && /Silent footage/.test(html) && /What you’ll see/.test(html),
       `${label}: missing the film heading, silent label, or scene descriptions`)
+    const descriptionTracks = tags(html, 'track').filter(tag => attribute(tag, 'kind') === 'descriptions')
+    assert(descriptionTracks.length === 1 && attribute(descriptionTracks[0], 'srclang') === 'en' &&
+      attribute(descriptionTracks[0], 'src') === videoDescriptionsPath && /\sid=["']change-of-direction["']/.test(html),
+      `${label}: missing the English description track or linkable change-of-direction scene`)
     const next = html.match(/<nav\b[^>]*\baria-labelledby=["']training-film-next["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(next)
     for (const href of [`${HUB_ORIGIN}/gymnastics`, `${HUB_ORIGIN}/fit-and-flip`, galleryUrl]) {
@@ -737,19 +742,25 @@ const verifyHtml = (
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
       if (canonical === fitAndFlipCanonical) {
-        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress']) {
+        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility']) {
           assert(links.some((url) => url.href === `${guideCanonical}${hash}`),
             `${label}: missing the link to the parent guide at ${hash}`)
         }
       }
     } else {
       const examples = content.match(/<section\b[^>]*\sid=["']movement-examples["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const speedAgility = content.match(/<section\b[^>]*\sid=["']speed-vs-agility["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const progression = content.match(/<section\b[^>]*\sid=["']movement-progression["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const sportsSeason = content.match(/<section\b[^>]*\sid=["']sports-season["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const readiness = content.match(/<section\b[^>]*\sid=["']strength-training-readiness["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const progress = content.match(/<section\b[^>]*\sid=["']progress["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const outline = content.match(/<nav\b[^>]*\baria-label=["']In this guide["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
       assert(tags(examples, 'li').length === 8, `${label}: expected eight crawlable athleticism examples`)
+      const speedAgilityLinks = anchorUrls(speedAgility)
+      assert(tags(speedAgility, 'li').length === 3 && /Two-point start/i.test(speedAgility) && /mirror shuffle/i.test(speedAgility) &&
+        speedAgilityLinks.some(url => url.href === `${watchUrl}#change-of-direction`) &&
+        speedAgilityLinks.some(url => url.href === 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9465760/'),
+        `${label}: missing the speed and agility coaching examples, video moment, or research link`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
       for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress']) {
@@ -1055,7 +1066,7 @@ for (const url of sitemapImages) {
   assert(existsSync(file) && statSync(file).size > 0 && statSync(file).size <= 1024 * 1024,
     `sitemap: expected a valid photo of at most 1 MiB (${url.pathname})`)
 }
-for (const asset of [PUBLIC_TRAINING_VIDEO.assetPath, PUBLIC_TRAINING_VIDEO.thumbnail, '/favicon.png']) {
+for (const asset of [PUBLIC_TRAINING_VIDEO.assetPath, PUBLIC_TRAINING_VIDEO.thumbnail, videoDescriptionsPath, '/favicon.png']) {
   const file = join(root, 'dist', asset.slice(1))
   assert(existsSync(file) && statSync(file).size > 0, `dist: missing the public asset ${asset}`)
 }
@@ -1378,6 +1389,10 @@ if (live) {
     /^bytes 0-63\/\d+$/.test(videoResponse.headers.get('content-range') ?? '') &&
     !/\bnoindex\b/i.test(videoResponse.headers.get('x-robots-tag') ?? ''),
     `${videoUrl}: the video must be crawlable and support byte-range playback`)
+  const descriptionResponse = await fetch(new URL(videoDescriptionsPath, HUB_ORIGIN), { redirect: 'manual' })
+  assert(descriptionResponse.ok && /^text\/vtt\b/i.test(descriptionResponse.headers.get('content-type') ?? '') &&
+    (await descriptionResponse.text()).startsWith('WEBVTT'),
+    `${videoDescriptionsPath}: expected a directly available WebVTT description track`)
 }
 
 assert(

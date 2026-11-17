@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import trainingFilm from '../../config/publicTrainingVideo.json'
 import { FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
@@ -12,6 +13,7 @@ const sections = [
   { id: 'youth-sports', label: 'How it fits with youth sports' },
   { id: 'sports-season', label: 'Training around practices and games' },
   { id: 'movement-examples', label: 'Eight qualities of athleticism' },
+  { id: 'speed-vs-agility', label: 'Speed, direction changes, and reacting' },
   { id: 'movement-progression', label: 'How coaches progress a movement' },
   { id: 'strength-training-readiness', label: 'When to start strength training' },
   { id: 'first-class', label: 'What to watch for in class' },
@@ -124,6 +126,41 @@ export default function AthleticDevelopmentGuide() {
             <li><strong>Body control.</strong> Manage where the body is in space. A child might learn to hold a tucked shape through a roll and finish in a stable position.</li>
           </ul>
           <p>See how Vortex teaches <Link to="/fit-and-flip#strength">youth strength training in Fit &amp; Flip</Link>.</p>
+        </section>
+
+        <section id="speed-vs-agility">
+          <h2>How speed and agility show up in youth sports</h2>
+          <p>
+            In a straight sprint, an athlete knows where they’re going. In basketball, a defender reads the
+            other player, chooses a direction, and then pushes off. Vortex’s coaching library works on those
+            demands in three ways.
+          </p>
+          <ul>
+            <li>
+              <strong>First-step acceleration.</strong> In a two-point start, the coach watches whether the
+              athlete pushes into their first two steps without rocking backward.{' '}
+              <a href="#progress">See how a coach can check progress on a sprint start</a>.
+            </li>
+            <li>
+              <strong>Planned change of direction.</strong> The athlete knows the marked exit before they run.
+              The coach watches whether the athlete slows before the cone and pushes off along that path.
+            </li>
+            <li>
+              <strong>Reactive agility.</strong> In a mirror shuffle, the athlete follows the coach’s first
+              sideways movement and responds when the coach reverses direction. The coach can see whether
+              the athlete reads each cue and finishes with a controlled stop.
+            </li>
+          </ul>
+          <p className="mt-4">
+            Watch for the athlete’s plant and push away from a cone.{' '}
+            <Link to={`${trainingFilm.path}#change-of-direction`}>See a change of direction in the Vortex training film</Link>.
+          </p>
+          <p className="mt-4">
+            A defender can practice braking in the gym, then learn which movements to read from an opponent
+            in team practice. Researchers also use separate tests for planned and reactive agility in youth
+            team sports.{' '}
+            <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC9465760/">See the study on reactive agility in young athletes</a>.
+          </p>
         </section>
 
         <section id="movement-progression">

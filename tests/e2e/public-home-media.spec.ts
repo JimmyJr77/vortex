@@ -44,10 +44,16 @@ test.describe('phone homepage video', () => {
     await expect(film).toHaveAttribute('preload', 'none')
     await expect(film).toHaveJSProperty('controls', true)
     expect(requestedMedia).toHaveLength(0)
-    await film.evaluate((element: HTMLVideoElement) => element.play())
-    await expect.poll(() => film.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0)
+    await page.getByRole('link', { name: 'Play from 0:16', exact: true }).click()
+    await expect.poll(() => film.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThanOrEqual(16)
+    await expect.poll(() => requestedMedia.length).toBeGreaterThan(0)
     await expect(film).toHaveJSProperty('duration', 24)
     await expect(page.getByRole('region', { name: 'What you’ll see' }).getByRole('listitem')).toHaveCount(4)
+    const descriptions = film.locator('track[kind="descriptions"]')
+    await descriptions.evaluate((element: HTMLTrackElement) => { element.track.mode = 'hidden' })
+    await expect.poll(() => descriptions.evaluate((element: HTMLTrackElement) =>
+      Array.from(element.track.cues ?? []).some(cue => cue.startTime === 16 && /cone/i.test((cue as VTTCue).text)),
+    )).toBe(true)
   })
 })
 
