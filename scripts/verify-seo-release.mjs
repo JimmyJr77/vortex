@@ -451,13 +451,23 @@ const verifyHtml = (
       const hints = preloads.filter(tag => attribute(tag, 'as') === 'image')
       const hero = heroes[0] ?? ''
       const hint = hints[0] ?? ''
-      const sourceSet = attribute(hero, 'srcset')
+      const picture = (html.match(/<picture\b[^>]*>[\s\S]*?<\/picture>/gi) ?? []).find(block => block.includes(hero)) ?? ''
+      const preferredSource = tags(picture, 'source').find(tag =>
+        attribute(tag, 'type') === 'image/avif' && attribute(tag, 'srcset') && !attribute(tag, 'media'))
+      const candidate = preferredSource ?? hero
+      const sourceSet = attribute(candidate, 'srcset')
+      if (pagePath === '/gymnastics') {
+        assert(preferredSource && attribute(hero, 'src').endsWith('.webp') &&
+          [768, 1080, 1600].every(width => sourceSet.includes(`/gymnastics-hero-${width}.avif ${width}w`)),
+          `${label}: the youth gymnastics hero must offer responsive AVIF with a WebP fallback`)
+      }
       assert(heroes.length === 1 && hints.length === 1 && attribute(hint, 'fetchpriority') === 'high' &&
         viewport && html.indexOf(viewport) < html.indexOf(hint) && firstStylesheet && html.indexOf(hint) < html.indexOf(firstStylesheet),
         `${label}: the first image hint must follow the viewport and precede render-blocking styles`)
-      assert(sourceSet
-        ? !attribute(hint, 'href') && attribute(hint, 'imagesrcset') === sourceSet && attribute(hint, 'imagesizes') === attribute(hero, 'sizes')
-        : attribute(hint, 'href') === attribute(hero, 'src') && !attribute(hint, 'imagesrcset'),
+      const matchingSource = sourceSet
+        ? !attribute(hint, 'href') && attribute(hint, 'imagesrcset') === sourceSet && attribute(hint, 'imagesizes') === attribute(candidate, 'sizes')
+        : attribute(hint, 'href') === attribute(hero, 'src') && !attribute(hint, 'imagesrcset')
+      assert(matchingSource && attribute(hint, 'type') === (preferredSource ? 'image/avif' : ''),
         `${label}: the hero image hint must match the displayed image without requesting a second candidate`)
     }
     if (['/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path].includes(pagePath)) {
@@ -665,7 +675,8 @@ const verifyHtml = (
     const headerBrand = brandImage('header')
     const footerBrand = brandImage('footer')
     const footerSources = attribute(footerBrand, 'srcset')
-    assert(/\b480w\b/.test(attribute(headerBrand, 'srcset')) && attribute(headerBrand, 'sizes'),
+    const headerSources = attribute(headerBrand, 'srcset')
+    assert(['256w', '384w', '480w'].every(size => headerSources.includes(` ${size}`)) && attribute(headerBrand, 'sizes'),
       `${label}: the header logo must offer a compact responsive asset`)
     assert(attribute(footerBrand, 'loading') === 'lazy' && /\b640w\b/.test(footerSources) && !/\b1086w\b/.test(footerSources),
       `${label}: the compact footer logo must load lazily`)
@@ -1713,6 +1724,14 @@ if (live) {
       `${url.href}: sitemap photo must return an image directly (HTTP ${response.status})`)
     assert(!/\b(?:noindex|noimageindex)\b/i.test(response.headers.get('x-robots-tag') ?? ''),
       `${url.href}: sitemap photo is excluded from image indexing`)
+  }))
+  await Promise.all([768, 1080, 1600].map(async width => {
+    const url = `${HUB_ORIGIN}/gymnastics-hero-${width}.avif`
+    const response = await fetch(url, { redirect: 'manual' })
+    await response.body?.cancel()
+    assert(response.ok && /^image\/avif\b/i.test(response.headers.get('content-type') ?? '') &&
+      !/\b(?:noindex|noimageindex)\b/i.test(response.headers.get('x-robots-tag') ?? ''),
+      `${url}: the responsive AVIF must be served directly as a crawlable image`)
   }))
   await Promise.all([videoThumbnailUrl, `${HUB_ORIGIN}/favicon.png`].map(async (url) => {
     const response = await fetch(url, { redirect: 'manual' })

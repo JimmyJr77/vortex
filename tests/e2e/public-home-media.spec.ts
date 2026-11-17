@@ -22,6 +22,9 @@ test.describe('phone homepage video', () => {
     // This check needs the initial network activity to settle before asserting the video was never requested.
     await page.goto('/', { waitUntil: 'networkidle' })
     await expect(page.locator('.np-hero-poster')).toBeVisible()
+    const headerLogo = page.locator('.np-header').getByRole('img', { name: 'Vortex Athletics & Gymnastics' })
+    await expect.poll(() => headerLogo.evaluate((image: HTMLImageElement) => image.currentSrc))
+      .toMatch(/gymnastics-logo-256(?:-[\w-]+)?\.webp$/)
     await expect(page.locator(backgroundVideo)).not.toHaveAttribute('src', /.+/)
     expect(requestedMedia).toHaveLength(0)
     const fitAndFlipCard = page.getByRole('button', { name: 'Explore Fit & Flip', exact: true })
@@ -111,6 +114,22 @@ test.describe('phone homepage video', () => {
 test('desktop visits keep automatic background playback', async ({ page }) => {
   await page.goto('/')
   await expect(page.locator(backgroundVideo)).toHaveAttribute('src', trainingLoop)
+})
+
+test('the youth gymnastics hero loads one responsive AVIF', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 })
+  const requestedHeroImages = new Set<string>()
+  page.on('request', request => {
+    const path = new URL(request.url()).pathname
+    if (/^\/gymnastics-hero(?:-\d+)?\.(?:avif|webp)$/.test(path)) requestedHeroImages.add(path)
+  })
+
+  await page.goto('/gymnastics')
+  const hero = page.getByRole('img', { name: 'Young gymnasts learning together with a coach at Vortex' })
+  await expect.poll(() => hero.evaluate((image: HTMLImageElement) =>
+    image.complete && image.naturalWidth > 0 ? new URL(image.currentSrc).pathname : '',
+  )).toBe('/gymnastics-hero-768.avif')
+  expect([...requestedHeroImages]).toEqual(['/gymnastics-hero-768.avif'])
 })
 
 test('reduced motion keeps the poster while the requested film still loads', async ({ page }) => {

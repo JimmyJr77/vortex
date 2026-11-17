@@ -1,4 +1,6 @@
 import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
+import brandLogo256 from '../../assets/vortex-athletics-gymnastics-logo-256.webp'
+import brandLogo384 from '../../assets/vortex-athletics-gymnastics-logo-384.webp'
 import brandLogo480 from '../../assets/vortex-athletics-gymnastics-logo-480.webp'
 import brandLogo640 from '../../assets/vortex-athletics-gymnastics-logo-640.webp'
 
@@ -7,7 +9,7 @@ const headerSizes = [
   '(min-width: 861px) and (max-width: 1150px) clamp(176px, calc(100vw - 686px), 300px)',
   '300px',
 ].join(', ')
-const compactSources = `${brandLogo480} 480w, ${brandLogo640} 640w`
+const compactSources = `${brandLogo256} 256w, ${brandLogo384} 384w, ${brandLogo480} 480w, ${brandLogo640} 640w`
 
 export default function PublicBrandImage({ footer = false }: { footer?: boolean }) {
   return (

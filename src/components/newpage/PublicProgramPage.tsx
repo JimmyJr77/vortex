@@ -115,16 +115,21 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
               {renderTrialButton('program')}
             </div>
           </div>
-          <img
-            className="np-program-hero-image"
-            src={program.image}
-            srcSet={program.imageSrcSet}
-            sizes={program.imageSrcSet ? HERO_IMAGE_SIZES : undefined}
-            alt={program.imageAlt}
-            width={program.imageWidth}
-            height={program.imageHeight}
-            fetchPriority="high"
-          />
+          <picture>
+            {program.imageAvifSrcSet && (
+              <source type="image/avif" srcSet={program.imageAvifSrcSet} sizes={HERO_IMAGE_SIZES} />
+            )}
+            <img
+              className="np-program-hero-image"
+              src={program.image}
+              srcSet={program.imageSrcSet}
+              sizes={program.imageSrcSet ? HERO_IMAGE_SIZES : undefined}
+              alt={program.imageAlt}
+              width={program.imageWidth}
+              height={program.imageHeight}
+              fetchPriority="high"
+            />
+          </picture>
         </div>
       </section>
 

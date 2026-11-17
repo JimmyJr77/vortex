@@ -50,6 +50,7 @@ type PublicProgram = {
   intro: string
   image: string
   imageSrcSet?: string
+  imageAvifSrcSet?: string
   imageAlt: string
   imageWidth: number
   imageHeight: number
@@ -91,6 +92,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: searchPhotos.youthGymnastics,
     imageSrcSet: '/gymnastics-hero-768.webp 768w, /gymnastics-hero-1080.webp 1080w, /gymnastics-hero.webp 1600w',
+    imageAvifSrcSet: '/gymnastics-hero-768.avif 768w, /gymnastics-hero-1080.avif 1080w, /gymnastics-hero-1600.avif 1600w',
     imageAlt: 'Young gymnasts learning together with a coach at Vortex',
     imageWidth: 1600,
     imageHeight: 1200,

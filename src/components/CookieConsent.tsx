@@ -55,22 +55,22 @@ const CookieConsent = () => {
 
   return (
     <div
-      className="fixed bottom-0 left-0 right-0 z-[100] max-h-[100dvh] overflow-y-auto overscroll-contain border-t border-gray-700 bg-black/95 px-3 py-2 text-white shadow-2xl md:p-6"
+      className="fixed bottom-0 left-0 right-0 z-[100] max-h-[100dvh] overflow-y-auto overscroll-contain border-t border-gray-700 bg-black/95 px-3 py-2 text-white shadow-2xl md:p-6 [@media(max-width:767px)_and_(max-height:640px)]:px-2 [@media(max-width:767px)_and_(max-height:640px)]:py-1"
       role="dialog"
       aria-label="Cookie consent"
       data-prerender-dynamic=""
     >
       <div className="mx-auto max-w-4xl md:px-8 lg:px-12">
         {!showSettings ? (
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4">
-            <div className="max-w-2xl text-[13px] leading-[17px] text-gray-200 md:text-sm">
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between md:gap-4 [@media(max-width:767px)_and_(max-height:640px)]:gap-1">
+            <div className="max-w-2xl text-[13px] leading-[17px] text-gray-200 md:text-sm [@media(max-width:767px)_and_(max-height:640px)]:leading-[15px]">
               <h2 className="inline font-semibold text-white md:mb-1 md:block">
                 Privacy &amp; cookies<span className="md:hidden">.</span>
               </h2>
               {' '}
               <p className="inline md:block">
-                Necessary cookies run the site. With your permission, we use analytics cookies to improve
-                programs and marketing cookies for relevant ads. We don&apos;t use cookies to build ad audiences
+                Necessary cookies run the site. Optional cookies improve programs (analytics) and show relevant ads
+                (marketing). We don&apos;t use cookies to build ad audiences
                 from children&apos;s information.{' '}
                 <a
                   href={getHubSiteUrl('/privacy-policy')}

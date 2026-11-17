@@ -114,6 +114,23 @@ test('keeps mobile booking and consent choices reachable without opting in', asy
     })).toBe(true)
   }
 
+  await page.setViewportSize({ width: 320, height: 568 })
+  await page.goto('/gymnastics')
+  await expect(consent).toBeVisible()
+  await page.evaluate(async () => { await document.fonts.ready })
+  expect((await consent.boundingBox())?.height).toBeLessThanOrEqual(140)
+  await expect(consent.getByRole('link', { name: 'Privacy Policy' })).toBeInViewport({ ratio: 1 })
+
+  const shortScreenTrial = page.getByRole('button', { name: 'Find a free gymnastics trial', exact: true }).first()
+  await page.mouse.move(160, 300)
+  await page.mouse.wheel(0, 240)
+  await expect.poll(() => shortScreenTrial.evaluate(element => {
+    const { x, y, width, height } = element.getBoundingClientRect()
+    return element.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+  })).toBe(true)
+  await expect(consent).toBeVisible()
+  expect(await page.evaluate(() => localStorage.getItem('vortex_consent'))).toBeNull()
+
   const choices = ['Settings', 'Necessary only', 'Accept all']
     .map(name => consent.getByRole('button', { name, exact: true }))
   const boxes = await Promise.all(choices.map(choice => choice.boundingBox()))

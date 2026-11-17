@@ -291,8 +291,11 @@ const prerenderAppRoutes = async () => {
                 preload.rel = 'preload'
                 preload.as = 'image'
                 preload.fetchPriority = 'high'
-                const srcSet = hero.getAttribute('srcset')
-                const sizes = hero.getAttribute('sizes')
+                const preferred = hero.closest('picture')?.querySelector('source[type="image/avif"][srcset]:not([media])')
+                const candidate = preferred ?? hero
+                const srcSet = candidate.getAttribute('srcset')
+                const sizes = candidate.getAttribute('sizes')
+                if (preferred) preload.type = preferred.type
                 if (srcSet) {
                   // A fallback href can fetch an extra candidate in browsers without responsive preload support.
                   preload.setAttribute('imagesrcset', srcSet)
