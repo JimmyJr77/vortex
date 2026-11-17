@@ -24,6 +24,8 @@ interface HeaderProps {
 const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMemberDashboardClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const headerRef = useRef<HTMLElement>(null)
+  const mobileMenuToggleRef = useRef<HTMLButtonElement>(null)
+  const desktopMenuToggleRef = useRef<HTMLButtonElement>(null)
   useSiteHeaderHeight(headerRef)
   const location = useLocation()
   const { pages: specialPages } = useSpecialPages()
@@ -50,6 +52,15 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
     <header
       ref={headerRef}
       className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm header-slide-in"
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape' || !isMenuOpen || event.defaultPrevented) return
+        event.preventDefault()
+        event.stopPropagation()
+        setIsMenuOpen(false)
+        const visibleToggle = [mobileMenuToggleRef.current, desktopMenuToggleRef.current]
+          .find((toggle) => toggle?.getClientRects().length)
+        visibleToggle?.focus({ preventScroll: true })
+      }}
     >
       <div className="container-custom flex max-h-[100dvh] flex-col">
         {/* Mobile Layout: Logo on top, buttons below */}
@@ -79,6 +90,7 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
             <div className="flex shrink-0 items-center gap-5 min-[1075px]:hidden">
               {profileControl}
               <button
+                ref={mobileMenuToggleRef}
                 type="button"
                 className="text-white hover:text-vortex-red transition-colors duration-300"
                 onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -155,6 +167,7 @@ const Header = ({ onContactClick, onAdminLoginClick, isLoggedIn = false, onMembe
 
             {/* Hamburger Menu Button - Only visible on desktop */}
             <button
+              ref={desktopMenuToggleRef}
               type="button"
               className="text-white hover:text-vortex-red transition-colors duration-300 hidden min-[1075px]:block"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
