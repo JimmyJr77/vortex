@@ -1,15 +1,15 @@
-import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
 import { useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, Menu, X } from 'lucide-react'
 import { SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
+import PublicBrandImage from './PublicBrandImage'
 import PublicNavigationLinks from './PublicNavigationLinks'
 import './NewPage.css'
 import './PublicSiteChrome.css'
 
-function PublicBrand() {
-  return <Link className="np-brand" to="/" aria-label="Vortex Athletics, home"><img src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" /></Link>
+function PublicBrand({ footer = false }: { footer?: boolean }) {
+  return <Link className="np-brand" to="/" aria-label="Vortex Athletics, home"><PublicBrandImage footer={footer} /></Link>
 }
 
 export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false }: {
@@ -46,7 +46,7 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false }: 
 export function PublicSiteFooter() {
   return <footer className="np-footer np-container">
     <div className="np-footer-main">
-      <div><PublicBrand /><p>Gymnastics. Athletic development.<br />Built for more.</p></div>
+      <div><PublicBrand footer /><p>Gymnastics. Athletic development.<br />Built for more.</p></div>
       <div><span className="np-footer-label">COME TRAIN WITH US</span><Link to="/gymnastics">Youth gymnastics</Link><Link to="/fit-and-flip">Fit &amp; Flip youth training</Link><Link to="/adult-gymnastics">Adult gymnastics</Link><a href={`tel:${TEAM_PHONE_E164}`}>{TEAM_PHONE}</a><a href={`mailto:${TEAM_EMAIL}`}>{TEAM_EMAIL}</a></div>
       <div><span className="np-footer-label">STAY CONNECTED</span><a href={SOCIAL_PROFILES[0]} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={14} /></a><a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">YouTube <ArrowUpRight size={14} /></a></div>
       <Link className="np-back-top" to="/">Back to home <ArrowUpRight size={17} /></Link>

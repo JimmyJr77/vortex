@@ -1,10 +1,10 @@
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
-import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
 import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
 import ParallaxGym from '../ParallaxGym'
+import PublicBrandImage from './PublicBrandImage'
 import PublicNavigationLinks from './PublicNavigationLinks'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
@@ -58,8 +58,8 @@ const goals = [
 
 const faqs = HOME_FAQS.map(({ question, answer }) => [question, answer] as const)
 
-function Brand() {
-  return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><img src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" /></a>
+function Brand({ footer = false }: { footer?: boolean }) {
+  return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><PublicBrandImage footer={footer} /></a>
 }
 
 function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, full = false }: { paused: boolean; onPlaybackChange?: (playing: boolean) => void; onAutoplayBlocked?: () => void; full?: boolean }) {
@@ -314,7 +314,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
       <footer className="np-footer np-container">
         <div className="np-footer-main">
-          <div><Brand /><p>Gymnastics. Athletic development.<br />Built for more.</p></div>
+          <div><Brand footer /><p>Gymnastics. Athletic development.<br />Built for more.</p></div>
           <div>
             <span className="np-footer-label">COME TRAIN WITH US</span>
             <Link to="/enroll">Class enrollment</Link>

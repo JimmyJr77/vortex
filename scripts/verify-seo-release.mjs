@@ -415,6 +415,15 @@ const verifyHtml = (
   }
 
   if (shouldIndex && (pagePath === '/' || HUB_PROGRAM_PATHS.includes(pagePath))) {
+    const brandImage = (landmark) => {
+      const section = html.match(new RegExp(`<${landmark}\\b[^>]*>[\\s\\S]*?<\\/${landmark}>`, 'i'))?.[0] ?? ''
+      return tags(section, 'img').find((tag) => attribute(tag, 'alt') === 'Vortex Athletics & Gymnastics') ?? ''
+    }
+    const headerBrand = brandImage('header')
+    const footerBrand = brandImage('footer')
+    assert(/\b480w\b/.test(attribute(headerBrand, 'srcset')) && attribute(headerBrand, 'sizes'),
+      `${label}: the header logo must offer a compact responsive asset`)
+    assert(attribute(footerBrand, 'loading') === 'lazy', `${label}: the footer logo must load lazily`)
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
     if (pagePath === '/gymnastics') {
