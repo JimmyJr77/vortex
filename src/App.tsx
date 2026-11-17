@@ -373,7 +373,7 @@ function App({ programPageComponent: ProgramPage = PublicProgramPage }: {
               switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
             } else setIsLoginOpen(true)
           }} />} />
-          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => <Route key={path} path={path} element={<ProgramPage path={path} />} />)}
+          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => <Route key={path} path={path} element={<ProgramPage key={path} path={path} />} />)}
           {Object.entries(publicLandingRedirects).map(([path, destination]) => <Route key={path} path={path} element={<PublicLandingRedirect destination={destination} />} />)}
           <Route path="/copy" element={<CopyPage />} />
           <Route path="/camp_interest" element={<CampInterestPage />} />

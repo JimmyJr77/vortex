@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import { FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
@@ -191,11 +192,14 @@ export default function AthleticDevelopmentGuide() {
             they’ll practice and work toward harder versions as their technique becomes more consistent.
           </p>
           <div className="athletic-guide-actions">
-            <Link className="np-button" to="/enroll?program=Fit%20%26%20Flip" data-analytics-cta="browse_classes" data-analytics-section="athletic_development_guide">
-              Browse Fit &amp; Flip classes <ArrowUpRight size={17} aria-hidden="true" />
+            <Link className="np-button" to="/fit-and-flip#fit-flip-schedule" data-analytics-cta="browse_classes" data-analytics-section="athletic_development_guide">
+              See recurring Fit &amp; Flip times <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
-            <Link className="athletic-guide-trial" to="/#free-trial" data-analytics-cta="free_trial_section" data-analytics-section="athletic_development_guide">
-              Find a free trial <ArrowUpRight size={16} aria-hidden="true" />
+            <Link className="athletic-guide-trial" to="/fit-and-flip#training-fit" data-analytics-cta="free_trial_section" data-analytics-section="athletic_development_guide">
+              Find a free Fit &amp; Flip trial <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+            <Link className="athletic-guide-trial" to={FIT_AND_FLIP_DROP_IN_HREF} data-analytics-cta="browse_drop_ins" data-analytics-section="athletic_development_guide">
+              See Fit &amp; Flip drop-in dates <ArrowUpRight size={16} aria-hidden="true" />
             </Link>
           </div>
         </aside>

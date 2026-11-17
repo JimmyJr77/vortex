@@ -447,8 +447,10 @@ const verifyHtml = (
         `${label}: missing the first gymnastics visit section`)
       assert(/<h3\b[^>]*>What should my child wear to class\?<\/h3>/i.test(firstVisit) &&
         /parent or legal guardian/i.test(firstVisit), `${label}: missing first-visit attire or guardian guidance`)
-      assert(anchorUrls(firstVisit).some((url) => url.href === `${HUB_ORIGIN}/#free-trial`),
-        `${label}: missing the trial finder link in the first visit section`)
+      assert(/60 minutes/i.test(firstVisit) && /90 minutes/i.test(firstVisit),
+        `${label}: missing the typical length of the youth gymnastics trials`)
+      assert(tags(firstVisit, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
+        `${label}: missing the trial finder button in the first visit section`)
     }
     if (pagePath === '/fit-and-flip') {
       const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
@@ -467,6 +469,9 @@ const verifyHtml = (
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
+      const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(tags(firstClass, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
+        `${label}: missing the Fit & Flip trial finder button`)
     }
     if (pagePath === '/adult-gymnastics') {
       const hero = mainHtml.match(/<section\b[^>]*\bclass=["']np-program-hero["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -568,13 +573,11 @@ const verifyHtml = (
         `${label}: missing a crawlable link from the guide to the Fit & Flip program page`)
       assert(links.some((url) => url.href === `${fitAndFlipCanonical}#strength`),
         `${label}: missing a crawlable link from the guide to youth strength training`)
-      assert(
-        links.some((url) =>
-          url.origin === HUB_ORIGIN &&
-          ((url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') ||
-            (url.pathname === '/' && url.hash === '#free-trial'))),
-        `${label}: missing a crawlable link from the guide to Fit & Flip enrollment or a free trial`,
-      )
+      for (const hash of ['#fit-flip-schedule', '#training-fit']) {
+        assert(links.some((url) => url.href === `${fitAndFlipCanonical}${hash}`),
+          `${label}: missing the crawlable Fit & Flip guide link to ${hash}`)
+      }
+      assert(hasDropInProgramLink(links, 'Fit & Flip'), `${label}: missing the guide link to Cyclones drop-in dates`)
     }
   }
 
@@ -607,6 +610,7 @@ const verifyHtml = (
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable guide link to ${path}`)
     }
+    assert(hasDropInProgramLink(links, 'Fit & Flip'), `${label}: missing the guide link to Cyclones drop-in dates`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''

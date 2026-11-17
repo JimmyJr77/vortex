@@ -1,10 +1,15 @@
-import { useEffect } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import { BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
+import { trackEvent } from '../../utils/analyticsClient'
+import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
+import PublicDialog from './PublicDialog'
 import PublicRecurringSchedule from './PublicRecurringSchedule'
 import './PublicProgramPage.css'
+
+const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
 
 const HERO_IMAGE_SIZES = [
   '(max-width: 620px) calc(100vw - 44px)',
@@ -19,7 +24,8 @@ const HERO_IMAGE_SIZES = [
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
   const program = PUBLIC_PROGRAMS[path]
   const { hash } = useLocation()
-  const { primaryAction, secondaryAction, recurringSchedule } = program
+  const { primaryAction, secondaryAction, recurringSchedule, trial } = program
+  const [trialOpen, setTrialOpen] = useState(false)
 
   useEffect(() => {
     if (!hash) return
@@ -28,6 +34,19 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
     })
     return () => cancelAnimationFrame(frame)
   }, [hash, path])
+
+  function renderTrialButton(section: string) {
+    if (!trial) return null
+    return (
+      <button type="button" className="np-program-plain-link" data-analytics-cta="free_trial" data-analytics-section={section}
+        onClick={() => {
+          trackEvent('trial_start', path, { properties: { section, program_slug: trial.program } })
+          setTrialOpen(true)
+        }}>
+        {trial.label} <ArrowUpRight size={16} aria-hidden="true" />
+      </button>
+    )
+  }
 
   return (
     <main id="public-content" className="np-program-page" tabIndex={-1}>
@@ -50,6 +69,7 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                   {secondaryAction.label} <ArrowUpRight size={16} aria-hidden="true" />
                 </Link>
               )}
+              {renderTrialButton('program')}
             </div>
           </div>
           <img
@@ -96,9 +116,10 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
                 ))}
               </div>
             )}
-            {section.links && (
+            {(section.links || trial?.sectionId === section.id) && (
               <div className="np-program-page-actions">
-                {section.links.map(({ href, label, analyticsKey }) => (
+                {trial?.sectionId === section.id && renderTrialButton(section.id.replaceAll('-', '_'))}
+                {section.links?.map(({ href, label, analyticsKey }) => (
                   <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={section.id}>
                     {label} <ArrowUpRight size={16} aria-hidden="true" />
                   </Link>
@@ -146,6 +167,13 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
           ))}
         </nav>
       </div>
+      {trial && trialOpen && (
+        <PublicDialog className="np-dialog-trial" labelledBy="np-trial-title" onClose={() => setTrialOpen(false)}>
+          <Suspense fallback={<div className="np-dialog-content"><h2 id="np-trial-title">Loading trial signup…</h2></div>}>
+            <NewPageFreeTrial initialProgram={trial.program} sourcePath={path} onDone={() => setTrialOpen(false)} />
+          </Suspense>
+        </PublicDialog>
+      )}
     </main>
   )
 }

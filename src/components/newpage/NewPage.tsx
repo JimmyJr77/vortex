@@ -5,6 +5,7 @@ import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, SOCIAL_PROFILES, T
 import SeoHead from '../SeoHead'
 import ParallaxGym from '../ParallaxGym'
 import PublicBrandImage from './PublicBrandImage'
+import PublicDialog from './PublicDialog'
 import PublicNavigationLinks from './PublicNavigationLinks'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
@@ -147,10 +148,8 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
   const [videoPlaying, setVideoPlaying] = useState(false)
   const [posterReady, setPosterReady] = useState(false)
   const [backgroundCanPlay, setBackgroundCanPlay] = useState(false)
-  const dialogRef = useRef<HTMLDialogElement>(null)
   const recommendationRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
-  const isDialogOpen = overlay !== null
   const handleAutoplayBlocked = useCallback(() => setMotionPaused(true), [])
 
   useEffect(() => {
@@ -174,24 +173,6 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
     media.addEventListener('change', change)
     return () => media.removeEventListener('change', change)
   }, [])
-
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!isDialogOpen || !dialog) return
-    const trigger = document.activeElement as HTMLElement | null
-    dialog.showModal()
-    const previousOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      dialog.close()
-      document.body.style.overflow = previousOverflow
-      trigger?.focus({ preventScroll: true })
-    }
-  }, [isDialogOpen])
-
-  useEffect(() => {
-    if (overlay) dialogRef.current?.querySelector<HTMLButtonElement>('.np-dialog-close')?.focus({ preventScroll: true })
-  }, [overlay])
 
   useEffect(() => {
     if (selectedGoal !== null && overlay === 'finder') recommendationRef.current?.scrollIntoView({ block: 'nearest', behavior: motionPaused ? 'instant' : 'smooth' })
@@ -389,14 +370,14 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         </div>
       </footer>
 
-      {overlay && <dialog ref={dialogRef} className={`np-dialog ${overlay === 'trial' ? 'np-dialog-trial' : overlay === 'video' || overlay === 'live' ? 'np-dialog-video' : ''}`} aria-labelledby={dialogLabel} onCancel={() => setOverlay(null)} onClick={event => { if (event.target === event.currentTarget) { const bounds = event.currentTarget.getBoundingClientRect(); if (event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) setOverlay(null) } }}><button className="np-dialog-close" aria-label="Close dialog" onClick={() => setOverlay(null)}><X size={22} /></button>
+      {overlay && <PublicDialog className={overlay === 'trial' ? 'np-dialog-trial' : overlay === 'video' || overlay === 'live' ? 'np-dialog-video' : ''} labelledBy={dialogLabel} view={overlay} onClose={() => setOverlay(null)}>
         {currentProgram && <><img className="np-dialog-image" src={currentProgram.image} alt={currentProgram.alt} /><div className="np-dialog-content"><p className="np-eyebrow">{currentProgram.eyebrow}</p><h2 id="np-dialog-title">{currentProgram.name}</h2><p>{currentProgram.detail}</p><ul className="np-dialog-points">{currentProgram.points.map(point => <li key={point}><Check size={18} /><span>{point}</span></li>)}</ul>{overlay === 'gymnastics' && <div className="np-pathways"><div><strong>Developmental</strong><span>Learn. Progress. Grow.</span><p>Purposeful training without competition.</p></div><div><strong>Team</strong><span>Develop. Prepare. Compete.</span><p>The same focus on growth, with competition.</p></div></div>}<div className="np-dialog-actions"><button className="np-button" data-analytics-cta="free_trial" data-analytics-section="program" onClick={() => openTrial('program', overlay as Program)}>Try a free class <ArrowUpRight size={17} /></button><Link className="np-text-button" to={currentProgram.href} data-analytics-cta="browse_classes" data-analytics-section="program">Browse classes & enroll <ArrowUpRight size={17} /></Link><button className="np-text-button" onClick={() => openInquiry(overlay as Program)}>Ask about this program <ArrowRight size={17} /></button></div></div></>}
         {overlay === 'finder' && <div className="np-dialog-content np-finder"><p className="np-eyebrow">A GOOD PLACE TO START</p><h2 id="np-dialog-title">What’s their next goal?</h2><p>Tell us what your athlete is working toward.</p><div className="np-goal-options">{goals.map((goal, index) => <button key={goal.title} className={selectedGoal === index ? 'is-selected' : ''} aria-pressed={selectedGoal === index} onClick={() => setSelectedGoal(index)}><span><strong>{goal.title}</strong><small>{goal.subtitle}</small></span>{selectedGoal === index ? <Check size={20} /> : <ArrowUpRight size={20} />}</button>)}</div>{selectedGoal !== null && <div ref={recommendationRef} className="np-recommendation" aria-live="polite"><p className="np-eyebrow">YOUR STARTING POINT</p><h3>{programs[goals[selectedGoal].program].name}</h3><p>{goals[selectedGoal].text}</p><div className="np-dialog-actions"><button className="np-button" onClick={() => openProgram(goals[selectedGoal].program, 'finder_recommendation')}>Explore the program <ArrowRight size={17} /></button><button className="np-text-button" onClick={() => openInquiry(goals[selectedGoal].program)}>Talk to our team</button></div></div>}</div>}
         {overlay === 'trial' && <Suspense fallback={<div className="np-trial-flow"><h2 id="np-trial-title">Loading trial signup…</h2></div>}><NewPageFreeTrial initialProgram={trialProgram} onDone={() => setOverlay(null)} /></Suspense>}
         {overlay === 'inquiry' && <div className="np-dialog-content"><Suspense fallback={<h2 id="np-inquiry-title">Loading inquiry form…</h2>}><NewPageInquiry program={inquiryProgram} onDone={() => setOverlay(null)} /></Suspense></div>}
         {overlay === 'video' && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">See the work in motion.</h2><TrainingVideo full paused={false} /><p>Strength. Explosiveness. Body control. Built together.</p>{liveTrainingEmbedUrl && <button className="np-button" onClick={() => openMedia('live_stream')}>Watch live <Play size={16} /></button>}</div>}
         {overlay === 'live' && liveTrainingEmbedUrl && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">Live from Vortex.</h2><iframe className="np-live-stream" src={liveTrainingEmbedUrl} title="Vortex live training stream" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /><button className="np-text-button" onClick={() => openMedia('training_film')}>Back to the training film <ArrowRight size={17} /></button></div>}
-      </dialog>}
+      </PublicDialog>}
     </div>
   )
 }

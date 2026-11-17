@@ -12,6 +12,17 @@ async function mockTrialApi(page: Page, confirmation = true) {
     const { pathname } = new URL(route.request().url())
     if (route.request().method() === 'POST') submitted.push({ path: pathname, body: route.request().postDataJSON() })
     let response: unknown = { success: true, data: [] }
+    if (pathname.startsWith('/api/consent/sync')) response = { success: true, consent: null }
+    if (pathname === '/api/public/free-trials') response = {
+      success: true,
+      data: {
+        program: 'fit-flip', age: 10, ageBand: { min: 8, max: 11 }, classes: [],
+        sessions: [{
+          classId: 104, slotGroupId: 200, className: 'Cyclones', date: '2027-01-12',
+          startTime: '16:00:00', endTime: '17:00:00', enrolledCount: 3, spotsRemaining: 4, isFull: false,
+        }],
+      },
+    }
     if (pathname === '/api/signup/waivers') response = { success: true, data: waivers }
     if (pathname === '/api/signup/family') response = { success: true, data: { completedDropIn: confirmation ? confirmedBooking : { ...confirmedBooking, status: 'payment_pending' } } }
     if (pathname === '/api/members/login') response = { success: true, token: 'test-parent-token', member: { id: 101, firstName: 'Test', lastName: 'Parent' } }
@@ -70,7 +81,16 @@ async function signTestWaivers(page: Page) {
 test('mobile new-family trial requires waivers and registers the child without checkout', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const submitted = await mockTrialApi(page)
-  await page.goto('/tests/fixtures/free-trial.html')
+  await page.goto('/fit-and-flip')
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await page.getByRole('checkbox', { name: /^Analytics/ }).check()
+  await page.getByRole('button', { name: 'Save preferences' }).click()
+  await page.locator('.np-program-hero').getByRole('button', { name: 'Find a free Fit & Flip trial' }).click()
+  const dialog = page.getByRole('dialog')
+  await dialog.getByLabel('Your child’s age').fill('10')
+  await dialog.getByRole('button', { name: 'Find available classes' }).click()
+  await dialog.getByRole('button', { name: /Cyclones.*spot/ }).click()
+  await dialog.getByRole('button', { name: 'Yes, use our free trial' }).click()
   await completeGuardianAndChild(page)
   await page.getByRole('button', { name: 'Confirm free trial · $0', exact: true }).click()
   await expect(page.getByRole('alert')).toContainText('Please agree to Participation waiver.')
@@ -85,6 +105,12 @@ test('mobile new-family trial requires waivers and registers the child without c
   expect(signup.body.additionalMembers).toHaveLength(1)
   expect(signup.body.waivers).toMatchObject({ acceptedTemplateIds: [11, 12], signatureName: 'Test Parent', paymentPolicyAcknowledged: true })
   expect(submitted.filter(item => /billing|checkout|stripe/.test(item.path))).toEqual([])
+  await expect.poll(() => submitted.filter(item => item.path === '/api/analytics/event')
+    .flatMap(item => item.body.events as { eventName: string; pagePath: string }[])
+    .filter(event => /^trial_confirm/.test(event.eventName))
+    .map(event => [event.eventName, event.pagePath])).toEqual([
+    ['trial_confirm_submit', '/fit-and-flip'], ['trial_confirmed', '/fit-and-flip'],
+  ])
   expect(await page.locator('body').evaluate(body => body.scrollWidth <= window.innerWidth)).toBe(true)
 })
 

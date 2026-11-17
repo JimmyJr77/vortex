@@ -109,3 +109,41 @@ test('records trial decision points without collecting age, class dates, or a fa
   expect(trial.find(event => event.eventName === 'trial_availability')?.properties).toEqual({ program_slug: 'fit-flip', outcome: 'available' })
   expect(JSON.stringify(trial.map(event => event.properties))).not.toMatch(/age|2027-01-12|cyclones|potty|slotGroupId|memberId/i)
 })
+
+test('opens a preselected trial from the program page and credits the signup to that page', async ({ page }) => {
+  const events = await mockSite(page)
+  await page.goto('/blog/athletic-development-young-athletes')
+  await page.getByRole('button', { name: 'Settings', exact: true }).click()
+  await grantAnalyticsOnly(page)
+  await expect(page.getByRole('link', { name: 'See Fit & Flip drop-in dates' })).toHaveAttribute('href', '/drop-in?program=Fit%20%26%20Flip')
+  await page.getByRole('link', { name: 'Find a free Fit & Flip trial' }).click()
+  await expect(page).toHaveURL('/fit-and-flip#training-fit')
+
+  const fitTrial = page.locator('#training-fit').getByRole('button', { name: 'Find a free Fit & Flip trial' })
+  await fitTrial.click()
+  const dialog = page.getByRole('dialog')
+  await expect(dialog.getByRole('heading', { name: 'How old is your athlete?' })).toBeVisible()
+  await expect(dialog.getByText('Cyclones classes are grouped into ages 8–11 and 12–15.', { exact: false })).toBeVisible()
+  await dialog.getByLabel('Your child’s age').fill('10')
+  const availability = page.waitForRequest(request => new URL(request.url()).pathname === '/api/public/free-trials')
+  await dialog.getByRole('button', { name: 'Find available classes' }).click()
+  expect(new URL((await availability).url()).searchParams.get('program')).toBe('fit-flip')
+  await dialog.getByRole('button', { name: /Cyclones.*spot/ }).click()
+  await dialog.getByRole('button', { name: 'Yes, use our free trial' }).click()
+  await expect.poll(() => events.filter(event => /^trial_/.test(event.eventName)).map(event => [event.eventName, event.pagePath])).toEqual([
+    ['trial_start', '/fit-and-flip'], ['trial_availability', '/fit-and-flip'],
+    ['trial_class_select', '/fit-and-flip'], ['trial_registration_start', '/fit-and-flip'],
+  ])
+  await page.keyboard.press('Escape')
+  await expect(dialog).toHaveCount(0)
+  await expect(fitTrial).toBeFocused()
+
+  await page.goto('/gymnastics#first-visit')
+  const firstVisit = page.locator('#first-visit')
+  await expect(firstVisit.getByText(/Plan for about 60 minutes.*Tornadoes trials for ages 6–17 last about 90 minutes/)).toBeVisible()
+  await firstVisit.getByRole('button', { name: 'Find a free gymnastics trial' }).click()
+  await expect(dialog.getByRole('heading', { name: 'How old is your athlete?' })).toBeVisible()
+  await expect(dialog.getByText('We’ll show the gymnastics classes available for their age.', { exact: false })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Close dialog' }).click()
+  await expect(dialog).toHaveCount(0)
+})

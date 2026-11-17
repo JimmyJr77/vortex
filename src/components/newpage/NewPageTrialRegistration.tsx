@@ -15,6 +15,7 @@ export type { FreeTrialSignupSelection }
 
 interface Props {
   selection: FreeTrialSignupSelection
+  sourcePath?: string
   onBack: () => void
   onComplete?: () => void
 }
@@ -34,7 +35,7 @@ function clockTime(value: string) {
   return `${hours % 12 || 12}:${String(minutes).padStart(2, '0')} ${hours >= 12 ? 'PM' : 'AM'}`
 }
 
-export default function NewPageTrialRegistration({ selection, onBack, onComplete }: Props) {
+export default function NewPageTrialRegistration({ selection, sourcePath = '/', onBack, onComplete }: Props) {
   const apiUrl = getApiUrl()
   const [token, setToken] = useState(getMemberSessionToken)
   const [view, setView] = useState<'new' | 'login'>('new')
@@ -185,7 +186,7 @@ export default function NewPageTrialRegistration({ selection, onBack, onComplete
     }
     setLoading(true)
     try {
-      trackEvent('trial_confirm_submit', '/', { properties: { program_slug: selection.program } })
+      trackEvent('trial_confirm_submit', sourcePath, { properties: { program_slug: selection.program } })
       const res = await fetch(`${apiUrl}/api/members/free-trials/register`, {
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
@@ -211,10 +212,10 @@ export default function NewPageTrialRegistration({ selection, onBack, onComplete
       if (data.data?.status !== 'confirmed' || data.data?.benefitType !== 'free_trial' || data.data?.totalCents !== 0) {
         throw new Error('We could not verify this free trial. Please contact Vortex before attending.')
       }
-      trackConfirmation('trial_confirmed', '/', data.data.id, { program_slug: selection.program })
+      trackConfirmation('trial_confirmed', sourcePath, data.data.id, { program_slug: selection.program })
       complete()
     } catch (err) {
-      trackEvent('trial_confirm_error', '/', { properties: { program_slug: selection.program } })
+      trackEvent('trial_confirm_error', sourcePath, { properties: { program_slug: selection.program } })
       setError(err instanceof Error ? err.message : 'Unable to confirm your free trial.')
     } finally {
       setLoading(false)
@@ -250,7 +251,7 @@ export default function NewPageTrialRegistration({ selection, onBack, onComplete
           <button type="button" disabled={loading} aria-pressed={view === 'new'} onClick={() => { setView('new'); setError(null) }}>New family</button>
           <button type="button" disabled={loading} aria-pressed={view === 'login'} onClick={() => { setView('login'); setError(null) }}>Already a member</button>
         </div>
-        {view === 'new' ? <FamilySignupWizard freeTrial={selection} onComplete={complete} /> : <form onSubmit={signIn} className="np-trial-form">
+        {view === 'new' ? <FamilySignupWizard freeTrial={selection} trialSourcePath={sourcePath} onComplete={complete} /> : <form onSubmit={signIn} className="np-trial-form">
           <h3>Sign in as the parent or guardian</h3>
           <label htmlFor="np-trial-login">Email or username</label>
           <input id="np-trial-login" autoComplete="username" required value={loginName} onChange={event => setLoginName(event.target.value)} />

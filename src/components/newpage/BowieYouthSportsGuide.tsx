@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import { FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
@@ -93,7 +94,8 @@ export default function BowieYouthSportsGuide() {
           <p>
             If they want to get stronger or move with more control, look for coached youth fitness. Fit &amp; Flip
             combines strength work, jumps, and gymnastics-inspired movement. It can give a beginner a place to start
-            or support a child who already plays a sport. <Link to="/fit-and-flip">Explore Fit &amp; Flip</Link>.
+            or support a child who already plays a sport. <Link to="/fit-and-flip">Explore Fit &amp; Flip</Link> or{' '}
+            <Link to={FIT_AND_FLIP_DROP_IN_HREF}>check dates for a single Cyclones class</Link>.
           </p>
           <p>
             A single-day class gives your child a chance to try an activity before committing to a weekly schedule.{' '}

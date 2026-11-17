@@ -35,9 +35,11 @@ function weekdayFor(date: string) {
 
 export default function NewPageFreeTrial({
   initialProgram,
+  sourcePath = '/',
   onDone,
 }: {
   initialProgram?: FreeTrialProgram
+  sourcePath?: string
   onDone: () => void
 }) {
   const [step, setStep] = useState<TrialStep>(initialProgram ? 'age' : 'program')
@@ -89,12 +91,12 @@ export default function NewPageFreeTrial({
         }
       } else {
         const outcome = data.sessions.some(session => !session.isFull) ? 'available' : 'empty'
-        trackEvent('trial_availability', '/', { properties: { program_slug: program, outcome } })
+        trackEvent('trial_availability', sourcePath, { properties: { program_slug: program, outcome } })
       }
     }).catch((failure: unknown) => {
       if (!active) return
       setAvailability(null)
-      trackEvent('trial_availability', '/', { properties: { program_slug: program, outcome: 'error' } })
+      trackEvent('trial_availability', sourcePath, { properties: { program_slug: program, outcome: 'error' } })
       setError(controller.signal.aborted
         ? 'Class availability is taking longer than expected. Please try again.'
         : failure instanceof Error ? failure.message : 'We couldn’t load trial classes. Please try again.')
@@ -103,7 +105,7 @@ export default function NewPageFreeTrial({
       if (active) setLoading(false)
     })
     return () => { active = false; window.clearTimeout(timeout); controller.abort() }
-  }, [step, program, age, refresh, gymnasticsAnswers])
+  }, [step, program, age, refresh, gymnasticsAnswers, sourcePath])
 
   const sessions = useMemo(() => [...(availability?.sessions ?? [])].sort((a, b) =>
     a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime) || a.className.localeCompare(b.className),
@@ -119,7 +121,7 @@ export default function NewPageFreeTrial({
   )
 
   function chooseProgram(nextProgram: FreeTrialProgram) {
-    trackEvent('program_interest', '/', { properties: { program_slug: nextProgram, target: 'trial_program' } })
+    trackEvent('program_interest', sourcePath, { properties: { program_slug: nextProgram, target: 'trial_program' } })
     setProgram(nextProgram)
     setAvailability(null)
     setSelected(null)
@@ -226,7 +228,7 @@ export default function NewPageFreeTrial({
         {offeredClasses.length > 1 && <label className="np-trial-class-filter">Class<select value={classFilter} onChange={event => { setClassFilter(event.target.value); setDayFilter(null); setVisibleCount(8) }}><option value="all">All age-appropriate classes</option>{offeredClasses.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>}
         <div className="np-trial-days" aria-label="Filter classes by day"><button aria-pressed={dayFilter === null} onClick={() => { setDayFilter(null); setVisibleCount(8) }}>All days</button>{days.map(day => <button key={day} aria-pressed={dayFilter === day} onClick={() => { setDayFilter(day); setVisibleCount(8) }}>{WEEKDAYS[day]}</button>)}</div>
         <p className="np-trial-availability-note">All times Eastern. Enrollment counts are current as of {loadedAt?.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })} ET.</p>
-        <div className="np-trial-sessions">{filteredSessions.slice(0, visibleCount).map(session => <button key={`${session.slotGroupId}:${session.date}:${session.startTime}`} className="np-trial-session" disabled={session.isFull} onClick={() => { trackEvent('trial_class_select', '/', { properties: { program_slug: program } }); setSelected(session); setStep('review') }}>
+        <div className="np-trial-sessions">{filteredSessions.slice(0, visibleCount).map(session => <button key={`${session.slotGroupId}:${session.date}:${session.startTime}`} className="np-trial-session" disabled={session.isFull} onClick={() => { trackEvent('trial_class_select', sourcePath, { properties: { program_slug: program } }); setSelected(session); setStep('review') }}>
           <span className="np-trial-session-date"><span>{WEEKDAYS[weekdayFor(session.date)]}</span><strong>{formatTrialDate(session.date)}</strong></span>
           <span className="np-trial-session-body"><strong>{session.className}</strong><span><Clock3 size={14} />{formatTrialTime(session.startTime)}–{formatTrialTime(session.endTime)}</span><span><Users size={14} />{session.enrolledCount} {session.enrolledCount === 1 ? 'athlete' : 'athletes'} enrolled</span></span>
           <span className={`np-trial-session-places${session.isFull ? ' is-full' : ''}`}>{session.isFull ? 'Class full' : `${session.spotsRemaining} ${session.spotsRemaining === 1 ? 'spot' : 'spots'} available`}{!session.isFull && <ArrowRight size={17} />}</span>
@@ -241,11 +243,11 @@ export default function NewPageFreeTrial({
       <p className="np-trial-intro">Try the training. Meet the coaches. Find their next level.</p>
       <div className="np-trial-review-card"><p className="np-eyebrow">YOUR FIRST CLASS</p><h3>{selected.className}</h3><p><CalendarDays size={18} />{formatTrialDate(selected.date, true)}</p><p><Clock3 size={18} />{formatTrialTime(selected.startTime)}–{formatTrialTime(selected.endTime)} Eastern</p><p><Users size={18} />{selected.enrolledCount} {selected.enrolledCount === 1 ? 'athlete currently enrolled' : 'athletes currently enrolled'}</p><div className="np-trial-review-total"><span>One-time free trial<strong>No payment or card required.</strong></span><strong>$0</strong></div></div>
       <p className="np-trial-review-help">Would you like to sign up? Next, a parent or legal guardian will create or sign in to a family account, add the athlete’s details, and complete the required waivers.</p>
-      <button className="np-button np-trial-continue" onClick={() => { trackEvent('trial_registration_start', '/', { properties: { program_slug: program } }); setStep('registration') }}>Yes, use our free trial <ArrowRight size={18} /></button>
+      <button className="np-button np-trial-continue" onClick={() => { trackEvent('trial_registration_start', sourcePath, { properties: { program_slug: program } }); setStep('registration') }}>Yes, use our free trial <ArrowRight size={18} /></button>
       <p className="np-trial-footnote">Available once per athlete. We’ll check eligibility and availability before confirming. This does not enroll your child in a paid recurring program.</p>
     </>}
 
-    {step === 'registration' && selected && program && age !== null && <NewPageTrialRegistration selection={{ program, age, slotGroupId: selected.slotGroupId, classDate: selected.date, className: selected.className, startTime: selected.startTime, endTime: selected.endTime, ...(program === 'gymnastics' ? gymnasticsAnswers : {}) }} onBack={() => setStep('classes')} onComplete={() => setConfirmed(true)} />}
+    {step === 'registration' && selected && program && age !== null && <NewPageTrialRegistration selection={{ program, age, slotGroupId: selected.slotGroupId, classDate: selected.date, className: selected.className, startTime: selected.startTime, endTime: selected.endTime, ...(program === 'gymnastics' ? gymnasticsAnswers : {}) }} sourcePath={sourcePath} onBack={() => setStep('classes')} onComplete={() => setConfirmed(true)} />}
     {confirmed && <button className="np-button np-trial-continue" onClick={onDone}>Back to exploring <ArrowRight size={18} /></button>}
   </div>
 }

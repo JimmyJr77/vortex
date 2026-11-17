@@ -5,6 +5,7 @@ import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
+import type { FreeTrialProgram } from '../utils/freeTrialApi'
 import {
   ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
   FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
@@ -38,6 +39,7 @@ type PublicProgram = {
   imageHeight: number
   primaryAction: ProgramAction
   secondaryAction?: ProgramAction
+  trial?: { program: FreeTrialProgram; label: string; sectionId: string }
   recurringSchedule?: {
     id: string
     heading: string
@@ -50,7 +52,6 @@ type PublicProgram = {
 }
 
 const DEVELOPMENTAL_GYMNASTICS_HREF = '/enroll?program=Developmental%20Gymnastics'
-const FREE_TRIAL_ACTION = { href: '/#free-trial', label: 'Try a free class', analyticsKey: 'free_trial_section' }
 const TUMBLING_GUIDE_ACTION = {
   href: GYMNASTICS_VS_TUMBLING_GUIDE.path,
   label: 'Compare gymnastics and tumbling for kids',
@@ -72,12 +73,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 1600,
     imageHeight: 1200,
     primaryAction: { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse gymnastics classes', analyticsKey: 'browse_classes' },
-    secondaryAction: FREE_TRIAL_ACTION,
+    trial: { program: 'gymnastics', label: 'Find a free gymnastics trial', sectionId: 'first-visit' },
     sections: [
       {
         id: 'choose-a-class',
         heading: 'Find the right starting class',
-        description: 'The gymnastics trial finder uses your child’s age and experience to show the right type of class. Current openings appear when you choose Gymnastics in the finder.',
+        description: 'The gymnastics trial finder uses your child’s age and experience to show the right type of class and its current openings.',
         topics: [
           {
             id: 'preschool',
@@ -107,12 +108,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         topics: [
           { id: 'gymnastics-attire', heading: GYMNASTICS_CLASS_ATTIRE.question, description: GYMNASTICS_CLASS_ATTIRE.answer },
           {
+            id: 'gymnastics-trial-length',
+            heading: 'How long is the trial class?',
+            description: 'Plan for about 60 minutes for Dirt Devils (ages 2–3), Twisters (ages 4–5), or a Trial Assessment for an experienced athlete ages 6–17. Beginner Tornadoes trials for ages 6–17 last about 90 minutes. Check the exact start and end times when you choose a date.',
+          },
+          {
             id: 'reserve-gymnastics-trial',
             heading: 'How to book a free gymnastics trial',
-            description: 'Choose Gymnastics in the trial finder, enter your child’s age, and pick an available date. A parent or legal guardian must create or sign in to a family account, add the athlete’s details, and sign the waivers before the class is confirmed. Each athlete can use one free trial. No payment card is required.',
+            description: 'Enter your child’s age in the trial finder and pick an available date. A parent or legal guardian must create or sign in to a family account, add the athlete’s details, and sign the waivers before the class is confirmed. Each athlete can use one free trial. No payment card is required.',
           },
         ],
-        links: [{ ...FREE_TRIAL_ACTION, label: 'Find a gymnastics trial' }],
       },
       {
         id: 'disciplines',
@@ -140,7 +145,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     faqs: [
       { question: 'Does my child need gymnastics experience to start?', answer: 'Beginners are welcome. The trial finder matches new gymnasts ages 6–17 with Tornadoes trials when available. If your athlete has trained before, choose the experienced pathway to look for a Trial Assessment.' },
       { question: 'Does my child have to compete?', answer: 'Competition is part of the team pathway. Athletes in developmental gymnastics can work on skills, strength, and body control without entering competitions.' },
-      { question: 'How do I choose a gymnastics class?', answer: 'For a first visit, select Gymnastics in the free trial finder and enter your child’s age and experience. You can also browse the live class catalog or contact Vortex if you have a placement question.' },
+      { question: 'How do I choose a gymnastics class?', answer: 'For a first visit, enter your child’s age and experience in the gymnastics trial finder. You can also browse the live class catalog or contact Vortex if you have a placement question.' },
     ],
     relatedPaths: ['/fit-and-flip', '/adult-gymnastics'],
   },
@@ -157,7 +162,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     imageWidth: 900,
     imageHeight: 675,
     primaryAction: { href: FIT_AND_FLIP_BOOKING_HREF, label: 'Browse Fit & Flip classes', analyticsKey: 'browse_classes' },
-    secondaryAction: FREE_TRIAL_ACTION,
+    trial: { program: 'fit-flip', label: 'Find a free Fit & Flip trial', sectionId: 'training-fit' },
     recurringSchedule: {
       id: 'fit-flip-schedule',
       heading: 'Recurring Fit & Flip class times',
@@ -221,7 +226,6 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
         links: [
           { href: FIT_AND_FLIP_BOOKING_HREF, label: 'See recurring Fit & Flip classes', analyticsKey: 'browse_classes' },
-          { ...FREE_TRIAL_ACTION, label: 'Look for a Fit & Flip trial' },
           { href: FIT_AND_FLIP_DROP_IN_HREF, label: 'See Fit & Flip drop-in dates', analyticsKey: 'browse_drop_ins' },
           { href: '/contact', label: 'Ask about class options', analyticsKey: 'inquire' },
           { href: ATHLETIC_DEVELOPMENT_GUIDE.path, label: 'Read the parent guide to athletic development', analyticsKey: 'read_athletic_development_guide' },
