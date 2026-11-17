@@ -1,5 +1,8 @@
+import { Suspense } from 'react'
 import { Link } from 'react-router-dom'
-import PublicSchedulingCalendar from '../scheduling/PublicSchedulingCalendar'
+import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
+
+const PublicSchedulingCalendar = lazyWithRetry(() => import('../scheduling/PublicSchedulingCalendar'))
 
 const ReadBoardScheduleTab = ({ showCalendar }: { showCalendar: boolean }) => (
   <section id="schedule" aria-labelledby="read-board-schedule-heading" className="np-browse-section np-browse-schedule bg-white">
@@ -11,7 +14,9 @@ const ReadBoardScheduleTab = ({ showCalendar }: { showCalendar: boolean }) => (
       {showCalendar && (
         <div className="mt-6 space-y-4" data-prerender-dynamic="">
           <p>Choose <strong>By class</strong> to find dates for one class. In <strong>Day</strong> view, choose <strong>Sign Up</strong> to start enrollment with that date and time selected.</p>
-          <PublicSchedulingCalendar theme="light" />
+          <Suspense fallback={<p role="status">Loading class calendar…</p>}>
+            <PublicSchedulingCalendar theme="light" />
+          </Suspense>
         </div>
       )}
       <ul className="np-browse-schedule-links" aria-label="Find an available class">

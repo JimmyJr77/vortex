@@ -3,6 +3,7 @@ import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from './bowieYouthSportsGuide'
 import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from './contact'
 import { FIT_AND_FLIP_PUBLIC_COPY } from './fitAndFlipCopy'
+import { GYMNASTICS_TEAM_PUBLIC_DESCRIPTION } from './publicCatalog'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from './gymnasticsVsTumblingGuide'
 import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
@@ -177,7 +178,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'competitive-gymnastics-team',
         heading: 'Competitive gymnastics team in Bowie',
-        description: 'Vortex Gymnastics Team is listed for ages 6 and up. The team requires an evaluation for placement. If your child wants to compete, tell the coaches their age, current level, and the discipline they’re interested in.',
+        description: GYMNASTICS_TEAM_PUBLIC_DESCRIPTION,
         topics: [
           {
             id: 'gymnastics-team-evaluation',

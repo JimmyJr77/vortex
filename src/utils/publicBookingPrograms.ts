@@ -1,6 +1,7 @@
 import { FIT_AND_FLIP_PUBLIC_COPY } from '../config/fitAndFlipCopy'
 import {
   ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_CATALOG_NAMES, DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM,
+  GYMNASTICS_TEAM_PUBLIC_DESCRIPTION,
 } from '../config/publicCatalog'
 import type { PublicClassOffered, PublicProgramOffered } from './publicClassesApi'
 
@@ -59,7 +60,9 @@ export function getScopedDropInProgram(name: string | null) {
 }
 
 export function getPublicBookingDescription(programName: string, catalogDescription: string | null) {
-  return programName === FIT_AND_FLIP_BOOKING_PROGRAM ? FIT_AND_FLIP_PUBLIC_COPY.intro : catalogDescription
+  if (programName === FIT_AND_FLIP_BOOKING_PROGRAM) return FIT_AND_FLIP_PUBLIC_COPY.intro
+  if (programName === GYMNASTICS_TEAM_PROGRAM) return GYMNASTICS_TEAM_PUBLIC_DESCRIPTION
+  return catalogDescription
 }
 
 export function matchesPublicBookingSearch(
@@ -70,10 +73,21 @@ export function matchesPublicBookingSearch(
   return [...fields, programCopy].filter(Boolean).join(' ').toLowerCase().includes(query)
 }
 
-export function getPublicBookingPrograms<T extends { displayName: string; enrollmentSortOrder?: number | null }>(programs: readonly T[]): T[] {
+export function getPublicBookingPrograms(programs: readonly PublicProgramOffered[]): PublicProgramOffered[] {
+  const teamName = normalize(GYMNASTICS_TEAM_PROGRAM)
   const publicPrograms = PUBLIC_BOOKING_PROGRAMS.flatMap(({ name }) => programs
     .filter(program => getPublicBookingProgramName(program.displayName) === name)
-    .map(program => ({ ...program, displayName: name })))
+    .map(program => ({
+      ...program,
+      displayName: name,
+      description: getPublicBookingDescription(name, program.description),
+      // The program describes evaluation and available placements. The generic class has no discipline assignment.
+      classes: name === GYMNASTICS_TEAM_PROGRAM
+        ? program.classes.map(classItem => normalize(classItem.displayName) === teamName
+          ? { ...classItem, description: null }
+          : classItem)
+        : program.classes,
+    })))
 
   // A stable sort keeps the curated relative order for programs with no saved position.
   return publicPrograms.sort((left, right) =>
