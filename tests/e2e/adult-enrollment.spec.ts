@@ -90,6 +90,9 @@ test('adult gymnastics, general enrollment, and published form links open the cu
   await expect(page).toHaveURL(adultBookingPath)
   await expect(page.getByRole('heading', { name: adultName })).toBeVisible()
   await expect(page.getByRole('button', { name: /Monday.*7:00 PM/ })).toBeVisible()
+  await page.goBack()
+  await expect(page).toHaveURL('/enroll')
+  await expect(page.getByRole('link', { name: 'Try a free class', exact: true })).toHaveAttribute('href', '/#free-trial')
 })
 
 test('choosing from multiple adult classes retains the adult contact and return links', async ({ page }) => {
