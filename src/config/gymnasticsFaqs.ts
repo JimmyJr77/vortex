@@ -1,5 +1,10 @@
 import type { Faq } from './faqs'
 
+export const GYMNASTICS_CLASS_ATTIRE: Faq = {
+  question: 'What should my child wear to class?',
+  answer: 'A fitted leotard or a comfortable T-shirt and shorts work well. Hair should be tied back, and athletes train barefoot. Please leave jewelry at home.',
+}
+
 /** Gymnastics-site FAQ. Rendered visibly on the gymnastics homepage AND used for FAQPage schema. */
 export const GYMNASTICS_FAQS: Faq[] = [
   {
@@ -22,11 +27,7 @@ export const GYMNASTICS_FAQS: Faq[] = [
     answer:
       'We are open Monday through Friday from 4:00 to 8:30 PM and Saturday from 9:00 AM to 12:00 PM. We are closed on Sundays.',
   },
-  {
-    question: 'What should my child wear to class?',
-    answer:
-      'A fitted leotard or a comfortable t-shirt and shorts work well. Hair should be tied back, and athletes train barefoot. Please leave jewelry at home.',
-  },
+  GYMNASTICS_CLASS_ATTIRE,
   {
     question: 'How do I sign up or book a trial class?',
     answer:

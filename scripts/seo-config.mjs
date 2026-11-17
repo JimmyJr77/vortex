@@ -10,7 +10,7 @@ export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = '/blog/youth-sports-bowie'
 export const HUB_ORIGIN = 'https://vortexathletics.com'
 
 const HUB_PROGRAM_ENTRIES = [
-  { path: '/gymnastics', lastmod: '2026-11-16' },
+  { path: '/gymnastics', lastmod: '2026-11-17' },
   { path: '/fit-and-flip', lastmod: '2026-11-16' },
   { path: '/adult-gymnastics', lastmod: '2026-11-17' },
 ]

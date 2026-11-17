@@ -380,6 +380,15 @@ const verifyHtml = (
   if (shouldIndex && (pagePath === '/' || HUB_PROGRAM_PATHS.includes(pagePath))) {
     const mainHtml = html.match(/<main\b[^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
     const mainLinks = anchorUrls(mainHtml)
+    if (pagePath === '/gymnastics') {
+      const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']first-visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(/<h2\b[^>]*>What to expect at your child’s first gymnastics class<\/h2>/i.test(firstVisit),
+        `${label}: missing the first gymnastics visit section`)
+      assert(/<h3\b[^>]*>What should my child wear to class\?<\/h3>/i.test(firstVisit) &&
+        /parent or legal guardian/i.test(firstVisit), `${label}: missing first-visit attire or guardian guidance`)
+      assert(anchorUrls(firstVisit).some((url) => url.href === `${HUB_ORIGIN}/#free-trial`),
+        `${label}: missing the trial finder link in the first visit section`)
+    }
     if (pagePath === '/fit-and-flip') {
       const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/<h3\b[^>]*>Speed and agility for youth sports<\/h3>/i.test(speedAgility),
@@ -462,7 +471,7 @@ const verifyHtml = (
   if (shouldIndex && canonical === bowieGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
-    for (const path of ['/gymnastics', '/fit-and-flip', '/read-board', YOUTH_ATHLETIC_GUIDE_PATH]) {
+    for (const path of ['/gymnastics', '/gymnastics#first-visit', '/fit-and-flip', '/read-board', YOUTH_ATHLETIC_GUIDE_PATH]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable guide link to ${path}`)
     }

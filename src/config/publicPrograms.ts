@@ -1,5 +1,6 @@
 import type { Faq } from './faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from './athleticDevelopmentGuide'
+import { GYMNASTICS_CLASS_ATTIRE } from './gymnasticsFaqs'
 import { ADULT_BOOKING_HREF, ADULT_DROP_IN_HREF } from '../utils/publicBookingPrograms'
 
 export type PublicProgramPath = '/gymnastics' | '/fit-and-flip' | '/adult-gymnastics'
@@ -42,7 +43,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     name: 'Youth Gymnastics',
     path: '/gymnastics',
     title: 'Youth Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Find youth gymnastics in Bowie, MD, from preschool and beginner classes to developmental and team training. Find the right first class for your child.',
+    description: 'Find youth gymnastics classes in Bowie, MD, for toddlers, preschoolers, kids, and teens. Choose a starting class, see what to wear, and book a free trial.',
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: '/gymnastics-hero.webp',
@@ -62,17 +63,31 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'preschool',
             heading: 'Mommy & Me and preschool gymnastics',
             description:
-              'Dirt Devils is the Mommy & Me gymnastics class for toddlers ages 2–3. Children must be potty trained for a Dirt Devils trial. ' +
-              'Twisters is the preschool gymnastics class for ages 4–5, where coaches introduce balance, coordination, and basic gymnastics shapes through movement.',
+              'In Dirt Devils, a parent or caregiver joins their child for coached movement and play. This Mommy & Me class is for ages 2–3, and children must be potty trained for a trial. ' +
+              'In Twisters, preschoolers ages 4–5 practice balance, coordination, and basic gymnastics shapes through play.',
           },
-          { id: 'beginner', heading: 'First gymnastics class', description: 'Ages 6–17 with no prior gymnastics experience start with a Tornadoes trial when available. Coaches introduce the foundations of gymnastics and help athletes learn to move, support their body weight, and land with control.' },
+          { id: 'beginner', heading: 'Beginner gymnastics for ages 6–17', description: 'Kids and teens with no gymnastics experience start with a Tornadoes trial when available. Athletes learn body shapes and controlled landings as they work toward skills such as rolls, cartwheels, and handstands.' },
           { id: 'youth', heading: 'Developmental and team pathways', description: 'Developmental classes let athletes build skills without competing. Team gymnastics adds competition for athletes placed in that pathway. Families can ask the coaching team how progression and team placement work.' },
-          { id: 'teen', heading: 'Teens and experienced gymnasts', description: 'New teen gymnasts can enter through the beginner trial finder. Athletes ages 6–17 who have done gymnastics before are directed to a Trial Assessment, where a coach can help place them at a suitable level.' },
+          { id: 'teen', heading: 'Gymnastics for teens and returning athletes', description: 'Teens can start gymnastics with no prior experience. If your child has trained before and is between 6 and 17, choose the experience option in the trial finder. A coach uses a Trial Assessment to evaluate what they are ready to work on and recommend a group.' },
         ],
         links: [
-          { ...FREE_TRIAL_ACTION, label: 'Find a gymnastics trial' },
+          { href: '/gymnastics#first-visit', label: 'Prepare for your first visit', analyticsKey: 'read_first_visit' },
           { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Browse developmental gymnastics classes', analyticsKey: 'browse_classes' },
         ],
+      },
+      {
+        id: 'first-visit',
+        heading: 'What to expect at your child’s first gymnastics class',
+        description: 'A trial lets your child meet the coaches and try a class matched to their age and experience at our Bowie gym.',
+        topics: [
+          { id: 'gymnastics-attire', heading: GYMNASTICS_CLASS_ATTIRE.question, description: GYMNASTICS_CLASS_ATTIRE.answer },
+          {
+            id: 'reserve-gymnastics-trial',
+            heading: 'How to book a free gymnastics trial',
+            description: 'Choose Gymnastics in the trial finder, enter your child’s age, and pick an available date. A parent or legal guardian must create or sign in to a family account, add the athlete’s details, and sign the waivers before the class is confirmed. Each athlete can use one free trial. No payment card is required.',
+          },
+        ],
+        links: [{ ...FREE_TRIAL_ACTION, label: 'Find a gymnastics trial' }],
       },
       {
         id: 'disciplines',

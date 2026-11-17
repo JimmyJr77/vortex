@@ -88,7 +88,8 @@ export default function BowieYouthSportsGuide() {
           </p>
           <p>
             If they keep talking about tumbling or learning a cartwheel, look for a gymnastics class matched to
-            their age and experience. <Link to="/gymnastics">Explore youth gymnastics at Vortex</Link>.
+            their age and experience. <Link to="/gymnastics">Explore youth gymnastics at Vortex</Link> and see{' '}
+            <Link to="/gymnastics#first-visit">what to expect at their first class</Link>.
           </p>
           <p>
             If they want to get stronger or move with more control, look for coached youth fitness. Fit &amp; Flip
