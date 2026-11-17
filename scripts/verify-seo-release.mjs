@@ -679,6 +679,12 @@ const verifyHtml = (
     if (pagePath === '/fit-and-flip') {
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#compare-athletic-training`),
         `${label}: Fit & Flip must link to the Bowie youth athletic training comparison`)
+      const frameworkBooking = mainHtml.match(/<article\b[^>]*\sid=["']apply-athleticism-accelerator["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(/ages 8–11 or 12–15/i.test(frameworkBooking),
+        `${label}: the Athleticism Accelerator booking article must explain both Cyclones age groups`)
+      const frameworkLinks = anchorUrls(frameworkBooking)
+      assert(['#fit-flip-schedule', '#training-fit'].every(hash => frameworkLinks.some(url => url.href === `${canonical}${hash}`)),
+        `${label}: the Athleticism Accelerator booking article must link to recurring times and first-class options`)
       const speedAgility = mainHtml.match(/<article\b[^>]*\sid=["']speed-agility["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/<h3\b[^>]*>Speed and agility for youth sports<\/h3>/i.test(speedAgility),
         `${label}: missing the crawlable speed and agility heading at #speed-agility`)
@@ -692,6 +698,9 @@ const verifyHtml = (
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']fit-flip-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Recurring Fit &amp; Flip class times<\/h2>/i.test(schedule) && /8–11 and 12–15/.test(schedule),
         `${label}: missing the crawlable Fit & Flip schedule heading or age groups`)
+      const scheduleIntro = schedule.match(/<p\b[^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
+      assert(/Choose a recurring weekday during enrollment/i.test(scheduleIntro),
+        `${label}: the Fit & Flip schedule intro must explain choosing a recurring weekday`)
       if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)

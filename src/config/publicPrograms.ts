@@ -304,7 +304,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     recurringSchedule: {
       id: 'fit-flip-schedule',
       heading: 'Recurring Fit & Flip class times',
-      description: 'Check weekly Cyclones times for ages 8–11 and 12–15. Enrollment shows available spots and start dates.',
+      description: 'Check weekly Cyclones times for ages 8–11 and 12–15. The schedule lists the days offered for each age group. Choose a recurring weekday during enrollment, where you can check spots and start dates.',
       programName: FIT_AND_FLIP_BOOKING_PROGRAM,
     },
     sections: [
@@ -314,6 +314,15 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         description:
           'The Athleticism Accelerator is Vortex’s framework for developing eight qualities of movement. It covers strength, explosiveness, speed, agility, flexibility and mobility, balance, coordination, and body control. Fit & Flip organizes that work around the Triad. In a jump, strength creates force, explosiveness helps the athlete take off quickly, and body control helps them land in balance. Mobility and coordination help the athlete get into position and move smoothly through the jump.',
         topics: [
+          {
+            id: 'apply-athleticism-accelerator',
+            heading: 'Practice the Athleticism Accelerator in Fit & Flip',
+            description: 'Fit & Flip Cyclones brings the framework into a 90-minute group class. Choose the group for ages 8–11 or 12–15, then check its weekly times or try one class.',
+            links: [
+              { href: '/fit-and-flip#fit-flip-schedule', label: 'See weekly Fit & Flip class times', analyticsKey: 'read_fit_flip_schedule' },
+              { href: '/fit-and-flip#training-fit', label: 'See how to try a Fit & Flip class', analyticsKey: 'read_fit_flip_first_class' },
+            ],
+          },
           {
             id: 'strength',
             heading: 'Youth strength training',
