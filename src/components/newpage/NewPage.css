@@ -60,6 +60,7 @@
   top: 10px;
 }
 .np-header {
+  --np-navbar-height: 90px;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -68,7 +69,7 @@
   border-bottom: 1px solid var(--np-line);
 }
 .np-nav {
-  height: 90px;
+  height: var(--np-navbar-height);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -99,15 +100,59 @@
   font-size: 12px;
   font-weight: 500;
 }
-.np-desktop-nav a {
+.np-desktop-nav :is(a, summary) {
   display: flex;
   align-items: center;
   min-height: 44px;
   white-space: nowrap;
   transition: color .2s;
 }
-.np-desktop-nav a:hover {
+.np-desktop-nav :is(a, summary):hover {
   color: var(--np-red);
+}
+.np-nav-programs {
+  position: relative;
+}
+.np-nav-programs summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  cursor: pointer;
+}
+.np-nav-programs summary::-webkit-details-marker {
+  display: none;
+}
+.np-nav-programs[open] summary svg {
+  transform: rotate(180deg);
+}
+.np-nav-programs ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.np-desktop-nav .np-nav-programs ul {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 212px;
+  padding: 6px 14px;
+  background: #fff;
+  border: 1px solid var(--np-line);
+  border-radius: 4px;
+  box-shadow: 0 10px 28px #2023211a;
+}
+.np-mobile-nav {
+  max-height: calc(100dvh - var(--np-navbar-height) - 1px);
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+}
+.np-mobile-nav > * {
+  flex-shrink: 0;
+}
+.np-mobile-nav .np-nav-programs ul {
+  padding-inline-start: 14px;
+  border-inline-start: 1px solid var(--np-line);
 }
 .np-desktop-nav .np-nav-schedule {
   justify-content: center;
@@ -1305,9 +1350,7 @@
     padding-left: 28px;
     padding-right: 28px;
   }
-  .np-nav {
-    height: 77px;
-  }
+  .np-header { --np-navbar-height: 77px; }
   .np-desktop-nav {
     display: none;
   }
@@ -1323,7 +1366,7 @@
     border-top: 1px solid var(--np-line);
     padding: 8px 28px 20px;
   }
-  .np-mobile-nav a,.np-mobile-nav>button {
+  .np-mobile-nav a,.np-mobile-nav>button,.np-mobile-nav .np-nav-programs summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1504,8 +1547,8 @@
     padding-left: 22px;
     padding-right: 22px;
   }
+  .np-header { --np-navbar-height: 73px; }
   .np-nav {
-    height: 73px;
     gap: 12px;
   }
 
@@ -1936,7 +1979,7 @@
     padding-left: 22px;
     padding-right: 22px;
   }
-  .np-mobile-nav a,.np-mobile-nav>button {
+  .np-mobile-nav a,.np-mobile-nav>button,.np-mobile-nav .np-nav-programs summary {
     min-height: 50px;
     font-size: 16px;
   }
@@ -2504,7 +2547,8 @@
     padding: 8px 36px 20px;
   }
   .np-header .np-mobile-nav a,
-  .np-header .np-mobile-nav > button {
+  .np-header .np-mobile-nav > button,
+  .np-header .np-mobile-nav .np-nav-programs summary {
     display: flex;
     align-items: center;
     justify-content: space-between;

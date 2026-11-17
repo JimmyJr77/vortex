@@ -277,6 +277,17 @@ const verifyHtml = (
 
   const pagePath = new URL(canonical).pathname
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
+  if (shouldIndex && [
+    '/', ...HUB_PROGRAM_PATHS, '/read-board', '/enroll', '/drop-in',
+    YOUTH_ATHLETIC_GUIDE_PATH, BOWIE_YOUTH_SPORTS_GUIDE_PATH,
+  ].includes(pagePath)) {
+    const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
+    const links = anchorUrls(navigation)
+    for (const path of [...HUB_PROGRAM_PATHS, BOWIE_YOUTH_SPORTS_GUIDE_PATH, '/#programs']) {
+      assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
+        `${label}: expected one crawlable main navigation link to ${path}`)
+    }
+  }
   if (pagePath === '/' && shouldIndex) {
     assert(h1s[0] === 'Built for more.', `${label}: the primary homepage must render the new unified design`)
     assert(/id=["']free-trial["']/.test(html), `${label}: the primary homepage is missing free-trial signup`)
