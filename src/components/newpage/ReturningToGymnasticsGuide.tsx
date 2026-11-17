@@ -97,9 +97,9 @@ export default function ReturningToGymnasticsGuide() {
               {' '}<a href="https://www.mga-gymnastics.com/opengym.html">Check MGA’s open gym details</a>
             </li>
             <li>
-              <strong>Docksiders Gymnastics in Millersville.</strong> Its adult open gym is self-paced for ages 16
-              and up. Reserve by phone and ask which equipment and coaching are available during open practice.
-              {' '}<a href="https://www.docksidersgymnastics.com/special-class-programs">Check Docksiders’ adult open gym</a>
+              <strong>Docksiders Gymnastics in Millersville.</strong> Its self-paced adult open gym is for ages 16
+              and up. Call to reserve a spot and confirm the current session time.
+              {' '}<a href="https://www.docksidersgymnastics.com/adults">See Docksiders’ adult open gym details</a>
             </li>
           </ul>
         </section>

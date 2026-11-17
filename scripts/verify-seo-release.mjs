@@ -718,6 +718,10 @@ const verifyHtml = (
         `${label}: missing the typical length of the youth gymnastics trials`)
       assert(tags(firstVisit, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
         `${label}: missing the trial finder button in the first visit section`)
+      const accessLinks = anchorUrls(firstVisit)
+      assert(accessLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`) &&
+        accessLinks.some(url => url.href === `${HUB_ORIGIN}${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#accessible-gymnastics`),
+        `${label}: first-time families must have crawlable links to ask about class access and compare adaptive options`)
     }
     if (pagePath === '/fit-and-flip') {
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#compare-athletic-training`),
@@ -856,7 +860,7 @@ const verifyHtml = (
     assert(/Typhoons is a 90-minute coached class/.test(nearby) && /College Park/.test(nearby) && /Millersville/.test(nearby) &&
       hasDropInProgramLink(nearbyLinks, 'Adult Fitness & Acrobatics') &&
       nearbyLinks.some(url => url.href === 'https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes') &&
-      nearbyLinks.some(url => url.href === 'https://www.docksidersgymnastics.com/special-class-programs'),
+      nearbyLinks.some(url => url.href === 'https://www.docksidersgymnastics.com/adults'),
       `${label}: missing adult gymnastics options or links to their official class information`)
     assert(/Fairland/.test(nearby) && /Upper Marlboro/.test(nearby) &&
       nearbyLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
@@ -1055,6 +1059,12 @@ const verifyHtml = (
       fitnessLinks.some(url => url.href === 'https://www.pgparks.com/facilities/south-bowie-community-center') &&
       fitnessLinks.some(url => url.href === 'https://www.cityofbowie.org/278/Programs-at-the-Gym'),
       `${label}: missing the local comparison of coached youth gymnastics, open gym, and movement sessions`)
+    assert(/\sid=["']teen-fitness-rooms["']/.test(fitness) &&
+      /13–17/.test(fitness) && /13–15/.test(fitness) && /valid fitness pass/.test(fitness) &&
+      fitnessLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
+      fitnessLinks.some(url => url.href === 'https://www.pgparks.com/facilities-rentals/community-center-fees') &&
+      fitnessLinks.some(url => url.href === 'https://www.pgparks.com/facilities/bowie-community-center'),
+      `${label}: missing the teen fitness room eligibility, county sources, or coached class schedule`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
@@ -1156,6 +1166,14 @@ const verifyHtml = (
       assert(boysGymnasticsLinks.some(url => url.href === destination),
         `${label}: the boys’ gymnastics comparison is missing ${destination}`)
     }
+    const accessibleGymnastics = content.match(/<section\b[^>]*\sid=["']accessible-gymnastics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const accessibleLinks = anchorUrls(accessibleGymnastics)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#accessible-gymnastics') &&
+      accessibleLinks.some(url => url.href === 'https://www.eagcgym.com/recclasses') &&
+      accessibleLinks.some(url => url.href === 'https://www.pgparks.com/things-to-do/disability-services#disability') &&
+      accessibleLinks.some(url => url.href === 'https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex') &&
+      accessibleLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
+      `${label}: missing links to adaptive gymnastics, county Program Access, or the Vortex inquiry form`)
   }
 
   if (requireSchema) {

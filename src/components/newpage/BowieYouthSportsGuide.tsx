@@ -51,6 +51,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#high-school-sports-training">High school sports training</a></li>
             <li><a href="#youth-team-training">Youth team training</a></li>
             <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
+            <li><a href="#teen-fitness-rooms">Fitness rooms for teens</a></li>
             <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
             <li><a href="#lower-cost-youth-sports">Lower-cost youth sports and fitness</a></li>
@@ -267,6 +268,22 @@ export default function BowieYouthSportsGuide() {
               <a href="https://www.cityofbowie.org/278/Programs-at-the-Gym">Check Bowie’s upcoming movement sessions</a>
             </li>
           </ul>
+          <h3 id="teen-fitness-rooms" className="athletic-guide-subheading scroll-mt-24">
+            Which gyms in Bowie can teens use?
+          </h3>
+          <p>
+            Teens ages 13–17 who live in Prince George’s or Montgomery County can use the fitness rooms at{' '}
+            <a href="https://www.pgparks.com/facilities/bowie-community-center">Bowie Community Center</a> and{' '}
+            <a href="https://www.pgparks.com/facilities/south-bowie-community-center">South Bowie Community Center</a>{' '}
+            with a free Youth ID. Ages 13–15 need supervision from an adult with a valid fitness pass.{' '}
+            <a href="https://www.pgparks.com/facilities-rentals/community-center-fees">Check the county’s Youth ID rules</a>.
+          </p>
+          <p>
+            The <a href="https://www.cityofbowie.org/104/Gymnasium">city-run Bowie Gymnasium</a> offers court
+            activities and has no fitness equipment. For a coached option, Vortex’s 90-minute Cyclones classes
+            for ages 12–15 include strength work, jumps, and tumbling.{' '}
+            <Link to="/fit-and-flip#fit-flip-schedule">See weekly Cyclones class times</Link>.
+          </p>
         </section>
 
         <section id="homeschool-pe">

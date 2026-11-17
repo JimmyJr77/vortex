@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
+import { CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import GuideBreadcrumb from './GuideBreadcrumb'
@@ -47,6 +48,7 @@ export default function GymnasticsVsTumblingGuide() {
             <li><a href="#choose-a-class">Which class to try</a></li>
             <li><a href="#boys-gymnastics">Boys’ gymnastics and apparatus classes</a></li>
             <li><a href="#nearby-tumbling-classes">Dedicated tumbling classes near Bowie</a></li>
+            <li><a href="#accessible-gymnastics">Adaptive and accessible gymnastics</a></li>
             <li><a href="#questions-for-the-coach">Questions for the coach</a></li>
           </ul>
         </nav>
@@ -157,6 +159,31 @@ export default function GymnasticsVsTumblingGuide() {
               {' '}<a href="https://www.pgparks.com/your-guide">Check the county’s current guide for tumbling prerequisites</a>
             </li>
           </ul>
+        </section>
+
+        <section id="accessible-gymnastics">
+          <h2>Adaptive and accessible gymnastics near Bowie</h2>
+          <ul>
+            <li>
+              <strong>Adaptive gymnastics in Laurel.</strong> Emilia’s lists a dedicated class for children with
+              neurological or physical disabilities. Ask how the instructor adapts activities and manages noise
+              and crowds during class.{' '}
+              <a href="https://www.eagcgym.com/recclasses">See Emilia’s adaptive gymnastics class</a>
+            </li>
+            <li>
+              <strong>Accommodations in county recreation classes.</strong> The{' '}
+              <a href="https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex">
+                Prince George’s Sports &amp; Learning Complex
+              </a>{' '}
+              in Landover offers gymnastics. For a regular county recreation class, register at least two weeks
+              before it starts and contact Program Access to request a disability accommodation.{' '}
+              <a href="https://www.pgparks.com/things-to-do/disability-services#disability">See how to request a county accommodation</a>
+            </li>
+          </ul>
+          <p>
+            If you’re considering a Vortex class in Bowie, <Link to={CONTACT_INQUIRY_PATH}>ask Vortex about class access or participation</Link>{' '}
+            before booking. You can ask about the space, noise levels, or what the coach expects children to do independently.
+          </p>
         </section>
 
         <section id="questions-for-the-coach">

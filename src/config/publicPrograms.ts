@@ -222,6 +222,15 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             heading: 'How to book a free gymnastics trial',
             description: 'Enter your child’s age in the trial finder and pick an available date. A parent or legal guardian must create or sign in to a family account, add the athlete’s details, and sign the waivers before the class is confirmed. Each athlete can use one free trial. No payment card is required.',
           },
+          {
+            id: 'gymnastics-class-access',
+            heading: 'Questions about class access or participation?',
+            description: 'If you have questions about the space, noise levels, or how your child would take part, ask our team before booking a trial.',
+            links: [
+              { href: CONTACT_INQUIRY_PATH, label: 'Ask Vortex about class access or participation', analyticsKey: 'ask_vortex_gymnastics_access' },
+              { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#accessible-gymnastics`, label: 'Compare adaptive and accessible gymnastics near Bowie', analyticsKey: 'read_gymnastics_vs_tumbling' },
+            ],
+          },
         ],
       },
       {
