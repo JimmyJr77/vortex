@@ -33,10 +33,12 @@ test('consented editorial page views keep their canonical labels and discard pri
     '/blog/preschool-gymnastics-what-toddlers-learn',
     '/blog/gymnastics-vs-tumbling',
     '/blog/returning-to-gymnastics-as-an-adult',
+    '/watch/training-at-vortex',
   ]) {
     assert.equal(view(path.toUpperCase() + '/?vcid=private-token#private-anchor').page_path, path)
   }
   assert.equal(view('/blog/private-draft/token').page_path, '/other')
+  assert.equal(view('/watch/training-at-vortex/private-token').page_path, '/other')
   assert.equal(view('/vortex-athletics').page_path, '/vortex-athletics')
   assert.equal(view('/signup/invite/private-token').page_path, '/signup/invite')
   assert.equal(view('/member/private-token'), null)
@@ -104,7 +106,7 @@ test('consented site events produce deduplicated traffic, engagement, and ordere
     event('page_view', iso(4), { ...other, pagePath: '/unknown-sensitive-name/token' }),
     event('inquiry_form_start', iso(4), other),
     event('generate_lead', iso(5), other), // Missing any ordered submit event.
-    event('page_view', iso(4), { ...localVisitor, pagePath: '/ninja' }),
+    event('page_view', iso(4), { ...localVisitor, pagePath: '/watch/training-at-vortex?vcid=private-token#change-of-direction' }),
     event('program_page_view', iso(4), { ...localVisitor, pagePath: '/ninja' }),
   ]
 
@@ -139,6 +141,7 @@ test('consented site events produce deduplicated traffic, engagement, and ordere
   })
   assert.equal(traffic.paths.find(path => path.page_path === '/enroll').exits, 1)
   assert.ok(traffic.topPages.some(path => path.page_path === '/other'))
+  assert.equal(traffic.topPages.find(path => path.page_path === '/watch/training-at-vortex')?.views, 1)
   assert.deepEqual(traffic.sources.find(source => source.channel === 'Paid'), {
     channel: 'Paid', source: 'facebook', medium: 'paid_social', campaign: 'Free trial', sessions: 1, conversions: 1,
   })

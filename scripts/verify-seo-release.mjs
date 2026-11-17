@@ -1443,7 +1443,7 @@ for (const stub of STUB_SEO_ENTRIES) {
   }
 }
 
-for (const path of [HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS]) {
+for (const path of [HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path]) {
   assert(PUBLIC_EDITORIAL_PAGES.some((page) => page.path === path),
     `analytics: published editorial path is missing from reporting: ${path}`)
 }

@@ -5,6 +5,7 @@ export const PUBLIC_EDITORIAL_PAGES = [
   { label: 'Preschool Gymnastics Guide', path: '/blog/preschool-gymnastics-what-toddlers-learn' },
   { label: 'Gymnastics vs. Tumbling', path: '/blog/gymnastics-vs-tumbling' },
   { label: 'Returning to Gymnastics as an Adult', path: '/blog/returning-to-gymnastics-as-an-adult' },
+  { label: 'Vortex Training Film', path: '/watch/training-at-vortex' },
 ]
 
 export const publicPaths = new Set([

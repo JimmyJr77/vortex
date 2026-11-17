@@ -78,7 +78,12 @@ test('measures each topic independently using finalized Pacific data and preserv
     GOOGLE_APPLICATION_CREDENTIALS_JSON: '{}',
   })
   let requestIndex = 0
-  const query = t.mock.fn(async () => {
+  const query = t.mock.fn(async ({ requestBody }) => {
+    if (requestBody.dataState === 'all') {
+      return { data: { metadata: { firstIncompleteDate: '2026-11-14' }, rows: [
+        { keys: ['2026-11-14'], clicks: 99, impressions: 900 },
+      ] } }
+    }
     const index = requestIndex++
     if (index === 1) return { data: {} }
     if (index === 2) return { data: { rows: [{ clicks: 0, impressions: 9, position: 3 }] } }
@@ -89,15 +94,20 @@ test('measures each topic independently using finalized Pacific data and preserv
   t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
 
   const report = await getSearchConsoleTopics(NOW)
-  assert.equal(query.mock.callCount(), TOPICS.length)
-  for (const [index, call] of query.mock.calls.entries()) {
+  const [{ arguments: [probe, probeOptions] }, ...topicCalls] = query.mock.calls
+  assert.deepEqual(probe, { siteUrl: PROPERTY, requestBody: {
+    startDate: '2026-10-19', endDate: '2026-11-15', type: 'web', dataState: 'all', dimensions: ['date'], rowLimit: 28,
+  } })
+  assert.deepEqual(probeOptions, { timeout: 3000, retry: false })
+  assert.equal(topicCalls.length, TOPICS.length)
+  for (const [index, call] of topicCalls.entries()) {
     const [request] = call.arguments
     const [, sample, unrelated] = TOPICS[index]
     const { dimensionFilterGroups, ...body } = request.requestBody
     assert.equal(request.siteUrl, PROPERTY)
     assert.deepEqual(body, {
-      startDate: '2026-10-16',
-      endDate: '2026-11-12',
+      startDate: '2026-10-17',
+      endDate: '2026-11-13',
       type: 'web',
       dataState: 'final',
       aggregationType: 'byProperty',
@@ -115,6 +125,7 @@ test('measures each topic independently using finalized Pacific data and preserv
 
   }
   assert.equal(report.status, 'partial')
+  assert.equal(report.endDate, '2026-11-13')
   assert.equal(report.timeZone, 'America/Los_Angeles')
   assert.deepEqual(report.topics.map(topic => topic.id), TOPICS.map(([id]) => id))
   assert.deepEqual(report.topics.map(topic => topic.status),
@@ -136,8 +147,9 @@ test('excludes the Vortex name alongside each topic filter when requested', asyn
   assert.equal(report.scope, 'without_vortex')
   assert.equal(report.status, 'ok')
   assert.ok(report.topics.every(topic => topic.status === 'no_data'))
-  assert.equal(query.mock.callCount(), TOPICS.length)
-  for (const [index, { arguments: [request] }] of query.mock.calls.entries()) {
+  const [, ...topicCalls] = query.mock.calls
+  assert.equal(topicCalls.length, TOPICS.length)
+  for (const [index, { arguments: [request] }] of topicCalls.entries()) {
     const groups = request.requestBody.dimensionFilterGroups
     assert.equal(groups.length, 1)
     const [{ groupType, filters }] = groups
@@ -155,6 +167,26 @@ test('excludes the Vortex name alongside each topic filter when requested', asyn
     for (const query of ['adult gymnastics in Bowie', 'Fit & Flip youth fitness', 'supervortex gymnastics', 'youth sports vortexes']) {
       assert.doesNotMatch(query, regex)
     }
+  }
+})
+
+test('uses the fixed delay when cutoff metadata is missing, malformed, outside the probe, or unavailable', async t => {
+  configure(t, { GSC_SITE_URL: PROPERTY, GOOGLE_APPLICATION_CREDENTIALS_JSON: '{}' })
+  let probeResponse
+  const query = t.mock.fn(async ({ requestBody }) => {
+    if (requestBody.dataState === 'all') return probeResponse()
+    return { data: { rows: [] } }
+  })
+  t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
+
+  for (const cutoff of [undefined, '2026-11-00', '2026-11-16', '2026-10-18', '2026-11-15T00:00:00Z', null]) {
+    probeResponse = () => {
+      if (cutoff === null) throw new Error('Provider timeout')
+      return { data: { metadata: { firstIncompleteDate: cutoff } } }
+    }
+    const report = await getSearchConsoleTopics(NOW)
+    assert.equal(report.status, 'ok')
+    assert.equal(report.endDate, '2026-11-12')
   }
 })
 
@@ -190,18 +222,22 @@ test('reports a bounded set of pages per topic without exposing unknown paths or
     row('https://user:private-credential@www.vortex-gymnastics.com/artistic-gymnastics?vcid=private-query#private-hash'),
     row('https://vortexathletics.com/verify-email/private-token', 1),
     row('https://vortexathletics.com/blog/gymnastics-vs-tumbling?vcid=private-query#private-hash'),
+    row('https://vortexathletics.com/watch/training-at-vortex?vcid=private-query#private-hash'),
     row('https://vortexathletics.com/unknown/private-segment', 0),
   ]
   const responses = [pageRows, [], [row('javascript:alert(1)')], Array(6).fill(pageRows[0]), [], []]
   let callIndex = 0
-  const query = t.mock.fn(async () => ({ data: { rows: responses[callIndex++] } }))
+  const query = t.mock.fn(async ({ requestBody }) => ({
+    data: { rows: requestBody.dataState === 'all' ? [] : responses[callIndex++] },
+  }))
   t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
 
   const report = await getSearchConsoleTopics(NOW, 'without_vortex', 'pages')
   assert.equal(report.view, 'pages')
   assert.equal(report.status, 'partial')
-  assert.equal(query.mock.callCount(), TOPICS.length)
-  for (const { arguments: [{ requestBody }] } of query.mock.calls) {
+  const [, ...topicCalls] = query.mock.calls
+  assert.equal(topicCalls.length, TOPICS.length)
+  for (const { arguments: [{ requestBody }] } of topicCalls) {
     assert.deepEqual(requestBody.dimensions, ['page'])
     assert.equal(requestBody.aggregationType, 'auto')
     assert.equal(requestBody.rowLimit, 5)
@@ -213,6 +249,7 @@ test('reports a bounded set of pages per topic without exposing unknown paths or
     { page: 'https://www.vortex-gymnastics.com/artistic-gymnastics', metrics: { clicks: 2, impressions: 10, ctr: 0.2, position: 5 } },
     { page: 'https://vortexathletics.com/verify-email', metrics: { clicks: 1, impressions: 10, ctr: 0.1, position: 5 } },
     { page: 'https://vortexathletics.com/blog/gymnastics-vs-tumbling', metrics: { clicks: 2, impressions: 10, ctr: 0.2, position: 5 } },
+    { page: 'https://vortexathletics.com/watch/training-at-vortex', metrics: { clicks: 2, impressions: 10, ctr: 0.2, position: 5 } },
     { page: null, metrics: { clicks: 0, impressions: 10, ctr: 0, position: 5 } },
   ])
   assert.deepEqual(report.topics.map(topic => topic.status), ['reported', 'no_data', 'error', 'error', 'no_data', 'no_data'])
@@ -230,14 +267,16 @@ test('compares current and former landing pages in two finalized windows across 
   const preschoolGuide = 'https://vortexathletics.com/blog/preschool-gymnastics-what-toddlers-learn'
   const tumblingGuide = 'https://vortexathletics.com/blog/gymnastics-vs-tumbling'
   const returningGuide = 'https://vortexathletics.com/blog/returning-to-gymnastics-as-an-adult'
+  const trainingFilm = 'https://vortexathletics.com/watch/training-at-vortex'
   const pages = [
     homepage, gymnastics, fitAndFlip, formerYouthSports, adultGymnastics, trainingGuides,
     'https://vortexathletics.com/blog/youth-sports-bowie',
     'https://vortexathletics.com/blog/athletic-development-young-athletes',
-    preschoolGuide, tumblingGuide, returningGuide,
+    preschoolGuide, tumblingGuide, returningGuide, trainingFilm,
   ]
   const query = t.mock.fn(async ({ requestBody }) => {
-    const latest = requestBody.startDate === '2026-10-16'
+    if (requestBody.dataState === 'all') return { data: { metadata: { first_incomplete_date: '2026-11-11' } } }
+    const latest = requestBody.startDate === '2026-10-14'
     if (requestBody.aggregationType === 'byProperty') {
       return { data: { rows: [{ impressions: latest ? 230 : 142 }] } }
     }
@@ -251,6 +290,7 @@ test('compares current and former landing pages in two finalized windows across 
       { keys: [preschoolGuide], impressions: 4, clicks: 0 },
       { keys: [tumblingGuide], impressions: 8, clicks: 1 },
       { keys: [returningGuide], impressions: 5, clicks: 0 },
+      { keys: [trainingFilm], impressions: 7, clicks: 0 },
     ] : [
       { keys: [homepage.slice(0, -1)], impressions: 63, clicks: 2 },
       { keys: [gymnastics], impressions: 21, clicks: 1 },
@@ -263,15 +303,15 @@ test('compares current and former landing pages in two finalized windows across 
   const report = await getSearchConsoleProgramPages(NOW)
   assert.equal(report.timeZone, 'America/Los_Angeles')
   assert.equal(report.status, 'ok')
-  assert.deepEqual(report.current, { startDate: '2026-10-16', endDate: '2026-11-12', status: 'ok' })
-  assert.deepEqual(report.previous, { startDate: '2026-09-18', endDate: '2026-10-15', status: 'ok' })
+  assert.deepEqual(report.current, { startDate: '2026-10-14', endDate: '2026-11-10', status: 'ok' })
+  assert.deepEqual(report.previous, { startDate: '2026-09-16', endDate: '2026-10-13', status: 'ok' })
   assert.deepEqual(report.pages.map(({ page }) => page), pages)
   assert.deepEqual(report.pages.map(({ currentImpressions, previousImpressions }) => [currentImpressions, previousImpressions]),
-    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [6, null], [null, null], [null, null], [4, null], [8, 3], [5, null]])
+    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [6, null], [null, null], [null, null], [4, null], [8, 3], [5, null], [7, null]])
   assert.deepEqual(report.propertyTotals, {
     current: { status: 'ok', impressions: 230 }, previous: { status: 'ok', impressions: 142 },
   })
-  assert.equal(query.mock.callCount(), 4)
+  assert.equal(query.mock.callCount(), 5)
   const pageCalls = query.mock.calls.filter(({ arguments: [request] }) => request.requestBody.aggregationType === 'auto')
   const totalsCalls = query.mock.calls.filter(({ arguments: [request] }) => request.requestBody.aggregationType === 'byProperty')
   assert.equal(pageCalls.length, 2)
@@ -281,7 +321,7 @@ test('compares current and former landing pages in two finalized windows across 
     const { startDate, endDate } = [report.current, report.previous][index]
     assert.equal(request.siteUrl, PROPERTY)
     assert.deepEqual(body, {
-      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 12,
+      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 13,
     })
     assert.deepEqual(options, { timeout: 10000, retry: false })
     assert.equal(dimensionFilterGroups.length, 1)

@@ -1,10 +1,11 @@
 import publicArticles from '../config/publicArticles.json'
 import guideIndex from '../config/publicGuideIndex.json'
+import trainingVideo from '../config/publicTrainingVideo.json'
 
 const paths = new Set([
   '/', '/404', '/contact', '/enroll', '/drop-in', '/read-board', '/store', '/ninja',
   '/support', '/privacy-policy', '/terms-of-service', '/camp_interest',
-  guideIndex.path, ...Object.values(publicArticles).map(({ path }) => path),
+  guideIndex.path, ...Object.values(publicArticles).map(({ path }) => path), trainingVideo.path,
   '/camp_interest/thank-you', '/signup/family', '/signup/lead', '/signup/invite',
   '/verify-email', '/registration/receipt', '/waivers-memberships', '/copy',
   '/gymnastics', '/adult-gymnastics', '/fit-and-flip', '/vortex-athletics', '/summer-athletic-training',

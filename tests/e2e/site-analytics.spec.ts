@@ -159,6 +159,26 @@ test('records trial decision points without collecting age, class dates, or a fa
   expect(JSON.stringify(trial.map(event => event.properties))).not.toMatch(/age|2027-01-12|cyclones|potty|slotGroupId|memberId/i)
 })
 
+test('attributes consented training film views to the canonical page', async ({ page }) => {
+  const events = await mockSite(page)
+  await page.goto('/watch/training-at-vortex?session_id=private-film-session#change-of-direction', { waitUntil: 'domcontentloaded' })
+  await page.getByRole('button', { name: 'Necessary only' }).click()
+  await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics and athletic training at Vortex' })).toBeVisible()
+  expect(events).toEqual([])
+
+  await page.getByRole('button', { name: 'Open cookie settings' }).click()
+  await grantAnalyticsOnly(page)
+  const pageViews = () => events.filter(event => event.eventName === 'page_view')
+  await expect.poll(() => pageViews().map(event => event.pagePath)).toEqual(['/watch/training-at-vortex'])
+  expect(pageViews()[0]).toMatchObject({ consentAnalytics: true, consentMarketing: false })
+
+  await page.evaluate(() => { window.location.hash = 'strength-and-handstand' })
+  await expect(page).toHaveURL(/#strength-and-handstand$/)
+  await page.getByRole('link', { name: 'Explore Fit & Flip youth training' }).click()
+  await expect.poll(() => pageViews().map(event => event.pagePath)).toEqual(['/watch/training-at-vortex', '/fit-and-flip'])
+  expect(JSON.stringify(events)).not.toMatch(/private-film-session|session_id|change-of-direction|strength-and-handstand/)
+})
+
 test('opens a preselected trial from the program page and credits the signup to that page', async ({ page }) => {
   const events = await mockSite(page)
   await page.goto('/blog/athletic-development-young-athletes')

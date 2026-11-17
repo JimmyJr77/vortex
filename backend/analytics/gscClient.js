@@ -156,14 +156,49 @@ const pacificDate = new Intl.DateTimeFormat('en-US', {
   timeZone: TIME_ZONE, year: 'numeric', month: 'numeric', day: 'numeric',
 })
 
-function reportDateWindow(now, daysAgo = 0) {
+function pacificCalendarDay(now) {
   const fields = Object.fromEntries(pacificDate.formatToParts(now).map(({ type, value }) => [type, value]))
-  const date = new Date(Date.UTC(Number(fields.year), Number(fields.month) - 1, Number(fields.day)))
-  // Use the Pacific calendar for the three-day reporting delay.
-  date.setUTCDate(date.getUTCDate() - 3 - daysAgo)
-  const endDate = date.toISOString().slice(0, 10)
-  date.setUTCDate(date.getUTCDate() - (REPORT_DAYS - 1))
-  return { startDate: date.toISOString().slice(0, 10), endDate }
+  return new Date(Date.UTC(Number(fields.year), Number(fields.month) - 1, Number(fields.day)))
+}
+
+function shiftCalendarDay(date, days) {
+  const shifted = new Date(date)
+  shifted.setUTCDate(shifted.getUTCDate() + days)
+  return shifted
+}
+
+function dateString(date) {
+  return date.toISOString().slice(0, 10)
+}
+
+function reportDateWindow(finalizedDay, daysAgo = 0) {
+  const end = shiftCalendarDay(finalizedDay, -daysAgo)
+  return { startDate: dateString(shiftCalendarDay(end, 1 - REPORT_DAYS)), endDate: dateString(end) }
+}
+
+async function latestFinalizedReportDay(searchconsole, siteUrl, now) {
+  const today = pacificCalendarDay(now)
+  const fallback = shiftCalendarDay(today, -3)
+  if (!searchconsole) return fallback
+
+  const { startDate, endDate } = reportDateWindow(today)
+  try {
+    const { data } = await searchconsole.searchanalytics.query({
+      siteUrl,
+      requestBody: { startDate, endDate, type: 'web', dataState: 'all', dimensions: ['date'], rowLimit: REPORT_DAYS },
+    }, { timeout: 3000, retry: false })
+    const cutoff = data.metadata?.firstIncompleteDate ?? data.metadata?.first_incomplete_date
+    // The provider returns the first provisional day. Use only the metadata from this probe.
+    if (typeof cutoff === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(cutoff) && cutoff >= startDate && cutoff <= endDate) {
+      const firstIncomplete = new Date(`${cutoff}T00:00:00Z`)
+      if (Number.isFinite(firstIncomplete.getTime()) && dateString(firstIncomplete) === cutoff) {
+        return shiftCalendarDay(firstIncomplete, -1)
+      }
+    }
+  } catch {
+    // Keep the existing reporting delay when the provider's cutoff is unavailable.
+  }
+  return fallback
 }
 
 function searchConsoleErrorReason(error) {
@@ -250,8 +285,9 @@ async function fetchTopic(searchconsole, siteUrl, { startDate, endDate, scope, v
 
 /** Fetch totals or reported pages for each search topic independently. */
 export async function getSearchConsoleTopics(now = new Date(), scope = 'all', view = 'totals') {
-  const window = { ...reportDateWindow(now), timeZone: TIME_ZONE, scope, view }
   const { searchconsole, siteUrl, status, reason } = await connectSearchConsoleReport()
+  const finalizedDay = await latestFinalizedReportDay(searchconsole, siteUrl, now)
+  const window = { ...reportDateWindow(finalizedDay), timeZone: TIME_ZONE, scope, view }
   if (!searchconsole) {
     return {
       ...window, status, reason,
@@ -324,9 +360,10 @@ async function fetchPropertyImpressions(searchconsole, siteUrl, dates) {
 }
 
 export async function getSearchConsoleProgramPages(now = new Date()) {
-  const currentDates = reportDateWindow(now)
-  const previousDates = reportDateWindow(now, REPORT_DAYS)
   const { searchconsole, siteUrl, status, reason } = await connectSearchConsoleReport()
+  const finalizedDay = await latestFinalizedReportDay(searchconsole, siteUrl, now)
+  const currentDates = reportDateWindow(finalizedDay)
+  const previousDates = reportDateWindow(finalizedDay, REPORT_DAYS)
   if (!searchconsole) {
     return {
       timeZone: TIME_ZONE,

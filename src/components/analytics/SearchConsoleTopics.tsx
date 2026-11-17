@@ -162,7 +162,7 @@ export default function SearchConsoleTopics() {
           </h3>
           <p className="mt-1 text-sm text-gray-600">
             {view === 'program-pages'
-              ? 'Compare Google web search impressions for the homepage, program pages, guides, and the former youth sports performance URL.'
+              ? 'Compare Google web search impressions for the homepage, programs, published content, and the former youth sports performance URL.'
               : 'A 28-day report of Google web searches for the Search Console property, using finalized Pacific dates.'}
           </p>
         </div>
