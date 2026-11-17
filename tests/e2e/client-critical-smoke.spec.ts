@@ -52,6 +52,19 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('heading', { name: 'Choose an activity your child wants to come back to' })).toBeInViewport()
   })
 
+  test('adult gymnasts can compare nearby formats and reach Typhoons dates', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/adult-gymnastics')
+    await page.getByRole('link', { name: 'Compare adult classes and open gym near Bowie' }).click()
+    await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult#nearby-adult-gymnastics')
+    const comparison = page.locator('#nearby-adult-gymnastics')
+    await expect(comparison.getByRole('heading')).toBeInViewport()
+    await expect(comparison.getByRole('listitem')).toHaveCount(3)
+    await comparison.getByRole('link', { name: 'See Typhoons drop-in dates' }).click()
+    await expect(page).toHaveURL('/drop-in?program=Adult%20Fitness%20%26%20Acrobatics')
+    await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()
+  })
+
   test('mobile visitors can go from a program page to facility photos and back to a starting class', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/gymnastics')

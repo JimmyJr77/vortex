@@ -153,6 +153,12 @@ export default function AthleticDevelopmentGuide() {
             exercise to the child’s current ability and start with bodyweight movements, such as a squat.
             Read more in the <a href="https://www.sportsmed.org/youth-strength-training">American Orthopaedic Society for Sports Medicine’s youth strength training guidance</a>.
           </p>
+          <h3>Do kids need weights to get stronger?</h3>
+          <p>
+            The CDC lists climbing and gymnastics as ways younger children build strength through play.
+            In a coached class, a child can get feedback on one movement and practice it before increasing the difficulty.
+            {' '}<a href="https://www.cdc.gov/physical-activity-basics/guidelines/children.html">CDC guidance on age-appropriate activity</a>
+          </p>
           <p>
             At Vortex, Fit &amp; Flip has Cyclones groups for ages 8–11 and 12–15. If you’re considering a class,
             ask the coach what your child would start with and what they would look for before adding resistance.

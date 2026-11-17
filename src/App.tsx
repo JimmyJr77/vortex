@@ -2,7 +2,10 @@ import { Suspense, useState, useEffect, useCallback } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
-import { loadHomePage, loadPublicProgramPage, publicGuideLoaders, type PublicSnapshotPage } from './config/publicPageLoaders'
+import {
+  loadHomePage, loadPublicProgramPage, loadSiteHeader, loadSiteFooter, publicGuideLoaders, publicPageLoaders,
+  type PublicSnapshotPage,
+} from './config/publicPageLoaders'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import PortalTheme from './components/portal/PortalTheme'
 import { trackEngagement } from './utils/analytics'
@@ -26,16 +29,16 @@ import publicLandingRedirects from './config/publicLandingRedirects.json'
 import { PUBLIC_PROGRAMS } from './config/publicPrograms'
 import { isAdultBookingProgram } from './utils/publicBookingPrograms'
 // Lazy-load heavy routes and portals so dev server / first paint stay fast
-const Header = lazyWithRetry(() => import('./components/Header'))
-const Footer = lazyWithRetry(() => import('./components/Footer'))
+const LazyHeader = lazyWithRetry(loadSiteHeader)
+const LazyFooter = lazyWithRetry(loadSiteFooter)
 const ContactForm = lazyWithRetry(() => import('./components/ContactForm'))
 const Login = lazyWithRetry(() => import('./components/Login'))
 const CopyPage = lazyWithRetry(() => import('./components/CopyPage'))
 const NewPage = lazyWithRetry(loadHomePage)
 const PublicProgramPage = lazyWithRetry(loadPublicProgramPage)
 const Ninja = lazyWithRetry(() => import('./components/Ninja'))
-const ReadBoard = lazyWithRetry(() => import('./components/ReadBoard'))
-const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage'))
+const LazyReadBoard = lazyWithRetry(publicPageLoaders.readBoard.load)
+const LazySchedulingPage = lazyWithRetry(publicPageLoaders.enroll.load)
 const CampInterestPage = lazyWithRetry(() => import('./apps/gymnastics/pages/CampInterestPage'))
 const CampInterestThankYouPage = lazyWithRetry(() => import('./apps/gymnastics/pages/CampInterestThankYouPage'))
 const SignupFamilyPage = lazyWithRetry(() => import('./components/signup/SignupFamilyPage'))
@@ -44,18 +47,18 @@ const SignupInvitePage = lazyWithRetry(() => import('./components/signup/SignupI
 const VerifyEmailPage = lazyWithRetry(() => import('./components/VerifyEmailPage'))
 const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/EnrollmentReceiptPage'))
 const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
-const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
+const LazyDropInPage = lazyWithRetry(publicPageLoaders.dropIn.load)
 const publicGuideRoutes = publicGuideLoaders.map(({ path, load }) => ({ path, Component: lazyWithRetry(load) }))
-const ContactLocationPage = lazyWithRetry(() => import('./components/ContactLocationPage'))
-const SupportPage = lazyWithRetry(() => import('./components/legal/SupportPage'))
-const PrivacyPolicyPage = lazyWithRetry(() => import('./components/legal/PrivacyPolicyPage'))
-const TermsOfServicePage = lazyWithRetry(() => import('./components/legal/TermsOfServicePage'))
+const LazyContactLocationPage = lazyWithRetry(publicPageLoaders.contact.load)
+const LazySupportPage = lazyWithRetry(publicPageLoaders.support.load)
+const LazyPrivacyPolicyPage = lazyWithRetry(publicPageLoaders.privacyPolicy.load)
+const LazyTermsOfServicePage = lazyWithRetry(publicPageLoaders.termsOfService.load)
 const NewAdmin = lazyWithRetry(() => import('./components/newAdmin/NewAdmin'))
 const Admin = lazyWithRetry(() => import('./components/Admin'))
 const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
 const MemberWaiverPrompt = lazyWithRetry(() => import('./components/MemberWaiverPrompt'))
 const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
-const Storefront = lazyWithRetry(() => import('./components/store/Storefront'))
+const LazyStorefront = lazyWithRetry(publicPageLoaders.store.load)
 const I9PreparerPortal = lazyWithRetry(() => import('./components/payroll/I9PreparerPortal'))
 const PayrollEmployeePortal = lazyWithRetry(() => import('./components/payroll/PayrollEmployeePortal'))
 
@@ -76,6 +79,17 @@ function PublicLandingRedirect({ destination }: { destination: string }) {
 function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   const HomePage = snapshotPage?.kind === 'home' ? snapshotPage.Component : NewPage
   const ProgramPage = snapshotPage?.kind === 'program' ? snapshotPage.Component : PublicProgramPage
+  const pageSnapshot = snapshotPage?.kind === 'page' ? snapshotPage : undefined
+  const Header = pageSnapshot?.chrome?.Header ?? LazyHeader
+  const Footer = pageSnapshot?.chrome?.Footer ?? LazyFooter
+  const ReadBoard = pageSnapshot?.path === publicPageLoaders.readBoard.path ? pageSnapshot.Component : LazyReadBoard
+  const SchedulingPage = pageSnapshot?.path === publicPageLoaders.enroll.path ? pageSnapshot.Component : LazySchedulingPage
+  const DropInPage = pageSnapshot?.path === publicPageLoaders.dropIn.path ? pageSnapshot.Component : LazyDropInPage
+  const ContactLocationPage = pageSnapshot?.path === publicPageLoaders.contact.path ? pageSnapshot.Component : LazyContactLocationPage
+  const Storefront = pageSnapshot?.path === publicPageLoaders.store.path ? pageSnapshot.Component : LazyStorefront
+  const SupportPage = pageSnapshot?.path === publicPageLoaders.support.path ? pageSnapshot.Component : LazySupportPage
+  const PrivacyPolicyPage = pageSnapshot?.path === publicPageLoaders.privacyPolicy.path ? pageSnapshot.Component : LazyPrivacyPolicyPage
+  const TermsOfServicePage = pageSnapshot?.path === publicPageLoaders.termsOfService.path ? pageSnapshot.Component : LazyTermsOfServicePage
   // Mount on first use, then retain each dialog's state across close and reopen.
   const [isContactFormOpen, setIsContactFormOpen] = useState<boolean | null>(null)
   const [inquirySourcePath, setInquirySourcePath] = useState('')
@@ -376,24 +390,24 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             element={<Ninja onSignUpClick={handleContactClick} />} 
           />
           <Route 
-            path="/read-board" 
+            path={publicPageLoaders.readBoard.path}
             element={<ReadBoard />} 
           />
           <Route
-            path="/enroll"
+            path={publicPageLoaders.enroll.path}
             element={<SchedulingPage onAdultEnrollmentResolved={setAdultEnrollmentLocationKey} />}
           />
           <Route
-            path="/store"
+            path={publicPageLoaders.store.path}
             element={<Storefront memberToken={memberToken} mode="public" onSignIn={() => setIsLoginOpen(true)} />}
           />
-          <Route path="/drop-in" element={<DropInPage />} />
+          <Route path={publicPageLoaders.dropIn.path} element={<DropInPage />} />
           {publicGuideRoutes.map(({ path, Component }) => {
             const Guide = snapshotPage?.kind === 'guide' && snapshotPage.path === path ? snapshotPage.Component : Component
             return <Route key={path} path={path} element={<Guide />} />
           })}
           <Route
-            path="/contact"
+            path={publicPageLoaders.contact.path}
             element={<ContactLocationPage onInquireClick={handleContactClick} />}
           />
           <Route path="/signup/lead" element={<SignupLeadPage />} />
@@ -414,9 +428,9 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             element={<EnrollmentReceiptPage />}
           />
           <Route path="/waivers-memberships" element={<WaiversMembershipsPage />} />
-          <Route path="/support" element={<SupportPage />} />
-          <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
-          <Route path="/terms-of-service" element={<TermsOfServicePage />} />
+          <Route path={publicPageLoaders.support.path} element={<SupportPage />} />
+          <Route path={publicPageLoaders.privacyPolicy.path} element={<PrivacyPolicyPage />} />
+          <Route path={publicPageLoaders.termsOfService.path} element={<TermsOfServicePage />} />
         </Routes>
       </Suspense>
       </div>

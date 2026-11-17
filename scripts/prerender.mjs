@@ -15,6 +15,7 @@ import {
   HUB_GUIDE_INDEX_PATH,
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
+  HUB_SITEMAP_ENTRIES,
   SITE_NAME,
   SPA_SHELL_PATH,
   STUB_SEO_ENTRIES,
@@ -25,7 +26,7 @@ const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
 // These public pages use Inter for both headings and body text.
 const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS])
-const homeAndGuidePaths = new Set(['/', HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS])
+const publicPagePaths = new Set(HUB_SITEMAP_ENTRIES.map(({ path }) => path))
 let previewPort = 0
 let previewOrigin = ''
 
@@ -232,7 +233,7 @@ const prerenderAppRoutes = async () => {
         url: `${previewOrigin}${routePath}`,
         omitDisplayFontPreload: interOnlyContentPaths.has(routePath),
         programPath: HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
-        homeOrGuidePath: homeAndGuidePaths.has(routePath) ? routePath : null,
+        publicPagePath: publicPagePaths.has(routePath) && !HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         outFile:
           routePath === '/'
             ? join(distDir, 'index.html')
@@ -261,7 +262,7 @@ const prerenderAppRoutes = async () => {
           )
           // Static HTML must be independent of live catalogs, schedules and
           // account state. Keep the poster and defer every video URL to React.
-          const snapshot = await page.evaluate(({ omitDisplayFontPreload, programPath, homeOrGuidePath }) => {
+          const snapshot = await page.evaluate(({ omitDisplayFontPreload, programPath, publicPagePath }) => {
             const html = document.documentElement.cloneNode(true)
             html.querySelectorAll('[data-prerender-dynamic]').forEach((node) => node.remove())
             html.querySelectorAll('video[src], video source[src]').forEach((node) => node.removeAttribute('src'))
@@ -269,12 +270,12 @@ const prerenderAppRoutes = async () => {
               html.querySelector('link[rel="preload"][href="/fonts/oswald-latin-variable.woff2"]')?.remove()
             }
             if (programPath) html.querySelector('#root')?.setAttribute('data-prerendered-program', programPath)
-            if (homeOrGuidePath) html.querySelector('#root')?.setAttribute('data-prerendered-page', homeOrGuidePath)
+            if (publicPagePath) html.querySelector('#root')?.setAttribute('data-prerendered-page', publicPagePath)
             return { html: `<!doctype html>\n${html.outerHTML}`, title: document.title }
           }, {
             omitDisplayFontPreload: target.omitDisplayFontPreload,
             programPath: target.programPath,
-            homeOrGuidePath: target.homeOrGuidePath,
+            publicPagePath: target.publicPagePath,
           })
           const html = dedupeHeadTags(snapshot.html, snapshot.title)
           snapshots.push({ outFile: target.outFile, html })

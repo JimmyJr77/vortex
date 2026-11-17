@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client'
 import { HelmetProvider } from 'react-helmet-async'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import './index.css'
-import { loadHomePage, loadPublicProgramPage, publicGuideLoaders, type PublicSnapshotPage } from './config/publicPageLoaders'
+import { loadHomePage, loadPublicProgramPage, publicGuideLoaders, publicPageLoaders, type PublicSnapshotPage } from './config/publicPageLoaders'
 import publicLandingRedirects from './config/publicLandingRedirects.json'
 import { HUB_ORIGIN } from './utils/seo'
 import {
@@ -25,7 +25,7 @@ import { getMemberSessionToken } from './utils/portalSession.ts'
 
 const CookieConsent = lazyWithRetry(() => import('./components/CookieConsent.tsx'))
 const PublicSiteAnalytics = lazyWithRetry(() => import('./components/analytics/PublicSiteAnalytics.tsx'))
-const SchedulingPage = lazyWithRetry(() => import('./components/SchedulingPage.tsx'))
+const SchedulingPage = lazyWithRetry(publicPageLoaders.enroll.load)
 const ComingSoon = lazyWithRetry(() => import('./components/stub/ComingSoon.tsx'))
 const App = lazyWithRetry(() => import('./App.tsx'))
 
@@ -89,6 +89,8 @@ async function loadSnapshotPage(path: string): Promise<PublicSnapshotPage> {
   if (path === root.dataset.prerenderedProgram) {
     return { kind: 'program', Component: (await loadPublicProgramPage()).default }
   }
+  const page = Object.values(publicPageLoaders).find((page) => page.path === path)
+  if (page) return page.snapshot()
   const guide = publicGuideLoaders.find((guide) => guide.path === path)
   if (!guide) throw new Error(`No page loader for snapshot path ${path}`)
   return { kind: 'guide', path, Component: (await guide.load()).default }

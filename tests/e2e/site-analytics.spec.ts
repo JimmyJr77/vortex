@@ -36,12 +36,15 @@ async function mockSite(page: Page) {
           startTime: '16:00:00', endTime: '17:00:00', enrolledCount: 1, spotsRemaining: 2, isFull: false,
         }] : [],
       }
-    } else if (pathname === '/api/public/free-trials') data = {
-      program: 'fit-flip', age: 10, ageBand: { min: 8, max: 11 }, classes: [],
-      sessions: [{
-        classId: 104, slotGroupId: 200, className: 'Cyclones', date: '2027-01-12',
-        startTime: '16:00:00', endTime: '17:00:00', enrolledCount: 3, spotsRemaining: 4, isFull: false,
-      }],
+    } else if (pathname === '/api/public/free-trials') {
+      const age = Number(searchParams.get('age'))
+      data = {
+        program: 'fit-flip', age, ageBand: age >= 12 ? { min: 12, max: 15 } : { min: 8, max: 11 }, classes: [],
+        sessions: [{
+          classId: 104, slotGroupId: 200, className: age >= 12 ? 'Cyclones (12–15)' : 'Cyclones', date: '2027-01-12',
+          startTime: '16:00:00', endTime: '17:00:00', enrolledCount: 3, spotsRemaining: 4, isFull: false,
+        }],
+      }
     }
     await route.fulfill({ json: { success: true, data } })
   })
@@ -165,16 +168,21 @@ test('opens a preselected trial from the program page and credits the signup to 
   await page.getByRole('link', { name: 'Find a free Fit & Flip trial' }).click()
   await expect(page).toHaveURL('/fit-and-flip#training-fit')
 
-  const fitTrial = page.locator('#training-fit').getByRole('button', { name: 'Find a free Fit & Flip trial' })
+  const beginnerOptions = page.locator('#training-fit')
+  await expect(beginnerOptions.getByText(/An 11-year-old who will have turned 12/)).toBeVisible()
+  const fitTrial = beginnerOptions.getByRole('button', { name: 'Find a free Fit & Flip trial' })
   await fitTrial.click()
   const dialog = page.getByRole('dialog')
   await expect(dialog.getByRole('heading', { name: 'How old is your athlete?' })).toBeVisible()
   await expect(dialog.getByText('Cyclones classes are grouped into ages 8–11 and 12–15.', { exact: false })).toBeVisible()
-  await dialog.getByLabel('Your child’s age').fill('10')
+  await expect(dialog.getByText('Enter the age your child will be on the day they attend.', { exact: false })).toBeVisible()
+  await dialog.getByLabel('Your child’s age').fill('12')
   const availability = page.waitForRequest(request => new URL(request.url()).pathname === '/api/public/free-trials')
   await dialog.getByRole('button', { name: 'Find available classes' }).click()
-  expect(new URL((await availability).url()).searchParams.get('program')).toBe('fit-flip')
-  await dialog.getByRole('button', { name: /Cyclones.*spot/ }).click()
+  const trialParams = new URL((await availability).url()).searchParams
+  expect(trialParams.get('program')).toBe('fit-flip')
+  expect(trialParams.get('age')).toBe('12')
+  await dialog.getByRole('button', { name: /Cyclones \(12–15\).*spot/ }).click()
   await dialog.getByRole('button', { name: 'Yes, use our free trial' }).click()
   await expect.poll(() => events.filter(event => /^trial_/.test(event.eventName)).map(event => [event.eventName, event.pagePath])).toEqual([
     ['trial_start', '/fit-and-flip'], ['trial_availability', '/fit-and-flip'],
@@ -189,7 +197,7 @@ test('opens a preselected trial from the program page and credits the signup to 
   await expect(firstVisit.getByText(/Plan for about 60 minutes.*Tornadoes trials for ages 6–17 last about 90 minutes/)).toBeVisible()
   await firstVisit.getByRole('button', { name: 'Find a free gymnastics trial' }).click()
   await expect(dialog.getByRole('heading', { name: 'How old is your athlete?' })).toBeVisible()
-  await expect(dialog.getByText('We’ll show the gymnastics classes available for their age.', { exact: false })).toBeVisible()
+  await expect(dialog.getByText('Enter the age your child will be on the day they attend.', { exact: false })).toBeVisible()
   await dialog.getByRole('button', { name: 'Close dialog' }).click()
   await expect(dialog).toHaveCount(0)
 })

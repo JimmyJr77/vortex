@@ -3,6 +3,41 @@ import guideIndex from './publicGuideIndex.json'
 
 export const loadHomePage = () => import('../components/newpage/NewPage')
 export const loadPublicProgramPage = () => import('../components/newpage/PublicProgramPage')
+export const loadSiteHeader = () => import('../components/Header')
+export const loadSiteFooter = () => import('../components/Footer')
+
+async function loadSiteChrome() {
+  const [headerModule, footerModule] = await Promise.all([loadSiteHeader(), loadSiteFooter()])
+  return { Header: headerModule.default, Footer: footerModule.default }
+}
+
+function publicPage<const Path extends string, Component>(
+  path: Path,
+  load: () => Promise<{ default: Component }>,
+  usesLegacyChrome = false,
+) {
+  return {
+    path,
+    load,
+    async snapshot() {
+      const [module, chrome] = await Promise.all([load(), usesLegacyChrome ? loadSiteChrome() : undefined])
+      return { kind: 'page' as const, path, Component: module.default, chrome }
+    },
+  }
+}
+
+export const publicPageLoaders = {
+  readBoard: publicPage('/read-board', () => import('../components/ReadBoard')),
+  enroll: publicPage('/enroll', () => import('../components/SchedulingPage')),
+  dropIn: publicPage('/drop-in', () => import('../components/DropInPage')),
+  contact: publicPage('/contact', () => import('../components/ContactLocationPage'), true),
+  store: publicPage('/store', () => import('../components/store/Storefront'), true),
+  support: publicPage('/support', () => import('../components/legal/SupportPage'), true),
+  privacyPolicy: publicPage('/privacy-policy', () => import('../components/legal/PrivacyPolicyPage'), true),
+  termsOfService: publicPage('/terms-of-service', () => import('../components/legal/TermsOfServicePage'), true),
+}
+
+type PublicPageLoader = (typeof publicPageLoaders)[keyof typeof publicPageLoaders]
 
 export const publicGuideLoaders = [
   { path: guideIndex.path, load: () => import('../components/newpage/TrainingGuidesIndex') },
@@ -17,3 +52,4 @@ export type PublicSnapshotPage =
   | { kind: 'home'; Component: Awaited<ReturnType<typeof loadHomePage>>['default'] }
   | { kind: 'program'; Component: Awaited<ReturnType<typeof loadPublicProgramPage>>['default'] }
   | { kind: 'guide'; path: string; Component: Awaited<ReturnType<(typeof publicGuideLoaders)[number]['load']>>['default'] }
+  | Awaited<ReturnType<PublicPageLoader['snapshot']>>

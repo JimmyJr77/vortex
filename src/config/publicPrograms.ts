@@ -275,8 +275,18 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'first-fit-flip-class',
             heading: 'Find a first class',
             description:
-              'Fit & Flip’s 90-minute Cyclones classes are grouped by age, 8–11 and 12–15. Choose one available date for a trial or drop-in, or browse recurring classes if you’re ready for a weekly class. Contact Vortex if your child falls outside those age groups.',
+              'Beginners can try a regular 90-minute Cyclones class without prior sports or gymnastics experience. Choose an available trial or drop-in date, or browse recurring classes for a weekly option.',
             link: { href: '/fit-and-flip#fit-flip-class-pricing', label: 'Compare monthly and drop-in prices', analyticsKey: 'compare_fit_flip_class_prices' },
+          },
+          {
+            id: 'fit-flip-trial-age',
+            heading: 'Which Cyclones age group should I choose?',
+            description: 'Use your child’s age on the class date. An 11-year-old who will have turned 12 by the date they attend belongs in the 12–15 group. Contact Vortex for options outside the 8–15 age range.',
+          },
+          {
+            id: 'book-fit-flip-trial',
+            heading: 'How do I book a free Fit & Flip trial?',
+            description: 'Enter your child’s age and choose an available date. A parent or legal guardian creates or signs in to a family account, adds the athlete’s details, and signs the waivers. Eligible athletes get one free trial, and no payment card is required.',
           },
         ],
         links: [
@@ -344,6 +354,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         ],
         links: [
           { href: '/adult-gymnastics#adult-availability', label: 'Plan your first Typhoons class', analyticsKey: 'read_adult_first_visit' },
+          { href: `${RETURNING_TO_GYMNASTICS_GUIDE.path}#nearby-adult-gymnastics`, label: 'Compare adult classes and open gym near Bowie', analyticsKey: 'compare_adult_gymnastics_formats' },
         ],
       },
       {

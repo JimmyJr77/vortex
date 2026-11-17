@@ -1,13 +1,24 @@
+import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { BUSINESS_FACILITY_PHOTO } from '../../config/contact'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
+import { ADULT_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
 export default function ReturningToGymnasticsGuide() {
   const guide = RETURNING_TO_GYMNASTICS_GUIDE
+  const { hash } = useLocation()
+
+  useEffect(() => {
+    if (!hash) return
+    const frame = requestAnimationFrame(() => {
+      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [hash])
 
   return (
     <article className="athletic-guide" aria-labelledby="returning-to-gymnastics-title">
@@ -33,6 +44,7 @@ export default function ReturningToGymnasticsGuide() {
         <nav className="athletic-guide-index" aria-label="In this guide">
           <ul>
             <li><a href="#class-format">Choose a class format</a></li>
+            <li><a href="#nearby-adult-gymnastics">Compare nearby classes and open gym</a></li>
             <li><a href="#what-to-tell-your-coach">What to tell your coach</a></li>
             <li><a href="#choose-a-starting-movement">Choose a starting movement</a></li>
             <li><a href="#track-your-progress">Keep a short practice note</a></li>
@@ -52,6 +64,29 @@ export default function ReturningToGymnasticsGuide() {
             back into the sport.{' '}
             <a href="https://usagym.org/men/pathways/">USA Gymnastics recreational pathways</a>
           </p>
+        </section>
+
+        <section id="nearby-adult-gymnastics">
+          <h2>Adult gymnastics classes and open gym near Bowie</h2>
+          <p>Ask what kind of instruction you’ll get and whether you can book one visit or need to enroll for a series.</p>
+          <ul>
+            <li>
+              <strong>Vortex Athletics in Bowie.</strong> Typhoons is a 90-minute coached class for ages 18 and up
+              that combines conditioning, mobility, and introductory acrobatics. Beginners and returning gymnasts
+              can reserve one class or enroll weekly.{' '}
+              <Link to={ADULT_DROP_IN_HREF}>See Typhoons drop-in dates</Link>
+            </li>
+            <li>
+              <strong>University of Maryland Gymkana in College Park.</strong> Gymkana offers instructor-led
+              tumbling and trampoline classes for ages 14 and up. Choose a class from its multi-week session schedule.
+              {' '}<a href="https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes">See Gymkana’s adult class options</a>
+            </li>
+            <li>
+              <strong>Docksiders Gymnastics in Millersville.</strong> Its adult open gym is self-paced for ages 16
+              and up. Reserve by phone and ask which equipment and coaching are available during open practice.
+              {' '}<a href="https://www.docksidersgymnastics.com/special-class-programs">Check Docksiders’ adult open gym</a>
+            </li>
+          </ul>
         </section>
 
         <section id="what-to-tell-your-coach">

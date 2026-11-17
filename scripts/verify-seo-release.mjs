@@ -349,9 +349,9 @@ const verifyHtml = (
   assert(attribute(snapshotRoot, 'data-prerendered-program') === expectedProgramSnapshot,
     `${label}: the prerendered program marker must match the program route`)
   const expectedPublicSnapshot = shouldIndex && pageUrl.origin === HUB_ORIGIN &&
-    ['/', HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS].includes(pagePath) ? pagePath : ''
+    !HUB_PROGRAM_PATHS.includes(pagePath) ? pagePath : ''
   assert(attribute(snapshotRoot, 'data-prerendered-page') === expectedPublicSnapshot,
-    `${label}: the prerendered page marker must match the homepage or guide route`)
+    `${label}: the prerendered page marker must match the indexable route`)
   if (pageUrl.origin === HUB_ORIGIN) {
     for (const url of anchorUrls(html)) {
       if (!unifiedHosts.has(url.hostname.replace(/^www\./, ''))) continue
@@ -558,6 +558,9 @@ const verifyHtml = (
         `${label}: missing the Fit & Flip trial finder button`)
       assert(anchorUrls(firstClass).some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-class-pricing`),
         `${label}: missing the price comparison link from the Fit & Flip first-class options`)
+      assert(/Use your child’s age on the class date/.test(firstClass) && /12–15 group/.test(firstClass) &&
+        /parent or legal guardian/.test(firstClass) && /no payment card is required/.test(firstClass),
+        `${label}: missing the Fit & Flip trial age, registration, or payment guidance`)
     }
     if (pagePath === '/adult-gymnastics') {
       const hero = mainHtml.match(/<section\b[^>]*\bclass=["']np-program-hero["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -585,6 +588,8 @@ const verifyHtml = (
         `${label}: adult first-visit guidance must link to the Typhoons drop-in schedule`)
       assert(mainLinks.some((url) => url.href === canonicalFor(HUB_ORIGIN, RETURNING_TO_GYMNASTICS_GUIDE_PATH)),
         `${label}: adult gymnastics must link to the guide for returning gymnasts`)
+      assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#nearby-adult-gymnastics`),
+        `${label}: adult gymnastics must link to the local class and open-gym comparison`)
     }
     if (pagePath === '/') {
       for (const path of HUB_PROGRAM_PATHS) {
@@ -610,6 +615,13 @@ const verifyHtml = (
       assert(guideLinks.some((url) => url.href === `${canonicalFor(HUB_ORIGIN, '/adult-gymnastics')}${hash}`),
         `${label}: the returning gymnastics guide must link to ${hash} on the adult program page`)
     }
+    const nearby = html.match(/<section\b[^>]*\sid=["']nearby-adult-gymnastics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const nearbyLinks = anchorUrls(nearby)
+    assert(/Typhoons is a 90-minute coached class/.test(nearby) && /College Park/.test(nearby) && /Millersville/.test(nearby) &&
+      hasDropInProgramLink(nearbyLinks, 'Adult Fitness & Acrobatics') &&
+      nearbyLinks.some(url => url.href === 'https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes') &&
+      nearbyLinks.some(url => url.href === 'https://www.docksidersgymnastics.com/special-class-programs'),
+      `${label}: missing the three adult gymnastics options or links to their official class information`)
   }
 
   if (shouldIndex) {
@@ -676,6 +688,9 @@ const verifyHtml = (
       assert(/Can they listen to a coach/i.test(readiness) &&
         anchorUrls(readiness).some((url) => url.href === `${fitAndFlipCanonical}#training-fit`),
         `${label}: missing the youth strength training readiness guidance or link to the beginner program options`)
+      assert(/Do kids need weights to get stronger\?/.test(readiness) &&
+        anchorUrls(readiness).some(url => url.href === 'https://www.cdc.gov/physical-activity-basics/guidelines/children.html'),
+        `${label}: missing the CDC-backed section on building strength through play`)
       assert(/The first two steps of a sprint/i.test(progress) && /counts controlled starts/i.test(progress),
         `${label}: missing the Athleticism Accelerator coaching example for checking progress`)
       assert(links.some((url) => url.href === fitAndFlipCanonical),

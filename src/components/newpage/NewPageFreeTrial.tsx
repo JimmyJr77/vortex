@@ -197,7 +197,7 @@ export default function NewPageFreeTrial({
       <form className="np-trial-age-form" onSubmit={submitAge}>
         <label htmlFor="np-trial-age">Your child’s age</label>
         <div className="np-trial-age-input"><input id="np-trial-age" type="number" inputMode="numeric" min="1" max="17" step="1" required value={ageInput} onChange={event => { setAgeInput(event.target.value); setError('') }} aria-describedby="np-trial-age-help" autoComplete="off" placeholder="e.g. 10" /><span>years old</span></div>
-        <p id="np-trial-age-help">{program === 'fit-flip' ? 'Cyclones classes are grouped into ages 8–11 and 12–15.' : 'We’ll show the gymnastics classes available for their age.'} We’ll confirm their eligibility using the date of birth entered at registration.</p>
+        <p id="np-trial-age-help">Enter the age your child will be on the day they attend. {program === 'fit-flip' ? 'Cyclones classes are grouped into ages 8–11 and 12–15. ' : ''} We’ll confirm eligibility using their date of birth at registration.</p>
         {error && <p className="np-trial-error" role="alert">{error}</p>}
         <button className="np-button" type="submit">Find available classes <ArrowRight size={18} /></button>
       </form>
