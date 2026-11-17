@@ -58,6 +58,10 @@ export const BUSINESS_GEO = {
 export const GOOGLE_MAPS_URL =
   'https://www.google.com/maps?cid=15262285316302188709'
 
+/** Review form for the same verified Google Business Profile. */
+export const GOOGLE_REVIEW_URL =
+  'https://search.google.com/local/writereview?placeid=ChIJZ4XjEwDtt4kRpTDa0qGHztM'
+
 /**
  * Hours of operation. `days` use schema.org DayOfWeek names; times are 24h.
  * Sunday is closed and intentionally omitted.

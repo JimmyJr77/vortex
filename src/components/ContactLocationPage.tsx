@@ -4,6 +4,7 @@ import {
   BUSINESS_HOURS,
   BUSINESS_NAP,
   GOOGLE_MAPS_URL,
+  GOOGLE_REVIEW_URL,
   SERVICE_AREAS,
   TEAM_EMAIL,
   TEAM_PHONE,
@@ -68,6 +69,12 @@ const ContactLocationPage = ({ onInquireClick }: ContactLocationPageProps) => (
           </div>
         </div>
       </div>
+      <p className="container-custom mt-6 text-sm text-gray-700">
+        Have you or your child taken a class at Vortex?{' '}
+        <a className="font-semibold underline underline-offset-4 hover:text-vortex-red" href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer">
+          Share your experience on Google
+        </a>.
+      </p>
     </section>
 
     <section className="section-padding bg-gray-950 text-white">
