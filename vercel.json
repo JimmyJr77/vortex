@@ -326,7 +326,7 @@
   ],
   "headers": [
     {
-      "source": "/(.*)",
+      "source": "/:path((?!fit-and-flip$).*)",
       "has": [
         { "type": "host", "value": "vortexathletics\\.com" },
         { "type": "query", "key": "vcid" }
@@ -413,6 +413,22 @@
       "config": {
         "distDir": "dist"
       }
+    },
+    {
+      "src": "api/legacy-fit-flip-consent.ts",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "^/fit-and-flip$",
+      "methods": ["GET", "HEAD"],
+      "has": [
+        { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },
+        { "type": "query", "key": "vcid" }
+      ],
+      "missing": [{ "type": "query", "key": "sport" }],
+      "dest": "/api/legacy-fit-flip-consent.ts"
     }
   ],
   "rewrites": [
