@@ -62,7 +62,16 @@ function EnrollmentHero({ mode = 'browse' }: { mode?: keyof typeof enrollmentHer
       <div className="np-enrollment-wrap">
         <p className="np-enrollment-eyebrow">Your next chapter starts here</p>
         <h1>{heading}</h1>
-        <p className="np-enrollment-intro">{intro}</p>
+        <p className="np-enrollment-intro">
+          {intro}
+          {mode === 'browse' && <>
+            {' '}For ages 18 and up,{' '}
+            <Link to={ADULT_BOOKING_HREF} className="font-semibold text-vortex-red underline underline-offset-4"
+              data-analytics-cta="browse_classes" data-analytics-section="adult_enrollment_entry">
+              see adult gymnastics class times
+            </Link>.
+          </>}
+        </p>
         {mode === 'browse' && (
           <div className="np-enrollment-actions">
             <Link to="/signup/family" className="np-enrollment-button">
