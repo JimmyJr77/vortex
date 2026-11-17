@@ -6,6 +6,7 @@ import './AthleticDevelopmentGuide.css'
 
 const sections = [
   { id: 'youth-sports', label: 'How it fits with youth sports' },
+  { id: 'movement-examples', label: 'Examples of athleticism development' },
   { id: 'first-class', label: 'What to watch for in class' },
   { id: 'progress', label: 'How to spot progress' },
   { id: 'questions', label: 'Questions for the coach' },
@@ -24,8 +25,9 @@ export default function AthleticDevelopmentGuide() {
             </nav>
             <h1 id="athletic-guide-title">{ATHLETIC_DEVELOPMENT_GUIDE.heading}</h1>
             <p className="athletic-guide-lead">
-              Youth athletic development helps kids build movement skills they can carry between activities.
-              Here’s what to look for when you watch a class and how to decide if it fits your child.
+              Athleticism development helps children build strength, speed, and body control they can use in
+              sports and active play. Here’s what those skills look like in a coached class and how to decide
+              if the class fits your child.
             </p>
             <p className="athletic-guide-byline">By Vortex Athletics</p>
           </div>
@@ -62,11 +64,28 @@ export default function AthleticDevelopmentGuide() {
             together across sports, and each sport still needs practice of its own skills.
           </p>
           <p>
-            Consider what your child wants to learn and what their week already includes. An athlete with games,
-            practices, or gymnastics classes may benefit from a different starting point than a child looking for a
-            new way to move. Leave room for enjoyable activities and active play.
-            {' '}If you’re weighing local options, see our <Link to={BOWIE_YOUTH_SPORTS_GUIDE.path}>guide to Bowie youth sports</Link>.
+            Before adding a class, look at a typical week. Count PE, practices, games, and the active play your
+            child already enjoys. Ask them to name one thing they’d like to practice, such as balancing or changing
+            direction with more control. Choose a class if they want to try it and the schedule leaves room for
+            their other activities and time to rest.
           </p>
+          <p>
+            Children who aren’t on a team can start with active play or a coached class they enjoy. For nearby choices,
+            see our <Link to={BOWIE_YOUTH_SPORTS_GUIDE.path}>guide to Bowie youth sports</Link>.
+          </p>
+        </section>
+
+        <section id="movement-examples">
+          <h2>What athleticism development looks like in class</h2>
+          <p>
+            Watch how the coach changes a movement as your child learns it. These are examples of what a coach
+            might choose based on the child’s experience.
+          </p>
+          <ul>
+            <li><strong>Strength.</strong> A coach might start with a bodyweight squat. Once the child can lower and stand with control across several attempts, the coach can add resistance.</li>
+            <li><strong>Speed.</strong> A child might practice a short start, rest, and try again. The coach watches whether the first few steps stay consistent as the child gets faster.</li>
+            <li><strong>Body control.</strong> A child might practice a small jump and steady landing. Once the landing is repeatable, the coach can connect the jump to another tumbling movement.</li>
+          </ul>
         </section>
 
         <section id="first-class">

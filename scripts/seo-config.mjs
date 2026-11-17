@@ -26,7 +26,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
-  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-16' },
+  { path: YOUTH_ATHLETIC_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-17' },
   { path: BOWIE_YOUTH_SPORTS_GUIDE_PATH, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-16' },
 ]
 
