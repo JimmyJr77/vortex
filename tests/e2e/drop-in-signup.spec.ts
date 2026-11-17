@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test'
-import { ANALYTICS_POLICY_VERSION, CONSENT_STORAGE_KEY } from '../../src/config/analyticsPolicy'
+import { ANALYTICS_POLICY_VERSION, CONSENT_COOKIE_NAME, CONSENT_ID_COOKIE_NAME, CONSENT_STORAGE_KEY } from '../../src/config/analyticsPolicy'
 
 const classDate = '2027-01-12'
 const signupUrl = `/drop-in?signupSlot=200&signupDate=${classDate}`
@@ -437,6 +437,51 @@ test('drop-in-only schedule hides the free trial and sends the displayed paid bo
   await expect(page).toHaveURL('/mock-drop-in-card-payment')
   expect(submitted.find(entry => entry.path === '/api/public/drop-ins/register')?.body)
     .toMatchObject({ memberId: 102, slotGroupId: 200, classDate, useFreeTrial: false })
+})
+
+test.describe('short mobile drop-in calendar', () => {
+  test.use({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true })
+
+  test('opens the only drop-in time while cookie consent remains unchosen', async ({ page, context }) => {
+    await page.clock.setFixedTime(new Date('2027-01-10T17:00:00Z'))
+    const { submitted } = await mockDropInApi(page)
+    await page.goto('/drop-in')
+    const banner = page.getByRole('dialog', { name: 'Cookie consent' })
+    await expect(banner).toBeVisible()
+    await page.locator('#drop-in-date').fill(classDate)
+    const classOption = page.getByRole('button', { name: /Beginner Gymnastics.*View drop-in times/ })
+    const sheet = page.locator('.np-drop-in-sessions')
+
+    await classOption.tap()
+    await sheet.getByRole('button', { name: 'Close upcoming classes', exact: true }).tap()
+    await expect(sheet).toBeHidden()
+    for (const name of ['Settings', 'Necessary only', 'Accept all']) {
+      const choice = banner.getByRole('button', { name, exact: true })
+      await expect(choice).toBeVisible()
+      expect(await choice.evaluate(element => {
+        const { x, y, width, height } = element.getBoundingClientRect()
+        return element.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+      })).toBe(true)
+    }
+
+    await classOption.tap()
+    const slot = sheet.locator('button.np-drop-in-session-option')
+    await expect(slot).toHaveCount(1)
+    await expect(slot).toBeEnabled()
+    const target = await slot.evaluate(element => {
+      const box = element.getBoundingClientRect()
+      const x = box.x + box.width / 2
+      const y = box.y + box.height / 2
+      return { x, y, receivesTap: element.contains(document.elementFromPoint(x, y)) }
+    })
+    expect(target.receivesTap).toBe(true)
+    await page.touchscreen.tap(target.x, target.y)
+    await expect(page).toHaveURL(signupUrl)
+    await expect(page.getByRole('heading', { name: 'Register for your drop-in' })).toBeVisible()
+    expect(await page.evaluate(key => localStorage.getItem(key), CONSENT_STORAGE_KEY)).toBeNull()
+    expect((await context.cookies()).filter(cookie => [CONSENT_COOKIE_NAME, CONSENT_ID_COOKIE_NAME].includes(cookie.name))).toEqual([])
+    expect(submitted).toEqual([])
+  })
 })
 
 test('guest drop-in requires full account details and waivers before offering membership and final card payment', async ({ page }) => {

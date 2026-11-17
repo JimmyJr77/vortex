@@ -49,6 +49,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
             <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
             <li><a href="#high-school-sports-training">High school sports training</a></li>
+            <li><a href="#youth-team-training">Youth team training</a></li>
             <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
             <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
@@ -219,6 +220,23 @@ export default function BowieYouthSportsGuide() {
           </p>
           <p>
             If your teen wants to learn tumbling skills, <Link to="/gymnastics#teen">see Vortex’s gymnastics options for teens</Link>.
+          </p>
+        </section>
+
+        <section id="youth-team-training">
+          <h2>Youth sports team training in Bowie</h2>
+          <p>
+            Families can register an athlete for a weekly Fit &amp; Flip group class to practice strength,
+            jumps, and body control for different sports.{' '}
+            <Link to="/fit-and-flip#fit-flip-schedule">See recurring Fit &amp; Flip class times</Link>.
+          </p>
+          <p>
+            Coaches booking for a whole roster can compare{' '}
+            <a href="https://redlineathletics.com/location/bowie/#programs">Redline Athletics Bowie’s team training</a>,
+            which is designed around the team’s schedule and goals, and{' '}
+            <a href="https://www.goatlabperformance.com/programs/team-training">The GOAT Lab’s team training</a>,
+            which adapts sessions to the group’s age, sport, and level. Share the roster size, age range,
+            and possible training dates when you contact a program.
           </p>
         </section>
 

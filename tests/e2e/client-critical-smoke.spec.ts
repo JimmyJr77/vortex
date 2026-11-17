@@ -101,6 +101,16 @@ test.describe('Client-critical smoke flows', () => {
       .toHaveAttribute('href', 'https://booking.redlineathletics.com/free-trial-booking-page-bowie')
     await expect(page.getByRole('link', { name: 'The GOAT Lab’s assessment' }))
       .toHaveAttribute('href', 'https://www.goatlabperformance.com/programs/the-performance-lab')
+
+    await page.goto('/fit-and-flip#choose-a-class')
+    await page.getByRole('link', { name: 'Find training for a whole youth team' }).click()
+    await expect(page).toHaveURL('/blog/youth-sports-bowie#youth-team-training')
+    const team = page.locator('#youth-team-training')
+    await expect(team.getByRole('heading', { name: 'Youth sports team training in Bowie' })).toBeInViewport()
+    await expect(team.getByRole('link', { name: 'See recurring Fit & Flip class times' }))
+      .toHaveAttribute('href', '/fit-and-flip#fit-flip-schedule')
+    await expect(team.getByRole('link', { name: 'The GOAT Lab’s team training' }))
+      .toHaveAttribute('href', 'https://www.goatlabperformance.com/programs/team-training')
   })
 
   test('Fit & Flip strength guidance leads to the kettlebell film moment', async ({ page }) => {

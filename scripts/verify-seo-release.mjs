@@ -134,6 +134,20 @@ const anchorUrls = (html) => tags(html, 'a')
   .filter(Boolean)
   .map((href) => new URL(href, HUB_ORIGIN))
 
+const verifyPublicNotFoundHtml = (label, html) => {
+  assert(titleValues(html).length === 1 && h1Values(html).length === 1,
+    `${label}: expected one title and one H1`)
+  assert(metaValues(html, 'name', 'robots').some((value) => /\bnoindex\b/i.test(value)),
+    `${label}: expected an HTML noindex directive`)
+  const links = anchorUrls(html)
+  for (const path of HUB_PROGRAM_PATHS) {
+    assert(links.some((link) => link.href === canonicalFor(HUB_ORIGIN, path)),
+      `${label}: missing a direct recovery link to ${path}`)
+  }
+  assert(links.every((link) => link.origin === HUB_ORIGIN),
+    `${label}: recovery links must stay on the canonical host`)
+}
+
 const verifyLocalAssets = (label, html) => {
   const candidates = [
     ...tags(html, 'img').flatMap((tag) => [attribute(tag, 'src'), attribute(tag, 'srcset')]),
@@ -702,6 +716,8 @@ const verifyHtml = (
     if (pagePath === '/fit-and-flip') {
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#compare-athletic-training`),
         `${label}: Fit & Flip must link to the Bowie youth athletic training comparison`)
+      assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#youth-team-training`),
+        `${label}: Fit & Flip must link coaches to local youth team training options`)
       const frameworkBooking = mainHtml.match(/<article\b[^>]*\sid=["']apply-athleticism-accelerator["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/ages 8–11 or 12–15/i.test(frameworkBooking),
         `${label}: the Athleticism Accelerator booking article must explain both Cyclones age groups`)
@@ -1019,6 +1035,13 @@ const verifyHtml = (
       homeschoolLinks.some(url => url.href === 'https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex') &&
       /individual enrollment/.test(homeschool) && /homeschool groups ages 5–17/.test(homeschool),
       `${label}: missing the comparison of regular gymnastics, daytime homeschool classes, and group PE`)
+    const youthTeam = content.match(/<section\b[^>]*\sid=["']youth-team-training["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const youthTeamLinks = anchorUrls(youthTeam)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#youth-team-training') &&
+      youthTeamLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
+      youthTeamLinks.some(url => url.href === 'https://redlineathletics.com/location/bowie/#programs') &&
+      youthTeamLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/team-training'),
+      `${label}: missing the youth team training contents link or a verified training option`)
     const fitness = content.match(/<section\b[^>]*\sid=["']fitness-without-a-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const fitnessLinks = anchorUrls(fitness)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#fitness-without-a-team') &&
@@ -1496,24 +1519,21 @@ for (const set of expectedSets) {
     }
 
     const notFoundUrl = `${set.origin}/__seo-release-404-check__`
-    const notFoundResponse = await fetch(notFoundUrl, { redirect: 'manual' })
-    await notFoundResponse.body?.cancel()
-    assert(
-      notFoundResponse.status === 404,
-      `${set.label} unknown route returned HTTP ${notFoundResponse.status}; expected a real 404`,
-    )
-    // A platform 404 can have a plain-text body. Check the branded HTML
-    // separately because it is also reachable directly as a static file.
-    const brandedNotFound = await fetch(`${set.origin}/404.html`, { redirect: 'manual' })
-    assert(
-      brandedNotFound.ok || brandedNotFound.status === 404,
-      `${set.label} live /404.html returned HTTP ${brandedNotFound.status}`,
-    )
-    assert(
-      (brandedNotFound.headers.get('content-type') ?? '').includes('text/html') &&
-      metaValues(await brandedNotFound.text(), 'name', 'robots').some((value) => /\bnoindex\b/i.test(value)),
-      `${set.label} live branded /404.html is missing HTML noindex`,
-    )
+    const navigation = { redirect: 'manual', headers: { Accept: 'text/html' } }
+    const notFoundResponse = await fetch(notFoundUrl, navigation)
+    assert(notFoundResponse.status === 404 && /^text\/html\b/i.test(notFoundResponse.headers.get('content-type') ?? ''),
+      `${notFoundUrl}: missing a branded HTML response with HTTP 404`)
+    verifyPublicNotFoundHtml(notFoundUrl, await notFoundResponse.text())
+
+    const notFoundHead = await fetch(notFoundUrl, { ...navigation, method: 'HEAD' })
+    assert(notFoundHead.status === 404 && /^text\/html\b/i.test(notFoundHead.headers.get('content-type') ?? ''),
+      `${notFoundUrl}: HEAD must report the branded HTML response and HTTP 404`)
+
+    for (const path of ['/api/__seo-release-404-check__', '/assets/__seo-release-404-check__.js']) {
+      const response = await fetch(`${set.origin}${path}`, navigation)
+      assert(response.status === 404 && !h1Values(await response.text()).some((heading) => /that page isn/i.test(heading)),
+        `${path}: API and asset misses must keep their existing 404 responses`)
+    }
   }
 }
 
@@ -1709,13 +1729,7 @@ assert(
   `public/: unexpected sitemap copies found (${publicSitemapFiles.join(', ')})`,
 )
 
-const notFoundHtml = readFileSync(join(root, 'public/404.html'), 'utf8')
-assert(titleValues(notFoundHtml).length === 1, 'public/404.html: expected exactly one title')
-assert(h1Values(notFoundHtml).length === 1, 'public/404.html: expected exactly one H1')
-assert(
-  metaValues(notFoundHtml, 'name', 'robots').some((value) => /noindex/i.test(value)),
-  'public/404.html: noindex robots directive is missing',
-)
+verifyPublicNotFoundHtml('public/404.html', readFileSync(join(root, 'public/404.html'), 'utf8'))
 
 for (const stub of STUB_SEO_ENTRIES) {
   const file = join(root, 'dist', '_seo', `${stub.host}.html`)
@@ -1740,6 +1754,14 @@ assert(vercelConfig.trailingSlash === false,
 const redirects = vercelConfig.redirects ?? []
 const headers = vercelConfig.headers ?? []
 const rewrites = vercelConfig.rewrites ?? []
+const publicNotFoundHandler = 'api/public-not-found.ts'
+const publicNotFoundRewrite = rewrites.at(-1)
+assert(publicNotFoundRewrite?.destination === '/' + publicNotFoundHandler &&
+  publicNotFoundRewrite.has?.some((condition) => condition.type === 'header' && condition.key === 'accept' &&
+    new RegExp(condition.value).test('text/html')) &&
+  vercelConfig.builds?.some((build) => build.src === publicNotFoundHandler && build.use === '@vercel/node' &&
+    build.config?.includeFiles?.includes('public/404.html')),
+  'vercel.json: the last rewrite must serve the packaged branded 404 for document requests')
 const redirectFor = (host, source, destination) =>
   redirects.some(
     (redirect) =>

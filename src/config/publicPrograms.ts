@@ -371,6 +371,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#progress`, label: 'See how coaches check athletic progress', analyticsKey: 'read_athletic_progress' },
           { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`, label: 'Fit training around practices and games', analyticsKey: 'read_youth_sports_training_schedule' },
           { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#compare-athletic-training`, label: 'Compare youth athletic training in Bowie', analyticsKey: 'read_bowie_youth_sports_guide' },
+          { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-team-training`, label: 'Find training for a whole youth team', analyticsKey: 'read_youth_team_training' },
         ],
       },
       {

@@ -417,6 +417,11 @@
     {
       "src": "api/legacy-public-consent.ts",
       "use": "@vercel/node"
+    },
+    {
+      "src": "api/public-not-found.ts",
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["public/404.html"] }
     }
   ],
   "routes": [
@@ -610,6 +615,14 @@
     {
       "source": "/camp_interest/thank-you",
       "destination": "/_seo/spa.html"
+    },
+    {
+      "source": "/:path((?!(?:api|assets|fonts|_seo|_vercel|admin(?:\\.html)?|coach|employee|member|members|portal)(?:/|$))(?:[^./]+/)*[^./]+(?:\\.html)?)",
+      "has": [
+        { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },
+        { "type": "header", "key": "accept", "value": ".*text/html.*" }
+      ],
+      "destination": "/api/public-not-found.ts"
     }
   ]
 }
