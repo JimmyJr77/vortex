@@ -1,4 +1,4 @@
-import type { PublicAdultBooking, PublicBookingSnapshot, PublicYouthBooking } from '../src/config/publicBookingSnapshot'
+import type { PublicAdultBooking, PublicBookingSnapshot, PublicWeeklyClassTime, PublicYouthBooking } from '../src/config/publicBookingSnapshot'
 import {
   ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_CATALOG_NAMES, FIT_AND_FLIP_BOOKING_PROGRAM, PUBLIC_API_ORIGIN,
 } from '../src/config/publicCatalog'
@@ -110,10 +110,11 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
   const options = Array.isArray(program.pricingCostOptions) ? program.pricingCostOptions : []
   const activePrices = options.filter(option => option?.enabled === true && validPrice(option.amountCents))
   const flat = activePrices.length === 1 && activePrices[0].key === 'monthly_flat' ? activePrices[0].amountCents : null
-  const recurring = flat && await readClassSchedule(adultClass.id, signal)
-  const monthlyTuitionCents = recurring && recurring.formId === adultClass.formId && recurring.costUnit === 'per_month' &&
-    Array.isArray(recurring.scheduleOptions) && recurring.scheduleOptions.some(option =>
-      option?.scheduleMode === 'day' && option.datesTbd === false && option.priceCents === flat)
+  const recurring = await readClassSchedule(adultClass.id, signal)
+  const currentOptions = existingSchedule(recurring, adultClass.formId, checkedOn)
+  const recurringTimes = weeklyTimes(currentOptions)
+  const monthlyTuitionCents = flat && recurring?.costUnit === 'per_month' &&
+    currentOptions.some(option => option.priceCents === flat)
     ? flat : null
 
   const sessions = datesForClass(dropIns, program.id, adultClass, checkedOn)
@@ -136,14 +137,14 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     maxParticipants: consistentCapacity(sessions),
   } : null
 
-  return monthlyTuitionCents || dropIn ? { checkedOn, monthlyTuitionCents, dropIn } : null
+  return recurringTimes.length || monthlyTuitionCents || dropIn ? { checkedOn, recurringTimes, monthlyTuitionCents, dropIn } : null
 }
 
 function priceRange(values: unknown[]): [number, number] | null {
   return values.length && values.every(validPrice) ? [Math.min(...values), Math.max(...values)] : null
 }
 
-function weeklyTimes(options: SignupClassCatalog['scheduleOptions']): PublicYouthBooking['classes'][number]['times'] {
+function weeklyTimes(options: SignupClassCatalog['scheduleOptions']): PublicWeeklyClassTime[] {
   const slots = new Map<string, { days: Set<number>; startTime: string; endTime: string }>()
   for (const option of options) {
     const match = option.scheduleLabel?.match(dayTimeLabel)

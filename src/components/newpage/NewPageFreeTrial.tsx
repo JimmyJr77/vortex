@@ -1,6 +1,7 @@
 import { trackEvent } from '../../utils/analyticsClient'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Clock3, LoaderCircle, RefreshCw, Users } from 'lucide-react'
 import { TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { fetchFreeTrialAvailability, type FreeTrialAvailability, type FreeTrialProgram, type FreeTrialSession, type GymnasticsTrialAnswers } from '../../utils/freeTrialApi'
@@ -202,6 +203,21 @@ export default function NewPageFreeTrial({
         <button className="np-button" type="submit">Find available classes <ArrowRight size={18} /></button>
       </form>
     </>}
+
+    {(step === 'program' || step === 'age') && (
+      <p className="np-trial-footnote">
+        Age 18 or older?{' '}
+        <Link
+          className="font-semibold underline underline-offset-4"
+          to="/adult-gymnastics#adult-availability"
+          onClick={onDone}
+          data-analytics-cta="read_adult_first_visit"
+          data-analytics-section="trial"
+        >
+          See Typhoons adult gymnastics trials
+        </Link>.
+      </p>
+    )}
 
     {step === 'qualification' && <>
       <p className="np-trial-intro"><strong>Gymnastics</strong> · Age {age}</p>

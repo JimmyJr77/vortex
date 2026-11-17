@@ -97,7 +97,7 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
 }) => {
   const apiUrl = getApiUrl()
   const { key: locationKey } = useLocation()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const urlFormId = useMemo(
     () => parseOptionalInt(searchParams.get('form')) ?? null,
     [searchParams],
@@ -127,9 +127,6 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
   )
 
   const [catalogPrograms, setCatalogPrograms] = useState<PublicProgramOffered[]>([])
-  const [selectedFormId, setSelectedFormId] = useState<number | null>(
-    shouldOpenSignupDirectly ? urlFormId : null,
-  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [signupComplete, setSignupComplete] = useState(false)
@@ -151,7 +148,7 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
   const linkedAdultClass = urlFormId != null
     ? adultClasses.find((classItem) => classItem.formId === urlFormId)
     : wantsAdultClasses && adultClasses.length === 1 ? adultClasses[0] : undefined
-  const signupFormId = shouldOpenSignupDirectly ? selectedFormId : linkedAdultClass?.formId ?? null
+  const signupFormId = shouldOpenSignupDirectly ? urlFormId : linkedAdultClass?.formId ?? null
   const isAdultSignup = signupFormId != null && linkedAdultClass?.formId === signupFormId
 
   useEffect(() => {
@@ -182,6 +179,15 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
     if (detail.email) saveSchedulingMemberEmail(detail.email)
   }, [])
 
+  const returnToClasses = () => {
+    const next = new URLSearchParams(searchParams)
+    for (const key of ['auth', 'email', 'offeringId', 'slotGroupId', 'timeSlotId', 'enrollmentStartDate']) {
+      next.delete(key)
+    }
+    setSignupComplete(false)
+    setSearchParams(next, { replace: true })
+  }
+
   if (signupFormId != null) {
     const backDestination = isAdultSignup && adultClasses.length === 1 ? 'adult gymnastics' : 'classes'
     const backLabel = `${signupComplete ? 'Return to' : 'Back to'} ${backDestination}`
@@ -191,11 +197,11 @@ const SchedulingPage = ({ onAdultEnrollmentResolved }: {
         <section className="np-enrollment-content">
           <div className="np-enrollment-wrap np-enrollment-signup space-y-6">
             {isAdultSignup ? (
-              <Link to={adultClasses.length > 1 ? ADULT_BOOKING_HREF : '/adult-gymnastics'} className="np-enrollment-button np-enrollment-button-secondary" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }}>
+              <Link to={adultClasses.length > 1 ? ADULT_BOOKING_HREF : '/adult-gymnastics'} className="np-enrollment-button np-enrollment-button-secondary" onClick={() => setSignupComplete(false)}>
                 <ArrowLeft className="w-4 h-4" /> {backLabel}
               </Link>
             ) : (
-              <button type="button" onClick={() => { setSelectedFormId(null); setSignupComplete(false) }} className="np-enrollment-button np-enrollment-button-secondary">
+              <button type="button" onClick={returnToClasses} className="np-enrollment-button np-enrollment-button-secondary">
                 <ArrowLeft className="w-4 h-4" /> {backLabel}
               </button>
             )}

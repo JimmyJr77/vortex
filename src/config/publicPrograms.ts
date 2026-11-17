@@ -138,8 +138,11 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'teen',
             heading: 'Gymnastics for teens and returning athletes',
-            description: 'Teens can start gymnastics with no prior experience. If your child has taken classes before, check how Vortex coaches choose a starting level.',
-            link: { href: '/gymnastics#class-placement', label: 'Find the right gymnastics level', analyticsKey: 'read_gymnastics_placement' },
+            description: 'Teens can start gymnastics with no prior experience. If your child has taken classes before, check how Vortex coaches choose a starting level. Gymnasts ages 18 and up can look for a Typhoons date that accepts free trials.',
+            links: [
+              { href: '/gymnastics#class-placement', label: 'Find the right gymnastics level', analyticsKey: 'read_gymnastics_placement' },
+              { href: '/adult-gymnastics#adult-availability', label: 'See Typhoons adult gymnastics trials', analyticsKey: 'read_adult_first_visit' },
+            ],
           },
         ],
         links: [

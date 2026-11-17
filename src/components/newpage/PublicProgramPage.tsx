@@ -35,17 +35,27 @@ function BookingDate({ date }: { date: string }) {
   return <time dateTime={date}>{bookingDate.format(new Date(date))}</time>
 }
 
+function formatBookingTime(time: string) {
+  return bookingTime.format(new Date(`1970-01-01T${time}:00Z`))
+}
+
 function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
-  const { monthlyTuitionCents, dropIn, checkedOn } = booking
+  const { recurringTimes, monthlyTuitionCents, dropIn, checkedOn } = booking
   const weekly = dropIn && dropIn.firstDate !== dropIn.lastDate
   return (
     <div id="adult-booking-summary" className="np-adult-booking-summary">
       <ul>
+        {recurringTimes.map(({ days, startTime, endTime }) => (
+          <li key={`${startTime}-${endTime}`} className="np-adult-recurring-time">
+            <strong>Recurring class</strong> {days}{' '}
+            <time dateTime={startTime}>{formatBookingTime(startTime)}</time>–<time dateTime={endTime}>{formatBookingTime(endTime)}</time> Eastern
+          </li>
+        ))}
         {dropIn && (
           <li>
             <strong>{formatCents(dropIn.priceCents)} per nonmember drop-in.</strong>{' '}
             {weekly ? `Listed ${bookingWeekday.format(new Date(dropIn.firstDate))} drop-ins are ` : 'First listed drop-in at '}
-            {bookingTime.format(new Date(`1970-01-01T${dropIn.startTime}:00Z`))}–{bookingTime.format(new Date(`1970-01-01T${dropIn.endTime}:00Z`))} Eastern
+            {formatBookingTime(dropIn.startTime)}–{formatBookingTime(dropIn.endTime)} Eastern
             {weekly ? ' from ' : ' on '}<BookingDate date={dropIn.firstDate} />
             {weekly && <> through <BookingDate date={dropIn.lastDate} /></>}.
             {dropIn.maxParticipants != null && ` Up to ${dropIn.maxParticipants} participants per listed drop-in.`}

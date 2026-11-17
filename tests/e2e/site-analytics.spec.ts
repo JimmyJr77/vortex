@@ -219,6 +219,36 @@ test('records trial decision points without collecting age, class dates, or a fa
   expect(JSON.stringify(trial.map(event => event.properties))).not.toMatch(/age|2027-01-12|cyclones|potty|slotGroupId|memberId/i)
 })
 
+test('offers adult trials from the youth chooser without requesting youth availability', async ({ page }) => {
+  await mockSite(page)
+  await page.setViewportSize({ width: 390, height: 844 })
+  const youthRequests: string[] = []
+  page.on('request', request => {
+    if (new URL(request.url()).pathname === '/api/public/free-trials') youthRequests.push(request.url())
+  })
+
+  await page.goto('/')
+  const chooseTrial = page.getByRole('button', { name: 'Book a free trial' })
+  await chooseTrial.click()
+  const chooser = page.getByRole('dialog', { name: 'Find their first class.' })
+  const adultTrials = 'See Typhoons adult gymnastics trials'
+  await expect(chooser.getByRole('link', { name: adultTrials })).toHaveAttribute('href', '/adult-gymnastics#adult-availability')
+  await chooser.getByRole('button', { name: /Choose Gymnastics/ }).click()
+  const ageStep = page.getByRole('dialog', { name: 'How old is your athlete?' })
+  await expect(ageStep.getByLabel('Your child’s age')).toHaveAttribute('max', '17')
+  await ageStep.getByRole('link', { name: adultTrials }).click()
+  await expect(ageStep).toHaveCount(0)
+  await expect(page).toHaveURL('/adult-gymnastics#adult-availability')
+  await expect(page.getByRole('heading', { name: 'Plan your first adult gymnastics class' })).toBeInViewport()
+  await expect(page.getByRole('link', { name: 'Check Typhoons dates and prices' }))
+    .toHaveAttribute('href', '/drop-in?program=Adult%20Fitness%20%26%20Acrobatics')
+
+  await page.goto('/gymnastics#teen')
+  await expect(page.locator('#teen').getByRole('link', { name: adultTrials })).toHaveAttribute('href', '/adult-gymnastics#adult-availability')
+  expect(youthRequests).toEqual([])
+  expect(await page.evaluate(() => localStorage.getItem('vortex_consent'))).toBeNull()
+})
+
 test('attributes consented training film views to the canonical page', async ({ page }) => {
   const events = await mockSite(page)
   await page.goto('/watch/training-at-vortex?session_id=private-film-session#change-of-direction', { waitUntil: 'domcontentloaded' })

@@ -442,17 +442,35 @@ test('drop-in-only schedule hides the free trial and sends the displayed paid bo
 test.describe('short mobile drop-in calendar', () => {
   test.use({ viewport: { width: 320, height: 568 }, isMobile: true, hasTouch: true })
 
-  test('opens the only drop-in time while cookie consent remains unchosen', async ({ page, context }) => {
+  test('browses by class or date while cookie consent remains unchosen', async ({ page, context }) => {
     await page.clock.setFixedTime(new Date('2027-01-10T17:00:00Z'))
     const { submitted } = await mockDropInApi(page)
     await page.goto('/drop-in')
     const banner = page.getByRole('dialog', { name: 'Cookie consent' })
     await expect(banner).toBeVisible()
-    await page.locator('#drop-in-date').fill(classDate)
+    const date = page.locator('#drop-in-date')
+    const age = page.getByRole('spinbutton', { name: 'Age on class date' })
     const classOption = page.getByRole('button', { name: /Beginner Gymnastics.*View drop-in times/ })
     const sheet = page.locator('.np-drop-in-sessions')
 
+    await expect(date).not.toHaveAttribute('required')
     await classOption.tap()
+    const classHeading = sheet.getByRole('heading', { name: 'Beginner Gymnastics', exact: true })
+    await expect(classHeading).toBeFocused()
+    await expect(sheet.getByRole('region', { name: 'Upcoming dates & times' }).getByRole('button')).toHaveCount(1)
+    await classHeading.press('Escape')
+    await expect(sheet).toBeHidden()
+    await expect(classOption).toBeFocused()
+
+    await age.fill('7')
+    await date.fill('2027-01-10')
+    await page.getByRole('button', { name: 'Show classes on any date' }).tap()
+    await expect(date).toHaveValue('')
+    await expect(age).toHaveValue('7')
+
+    await date.fill(classDate)
+    await classOption.tap()
+    await expect(sheet.getByRole('region', { name: 'Your selected date' }).getByRole('button')).toHaveCount(1)
     await sheet.getByRole('button', { name: 'Close upcoming classes', exact: true }).tap()
     await expect(sheet).toBeHidden()
     for (const name of ['Settings', 'Necessary only', 'Accept all']) {
@@ -464,8 +482,9 @@ test.describe('short mobile drop-in calendar', () => {
       })).toBe(true)
     }
 
+    await date.fill('')
     await classOption.tap()
-    const slot = sheet.locator('button.np-drop-in-session-option')
+    const slot = sheet.getByRole('region', { name: 'Upcoming dates & times' }).getByRole('button')
     await expect(slot).toHaveCount(1)
     await expect(slot).toBeEnabled()
     const target = await slot.evaluate(element => {

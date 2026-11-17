@@ -796,9 +796,17 @@ const verifyHtml = (
         `${label}: the recurring adult schedule must link to Typhoons enrollment`)
       const publishedBooking = schedule.match(/<div\b[^>]*\sid=["']adult-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
       if (publishedBooking) {
+        const weeklyRows = publishedBooking.match(/<li\b[^>]*\bclass=["']np-adult-recurring-time["'][^>]*>[\s\S]*?<\/li>/gi) ?? []
         assert(/Catalog checked <time\b[^>]*\bdatetime=["']\d{4}-\d{2}-\d{2}["']/i.test(publishedBooking) &&
-          /\$[\d,.]+ (?:base tuition per month|per nonmember drop-in)/.test(publishedBooking),
-          `${label}: the published adult booking summary must show a dated catalog check and verified price`)
+          (weeklyRows.length > 0 || /\$[\d,.]+ (?:base tuition per month|per nonmember drop-in)/.test(publishedBooking)),
+          `${label}: the published adult booking summary must show a dated catalog check and verified hours or price`)
+        for (const row of weeklyRows) {
+          const times = tags(row, 'time')
+          assert(/Recurring class<\/strong>.*\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/.test(row) &&
+            /Eastern/.test(row) && times.length === 2 &&
+            times.every(tag => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(attribute(tag, 'datetime'))),
+            `${label}: recurring adult hours must show the weekday, start and end times, and time zone`)
+        }
         if (publishedBooking.includes('per nonmember drop-in')) {
           assert(tags(publishedBooking, 'time').length >= 2 && /Eastern/.test(publishedBooking) &&
             hasDropInProgramLink(anchorUrls(publishedBooking), 'Adult Fitness & Acrobatics'),
@@ -1102,6 +1110,8 @@ const verifyHtml = (
       `${label}: missing the crawlable guide link in the preschool class section`)
     assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),
       `${label}: missing the placement link for experienced and returning gymnasts`)
+    assert(anchorUrls(teen).some(url => url.href === `${HUB_ORIGIN}/adult-gymnastics#adult-availability`),
+      `${label}: youth gymnastics must link adult readers to the Typhoons trial path`)
     const disciplineLinks = [
       ['artistic', [`${canonical}#choose-a-class`, `${tumblingGuideCanonical}#boys-gymnastics`]],
       ['rhythmic', [`${HUB_ORIGIN}/contact#inquiry`]],

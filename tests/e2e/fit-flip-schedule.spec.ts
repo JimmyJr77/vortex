@@ -122,6 +122,34 @@ test('keeps filtered enrollment available if weekly times cannot load', async ({
   await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
 })
 
+test('returning from a linked class time keeps the focused catalog on reload and history', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await mockSchedule(page)
+  await page.goto('/fit-and-flip')
+  await page.goto(bookingPath + '&form=30&offeringId=1&slotGroupId=1&timeSlotId=101&enrollmentStartDate=' +
+    currentDay + '&utm_source=calendar')
+
+  await expect(page.getByRole('heading', { name: 'Enroll', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'Back to classes', exact: true }).press('Enter')
+  const catalogUrl = (url: URL) => url.pathname === '/enroll' && url.searchParams.get('form') === '30' &&
+    url.searchParams.get('program') === fitAndFlip && url.searchParams.get('utm_source') === 'calendar' &&
+    !['offeringId', 'slotGroupId', 'timeSlotId', 'enrollmentStartDate'].some(key => url.searchParams.has(key))
+  const cohort = page.getByRole('heading', { name: younger, exact: true })
+  await expect(page).toHaveURL(catalogUrl)
+  await expect(cohort).toBeFocused()
+
+  await page.reload()
+  await expect(page).toHaveURL(catalogUrl)
+  await expect(cohort).toBeFocused()
+  await expect(page.getByRole('button', { name: 'Back to classes', exact: true })).toHaveCount(0)
+
+  await page.goBack()
+  await expect(page).toHaveURL('/fit-and-flip')
+  await page.goForward()
+  await expect(page).toHaveURL(catalogUrl)
+  await expect(cohort).toBeFocused()
+})
+
 test('starts a mobile form link at the selected cohort while the other schedule still loads', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.emulateMedia({ reducedMotion: 'reduce' })

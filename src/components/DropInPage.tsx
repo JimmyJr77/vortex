@@ -25,7 +25,7 @@ const DropInSignup = lazy(() => import('./signup/DropInSignup'))
 const SCOPED_DROP_IN_COPY = {
   [DEVELOPMENTAL_GYMNASTICS_PROGRAM]: {
     heading: 'Youth gymnastics drop-ins.',
-    intro: 'Reserve a single youth gymnastics class in Bowie. Pick a date to see available classes and times.',
+    intro: 'Reserve a single youth gymnastics class in Bowie. Choose a class to see its upcoming openings, or filter by the date you want to attend.',
     programHref: '/gymnastics#youth-gymnastics-schedule',
     programLink: 'youth gymnastics weekly times and tuition',
   },
@@ -107,8 +107,12 @@ export default function DropInPage() {
   const [programFilter, setProgramFilter] = useState<number | 'all'>('all')
   const [levelFilter, setLevelFilter] = useState<ClassSkillLevelFilter>('all')
   const [dropInDate, setDropInDate] = useState('')
-  const [dateError, setDateError] = useState<string | null>(null)
-  const dateInputRef = useRef<HTMLInputElement>(null)
+  const classTrigger = useRef<HTMLButtonElement>(null)
+  const classSheetHeading = useRef<HTMLHeadingElement>(null)
+
+  useEffect(() => {
+    if (selectedClassId !== null && !signupDate) classSheetHeading.current?.focus({ preventScroll: true })
+  }, [selectedClassId, signupDate])
 
   useEffect(() => {
     if (bookingId <= 0 || !checkoutSessionId || !memberToken) return
@@ -201,7 +205,7 @@ export default function DropInPage() {
       (levelFilter === 'all' || row.skillLevel == null || row.skillLevel === levelFilter) &&
       classMatchesPublicAge(participantAge, row.ageMin, row.ageMax) &&
       (!dropInDate || sessions.some(
-        (session) => session.classId === row.classId && session.date === dropInDate,
+        (session) => session.classId === row.classId && session.date === dropInDate && !session.excludedFromDropIns,
       )) &&
       matchesPublicBookingSearch(query, row.programName, [row.sportName, row.programName, row.className, row.skillLevel, row.classDescription]),
     )
@@ -210,15 +214,24 @@ export default function DropInPage() {
     return [...grouped.values()]
   }, [classes, dropInDate, levelFilter, participantAge, programFilter, scopedProgram, searchQuery, sessions])
 
-  const { onSelectedDate, alternatives } = useMemo(
+  const { onSelectedDate, upcoming } = useMemo(
     () => getDropInDateOptions(sessions, selectedClassId, dropInDate),
     [dropInDate, selectedClassId, sessions],
   )
 
   const selectedClass = classes.find((row) => row.classId === selectedClassId) ?? null
   const selectedProgram = scopedProgram ? undefined : programOptions.find((program) => program.id === programFilter)
-  const hasFilters = searchQuery !== '' || ageInput !== '' || (!scopedProgram && programFilter !== 'all') || levelFilter !== 'all'
+  const hasFilters = searchQuery !== '' || ageInput !== '' || dropInDate !== '' || (!scopedProgram && programFilter !== 'all') || levelFilter !== 'all'
+  const updateDropInDate = (value: string) => {
+    setDropInDate(value)
+    setSelectedClassId(null)
+  }
+  const closeClassSheet = () => {
+    setSelectedClassId(null)
+    classTrigger.current?.focus({ preventScroll: true })
+  }
   const clearFilters = () => {
+    updateDropInDate('')
     setSearchQuery('')
     setAgeInput('')
     setProgramFilter('all')
@@ -372,15 +385,10 @@ export default function DropInPage() {
               id="drop-in-date"
               label="Drop-in date"
               value={dropInDate}
-              onChange={(value) => {
-                setDropInDate(value)
-                setSelectedClassId(null)
-                if (value) setDateError(null)
-              }}
-              error={dateError}
-              inputRef={dateInputRef}
+              onChange={updateDropInDate}
+              required={false}
               className="max-w-sm"
-              helpText="Choose the date you want to attend this drop-in class."
+              helpText="Optional. Choose a date to see which classes meet that day."
             />
             <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
               <ParticipantAgeField value={ageInput} onChange={(value) => {
@@ -394,15 +402,18 @@ export default function DropInPage() {
 
           {programSections.length === 0 && <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-600">{error || (selectedProgram && selectedProgram.classes.every(classItem => classItem.excludeFromDropIns ?? selectedProgram.excludeFromDropIns)
             ? <>{selectedProgram.displayName} does not offer drop-in classes. <Link className="font-semibold text-vortex-red underline" to={`/enroll?programsId=${selectedProgram.id}`}>View enrollment options</Link></>
-            : 'No classes match your search or filters.')}</div>}
+            : <>
+              <p>No classes match your search or filters.</p>
+              {dropInDate && (
+                <button type="button" onClick={() => updateDropInDate('')} className="mt-2 min-h-11 font-semibold text-vortex-red underline">
+                  Show classes on any date
+                </button>
+              )}
+            </>)}</div>}
           {programSections.map((rows) => <div key={rows[0].programId} className="np-drop-in-program space-y-4 rounded-xl border border-vortex-red bg-white p-4 shadow-sm md:p-5">
             <div><h2 className="text-lg font-bold text-vortex-red">{rows[0].programName}</h2>{rows[0].programDescription && <p className="mt-1 text-sm text-gray-600">{rows[0].programDescription}</p>}</div>
-            {rows.map((row) => <button type="button" key={row.classId} onClick={() => {
-              if (!dropInDate) {
-                setDateError('Select a drop-in date before choosing a class.')
-                dateInputRef.current?.focus()
-                return
-              }
+            {rows.map((row) => <button type="button" key={row.classId} aria-expanded={selectedClassId === row.classId} onClick={(event) => {
+              classTrigger.current = event.currentTarget
               setSelectedClassId(row.classId)
             }} className={`np-drop-in-class block w-full rounded-xl border p-4 text-left transition-colors ${selectedClassId === row.classId ? 'border-vortex-red bg-red-50 ring-1 ring-red-200' : 'border-gray-100 bg-gray-50 hover:border-gray-300'}`}>
               <h3 className="text-base font-bold text-gray-900">{row.className}</h3><div className="mt-0.5 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500"><span>Age: {formatPublicAgeRange(row.ageMin, row.ageMax)}</span><span>Level: {formatSkillLevel(row.skillLevel)}</span></div>{row.classDescription && <p className="mt-1 text-sm text-gray-600">{row.classDescription}</p>}<p className="mt-3 text-sm font-semibold text-vortex-red">View drop-in times →</p>
@@ -411,26 +422,31 @@ export default function DropInPage() {
         </div>
 
         {/* Keep the open mobile calendar and backdrop above the cookie banner. */}
-        {selectedClassId && <button type="button" aria-label="Close upcoming classes" onClick={() => setSelectedClassId(null)} className="fixed inset-0 z-[105] bg-black/45 lg:hidden" />}
-        {selectedClassId && <aside className="np-drop-in-sessions fixed inset-x-0 bottom-0 z-[110] max-h-[85dvh] overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl md:p-5 lg:sticky lg:inset-auto lg:top-[calc(var(--site-header-height,0px)+1rem)] lg:z-auto lg:max-h-none lg:rounded-xl lg:pb-5 lg:shadow-sm">
+        {selectedClassId && <button type="button" aria-label="Close upcoming classes" onClick={closeClassSheet} className="fixed inset-0 z-[105] bg-black/45 lg:hidden" />}
+        {selectedClassId && <aside aria-labelledby="drop-in-class-heading" onKeyDown={(event) => {
+          if (event.key === 'Escape') closeClassSheet()
+        }} className="np-drop-in-sessions fixed inset-x-0 bottom-0 z-[110] max-h-[85dvh] overflow-hidden rounded-t-2xl border border-gray-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl md:p-5 lg:sticky lg:inset-auto lg:top-[calc(var(--site-header-height,0px)+1rem)] lg:z-auto lg:max-h-none lg:rounded-xl lg:pb-5 lg:shadow-sm">
           <div className="mx-auto mb-3 h-1.5 w-12 rounded-full bg-gray-300 lg:hidden" />
-          <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-vortex-red">Upcoming classes</p><h2 className="mt-1 text-xl font-bold text-gray-900">{selectedClass?.className}</h2><p className="mt-1 text-sm text-gray-600">Choose one day, date, and time.</p></div><button type="button" onClick={() => setSelectedClassId(null)} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close upcoming classes"><X className="h-5 w-5" /></button></div>
+          <div className="flex items-start justify-between gap-3"><div><p className="text-xs font-bold uppercase tracking-wide text-vortex-red">Upcoming classes</p><h2 ref={classSheetHeading} tabIndex={-1} id="drop-in-class-heading" className="mt-1 text-xl font-bold text-gray-900">{selectedClass?.className}</h2><p className="mt-1 text-sm text-gray-600">Choose one day, date, and time.</p></div><button type="button" onClick={closeClassSheet} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-700" aria-label="Close upcoming classes"><X className="h-5 w-5" /></button></div>
           <div className="mt-5 max-h-[58dvh] overflow-y-auto overscroll-contain pr-1 lg:max-h-[65vh]">
-            <section aria-labelledby="drop-in-selected-date-heading" className="space-y-3">
+            {dropInDate && <section aria-labelledby="drop-in-selected-date-heading" className="space-y-3">
               <div className="np-drop-in-date-heading">
                 <h3 id="drop-in-selected-date-heading">Your selected date</h3>
                 <p>{prettyDate(dropInDate)}</p>
               </div>
               {onSelectedDate.map((session) => <DropInSessionOption key={`${session.slotGroupId}:${session.date}:${session.startTime}`} session={session} onSelect={selectSession} />)}
               {onSelectedDate.length === 0 && <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">No times are available for this class on your selected date.</p>}
-            </section>
-            {alternatives.length > 0 && <section aria-labelledby="drop-in-alternatives-heading" className="np-drop-in-alternatives space-y-3">
-              <div className="np-drop-in-date-heading">
-                <h3 id="drop-in-alternatives-heading">Other dates &amp; times</h3>
-                <p>These options are on a different date from {prettyDate(dropInDate)}.</p>
-              </div>
-              {alternatives.map((session) => <DropInSessionOption key={`${session.slotGroupId}:${session.date}:${session.startTime}`} session={session} alternative onSelect={selectSession} />)}
             </section>}
+            {(!dropInDate || upcoming.length > 0) && (
+              <section aria-labelledby="drop-in-upcoming-heading" className={dropInDate ? 'np-drop-in-alternatives space-y-3' : 'space-y-3'}>
+                <div className="np-drop-in-date-heading">
+                  <h3 id="drop-in-upcoming-heading">{dropInDate ? 'Other dates & times' : 'Upcoming dates & times'}</h3>
+                  {dropInDate && <p>These options are on a different date from {prettyDate(dropInDate)}.</p>}
+                </div>
+                {upcoming.map((session) => <DropInSessionOption key={`${session.slotGroupId}:${session.date}:${session.startTime}`} session={session} alternative={Boolean(dropInDate)} onSelect={selectSession} />)}
+                {upcoming.length === 0 && <p className="rounded-xl bg-gray-50 p-4 text-sm text-gray-600">This class has no drop-in openings right now.</p>}
+              </section>
+            )}
           </div>
         </aside>}
       </div>}

@@ -1,5 +1,8 @@
+export type PublicWeeklyClassTime = { days: string; startTime: string; endTime: string }
+
 export type PublicAdultBooking = {
   checkedOn: string
+  recurringTimes: PublicWeeklyClassTime[]
   monthlyTuitionCents: number | null
   dropIn: {
     firstDate: string
@@ -17,7 +20,7 @@ export type PublicYouthBooking = {
   classes: {
     formId: number
     name: string
-    times: { days: string; startTime: string; endTime: string }[]
+    times: PublicWeeklyClassTime[]
     monthlyTuition: [number, number] | null
     dropIn: [number, number] | null
     dropInDays: string[]
