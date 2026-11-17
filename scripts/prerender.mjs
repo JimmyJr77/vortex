@@ -13,6 +13,7 @@ import {
   getIndexNowVerificationKey,
   HUB_ARTICLE_PATHS,
   HUB_GUIDE_INDEX_PATH,
+  HUB_LEGACY_CHROME_PATHS,
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
   HUB_SITEMAP_ENTRIES,
@@ -236,6 +237,7 @@ const prerenderAppRoutes = async () => {
         url: `${previewOrigin}${routePath}`,
         omitDisplayFontPreload: displayFontNotNeededAtStart.has(routePath),
         programPath: HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
+        waitForLegacyChrome: HUB_LEGACY_CHROME_PATHS.includes(routePath),
         publicPagePath: publicPagePaths.has(routePath) && !HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         watchVideoAssetPath: routePath === PUBLIC_TRAINING_VIDEO.path ? PUBLIC_TRAINING_VIDEO.assetPath : null,
         outFile:
@@ -256,12 +258,16 @@ const prerenderAppRoutes = async () => {
           await page.route((url) => url.origin !== previewOrigin || url.pathname.startsWith('/api/'), (route) => route.abort())
           await page.goto(target.url, { waitUntil: 'domcontentloaded', timeout: 60000 })
           await page.waitForFunction(
-            () => Boolean(
+            (waitForLegacyChrome) => Boolean(
               document.querySelector('#root h1') &&
               document.head.querySelector('link[rel="canonical"]') &&
-              document.head.querySelector('meta[property="og:title"]')
+              document.head.querySelector('meta[property="og:title"]') &&
+              (!waitForLegacyChrome || (
+                document.querySelector('#root nav[aria-label="Main navigation"]') &&
+                document.querySelector('#root footer')
+              ))
             ),
-            undefined,
+            target.waitForLegacyChrome,
             { timeout: 30000 },
           )
           // Remove live data and defer background media. Preserve the watch

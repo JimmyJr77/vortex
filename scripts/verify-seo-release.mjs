@@ -10,6 +10,7 @@ import {
   HOME_ROTATING_SITEMAP_PHOTOS,
   HUB_ARTICLE_PATHS,
   HUB_GUIDE_INDEX_PATH,
+  HUB_LEGACY_CHROME_PATHS,
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
   HUB_PRERENDER_PATHS,
@@ -431,7 +432,7 @@ const verifyHtml = (
     }
   }
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
-  const usesLegacyHeader = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service'].includes(pagePath)
+  const usesLegacyHeader = HUB_LEGACY_CHROME_PATHS.includes(pagePath)
   if (shouldIndex && (usesLegacyHeader || [
     '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in',
   ].includes(pagePath))) {
