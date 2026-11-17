@@ -516,6 +516,11 @@ const verifyHtml = (
     const links = anchorUrls(shelf).map((url) => url.href)
     assert(links.length === HUB_ARTICLE_PATHS.length && HUB_ARTICLE_PATHS.every((path, index) => links[index] === canonicalFor(HUB_ORIGIN, path)),
       `${label}: the guide index must link to each published article in order`)
+    const topicNav = html.match(/<nav\b[^>]*\baria-label=["']Browse guides by topic["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
+    const topicLinks = anchorUrls(topicNav)
+    assert(topicLinks.length === HUB_ARTICLE_PATHS.length &&
+      HUB_ARTICLE_PATHS.every((path, index) => topicLinks[index].href === canonicalFor(HUB_ORIGIN, path)),
+      `${label}: navigation by topic must link directly to every published guide`)
   }
   if (shouldIndex && HUB_ARTICLE_PATHS.includes(pagePath)) {
     const breadcrumb = html.match(/<nav\b[^>]*\baria-label=["']Breadcrumb["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
@@ -787,6 +792,8 @@ const verifyHtml = (
         `${label}: adult gymnastics must link to the guide for returning gymnasts`)
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#nearby-adult-gymnastics`),
         `${label}: adult gymnastics must link to the local class and open-gym comparison`)
+      assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${RETURNING_TO_GYMNASTICS_GUIDE_PATH}#adult-gymnastics-competition`),
+        `${label}: the adult program must link to the competition guidance`)
     }
     if (pagePath === '/') {
       for (const path of HUB_PROGRAM_PATHS) {
@@ -812,6 +819,12 @@ const verifyHtml = (
       assert(guideLinks.some((url) => url.href === `${canonicalFor(HUB_ORIGIN, '/adult-gymnastics')}${hash}`),
         `${label}: the returning gymnastics guide must link to ${hash} on the adult program page`)
     }
+    const competition = html.match(/<section\b[^>]*\sid=["']adult-gymnastics-competition["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const competitionLinks = anchorUrls(competition)
+    assert(tags(html, 'a').some(tag => attribute(tag, 'href') === '#adult-gymnastics-competition') &&
+      competitionLinks.some(url => url.href === 'https://unitedclubgymnastics.org/join/') &&
+      competitionLinks.some(url => url.href === 'https://unitedclubgymnastics.org/events/'),
+      `${label}: missing the adult competition section, outline link, or official eligibility and calendar links`)
     const nearby = html.match(/<section\b[^>]*\sid=["']nearby-adult-gymnastics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const nearbyLinks = anchorUrls(nearby)
     assert(/Typhoons is a 90-minute coached class/.test(nearby) && /College Park/.test(nearby) && /Millersville/.test(nearby) &&

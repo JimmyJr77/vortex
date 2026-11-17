@@ -14,6 +14,24 @@ const cyclones: SchedulingCalendarEvent = {
 }
 
 test.describe('Client-critical smoke flows', () => {
+  test('mobile visitors can open each guide topic with the consent banner visible', async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 })
+    await page.goto('/blog')
+    await expect(page.getByRole('dialog', { name: 'Cookie consent' })).toBeVisible()
+    await page.evaluate(async () => { await document.fonts.ready })
+    const navigation = page.getByRole('navigation', { name: 'Browse guides by topic' })
+    const links = navigation.getByRole('link')
+    await expect(links).toHaveCount(5)
+    await expect.poll(() => links.evaluateAll(items => items.every(link => {
+      const { x, y, width, height } = link.getBoundingClientRect()
+      return height >= 44 && width >= 44 &&
+        link.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+    }))).toBe(true)
+    await navigation.getByRole('link', { name: 'Returning as an adult', exact: true }).click()
+    await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult')
+    await expect(page.getByRole('heading', { level: 1, name: 'Returning to gymnastics as an adult' })).toBeVisible()
+  })
+
   test('the mobile guide index and tumbling guide load the responsive tumbling photo', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     const photo = page.getByRole('img', { name: 'A Vortex athlete flipping above a tumble track in Bowie, Maryland' })
@@ -195,6 +213,16 @@ test.describe('Client-critical smoke flows', () => {
     await comparison.getByRole('link', { name: 'See Typhoons drop-in dates' }).click()
     await expect(page).toHaveURL('/drop-in?program=Adult%20Fitness%20%26%20Acrobatics')
     await expect(page.getByRole('heading', { name: 'Adult gymnastics drop-ins.' })).toBeVisible()
+
+    await page.goto('/adult-gymnastics#returning-gymnasts')
+    await page.getByRole('link', { name: 'Find adult gymnastics competition options' }).click()
+    await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult#adult-gymnastics-competition')
+    const competition = page.locator('#adult-gymnastics-competition')
+    await expect(competition.getByRole('heading', { name: 'Can adults compete in gymnastics?' })).toBeInViewport()
+    await expect(competition.getByRole('link', { name: 'Check individual membership' }))
+      .toHaveAttribute('href', 'https://unitedclubgymnastics.org/join/')
+    await expect(competition.getByRole('link', { name: 'Browse the meet calendar' }))
+      .toHaveAttribute('href', 'https://unitedclubgymnastics.org/events/')
   })
 
   test('competitive gymnastics leads to team evaluation guidance and the scoped enrollment catalog', async ({ page }) => {
@@ -323,6 +351,16 @@ test.describe('Client-critical smoke flows', () => {
     const calendar = page.locator('section#schedule').getByRole('button', { name: 'By class', exact: true })
     await expect(scheduleTab).toHaveAttribute('aria-current', 'location')
     await expect(calendar).toBeVisible()
+    const programTimes = page.getByRole('list', { name: 'Class times by program' })
+    for (const [name, href] of [
+      ['Check youth gymnastics class times', '/gymnastics#youth-gymnastics-schedule'],
+      ['Check Fit & Flip class times', '/fit-and-flip#fit-flip-schedule'],
+      ['Check adult class times', '/adult-gymnastics#adult-class-schedule'],
+    ]) {
+      const link = programTimes.getByRole('link', { name, exact: true })
+      await expect(link).toBeInViewport()
+      await expect(link).toHaveAttribute('href', href)
+    }
 
     await eventsTab.click()
     await expect(page).toHaveURL(eventsUrl)

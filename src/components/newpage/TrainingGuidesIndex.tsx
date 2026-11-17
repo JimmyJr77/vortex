@@ -17,6 +17,17 @@ export default function TrainingGuidesIndex() {
             Find youth sports in Bowie, see what kids practice in gymnastics, or plan your
             return to gymnastics as an adult.
           </p>
+          <nav aria-label="Browse guides by topic" className="np-guides-topics">
+            <ul role="list">
+              {PUBLIC_GUIDES.map(({ path, topicLabel }) => (
+                <li key={path}>
+                  <Link to={path} data-analytics-cta="open_training_guide" data-analytics-section="training_guides">
+                    {topicLabel}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </nav>
         </div>
       </header>
 

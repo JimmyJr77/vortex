@@ -45,6 +45,7 @@ export default function ReturningToGymnasticsGuide() {
           <ul>
             <li><a href="#class-format">Choose a class format</a></li>
             <li><a href="#nearby-adult-gymnastics">Compare nearby classes and open gym</a></li>
+            <li><a href="#adult-gymnastics-competition">Adult gymnastics competition</a></li>
             <li><a href="#what-to-tell-your-coach">What to tell your coach</a></li>
             <li><a href="#choose-a-starting-movement">Choose a starting movement</a></li>
             <li><a href="#track-your-progress">Keep a short practice note</a></li>
@@ -101,6 +102,21 @@ export default function ReturningToGymnasticsGuide() {
               {' '}<a href="https://www.docksidersgymnastics.com/special-class-programs">Check Docksiders’ adult open gym</a>
             </li>
           </ul>
+        </section>
+
+        <section id="adult-gymnastics-competition">
+          <h2>Can adults compete in gymnastics?</h2>
+          <p>
+            Typhoons at Vortex is a coached recreational class that combines strength, conditioning,
+            and mobility with introductory acrobatics.
+          </p>
+          <p>
+            United Club Gymnastics, formerly NAIGC, offers individual membership to adults ages 18 and up
+            regardless of student status or club affiliation. Adults can enter eligible meets as independent
+            athletes. Check the Mid-Atlantic calendar listings for a meet that offers your event and level.{' '}
+            <a href="https://unitedclubgymnastics.org/join/">Check individual membership</a> ·{' '}
+            <a href="https://unitedclubgymnastics.org/events/">Browse the meet calendar</a>
+          </p>
         </section>
 
         <section id="what-to-tell-your-coach">

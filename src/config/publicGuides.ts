@@ -5,9 +5,9 @@ import { PRESCHOOL_GYMNASTICS_GUIDE } from './preschoolGymnasticsGuide'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from './returningToGymnasticsGuide'
 
 export const PUBLIC_GUIDES = [
-  ATHLETIC_DEVELOPMENT_GUIDE,
-  BOWIE_YOUTH_SPORTS_GUIDE,
-  PRESCHOOL_GYMNASTICS_GUIDE,
-  GYMNASTICS_VS_TUMBLING_GUIDE,
-  RETURNING_TO_GYMNASTICS_GUIDE,
+  { ...ATHLETIC_DEVELOPMENT_GUIDE, topicLabel: 'Youth athletic development' },
+  { ...BOWIE_YOUTH_SPORTS_GUIDE, topicLabel: 'Bowie youth sports' },
+  { ...PRESCHOOL_GYMNASTICS_GUIDE, topicLabel: 'Preschool gymnastics' },
+  { ...GYMNASTICS_VS_TUMBLING_GUIDE, topicLabel: 'Gymnastics vs. tumbling' },
+  { ...RETURNING_TO_GYMNASTICS_GUIDE, topicLabel: 'Returning as an adult' },
 ]
