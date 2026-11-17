@@ -290,12 +290,15 @@ async function fetchProgramPageWindow(searchconsole, siteUrl, dates) {
     if (!Array.isArray(rows) || rows.length > LANDING_PAGE_URLS.size) throw new Error('Unexpected Search Console rows')
     const impressions = new Map()
     for (const row of rows) {
-      const reportedPage = row.keys?.[0]
-      const page = reportedPage === HOMEPAGE_NO_SLASH ? HOMEPAGE : reportedPage
-      if (!LANDING_PAGE_URLS.has(reportedPage) || impressions.has(page) || !Number.isFinite(row.impressions) || row.impressions < 0) {
+      const page = row.keys?.[0]
+      if (!LANDING_PAGE_URLS.has(page) || impressions.has(page) || !Number.isFinite(row.impressions) || row.impressions < 0) {
         throw new Error('Unexpected Search Console page metrics')
       }
       impressions.set(page, row.impressions)
+    }
+    // Use the slashless homepage row as a fallback without adding alias counts.
+    if (!impressions.has(HOMEPAGE) && impressions.has(HOMEPAGE_NO_SLASH)) {
+      impressions.set(HOMEPAGE, impressions.get(HOMEPAGE_NO_SLASH))
     }
     return { window: { ...dates, status: 'ok' }, impressions }
   } catch (error) {

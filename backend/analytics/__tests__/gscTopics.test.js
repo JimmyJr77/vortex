@@ -232,6 +232,7 @@ test('compares current and former landing pages in two finalized windows across 
   const query = t.mock.fn(async ({ requestBody }) => ({
     data: { rows: requestBody.startDate === '2026-10-16' ? [
       { keys: [homepage], impressions: 80, clicks: 3 },
+      { keys: [homepage.slice(0, -1)], impressions: 77, clicks: 2 },
       { keys: [gymnastics], impressions: 30, clicks: 0 },
       { keys: [fitAndFlip], impressions: 15, clicks: 1 },
       { keys: [adultGymnastics], impressions: 0, clicks: 0 },
