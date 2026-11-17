@@ -8,12 +8,15 @@ test.beforeEach(async ({ page }) => {
 })
 
 test.describe('phone homepage video', () => {
-  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
+  test.use({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, isMobile: true, hasTouch: true })
 
   test('shows the poster and requests the background video only after Play', async ({ page }) => {
     const requestedMedia: string[] = []
+    const requestedFitAndFlipPhotos = new Set<string>()
     page.on('request', request => {
       if (trainingLoop.test(request.url())) requestedMedia.push(request.url())
+      const path = new URL(request.url()).pathname
+      if (/^\/fit-and-flip-card(?:-\d+)?\.webp$/.test(path)) requestedFitAndFlipPhotos.add(path)
     })
 
     // This check needs the initial network activity to settle before asserting the video was never requested.
@@ -21,6 +24,11 @@ test.describe('phone homepage video', () => {
     await expect(page.locator('.np-hero-poster')).toBeVisible()
     await expect(page.locator(backgroundVideo)).not.toHaveAttribute('src', /.+/)
     expect(requestedMedia).toHaveLength(0)
+    const fitAndFlipCard = page.getByRole('button', { name: 'Explore Fit & Flip', exact: true })
+    const fitAndFlipPhoto = fitAndFlipCard.getByRole('img')
+    await expect.poll(() => fitAndFlipPhoto.evaluate((image: HTMLImageElement) => image.currentSrc))
+      .toMatch(/fit-and-flip-card-480\.webp$/)
+    expect([...requestedFitAndFlipPhotos]).toEqual(['/fit-and-flip-card-480.webp'])
     const galleryHeading = page.getByRole('heading', { name: 'THE COMPLETE ATHLETE', exact: true })
     await expect(galleryHeading).not.toHaveClass(/\bfont-display\b/)
 
@@ -84,6 +92,9 @@ test('reduced motion keeps the poster while the requested film still loads', asy
 
   await page.getByRole('button', { name: 'Necessary only' }).click()
   await page.getByRole('button', { name: 'See us in motion' }).click()
-  await expect(page.getByRole('dialog').locator('video')).toHaveAttribute('src', trainingLoop)
+  const player = page.getByRole('dialog').locator('video')
+  await expect(player).toHaveAttribute('src', trainingLoop)
+  const heroSource = await page.locator('.np-hero-poster').evaluate((image: HTMLImageElement) => image.currentSrc)
+  await expect(player).toHaveAttribute('poster', heroSource)
   await expect(page.locator(backgroundVideo)).not.toHaveAttribute('src', /.+/)
 })

@@ -263,6 +263,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     heading: 'Youth athletic training in Bowie, MD',
     intro: 'Fit & Flip is a coached fitness class for ages 8–15. Athletes build strength, power, and body control through resistance work and gymnastics-inspired movement. Kids new to organized sports can start here, too.',
     image: searchPhotos.fitAndFlip,
+    imageSrcSet: searchPhotos.fitAndFlipSrcSet,
     imageAlt: 'A Vortex athlete practicing aerial body control on a trampoline',
     imageWidth: 900,
     imageHeight: 675,

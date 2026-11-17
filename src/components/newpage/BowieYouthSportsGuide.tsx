@@ -35,6 +35,8 @@ export default function BowieYouthSportsGuide() {
             <GuideByline datePublished={BOWIE_YOUTH_SPORTS_GUIDE.datePublished} dateModified={BOWIE_YOUTH_SPORTS_GUIDE.dateModified} />
           </div>
           <img className="athletic-guide-image" src={BOWIE_YOUTH_SPORTS_GUIDE.image}
+            srcSet={BOWIE_YOUTH_SPORTS_GUIDE.imageSrcSet}
+            sizes="(max-width: 760px) 91vw, (max-width: 1264px) 43vw, 520px"
             alt={BOWIE_YOUTH_SPORTS_GUIDE.imageAlt} width={900} height={675} fetchPriority="high" />
         </div>
       </header>

@@ -30,10 +30,30 @@ const NewPageInquiry = lazyWithRetry(() => import('./NewPageInquiry'))
 type Program = 'gymnastics' | 'fit-flip'
 type Overlay = Program | 'finder' | 'inquiry' | 'video' | 'live' | 'trial' | null
 
+const heroPhoto = {
+  src: searchPhotos.fitAndFlip,
+  srcSet: searchPhotos.fitAndFlipSrcSet,
+  // The source is 4:3. Account for the width required to cover each hero height.
+  sizes: '(max-width: 620px) max(454px, calc(100vw - 44px)), (max-width: 860px) 687px, (max-width: 1150px) 714px, (min-width: 1440px) 787px, 736px',
+}
+
+const gymnasticsCardPhoto = {
+  src: '/gymnastics-card.webp',
+  srcSet: '/gymnastics-card-440.webp 440w, /gymnastics-card-832.webp 832w, /gymnastics-card.webp 900w',
+  sizes: '(max-width: 620px) 100vw, (max-width: 776px) calc(100vw - 36px), 740px',
+}
+
+function homepagePhoto(src: string) {
+  // Use the same candidate in the cards, hero, and dialogs that share a photo.
+  if (src === heroPhoto.src) return heroPhoto
+  if (src === gymnasticsCardPhoto.src) return gymnasticsCardPhoto
+  return { src }
+}
+
 const programs = {
   gymnastics: {
     name: 'Gymnastics', eyebrow: 'THE FOUNDATION. THE FINESSE. THE FLIGHT.',
-    image: '/gymnastics-card.webp', alt: 'Young gymnasts learning together with a coach at Vortex',
+    image: gymnasticsCardPhoto.src, alt: 'Young gymnasts learning together with a coach at Vortex',
     summary: 'Real gymnastics. Real development. Build the technique, strength, and confidence to keep moving forward.',
     detail: 'A traditional gymnastics program with a complete approach to development. Athletes learn the foundations shared across gymnastics disciplines, with the strength, explosiveness, and body control to put those skills into practice.',
     points: ['Foundations across artistic, rhythmic, acrobatic, aerobic, and trampoline & tumbling gymnastics.', 'Progressive skill development supported by purposeful physical preparation.', 'Developmental and team pathways with the same commitment to growth. Only team athletes compete.'],
@@ -123,7 +143,13 @@ function Brand({ footer = false }: { footer?: boolean }) {
   return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><PublicBrandImage footer={footer} /></a>
 }
 
-function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, full = false }: { paused: boolean; onPlaybackChange?: (playing: boolean) => void; onAutoplayBlocked?: () => void; full?: boolean }) {
+function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, poster, full = false }: {
+  paused: boolean
+  onPlaybackChange?: (playing: boolean) => void
+  onAutoplayBlocked?: () => void
+  poster?: string
+  full?: boolean
+}) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [failed, setFailed] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -150,8 +176,11 @@ function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, full = fal
       }
     })
   }, [paused, inView, failed, sourceRequested, onPlaybackChange, onAutoplayBlocked])
-  if (failed) return <div className="np-video-fallback"><img src={searchPhotos.fitAndFlip} alt="A Vortex athlete practicing a flip" />{full && <p>The training film is unavailable right now. <a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">Watch Vortex on YouTube <ArrowUpRight size={16} /></a></p>}</div>
-  return <video ref={videoRef} className={loaded ? 'np-video is-loaded' : 'np-video'} poster={searchPhotos.fitAndFlip} src={sourceRequested ? trainingVideoUrl : undefined} muted loop={!full} playsInline controls={full} preload={paused ? 'none' : 'metadata'} aria-label="Vortex training film" onLoadedData={() => setLoaded(true)} onError={() => { setFailed(true); onPlaybackChange?.(false) }} onPlay={() => onPlaybackChange?.(true)} onPause={() => onPlaybackChange?.(false)} />
+  if (failed) {
+    if (!full) return null
+    return <div className="np-video-fallback"><img src={poster} alt="A Vortex athlete practicing a flip" /><p>The training film is unavailable right now. <a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">Watch Vortex on YouTube <ArrowUpRight size={16} /></a></p></div>
+  }
+  return <video ref={videoRef} className={loaded ? 'np-video is-loaded' : 'np-video'} poster={poster} src={sourceRequested ? trainingVideoUrl : undefined} muted loop={!full} playsInline controls={full} preload={paused ? 'none' : 'metadata'} aria-label="Vortex training film" onLoadedData={() => setLoaded(true)} onError={() => { setFailed(true); onPlaybackChange?.(false) }} onPlay={() => onPlaybackChange?.(true)} onPause={() => onPlaybackChange?.(false)} />
 }
 
 export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; isLoggedIn: boolean }) {
@@ -172,7 +201,8 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
   const [activeTriad, setActiveTriad] = useState(0)
   const [motionPaused, setMotionPaused] = useState(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches || Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData))
   const [videoPlaying, setVideoPlaying] = useState(false)
-  const [posterReady, setPosterReady] = useState(false)
+  const [loadedHeroPhoto, setLoadedHeroPhoto] = useState<string>()
+  const posterReady = Boolean(loadedHeroPhoto)
   const [backgroundCanPlay, setBackgroundCanPlay] = useState(false)
   const recommendationRef = useRef<HTMLDivElement>(null)
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([])
@@ -232,7 +262,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
 
   return (
     <div className={`np-page${motionPaused ? ' np-motion-paused' : ''}`} id="top">
-      <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} preloadImage={searchPhotos.fitAndFlip} />
+      <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} />
       <a className="np-skip" href="#main">Skip to content</a>
       <header className="np-header">
         <div className="np-container np-nav">
@@ -256,7 +286,10 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
             <div className="np-hero-visual">
               <div className="np-orbit np-orbit-one" aria-hidden="true" /><div className="np-orbit np-orbit-two" aria-hidden="true" />
               <div className="np-hero-media">
-                <img className="np-hero-poster" src={searchPhotos.fitAndFlip} alt="A young Vortex athlete in flight, practicing a flip on a trampoline" width="900" height="675" fetchPriority="high" onLoad={() => setPosterReady(true)} onError={() => setPosterReady(true)} />
+                <img className="np-hero-poster" {...heroPhoto} alt="A young Vortex athlete in flight, practicing a flip on a trampoline"
+                  width="900" height="675" fetchPriority="high"
+                  onLoad={event => setLoadedHeroPhoto(event.currentTarget.currentSrc)}
+                  onError={() => setLoadedHeroPhoto(heroPhoto.src)} />
                 <TrainingVideo paused={!backgroundCanPlay || motionPaused || overlay !== null} onPlaybackChange={setVideoPlaying} onAutoplayBlocked={handleAutoplayBlocked} />
                 <div className="np-media-shade" />
                 <span className="np-media-label"><span /> THE WORK. THE PROGRESS. THE POSSIBILITY.</span>
@@ -271,7 +304,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         <section className="np-section np-container" id="programs">
           <div className="np-section-heading"><div><h2>Choose your program</h2></div><p>See what each class teaches and where to start.</p></div>
           <div className="np-program-grid">{(Object.entries(programs) as [Program, typeof programs[Program]][]).map(([id, program], index) => <article className="np-program" id={id} key={id}>
-            <button className="np-program-image" onClick={() => openProgram(id, 'program_cards')} aria-label={`Explore ${program.name}`}><img src={program.image} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
+            <button className="np-program-image" onClick={() => openProgram(id, 'program_cards')} aria-label={`Explore ${program.name}`}><img {...homepagePhoto(program.image)} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
             <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><Link className="np-program-link" to={program.page} data-analytics-cta={`explore_${id}`} data-analytics-section="program_cards">{program.linkText}<ArrowUpRight size={21} aria-hidden="true" /></Link></div>
           </article>)}</div>
           <section className="np-class-paths" id="starting-classes" aria-labelledby="np-starting-classes-heading">
@@ -317,7 +350,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
         <section className="np-triad-section" id="triad"><div className="np-container np-section">
           <div className="np-section-heading"><div><p className="np-eyebrow">02 / THE TRIAD OF ATHLETICISM</p><h2>Strong. Explosive.<br /><span>In control.</span></h2></div><p>Three connected qualities. One complete athlete. The foundation of Fit & Flip—and the physical qualities we develop in our gymnasts.</p></div>
           <div className="np-triad-tabs" role="tablist" aria-label="The Triad of Athleticism">{triad.map((item, index) => <button ref={node => { tabRefs.current[index] = node }} key={item.name} id={`np-triad-tab-${index}`} role="tab" aria-selected={activeTriad === index} aria-controls="np-triad-panel" tabIndex={activeTriad === index ? 0 : -1} onClick={() => setActiveTriad(index)} onKeyDown={event => { let next = index; if (event.key === 'ArrowRight') next = (index + 1) % 3; else if (event.key === 'ArrowLeft') next = (index + 2) % 3; else if (event.key === 'Home') next = 0; else if (event.key === 'End') next = 2; else return; event.preventDefault(); setActiveTriad(next); tabRefs.current[next]?.focus() }}><span>{item.number}</span>{item.name}<ArrowUpRight size={20} /></button>)}</div>
-          <div className="np-triad-panel" id="np-triad-panel" role="tabpanel" aria-labelledby={`np-triad-tab-${activeTriad}`} tabIndex={0}><div className="np-triad-image"><img key={selectedTriad.image} src={selectedTriad.image} alt={selectedTriad.alt} width="900" height="675" loading="lazy" /><span>{selectedTriad.number} / 03</span></div><div className="np-triad-copy" key={selectedTriad.name}><p className="np-eyebrow">THE {selectedTriad.name.toUpperCase()} ELEMENT</p><h3>{selectedTriad.line}</h3><p>{selectedTriad.text}</p><div className="np-triad-cues">{selectedTriad.cues.map(cue => <span key={cue}><Check size={15} />{cue}</span>)}</div><p className="np-triad-application">{selectedTriad.application}</p></div></div>
+          <div className="np-triad-panel" id="np-triad-panel" role="tabpanel" aria-labelledby={`np-triad-tab-${activeTriad}`} tabIndex={0}><div className="np-triad-image"><img key={selectedTriad.image} {...homepagePhoto(selectedTriad.image)} alt={selectedTriad.alt} width="900" height="675" loading="lazy" /><span>{selectedTriad.number} / 03</span></div><div className="np-triad-copy" key={selectedTriad.name}><p className="np-eyebrow">THE {selectedTriad.name.toUpperCase()} ELEMENT</p><h3>{selectedTriad.line}</h3><p>{selectedTriad.text}</p><div className="np-triad-cues">{selectedTriad.cues.map(cue => <span key={cue}><Check size={15} />{cue}</span>)}</div><p className="np-triad-application">{selectedTriad.application}</p></div></div>
           <div className="np-triad-equation"><span>Strength</span><Plus size={18} /><span>Explosiveness</span><Plus size={18} /><span>Body control</span><ArrowRight size={20} /><strong>Athleticism.</strong></div>
           <div className="mt-5 flex justify-center">
             <Link className="np-text-button" to={ATHLETIC_DEVELOPMENT_GUIDE.path} data-analytics-cta="read_athletic_development_guide" data-analytics-section="triad">
@@ -427,11 +460,11 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
       </footer>
 
       {overlay && <PublicDialog className={overlay === 'trial' ? 'np-dialog-trial' : overlay === 'video' || overlay === 'live' ? 'np-dialog-video' : ''} labelledBy={dialogLabel} view={overlay} onClose={() => setOverlay(null)}>
-        {currentProgram && <><img className="np-dialog-image" src={currentProgram.image} alt={currentProgram.alt} /><div className="np-dialog-content"><p className="np-eyebrow">{currentProgram.eyebrow}</p><h2 id="np-dialog-title">{currentProgram.name}</h2><p>{currentProgram.detail}</p><ul className="np-dialog-points">{currentProgram.points.map(point => <li key={point}><Check size={18} /><span>{point}</span></li>)}</ul>{overlay === 'gymnastics' && <div className="np-pathways"><div><strong>Developmental</strong><span>Learn. Progress. Grow.</span><p>Purposeful training without competition.</p></div><div><strong>Team</strong><span>Develop. Prepare. Compete.</span><p>The same focus on growth, with competition.</p></div></div>}<div className="np-dialog-actions"><button className="np-button" data-analytics-cta="free_trial" data-analytics-section="program" onClick={() => openTrial('program', overlay as Program)}>Try a free class <ArrowUpRight size={17} /></button><Link className="np-text-button" to={currentProgram.href} data-analytics-cta="browse_classes" data-analytics-section="program">Browse classes & enroll <ArrowUpRight size={17} /></Link><button className="np-text-button" onClick={() => openInquiry(overlay as Program)}>Ask about this program <ArrowRight size={17} /></button></div></div></>}
+        {currentProgram && <><img className="np-dialog-image" {...homepagePhoto(currentProgram.image)} alt={currentProgram.alt} /><div className="np-dialog-content"><p className="np-eyebrow">{currentProgram.eyebrow}</p><h2 id="np-dialog-title">{currentProgram.name}</h2><p>{currentProgram.detail}</p><ul className="np-dialog-points">{currentProgram.points.map(point => <li key={point}><Check size={18} /><span>{point}</span></li>)}</ul>{overlay === 'gymnastics' && <div className="np-pathways"><div><strong>Developmental</strong><span>Learn. Progress. Grow.</span><p>Purposeful training without competition.</p></div><div><strong>Team</strong><span>Develop. Prepare. Compete.</span><p>The same focus on growth, with competition.</p></div></div>}<div className="np-dialog-actions"><button className="np-button" data-analytics-cta="free_trial" data-analytics-section="program" onClick={() => openTrial('program', overlay as Program)}>Try a free class <ArrowUpRight size={17} /></button><Link className="np-text-button" to={currentProgram.href} data-analytics-cta="browse_classes" data-analytics-section="program">Browse classes & enroll <ArrowUpRight size={17} /></Link><button className="np-text-button" onClick={() => openInquiry(overlay as Program)}>Ask about this program <ArrowRight size={17} /></button></div></div></>}
         {overlay === 'finder' && <div className="np-dialog-content np-finder"><p className="np-eyebrow">A GOOD PLACE TO START</p><h2 id="np-dialog-title">What’s their next goal?</h2><p>Tell us what your athlete is working toward.</p><div className="np-goal-options">{goals.map((goal, index) => <button key={goal.title} className={selectedGoal === index ? 'is-selected' : ''} aria-pressed={selectedGoal === index} onClick={() => setSelectedGoal(index)}><span><strong>{goal.title}</strong><small>{goal.subtitle}</small></span>{selectedGoal === index ? <Check size={20} /> : <ArrowUpRight size={20} />}</button>)}</div>{selectedGoal !== null && <div ref={recommendationRef} className="np-recommendation" aria-live="polite"><p className="np-eyebrow">YOUR STARTING POINT</p><h3>{programs[goals[selectedGoal].program].name}</h3><p>{goals[selectedGoal].text}</p><div className="np-dialog-actions"><button className="np-button" onClick={() => openProgram(goals[selectedGoal].program, 'finder_recommendation')}>Explore the program <ArrowRight size={17} /></button><button className="np-text-button" onClick={() => openInquiry(goals[selectedGoal].program)}>Talk to our team</button></div></div>}</div>}
         {overlay === 'trial' && <Suspense fallback={<div className="np-trial-flow"><h2 id="np-trial-title">Loading trial signup…</h2></div>}><NewPageFreeTrial initialProgram={trialProgram} onDone={() => setOverlay(null)} /></Suspense>}
         {overlay === 'inquiry' && <div className="np-dialog-content"><Suspense fallback={<h2 id="np-inquiry-title">Loading inquiry form…</h2>}><NewPageInquiry program={inquiryProgram} onDone={() => setOverlay(null)} /></Suspense></div>}
-        {overlay === 'video' && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">See the work in motion.</h2><TrainingVideo full paused={false} /><p>Strength. Explosiveness. Body control. Built together.</p>{liveTrainingEmbedUrl && <button className="np-button" onClick={() => openMedia('live_stream')}>Watch live <Play size={16} /></button>}</div>}
+        {overlay === 'video' && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">See the work in motion.</h2><TrainingVideo full paused={false} poster={loadedHeroPhoto ?? heroPhoto.src} /><p>Strength. Explosiveness. Body control. Built together.</p>{liveTrainingEmbedUrl && <button className="np-button" onClick={() => openMedia('live_stream')}>Watch live <Play size={16} /></button>}</div>}
         {overlay === 'live' && liveTrainingEmbedUrl && <div className="np-video-dialog-content"><p className="np-eyebrow">INSIDE VORTEX</p><h2 id="np-dialog-title">Live from Vortex.</h2><iframe className="np-live-stream" src={liveTrainingEmbedUrl} title="Vortex live training stream" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen referrerPolicy="strict-origin-when-cross-origin" /><button className="np-text-button" onClick={() => openMedia('training_film')}>Back to the training film <ArrowRight size={17} /></button></div>}
       </PublicDialog>}
     </div>
