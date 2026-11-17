@@ -1,10 +1,12 @@
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
+import { PUBLIC_EDITORIAL_PAGES } from '../backend/analytics/eventContract.js'
 import {
   BOWIE_YOUTH_SPORTS_GUIDE_PATH,
   GYMNASTICS_ORIGIN,
   GYMNASTICS_VS_TUMBLING_GUIDE_PATH,
   HUB_ARTICLE_PATHS,
+  HUB_GUIDE_INDEX_PATH,
   HUB_NOINDEX_PRERENDER_PATHS,
   HUB_ORIGIN,
   HUB_PRERENDER_PATHS,
@@ -316,11 +318,11 @@ const verifyHtml = (
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
   const usesLegacyHeader = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service'].includes(pagePath)
   if (shouldIndex && (usesLegacyHeader || [
-    '/', ...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in',
+    '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in',
   ].includes(pagePath))) {
     const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(navigation)
-    const expectedPaths = [...HUB_PROGRAM_PATHS, BOWIE_YOUTH_SPORTS_GUIDE_PATH]
+    const expectedPaths = [...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH]
     if (!usesLegacyHeader) expectedPaths.push('/#programs')
     for (const path of expectedPaths) {
       assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
@@ -343,6 +345,17 @@ const verifyHtml = (
           `${label}: header or footer links to superseded program entry ${path}`)
       }
     }
+  }
+  if (shouldIndex && pagePath === HUB_GUIDE_INDEX_PATH) {
+    const shelf = html.match(/<ul\b[^>]*\baria-label=["']Training guides["'][^>]*>[\s\S]*?<\/ul>/i)?.[0] ?? ''
+    const links = anchorUrls(shelf).map((url) => url.href)
+    assert(links.length === HUB_ARTICLE_PATHS.length && HUB_ARTICLE_PATHS.every((path, index) => links[index] === canonicalFor(HUB_ORIGIN, path)),
+      `${label}: the guide index must link to each published article in order`)
+  }
+  if (shouldIndex && HUB_ARTICLE_PATHS.includes(pagePath)) {
+    const breadcrumb = html.match(/<nav\b[^>]*\baria-label=["']Breadcrumb["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
+    assert(anchorUrls(breadcrumb).some((url) => url.href === canonicalFor(HUB_ORIGIN, HUB_GUIDE_INDEX_PATH)),
+      `${label}: the article breadcrumb must link to the guide index`)
   }
   if (pagePath === '/' && shouldIndex) {
     assert(h1s[0] === 'Gymnastics & youth athletic training in Bowie, MD',
@@ -591,6 +604,9 @@ const verifyHtml = (
 
     if (HUB_ARTICLE_PATHS.includes(pagePath)) {
       const article = parsed.find((item) => item?.['@type'] === 'Article')
+      const breadcrumb = parsed.find((item) => item?.['@type'] === 'BreadcrumbList')
+      assert(breadcrumb?.itemListElement?.[1]?.item === canonicalFor(HUB_ORIGIN, HUB_GUIDE_INDEX_PATH),
+        `${label}: article breadcrumb structured data must include the guide index`)
       assert(article?.mainEntityOfPage === canonical && article?.headline === h1s[0],
         `${label}: Article JSON-LD must match the canonical URL and visible heading`)
       const visibleDates = tags(html, 'time').map((tag) => attribute(tag, 'datetime'))
@@ -599,6 +615,16 @@ const verifyHtml = (
         `${label}: Article JSON-LD must have a publication date on or before the update date`)
       assert(article?.dateModified === sitemapDate && [article?.datePublished, article?.dateModified].every((date) => visibleDates.includes(date)),
         `${label}: Article dates must match the visible dates and sitemap update date`)
+    }
+
+    if (pagePath === HUB_GUIDE_INDEX_PATH) {
+      const collection = parsed.find((item) => item?.['@type'] === 'CollectionPage')
+      const list = collection?.mainEntity
+      assert(collection?.url === canonical && collection?.name === h1s[0] && list?.['@type'] === 'ItemList' &&
+        list?.numberOfItems === HUB_ARTICLE_PATHS.length &&
+        list.itemListElement?.length === HUB_ARTICLE_PATHS.length &&
+        list.itemListElement.every((item, index) => item.position === index + 1 && item.url === canonicalFor(HUB_ORIGIN, HUB_ARTICLE_PATHS[index])),
+        `${label}: the guide index structured data must match the published guide collection`)
     }
 
     if (['/', '/contact', ...publicServicePaths].includes(pagePath)) {
@@ -879,12 +905,12 @@ if (live) {
     await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path])
   }
 
-  for (const path of [...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS]) {
+  for (const path of [...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS]) {
     await verifyTrackedRedirect(`${path}/`, path)
   }
 
   await Promise.all(HUB_PRERENDER_PATHS.map((path) => verifyTrackedRedirect(snapshotAliasFor(path), path)))
-  for (const path of ['/__seo-release-404-check__/index.html', '/gymnastics/indexXhtml']) {
+  for (const path of ['/__seo-release-404-check__/index.html', '/blog/__seo-release-404-check__/index.html', '/gymnastics/indexXhtml']) {
     const response = await fetch(new URL(path, HUB_ORIGIN), { redirect: 'manual' })
     await response.body?.cancel()
     assert(response.status === 404, `${path}: expected HTTP 404 for an unknown snapshot file, received ${response.status}`)
@@ -970,6 +996,11 @@ for (const stub of STUB_SEO_ENTRIES) {
       requireSchema: false,
     })
   }
+}
+
+for (const path of [HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS]) {
+  assert(PUBLIC_EDITORIAL_PAGES.some((page) => page.path === path),
+    `analytics: published editorial path is missing from reporting: ${path}`)
 }
 
 const vercelConfig = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'))

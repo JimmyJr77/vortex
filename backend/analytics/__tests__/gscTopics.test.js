@@ -189,6 +189,7 @@ test('reports a bounded set of pages per topic without exposing unknown paths or
   const pageRows = [
     row('https://user:private-credential@www.vortex-gymnastics.com/artistic-gymnastics?vcid=private-query#private-hash'),
     row('https://vortexathletics.com/verify-email/private-token', 1),
+    row('https://vortexathletics.com/blog/gymnastics-vs-tumbling?vcid=private-query#private-hash'),
     row('https://vortexathletics.com/unknown/private-segment', 0),
   ]
   const responses = [pageRows, [], [row('javascript:alert(1)')], Array(6).fill(pageRows[0]), [], []]
@@ -211,6 +212,7 @@ test('reports a bounded set of pages per topic without exposing unknown paths or
   assert.deepEqual(report.topics[0].pages, [
     { page: 'https://www.vortex-gymnastics.com/artistic-gymnastics', metrics: { clicks: 2, impressions: 10, ctr: 0.2, position: 5 } },
     { page: 'https://vortexathletics.com/verify-email', metrics: { clicks: 1, impressions: 10, ctr: 0.1, position: 5 } },
+    { page: 'https://vortexathletics.com/blog/gymnastics-vs-tumbling', metrics: { clicks: 2, impressions: 10, ctr: 0.2, position: 5 } },
     { page: null, metrics: { clicks: 0, impressions: 10, ctr: 0, position: 5 } },
   ])
   assert.deepEqual(report.topics.map(topic => topic.status), ['reported', 'no_data', 'error', 'error', 'no_data', 'no_data'])
@@ -224,10 +226,14 @@ test('compares current and former landing pages in two finalized windows across 
   const fitAndFlip = 'https://vortexathletics.com/fit-and-flip'
   const formerYouthSports = 'https://vortexathletics.com/vortex-athletics'
   const adultGymnastics = 'https://vortexathletics.com/adult-gymnastics'
+  const trainingGuides = 'https://vortexathletics.com/blog'
+  const preschoolGuide = 'https://vortexathletics.com/blog/preschool-gymnastics-what-toddlers-learn'
+  const tumblingGuide = 'https://vortexathletics.com/blog/gymnastics-vs-tumbling'
   const pages = [
-    homepage, gymnastics, fitAndFlip, formerYouthSports, adultGymnastics,
+    homepage, gymnastics, fitAndFlip, formerYouthSports, adultGymnastics, trainingGuides,
     'https://vortexathletics.com/blog/youth-sports-bowie',
     'https://vortexathletics.com/blog/athletic-development-young-athletes',
+    preschoolGuide, tumblingGuide,
   ]
   const query = t.mock.fn(async ({ requestBody }) => ({
     data: { rows: requestBody.startDate === '2026-10-16' ? [
@@ -236,10 +242,14 @@ test('compares current and former landing pages in two finalized windows across 
       { keys: [gymnastics], impressions: 30, clicks: 0 },
       { keys: [fitAndFlip], impressions: 15, clicks: 1 },
       { keys: [adultGymnastics], impressions: 0, clicks: 0 },
+      { keys: [trainingGuides], impressions: 6, clicks: 1 },
+      { keys: [preschoolGuide], impressions: 4, clicks: 0 },
+      { keys: [tumblingGuide], impressions: 8, clicks: 1 },
     ] : [
       { keys: [homepage.slice(0, -1)], impressions: 63, clicks: 2 },
       { keys: [gymnastics], impressions: 21, clicks: 1 },
       { keys: [formerYouthSports], impressions: 17, clicks: 1 },
+      { keys: [tumblingGuide], impressions: 3, clicks: 0 },
     ] },
   }))
   t.mock.method(google, 'searchconsole', () => ({ searchanalytics: { query } }))
@@ -251,14 +261,14 @@ test('compares current and former landing pages in two finalized windows across 
   assert.deepEqual(report.previous, { startDate: '2026-09-18', endDate: '2026-10-15', status: 'ok' })
   assert.deepEqual(report.pages.map(({ page }) => page), pages)
   assert.deepEqual(report.pages.map(({ currentImpressions, previousImpressions }) => [currentImpressions, previousImpressions]),
-    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [null, null], [null, null]])
+    [[80, 63], [30, 21], [15, null], [null, 17], [0, null], [6, null], [null, null], [null, null], [4, null], [8, 3]])
   assert.equal(query.mock.callCount(), 2)
   for (const [index, { arguments: [request, options] }] of query.mock.calls.entries()) {
     const { dimensionFilterGroups, ...body } = request.requestBody
     const { startDate, endDate } = [report.current, report.previous][index]
     assert.equal(request.siteUrl, PROPERTY)
     assert.deepEqual(body, {
-      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 8,
+      startDate, endDate, type: 'web', dataState: 'final', aggregationType: 'auto', dimensions: ['page'], rowLimit: 11,
     })
     assert.deepEqual(options, { timeout: 10000, retry: false })
     assert.equal(dimensionFilterGroups.length, 1)
@@ -270,6 +280,7 @@ test('compares current and former landing pages in two finalized windows across 
     const filter = new RegExp(filters[0].expression)
     for (const page of [...pages, homepage.slice(0, -1)]) assert.match(page, filter)
     for (const page of [homepage + '?private=1', formerYouthSports + '?vcid=private', gymnastics + '/',
+      trainingGuides + '/private-draft', tumblingGuide + '?vcid=private',
       'https://www.vortexathletics.com/gymnastics', 'https://vortexathleticsXcom/gymnastics', 'https://vortexathletics.com/enroll']) assert.doesNotMatch(page, filter)
   }
 })

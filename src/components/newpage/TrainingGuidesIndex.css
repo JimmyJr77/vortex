@@ -1,0 +1,66 @@
+.np-guides-content {
+  padding-block: clamp(28px, 5vw, 64px) clamp(40px, 7vw, 80px);
+}
+
+.np-guides-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 25rem), 1fr));
+  gap: clamp(18px, 3vw, 32px);
+  list-style: none;
+}
+
+.np-guides-card {
+  border: 1px solid var(--np-line);
+  border-radius: 0.6rem;
+  background: var(--np-paper);
+}
+
+.np-guides-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+  border-radius: 0.55rem 0.55rem 0 0;
+}
+
+.np-guides-card-copy {
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.np-guides-card-copy h2 {
+  font-size: clamp(1.4rem, 2.4vw, 1.8rem);
+  text-wrap: pretty;
+}
+
+.np-guides-card-copy h2 svg {
+  display: inline-block;
+  margin-inline-start: 0.2em;
+  vertical-align: middle;
+}
+
+.np-guides-card-copy p {
+  max-width: 55ch;
+  color: var(--np-muted);
+  line-height: 1.55;
+}
+
+.np-guides-programs {
+  margin-top: clamp(32px, 5vw, 58px);
+  padding-top: 26px;
+  border-top: 1px solid var(--np-line);
+}
+
+.np-guides-programs ul {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.4rem;
+  list-style: none;
+}
+
+.np-guides-programs a {
+  display: inline-block;
+  padding-block: 0.4rem;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

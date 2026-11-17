@@ -2,6 +2,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
@@ -13,11 +14,7 @@ export default function GymnasticsVsTumblingGuide() {
       <header className="athletic-guide-hero">
         <div className="athletic-guide-shell athletic-guide-intro">
           <div>
-            <nav aria-label="Breadcrumb" className="athletic-guide-breadcrumb">
-              <Link to="/">Home</Link>
-              <span aria-hidden="true">/</span>
-              <span aria-current="page">{guide.breadcrumbLabel}</span>
-            </nav>
+            <GuideBreadcrumb guideLabel={guide.breadcrumbLabel} />
             <h1 id="gymnastics-tumbling-title">{guide.heading}</h1>
             <p className="athletic-guide-lead">
               Tumbling is a group of acrobatic skills children practice on a floor or track.

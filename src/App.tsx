@@ -3,6 +3,7 @@ import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
 import publicArticles from './config/publicArticles.json'
+import guideIndex from './config/publicGuideIndex.json'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
 import PortalTheme from './components/portal/PortalTheme'
 import { trackEngagement } from './utils/analytics'
@@ -46,6 +47,7 @@ const EnrollmentReceiptPage = lazyWithRetry(() => import('./components/Enrollmen
 const WaiversMembershipsPage = lazyWithRetry(() => import('./components/waiversMemberships/WaiversMembershipsPage'))
 const DropInPage = lazyWithRetry(() => import('./components/DropInPage'))
 const publicGuideRoutes = [
+  { path: guideIndex.path, Component: lazyWithRetry(() => import('./components/newpage/TrainingGuidesIndex')) },
   { path: publicArticles.athleticDevelopment.path, Component: lazyWithRetry(() => import('./components/newpage/AthleticDevelopmentGuide')) },
   { path: publicArticles.bowieYouthSports.path, Component: lazyWithRetry(() => import('./components/newpage/BowieYouthSportsGuide')) },
   { path: publicArticles.preschoolGymnastics.path, Component: lazyWithRetry(() => import('./components/newpage/PreschoolGymnasticsGuide')) },

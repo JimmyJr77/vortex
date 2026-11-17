@@ -1,5 +1,6 @@
 import { buildCanonical, HUB_ORIGIN, type SeoMeta } from '../utils/seo'
 import { BUSINESS_NAP, TEAM_EMAIL, TEAM_PHONE } from './contact'
+import guideIndex from './publicGuideIndex.json'
 import { PUBLIC_GUIDES } from './publicGuides'
 import { PUBLIC_PROGRAMS } from './publicPrograms'
 
@@ -58,6 +59,7 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     description:
       `Visit Vortex Athletics at ${BUSINESS_NAP.streetAddress} in Bowie, MD. Call ${TEAM_PHONE} to ask about gymnastics, Fit & Flip, free trials, and enrollment.`,
   },
+  { path: guideIndex.path, title: guideIndex.title, description: guideIndex.description },
   ...PUBLIC_GUIDES.map(({ path, title, description, image, imageAlt }) => ({
     path, title, description, ogImage: `${HUB_ORIGIN}${image}`, ogImageAlt: imageAlt,
   })),

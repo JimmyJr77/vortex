@@ -1,10 +1,17 @@
+export const PUBLIC_EDITORIAL_PAGES = [
+  { label: 'Training Guides', path: '/blog' },
+  { label: 'Bowie Youth Sports Guide', path: '/blog/youth-sports-bowie' },
+  { label: 'Youth Athletic Development Guide', path: '/blog/athletic-development-young-athletes' },
+  { label: 'Preschool Gymnastics Guide', path: '/blog/preschool-gymnastics-what-toddlers-learn' },
+  { label: 'Gymnastics vs. Tumbling', path: '/blog/gymnastics-vs-tumbling' },
+]
+
 export const publicPaths = new Set([
   '/', '/404', '/read-board', '/enroll', '/drop-in', '/contact', '/support',
   '/privacy-policy', '/terms-of-service', '/ninja',
   '/copy',
   '/camp_interest', '/camp_interest/thank-you',
-  '/blog/athletic-development-young-athletes',
-  '/blog/youth-sports-bowie',
+  ...PUBLIC_EDITORIAL_PAGES.map(({ path }) => path),
   '/schedule', '/scheduling', '/store', '/store/success',
   '/signup/family', '/signup/invite', '/signup/lead',
   '/verify-email', '/registration/receipt', '/waivers-memberships',

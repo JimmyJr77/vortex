@@ -9,6 +9,7 @@ import { getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from '../we
 import { syncExternalAnalytics } from '../syncExternal.js'
 import { createAdminAnalyticsHandlers } from '../adminHandlers.js'
 import { getBusinessOutcomes } from '../businessOutcomes.js'
+import { normalizeBrowserEvent } from '../eventContract.js'
 
 const connectionString = process.env.ANALYTICS_TEST_DATABASE_URL
 
@@ -18,6 +19,26 @@ test('report boundaries follow Eastern dates through daylight saving changes', (
   assert.equal(range.to.toISOString(), '2026-11-02T04:59:59.999Z')
   assert.equal(parseDateRange({ from: '2026-11-02', to: '2026-11-01' }), null)
   assert.equal(parseDateRange({ from: '2026-02-30', to: '2026-03-01' }), null)
+})
+
+test('consented editorial page views keep their canonical labels and discard private URL data', () => {
+  const view = (pagePath) => normalizeBrowserEvent({
+    pagePath, eventName: 'page_view', consentAnalytics: true, hostname: 'www.vortexathletics.com',
+    visitorId: 'v_editorial_test', sessionId: 's_editorial_test',
+  })
+  for (const path of [
+    '/blog',
+    '/blog/youth-sports-bowie',
+    '/blog/athletic-development-young-athletes',
+    '/blog/preschool-gymnastics-what-toddlers-learn',
+    '/blog/gymnastics-vs-tumbling',
+  ]) {
+    assert.equal(view(path.toUpperCase() + '/?vcid=private-token#private-anchor').page_path, path)
+  }
+  assert.equal(view('/blog/private-draft/token').page_path, '/other')
+  assert.equal(view('/vortex-athletics').page_path, '/vortex-athletics')
+  assert.equal(view('/signup/invite/private-token').page_path, '/signup/invite')
+  assert.equal(view('/member/private-token'), null)
 })
 
 test('consented site events produce deduplicated traffic, engagement, and ordered funnels in Postgres', {

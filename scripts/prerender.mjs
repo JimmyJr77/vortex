@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_OG_IMAGE,
   HUB_ARTICLE_PATHS,
+  HUB_GUIDE_INDEX_PATH,
   HUB_PRERENDER_PATHS,
   HUB_PROGRAM_PATHS,
   SITE_NAME,
@@ -22,7 +23,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
 // These public pages use Inter for both headings and body text.
-const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, ...HUB_ARTICLE_PATHS])
+const interOnlyContentPaths = new Set([...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS])
 let previewPort = 0
 let previewOrigin = ''
 

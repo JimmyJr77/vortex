@@ -28,6 +28,7 @@ internal links, GBP links, Search Console submissions, or citations.
   | `/gymnastics` | Youth gymnastics in Bowie: beginner, developmental, team, and discipline options |
   | `/fit-and-flip` | Youth athleticism development, sports performance training, and youth fitness in Bowie |
   | `/adult-gymnastics` | Adult gymnastics, fitness, and introductory acrobatics in Bowie |
+  | `/blog` | Browse the published guides to youth sports, athletic development, and gymnastics |
 
 - Legacy gymnastics slugs and retired campaigns redirect permanently to the
   relevant youth gymnastics section. Legacy sports performance and conditioning
@@ -180,6 +181,7 @@ These actions require access to Google and cannot be completed by a code build.
    - `https://vortexathletics.com/gymnastics`
    - `https://vortexathletics.com/fit-and-flip`
    - `https://vortexathletics.com/adult-gymnastics`
+   - `https://vortexathletics.com/blog`
    - `https://vortexathletics.com/blog/athletic-development-young-athletes`
    - `https://vortexathletics.com/blog/youth-sports-bowie`
    - `https://vortexathletics.com/blog/preschool-gymnastics-what-toddlers-learn`

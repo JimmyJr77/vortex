@@ -1,6 +1,7 @@
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
@@ -10,11 +11,7 @@ export default function PreschoolGymnasticsGuide() {
       <header className="athletic-guide-hero">
         <div className="athletic-guide-shell athletic-guide-intro">
           <div>
-            <nav aria-label="Breadcrumb" className="athletic-guide-breadcrumb">
-              <Link to="/">Home</Link>
-              <span aria-hidden="true">/</span>
-              <span aria-current="page">Preschool gymnastics guide</span>
-            </nav>
+            <GuideBreadcrumb guideLabel={PRESCHOOL_GYMNASTICS_GUIDE.breadcrumbLabel} />
             <h1 id="preschool-gymnastics-title">{PRESCHOOL_GYMNASTICS_GUIDE.heading}</h1>
             <p className="athletic-guide-lead">
               At Vortex in Bowie, Maryland, toddlers explore balance and jumping with a caregiver.

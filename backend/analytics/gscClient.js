@@ -1,4 +1,4 @@
-import { sanitizeAnalyticsPath } from './eventContract.js'
+import { PUBLIC_EDITORIAL_PAGES, sanitizeAnalyticsPath } from './eventContract.js'
 
 const SEARCH_CONSOLE_SCOPE = 'https://www.googleapis.com/auth/webmasters.readonly'
 const SEARCH_PAGES_PER_TOPIC = 5
@@ -12,8 +12,7 @@ const LANDING_PAGES = [
   { label: 'Fit & Flip Youth Training', page: 'https://vortexathletics.com/fit-and-flip' },
   { label: 'Former youth sports performance page', page: 'https://vortexathletics.com/vortex-athletics' },
   { label: 'Adult Gymnastics', page: 'https://vortexathletics.com/adult-gymnastics' },
-  { label: 'Bowie Youth Sports Guide', page: 'https://vortexathletics.com/blog/youth-sports-bowie' },
-  { label: 'Youth Athletic Development Guide', page: 'https://vortexathletics.com/blog/athletic-development-young-athletes' },
+  ...PUBLIC_EDITORIAL_PAGES.map(({ label, path }) => ({ label, page: new URL(path, HOMEPAGE).href })),
 ]
 const LANDING_PAGE_URLS = new Set(LANDING_PAGES.map(({ page }) => page).concat(HOMEPAGE_NO_SLASH))
 const LANDING_PAGE_EXPRESSION = `^(?:${[...LANDING_PAGE_URLS].map(page => page.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|')})$`

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
@@ -12,11 +13,7 @@ export default function BowieYouthSportsGuide() {
       <header className="athletic-guide-hero">
         <div className="athletic-guide-shell athletic-guide-intro">
           <div>
-            <nav aria-label="Breadcrumb" className="athletic-guide-breadcrumb">
-              <Link to="/">Home</Link>
-              <span aria-hidden="true">/</span>
-              <span aria-current="page">Bowie youth sports guide</span>
-            </nav>
+            <GuideBreadcrumb guideLabel={BOWIE_YOUTH_SPORTS_GUIDE.breadcrumbLabel} />
             <h1 id="bowie-youth-sports-title">{BOWIE_YOUTH_SPORTS_GUIDE.heading}</h1>
             <p className="athletic-guide-lead">
               Want to find a team, try a new sport, or give your child a regular way to move?

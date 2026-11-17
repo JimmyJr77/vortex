@@ -202,6 +202,7 @@
 .np-nav-cta {
   padding: 12px 17px;
   gap: 16px;
+  white-space: nowrap;
   font-size: 11px;
 }
 .np-menu-toggle,.np-mobile-nav {
@@ -2435,6 +2436,10 @@
   }
 }
 
+@media (min-width: 1280px) {
+  .np-nav { gap: 18px; }
+  .np-desktop-nav { gap: 22px; }
+}
 /* Collapse Schedule to its accessible icon before switching to the dropdown. */
 @media (min-width: 1280px) and (max-width: 1399px) {
   .np-desktop-nav .np-nav-schedule .np-nav-text { display: none; }

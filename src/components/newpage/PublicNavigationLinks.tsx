@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, CalendarDays, ChevronDown } from 'lucide-react'
-import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import guideIndex from '../../config/publicGuideIndex.json'
 
 const programNavigation = [
   { label: 'Youth gymnastics', key: 'explore_gymnastics', to: '/gymnastics' },
   { label: 'Fit & Flip youth training', key: 'explore_fit-flip', to: '/fit-and-flip' },
   { label: 'Adult gymnastics', key: 'explore_adult_gymnastics', to: '/adult-gymnastics' },
-  { label: 'Bowie youth sports guide', key: 'read_bowie_youth_sports_guide', to: BOWIE_YOUTH_SPORTS_GUIDE.path },
   { label: 'All programs', key: 'programs', to: '/#programs' },
 ]
 
@@ -14,6 +13,7 @@ const navigation = [
   { label: 'Free trial', key: 'free_trial_section', to: '/#free-trial' },
   { label: 'The triad', key: 'triad', to: '/#triad' },
   { label: 'Our approach', key: 'approach', to: '/#approach' },
+  { label: guideIndex.label, key: 'training_guides', to: guideIndex.path },
   { label: 'Visit us', key: 'visit', to: '/#visit', mobileOnly: true },
   { label: 'Schedule', key: 'schedule', to: '/read-board#schedule', calendar: true },
 ]

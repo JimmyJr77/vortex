@@ -9,6 +9,7 @@ import {
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { PUBLIC_GUIDES } from '../config/publicGuides'
+import guideIndex from '../config/publicGuideIndex.json'
 import { GYMNASTICS_FAQS } from '../config/gymnasticsFaqs'
 import { BEGINNER_GYMNASTICS_FAQS } from '../config/beginnerGymnasticsFaqs'
 import { DROP_IN_FAQS, HOMESCHOOL_GYMNASTICS_FAQS } from '../config/localSeoFaqs'
@@ -274,15 +275,40 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
     '/store': 'Vortex Athletics Store',
     '/privacy-policy': 'Privacy Policy',
     '/terms-of-service': 'Terms of Service',
+    [guideIndex.path]: guideIndex.label,
   }
   const guide = PUBLIC_GUIDES.find(({ path }) => path === pathname)
   const name = breadcrumbName[pathname] ?? guide?.breadcrumbLabel
   if (name) {
     schema.push(
-      breadcrumbSchema([crumb(HUB_ORIGIN, 'Home', '/'), crumb(HUB_ORIGIN, name, pathname)]),
+      breadcrumbSchema([
+        crumb(HUB_ORIGIN, 'Home', '/'),
+        ...(guide ? [crumb(HUB_ORIGIN, guideIndex.label, guideIndex.path)] : []),
+        crumb(HUB_ORIGIN, name, pathname),
+      ]),
     )
   }
 
+  if (pathname === guideIndex.path) {
+    schema.push({
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: guideIndex.heading,
+      description: guideIndex.description,
+      url,
+      inLanguage: 'en-US',
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: PUBLIC_GUIDES.length,
+        itemListElement: PUBLIC_GUIDES.map((item, index) => ({
+          '@type': 'ListItem',
+          position: index + 1,
+          name: item.heading,
+          url: buildCanonical(HUB_ORIGIN, item.path),
+        })),
+      },
+    })
+  }
   if (pathname === '/ninja') {
     schema.push(
       courseSchema({

@@ -2,12 +2,14 @@
 import { readFileSync } from 'node:fs'
 
 const publicArticles = JSON.parse(readFileSync(new URL('../src/config/publicArticles.json', import.meta.url), 'utf8'))
+const guideIndex = JSON.parse(readFileSync(new URL('../src/config/publicGuideIndex.json', import.meta.url), 'utf8'))
 
 export const YOUTH_ATHLETIC_GUIDE_PATH = publicArticles.athleticDevelopment.path
 export const BOWIE_YOUTH_SPORTS_GUIDE_PATH = publicArticles.bowieYouthSports.path
 export const PRESCHOOL_GYMNASTICS_GUIDE_PATH = publicArticles.preschoolGymnastics.path
 export const GYMNASTICS_VS_TUMBLING_GUIDE_PATH = publicArticles.gymnasticsVsTumbling.path
 export const HUB_ARTICLE_PATHS = Object.values(publicArticles).map(({ path }) => path)
+export const HUB_GUIDE_INDEX_PATH = guideIndex.path
 
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
@@ -32,6 +34,7 @@ export const HUB_SITEMAP_ENTRIES = [
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms-of-service', priority: '0.3', changefreq: 'yearly' },
+  { path: HUB_GUIDE_INDEX_PATH, priority: '0.6', changefreq: 'monthly', lastmod: guideIndex.dateModified },
   ...Object.values(publicArticles).map(({ path, dateModified }) => ({
     path, priority: '0.6', changefreq: 'monthly', lastmod: dateModified,
   })),

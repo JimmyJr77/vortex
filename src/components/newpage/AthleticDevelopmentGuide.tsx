@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight } from 'lucide-react'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
@@ -31,11 +32,7 @@ export default function AthleticDevelopmentGuide() {
       <header className="athletic-guide-hero">
         <div className="athletic-guide-shell athletic-guide-intro">
           <div>
-            <nav aria-label="Breadcrumb" className="athletic-guide-breadcrumb">
-              <Link to="/">Home</Link>
-              <span aria-hidden="true">/</span>
-              <span aria-current="page">Parent guide</span>
-            </nav>
+            <GuideBreadcrumb guideLabel={ATHLETIC_DEVELOPMENT_GUIDE.breadcrumbLabel} />
             <h1 id="athletic-guide-title">{ATHLETIC_DEVELOPMENT_GUIDE.heading}</h1>
             <p className="athletic-guide-lead">
               Athleticism development is the practice of building movement skills that children can use in
