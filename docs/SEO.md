@@ -181,12 +181,25 @@ These actions require access to Google and cannot be completed by a code build.
 
 #### Retired gymnastics domain
 
-After the destination pages go live, verify redirects from both
-`vortex-gymnastics.com` and `www.vortex-gymnastics.com`, including legacy
-discipline URLs. Check whether the cross-domain move was already filed. If a
-move still needs to be filed, use an account that owns the old and new
-properties, verify each source host variant, and run Google's validation before
-submitting. [Google’s Change of Address guide](https://support.google.com/webmasters/answer/9370220)
+The Vercel project currently forwards `vortex-gymnastics.com` to
+`www.vortex-gymnastics.com` with HTTP 307 before the site's permanent
+redirects run. Once the destination pages and the site's redirects are live,
+assigning the retired apex to the production deployment allows the site's
+redirect rules to map each old URL directly to its matching destination.
+[Vercel project domains](https://vercel.com/3lisports/vortex/settings/domains)
+
+Run `npm run test:seo-live` to check the homepages and representative legacy
+URLs on both retired hosts. The check verifies permanent redirects to the
+mapped program URLs, including section anchors and a preserved campaign
+parameter. After changing the domain assignment, confirm the retired apex's
+first HTTPS redirect goes directly to `vortexathletics.com`.
+
+Check whether the cross-domain move was already filed. If a move still needs
+to be filed, use an account that owns the old and new properties, verify each
+source host variant, and run Google's validation before submitting. Google's
+Change of Address guide calls for a homepage HTTP 301 and describes a check
+for HTTP 301 on sample pages.
+[Google’s Change of Address guide](https://support.google.com/webmasters/answer/9370220)
 
 ### Google Business Profile
 

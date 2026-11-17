@@ -576,64 +576,70 @@ for (const set of expectedSets) {
 }
 
 if (live) {
-  const hostRedirectChecks = [
-    {
-      label: 'athletics www host',
-      sourceOrigin: 'https://www.vortexathletics.com',
-      canonicalOrigin: HUB_ORIGIN,
-    },
-    {
-      label: 'gymnastics apex host',
-      sourceOrigin: 'https://vortex-gymnastics.com',
-      canonicalOrigin: HUB_ORIGIN,
-    },
-    {
-      label: 'gymnastics www host',
-      sourceOrigin: GYMNASTICS_ORIGIN,
-      canonicalOrigin: HUB_ORIGIN,
-    },
-  ]
-  for (const check of hostRedirectChecks) {
-    const path = '/__seo-host-redirect-check__'
-    const destination = `${check.canonicalOrigin}${path}`
-    let current = `${check.sourceOrigin}${path}`
-    let reachedPrimary = false
-    const visited = new Set([current])
+  const athleticsWwwOrigin = 'https://www.vortexathletics.com'
+  const gymnasticsApexOrigin = 'https://vortex-gymnastics.com'
+  const hostAliases = new Map([
+    [gymnasticsApexOrigin, GYMNASTICS_ORIGIN],
+    [athleticsWwwOrigin, HUB_ORIGIN],
+  ])
+
+  const verifyLiveRedirect = async (source, destination) => {
+    let current = source
     for (let hop = 0; hop < 3; hop += 1) {
       const response = await fetch(current, { redirect: 'manual' })
-      const location = response.headers.get('location') ?? ''
+      const location = response.headers.get('location')
       let next
       try {
         if (!location) throw new Error('Missing Location')
         next = new URL(location, current)
       } catch {
-        assert(false, `${check.label}: ${current} returned HTTP ${response.status} with an invalid Location header`)
-        break
+        assert(false, `${source.href}: ${current.href} returned HTTP ${response.status} without a valid Location header`)
+        return
       }
-      // The existing project-level apex alias redirects temporarily to www
-      // before the application's permanent redirect to the primary website.
-      const knownGymnasticsAlias = current === `https://vortex-gymnastics.com${path}`
-        && next.href === `${GYMNASTICS_ORIGIN}${path}`
-      const validStatus = response.status === 308 || (knownGymnasticsAlias && response.status === 307)
-      assert(validStatus, `${check.label}: ${current} returned HTTP ${response.status}; expected a permanent canonical redirect`)
-      if (!validStatus) break
-      const validTarget = next.pathname === path && !next.search && !next.hash
-        && (next.origin === check.canonicalOrigin || knownGymnasticsAlias)
-      assert(validTarget, `${check.label}: unexpected redirect destination ${next.href}`)
-      if (!validTarget) break
-      if (next.href === destination) {
-        reachedPrimary = true
-        break
+
+      const permanent = response.status === 301 || response.status === 308
+      if (next.href === destination.href) {
+        assert(permanent, `${source.href}: final redirect returned HTTP ${response.status}; expected HTTP 301 or 308`)
+        return
       }
-      assert(!visited.has(next.href), `${check.label}: redirect loop at ${next.href}`)
-      if (visited.has(next.href)) break
-      visited.add(next.href)
-      current = next.href
+
+      const aliasOrigin = hostAliases.get(current.origin)
+      const aliasTarget = aliasOrigin && new URL(current.pathname + current.search + current.hash, aliasOrigin)
+      const temporaryGymnasticsAlias = current.origin === gymnasticsApexOrigin && response.status === 307
+      if (next.href !== aliasTarget?.href || (!permanent && !temporaryGymnasticsAlias)) {
+        assert(false, `${source.href}: ${current.href} redirected to ${next.href} (HTTP ${response.status}); expected ${destination.href}`)
+        return
+      }
+      current = next
     }
-    assert(
-      reachedPrimary,
-      `${check.label}: did not reach ${destination} within three same-path redirects ending in permanent HTTP 308`,
-    )
+
+    assert(false, `${source.href}: did not reach ${destination.href} within three redirects`)
+  }
+
+  const aliasOrigins = [athleticsWwwOrigin, gymnasticsApexOrigin, GYMNASTICS_ORIGIN]
+  const hostCheckPath = '/__seo-host-redirect-check__'
+  for (const origin of aliasOrigins) {
+    await verifyLiveRedirect(new URL(hostCheckPath, origin), new URL(hostCheckPath, HUB_ORIGIN))
+  }
+
+  for (const origin of [gymnasticsApexOrigin, GYMNASTICS_ORIGIN]) {
+    await verifyLiveRedirect(new URL(origin), new URL(HUB_ORIGIN))
+  }
+
+  const legacyPaths = [
+    '/vortex-athletics',
+    '/athleticism-accelerator',
+    '/artistic-gymnastics-6-12',
+    '/trampoline-tumbling',
+  ]
+  for (const path of legacyPaths) {
+    const destination = new URL(legacyLandingRedirects[path], HUB_ORIGIN)
+    destination.searchParams.set('utm_source', 'seo-release-check')
+    for (const origin of [HUB_ORIGIN, ...aliasOrigins]) {
+      const source = new URL(path, origin)
+      source.search = destination.search
+      await verifyLiveRedirect(source, destination)
+    }
   }
 
   for (const [source, destination] of [
