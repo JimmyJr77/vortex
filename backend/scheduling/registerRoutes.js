@@ -42,6 +42,7 @@ export function registerSchedulingRoutes(app, pool) {
 
   app.get('/api/admin/scheduling/calendar', h.getAdminCalendar)
   app.put('/api/admin/scheduling/calendar/occurrence', h.updateCalendarOccurrence)
+  app.put('/api/admin/scheduling/calendar/day', h.updateCalendarDay)
   app.get('/api/admin/scheduling/classes', h.listAdminSchedulingClasses)
   app.get('/api/admin/scheduling/forms', h.listAdminForms)
   app.get('/api/admin/scheduling/forms/:id', h.getAdminForm)

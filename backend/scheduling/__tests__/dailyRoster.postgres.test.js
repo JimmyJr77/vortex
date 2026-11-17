@@ -114,6 +114,19 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.equal(classFor(cancelledMonday, main), undefined)
     assert.ok(classFor(cancelledMonday, newClass))
     assert.equal(athlete(await rosterFor('2030-01-14'), main, first)?.isNew, true)
+
+    const closure = [facilityId, '2030-01-07']
+    await db.query('INSERT INTO scheduling_day_cancellation (facility_id, occurrence_date) VALUES ($1,$2)', closure)
+    const closedMonday = await rosterFor('2030-01-07')
+    for (const klass of [main, newClass, multiDay]) assert.equal(classFor(closedMonday, klass), undefined)
+    assert.equal(athlete(await rosterFor('2030-01-09'), multiDay, wholeGroup)?.isNew, true)
+    assert.equal(athlete(await rosterFor('2030-01-14'), newClass, established)?.isNew, true)
+    await db.query('DELETE FROM scheduling_day_cancellation WHERE facility_id=$1 AND occurrence_date=$2', closure)
+    const reopenedMonday = await rosterFor('2030-01-07')
+    assert.equal(classFor(reopenedMonday, main), undefined, 'restoring the day preserves the individual cancellation')
+    assert.ok(classFor(reopenedMonday, newClass))
+    assert.ok(classFor(reopenedMonday, multiDay))
+
     await db.query('DELETE FROM scheduling_occurrence_cancellation WHERE time_slot_id=$1 AND occurrence_date=$2', occurrence)
     const restoredMonday = await rosterFor('2030-01-07')
     assert.equal(athlete(restoredMonday, main, first)?.isNew, true)

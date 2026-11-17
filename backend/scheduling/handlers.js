@@ -113,6 +113,7 @@ import {
   parseCalendarDateRange,
   setSchedulingOccurrenceCancellation,
 } from './calendarQuery.js'
+import { setSchedulingDayCancellation } from './dayCancellation.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, buildGroupDisplayLabel } from './slotDisplayLabel.js'
 import { resolveSlotActiveDates } from './slotActiveDates.js'
@@ -3168,9 +3169,26 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
         if (!data) return res.status(404).json({ success: false, message: 'Class session not found on that date.' })
         res.json({ success: true, data })
       } catch (err) {
-        if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
+        if (err.statusCode === 403 || err.statusCode === 409) return res.status(err.statusCode).json({ success: false, message: err.message })
         console.error('[scheduling] updateCalendarOccurrence:', err)
         res.status(500).json({ success: false, message: 'Failed to update class session.' })
+      }
+    },
+
+    async updateCalendarDay(req, res) {
+      try {
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
+        const { cancelled } = req.body || {}
+        const date = typeof req.body?.date === 'string' && validateRosterDate(req.body.date)
+        if (!date || date.startsWith('0000-') || typeof cancelled !== 'boolean') {
+          return res.status(400).json({ success: false, message: 'A valid class date and cancellation status are required.' })
+        }
+        const data = await setSchedulingDayCancellation(pool, { facilityId, date, cancelled })
+        res.json({ success: true, data })
+      } catch (err) {
+        if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
+        console.error('[scheduling] updateCalendarDay:', err)
+        res.status(500).json({ success: false, message: 'Failed to update classes for this day.' })
       }
     },
 

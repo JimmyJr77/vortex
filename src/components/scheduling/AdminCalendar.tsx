@@ -1,14 +1,16 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { fetchTopPrograms, type TopProgram } from '../../utils/programsApi'
 import {
   adminFetchSchedulingCalendar,
   adminFetchSchedulingCalendarClasses,
+  adminSetCalendarDayStatus,
   adminSetCalendarOccurrenceStatus,
   type CalendarFormActiveFilter,
   type PublicSchedulingClassOption,
   type SchedulingCalendarEvent,
   type SchedulingCalendarMonth,
 } from '../../utils/schedulingApi'
+import AdminCalendarDayModal from './AdminCalendarDayModal'
 import AdminCalendarEventModal from './AdminCalendarEventModal'
 import SchedulingCalendarView from './SchedulingCalendarView'
 import { dateRangeForView } from './calendarDateUtils'
@@ -25,6 +27,8 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const calendarRequest = useRef<AbortController | null>(null)
   const selectedEvent = calendar?.events.find(({ id }) => id === selectedEventId)
 
   const dateRange = useMemo(
@@ -50,8 +54,11 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
     }
   }, [])
 
-  const loadCalendar = useCallback(async () => {
-    setLoading(true)
+  const loadCalendar = useCallback(async (showLoading = true) => {
+    calendarRequest.current?.abort()
+    const controller = new AbortController()
+    calendarRequest.current = controller
+    if (showLoading) setLoading(true)
     setError(null)
     try {
       const data = await adminFetchSchedulingCalendar({
@@ -61,13 +68,15 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
         programId:
           nav.view === 'byClass' && classFilterId !== 'none' ? classFilterId : null,
         formActive: formActiveFilter,
+        signal: controller.signal,
       })
-      setCalendar(data)
+      if (!controller.signal.aborted) setCalendar(data)
     } catch (e) {
+      if (controller.signal.aborted) return
       setCalendar(null)
       setError(e instanceof Error ? e.message : 'Failed to load calendar')
     } finally {
-      setLoading(false)
+      if (!controller.signal.aborted) setLoading(false)
     }
   }, [
     dateRange.startDate,
@@ -84,7 +93,8 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
   }, [loadPrograms, loadClassOptions])
 
   useEffect(() => {
-    loadCalendar()
+    void loadCalendar()
+    return () => calendarRequest.current?.abort()
   }, [loadCalendar])
 
   const setOccurrenceCancelled = async (event: SchedulingCalendarEvent, cancelled: boolean) => {
@@ -97,10 +107,15 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
       ...current,
       events: current.events.map((item) => (
         item.timeSlotId === status.slotId && item.date === status.date
-          ? { ...item, isCancelled: status.cancelled }
+          ? { ...item, isIndividuallyCancelled: status.cancelled, isCancelled: status.cancelled || Boolean(item.isCancelledByDay) }
           : item
       )),
     }))
+  }
+
+  const setDayCancelled = async (date: string, cancelled: boolean) => {
+    await adminSetCalendarDayStatus({ date, cancelled })
+    await loadCalendar(false)
   }
 
   return (
@@ -127,8 +142,17 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
         onFormActiveFilterChange={setFormActiveFilter}
         onClassFilterChange={setClassFilterId}
         onEventClick={(event) => setSelectedEventId(event.id)}
-        onRetry={loadCalendar}
+        onDayClick={canManage && calendar ? setSelectedDate : undefined}
+        onRetry={() => void loadCalendar()}
       />
+      {selectedDate && canManage && (
+        <AdminCalendarDayModal
+          date={selectedDate}
+          cancelled={calendar?.cancelledDates?.includes(selectedDate) ?? false}
+          onCancellationChange={(cancelled) => setDayCancelled(selectedDate, cancelled)}
+          onClose={() => setSelectedDate(null)}
+        />
+      )}
       {selectedEvent && (
         <AdminCalendarEventModal
           event={selectedEvent}

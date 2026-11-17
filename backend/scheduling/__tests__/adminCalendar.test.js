@@ -16,6 +16,10 @@ test('admin calendar scopes its class query to the authenticated facility', asyn
   const pool = {
     async query(sql, params) {
       if (sql.includes('information_schema')) return { rows: [] }
+      if (/FROM scheduling_day_cancellation\s+WHERE facility_id/.test(sql)) {
+        assert.deepEqual(params, [12, week.startDate, week.endDate])
+        return { rows: [{ occurrence_date: '2026-11-19' }] }
+      }
       assert.match(sql, /p\.facility_id = \$1/)
       assert.match(sql, /p\.is_active = TRUE/)
       assert.doesNotMatch(sql, /sf\.is_active = TRUE/)
@@ -29,6 +33,7 @@ test('admin calendar scopes its class query to the authenticated facility', asyn
   }, res)
   assert.equal(res.statusCode, 200)
   assert.equal(res.body.success, true)
+  assert.deepEqual(res.body.data.cancelledDates, ['2026-11-19'])
 })
 
 test('admin calendar requires authenticated facility scope even when a query parameter is supplied', async () => {

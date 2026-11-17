@@ -42,6 +42,7 @@ function routeFixture({ authorized = true, signed = true, annualMember = false, 
       if (sql.includes('SELECT lifetime_trial_granted')) return { rows: [{
         lifetime_trial_granted: 1, annual_credits_granted: annualMember ? 4 : 0, admin_credits_granted: 0,
       }] }
+      if (sql.includes('SELECT p.facility_id') && sql.includes('FROM scheduling_slot_group sg')) return { rows: [{ facility_id: 1 }] }
       if (sql.includes('FROM scheduling_slot_group sg') && sql.includes('FOR UPDATE OF sg')) return { rows: [{
         id: 20, form_id: 4, max_participants: 10, title: 'Gymnastics',
         calendar_slot_id: 21, calendar_group_id: 20, calendar_schedule_mode: 'date', calendar_slot_active: true,
@@ -111,8 +112,11 @@ test('registration after membership checkout uses the selected athlete credit an
   assert.deepEqual(saved.slice(4, 8), ['Avery', 'Stone', 'parent@example.test', '202-555-0123'])
   assert.equal(fixture.calls.some(({ sql }) => sql.includes('INSERT INTO billing_charge')), false)
   const waiverIndex = fixture.calls.findIndex(({ sql }) => sql.includes('FROM waiver_template template'))
+  const dayLockIndex = fixture.calls.findIndex(({ sql }) => sql.includes('pg_advisory_xact_lock_shared'))
+  const groupLockIndex = fixture.calls.findIndex(({ sql }) => sql.includes('SELECT id FROM scheduling_slot_group WHERE id=$1 FOR UPDATE'))
   const bookingIndex = fixture.calls.findIndex(({ sql }) => sql.includes('INSERT INTO drop_in_registration'))
   assert.ok(waiverIndex >= 0 && waiverIndex < bookingIndex)
+  assert.ok(dayLockIndex >= 0 && dayLockIndex < groupLockIndex && groupLockIndex < bookingIndex)
 })
 
 test('explicit member registration needs no duplicate identity form and remains pending until payment', async () => {

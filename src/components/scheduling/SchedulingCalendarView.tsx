@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import PortalOverlay from '../portal/PortalOverlay'
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, Ellipsis, Loader2 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { formatDateForDisplay } from '../../utils/dateUtils'
 import {
@@ -59,6 +59,36 @@ function tbdToOccurrence(tbd: SchedulingCalendarTbd): SchedulingTimeSlot {
   }
 }
 
+function CalendarDayHeader({ date, dayNumber, current, cancelled, onDayClick }: {
+  date: string
+  dayNumber: number | null
+  current: boolean
+  cancelled: boolean
+  onDayClick?: (date: string) => void
+}) {
+  const action = cancelled ? 'Restore full day' : 'Cancel full day'
+  return (
+    <>
+      {onDayClick ? (
+        <button
+          type="button"
+          onClick={() => onDayClick(date)}
+          aria-label={`${action} for ${formatDateForDisplay(date)}`}
+          aria-current={current ? 'date' : undefined}
+          title={`${action} for ${formatDateForDisplay(date)}`}
+          className="flex min-h-7 w-full items-center justify-between gap-0.5 rounded px-1 text-left hover:bg-black/5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-1"
+        >
+          <span>{dayNumber}</span>
+          <Ellipsis aria-hidden="true" className="h-4 w-4 shrink-0" />
+        </button>
+      ) : (
+        dayNumber
+      )}
+      {cancelled && <span className="block text-[10px] font-semibold leading-tight text-red-700">Day cancelled</span>}
+    </>
+  )
+}
+
 export interface SchedulingCalendarViewProps {
   mode: 'admin' | 'public'
   calendar: SchedulingCalendarMonth | null
@@ -82,6 +112,7 @@ export interface SchedulingCalendarViewProps {
   onFormActiveFilterChange: (value: CalendarFormActiveFilter) => void
   onClassFilterChange: (id: number | 'none') => void
   onEventClick?: (event: SchedulingCalendarEvent) => void
+  onDayClick?: (date: string) => void
   onRetry: () => void
   theme?: 'light' | 'dark'
 }
@@ -109,6 +140,7 @@ const SchedulingCalendarView = ({
   onFormActiveFilterChange,
   onClassFilterChange,
   onEventClick,
+  onDayClick,
   onRetry,
   theme = 'light',
 }: SchedulingCalendarViewProps) => {
@@ -217,6 +249,10 @@ const SchedulingCalendarView = ({
   }, [focusDate])
 
   const dayEvents = eventsByDate.get(focusDate) ?? []
+  const cancelledDates = useMemo(
+    () => new Set(mode === 'admin' ? calendar?.cancelledDates : undefined),
+    [mode, calendar?.cancelledDates],
+  )
 
   const toggleDayExpanded = (date: string) => {
     setExpandedDays((prev) => {
@@ -399,24 +435,27 @@ const SchedulingCalendarView = ({
         const visibleEvents = expanded ? dayEventsForCell : dayEventsForCell.slice(0, MAX_VISIBLE_EVENTS)
         const hiddenCount = dayEventsForCell.length - visibleEvents.length
         const isToday = cell.date === today
+        const cancelled = cancelledDates.has(cell.date)
 
         return (
           <div
             key={cell.date}
             className={`min-h-[100px] border-b border-r p-1.5 flex flex-col gap-1 ${
               isDark ? 'border-gray-700' : 'border-gray-100'
-            }`}
+            } ${cancelled ? 'bg-red-50' : ''}`}
           >
             <div
               className={`text-sm font-semibold ${
-                isToday
-                  ? 'inline-flex w-7 h-7 items-center justify-center rounded-full bg-vortex-red text-white'
+                isToday && !cancelled
+                  ? onDayClick
+                    ? 'rounded bg-vortex-red/5 text-vortex-red'
+                    : 'inline-flex w-7 h-7 items-center justify-center rounded-full bg-vortex-red text-white'
                   : isDark
                     ? 'text-gray-200'
                     : 'text-gray-700'
               }`}
             >
-              {cell.dayNumber}
+              <CalendarDayHeader date={cell.date} dayNumber={cell.dayNumber} current={isToday} cancelled={cancelled} onDayClick={onDayClick} />
             </div>
             <div className="flex-1 space-y-1">
               {visibleEvents.map(renderCompactChip)}
@@ -442,26 +481,29 @@ const SchedulingCalendarView = ({
         const dayEventsForCell = eventsByDate.get(date) ?? []
         const isToday = date === today
         const dayNum = parseDateString(date).getDate()
+        const cancelled = cancelledDates.has(date)
         return (
           <div
             key={date}
             className={`border-r last:border-r-0 flex flex-col min-h-[420px] ${
               isDark ? 'border-gray-700' : 'border-gray-100'
-            }`}
+            } ${cancelled ? 'bg-red-50' : ''}`}
           >
             <div
-              className={`px-2 py-2 text-center border-b text-sm font-semibold ${
-                isToday
-                  ? 'bg-vortex-red text-white'
-                  : isDark
-                    ? 'bg-gray-800 text-gray-200 border-gray-700'
-                    : 'bg-gray-50 text-gray-700 border-gray-100'
+              className={`px-1 py-2 sm:px-2 text-center border-b text-sm font-semibold ${
+                cancelled
+                  ? 'border-red-100 bg-red-50 text-red-800'
+                  : isToday
+                    ? 'bg-vortex-red text-white'
+                    : isDark
+                      ? 'bg-gray-800 text-gray-200 border-gray-700'
+                      : 'bg-gray-50 text-gray-700 border-gray-100'
               }`}
             >
               <div className="text-xs uppercase tracking-wide opacity-80">
                 {WEEKDAY_LABELS[parseDateString(date).getDay()]}
               </div>
-              <div>{dayNum}</div>
+              <CalendarDayHeader date={date} dayNumber={dayNum} current={isToday} cancelled={cancelled} onDayClick={onDayClick} />
             </div>
             <div className="flex-1 p-1.5 space-y-1 overflow-y-auto">
               {dayEventsForCell.length === 0 ? (
@@ -478,19 +520,36 @@ const SchedulingCalendarView = ({
     </div>
   )
 
-  const renderDayView = () => (
-    <div className="p-4 md:p-6 min-h-[320px]">
-      {dayEvents.length === 0 ? (
-        <p className={`text-center text-sm py-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-          No classes scheduled for this day.
-        </p>
-      ) : (
-        <div className="space-y-3 max-w-3xl mx-auto">
-          {dayEvents.map((event) => renderDayListItem(event, mode === 'public'))}
-        </div>
-      )}
-    </div>
-  )
+  const renderDayView = () => {
+    const cancelled = cancelledDates.has(focusDate)
+    return (
+      <div className="p-4 md:p-6 min-h-[320px]">
+        {(onDayClick || cancelled) && (
+          <div className="mx-auto mb-4 flex max-w-3xl flex-wrap items-center justify-end gap-3">
+            {cancelled && <span className="mr-auto text-sm font-semibold text-red-700">Day cancelled</span>}
+            {onDayClick && (
+              <button
+                type="button"
+                onClick={() => onDayClick(focusDate)}
+                className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold text-gray-800 hover:bg-gray-50"
+              >
+                {cancelled ? 'Restore full day' : 'Cancel full day'}
+              </button>
+            )}
+          </div>
+        )}
+        {dayEvents.length === 0 ? (
+          <p className={`text-center text-sm py-12 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+            No classes scheduled for this day.
+          </p>
+        ) : (
+          <div className="space-y-3 max-w-3xl mx-auto">
+            {dayEvents.map((event) => renderDayListItem(event, mode === 'public'))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   const renderByClassView = () => (
     <ClassScheduleByClassPanel

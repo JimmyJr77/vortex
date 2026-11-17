@@ -153,11 +153,19 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
     await assert.rejects(saveAssessmentTime(db, { facilityId, formId: younger.formId, body }), /not found/)
     await assert.rejects(saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: assessment.groupId, body: { ...body, startTime: '14:00', endTime: '15:00' } }), /already booked/)
     await assert.rejects(saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: assessment.groupId, body: { ...body, maxParticipants: 1 } }), /Capacity cannot be lower than 2/)
+    await db.query('INSERT INTO scheduling_day_cancellation (facility_id, occurrence_date) VALUES ($1,$2)', [facilityId, date])
     const added = await saveAssessmentTime(db, { facilityId, formId: assessment.formId, body: { ...body, startTime: '14:00', endTime: '15:00' } })
     await saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: added.slotGroupId, body: { ...body, startTime: '15:00', endTime: '16:00' } })
     const staffSchedules = await listAssessmentSchedules(db, facilityId)
     assert.equal(staffSchedules.find(form => form.id === assessment.formId).schedules.find(row => row.slotGroupId === added.slotGroupId).startTime, '15:00')
-    const publicSchedules = await getCatalog({ program: 'gymnastics', age: '9', gymnasticsTrack: 'experienced', experience: 'experienced' })
+    const experiencedTrial = { program: 'gymnastics', age: '9', gymnasticsTrack: 'experienced', experience: 'experienced' }
+    const closedSchedules = await getCatalog(experiencedTrial)
+    assert.equal(closedSchedules.sessions.some(row => row.classId === assessment.classId && row.date === date), false)
+    const { rows: [existingReservations] } = await db.query(`SELECT count(*)::int AS count FROM drop_in_registration
+      WHERE slot_group_id=$1 AND class_date=$2 AND status='confirmed'`, [assessment.groupId, date])
+    assert.equal(existingReservations.count, 2)
+    await db.query('DELETE FROM scheduling_day_cancellation WHERE facility_id=$1 AND occurrence_date=$2', [facilityId, date])
+    const publicSchedules = await getCatalog(experiencedTrial)
     assert.equal(publicSchedules.sessions.find(row => row.slotGroupId === added.slotGroupId).startTime, '15:00')
   } finally {
     await db.query('ROLLBACK')

@@ -146,6 +146,7 @@ test('release deploy includes application content migrations without broadening 
     '871_store_terminal_payment.sql',
     '872_scheduling_occurrence_cancellations.sql',
     '873_schedule_free_trial_overrides.sql',
+    '874_scheduling_day_cancellations.sql',
     '840_staff_legal_signatures.sql',
   ])
   assert.deepEqual(DEPLOY_RELEASE_MIGRATION_FILES, [

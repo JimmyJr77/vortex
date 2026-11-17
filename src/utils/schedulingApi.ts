@@ -778,6 +778,8 @@ export interface SchedulingCalendarEvent {
   slotGroupActive: boolean
   slotActive: boolean
   isCancelled: boolean
+  isCancelledByDay?: boolean
+  isIndividuallyCancelled?: boolean
   isTrialAssessment: boolean
   weekLetter?: string | null
 }
@@ -785,6 +787,11 @@ export interface SchedulingCalendarEvent {
 interface CalendarOccurrenceStatus {
   date: string
   slotId: number
+  cancelled: boolean
+}
+
+interface CalendarDayStatus {
+  date: string
   cancelled: boolean
 }
 
@@ -829,6 +836,7 @@ export interface SchedulingCalendarMonth {
   endDate: string
   events: SchedulingCalendarEvent[]
   tbdPatterns: SchedulingCalendarTbd[]
+  cancelledDates?: string[]
 }
 
 export interface SchedulingOrphanedSnapshot {
@@ -2105,6 +2113,7 @@ export async function adminFetchSchedulingCalendar(params: {
   programsId?: number | null
   programId?: number | null
   formActive?: CalendarFormActiveFilter
+  signal?: AbortSignal
 }): Promise<SchedulingCalendarMonth> {
   const qs = new URLSearchParams({
     formActive: params.formActive ?? 'all',
@@ -2122,7 +2131,10 @@ export async function adminFetchSchedulingCalendar(params: {
   if (params.programId != null) {
     qs.set('programId', String(params.programId))
   }
-  const res = await adminApiRequest(`/api/admin/scheduling/calendar?${qs.toString()}`)
+  const res = await adminApiRequest(`/api/admin/scheduling/calendar?${qs.toString()}`, {
+    signal: params.signal,
+    cache: 'no-store',
+  })
   return parseJson(res)
 }
 
@@ -2130,6 +2142,14 @@ export async function adminSetCalendarOccurrenceStatus(
   status: CalendarOccurrenceStatus,
 ): Promise<CalendarOccurrenceStatus> {
   const res = await adminApiRequest('/api/admin/scheduling/calendar/occurrence', {
+    method: 'PUT',
+    body: JSON.stringify(status),
+  })
+  return parseJson(res)
+}
+
+export async function adminSetCalendarDayStatus(status: CalendarDayStatus): Promise<CalendarDayStatus> {
+  const res = await adminApiRequest('/api/admin/scheduling/calendar/day', {
     method: 'PUT',
     body: JSON.stringify(status),
   })

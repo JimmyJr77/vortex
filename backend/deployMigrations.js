@@ -51,6 +51,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '871_store_terminal_payment.sql',
   '872_scheduling_occurrence_cancellations.sql',
   '873_schedule_free_trial_overrides.sql',
+  '874_scheduling_day_cancellations.sql',
   '840_staff_legal_signatures.sql',
 ])
 export const DEPLOY_RELEASE_MIGRATION_FILES = Object.freeze([

@@ -42,7 +42,7 @@ function eventFor(slotId: number, sessionDate: string, isTrialAssessment = false
   }
 }
 
-async function openCalendar(page: Page, canManage: boolean) {
+async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDates: string[] = []) {
   await page.clock.setFixedTime(new Date('2026-11-16T15:00:00Z'))
   await page.addInitScript(() => {
     localStorage.setItem('vortex_admin', 'true')
@@ -52,7 +52,10 @@ async function openCalendar(page: Page, canManage: boolean) {
   })
 
   const events = [eventFor(31, date), eventFor(32, date, true), eventFor(31, followingWeek)]
+  const cancelledDates = new Set(initiallyCancelledDates)
   const updates: { date: string; slotId: number; cancelled: boolean }[] = []
+  const dayUpdates: { date: string; cancelled: boolean }[] = []
+  let calendarReads = 0
   let failNextUpdate = false
 
   await page.route('**/api/**', async (route) => {
@@ -75,6 +78,7 @@ async function openCalendar(page: Page, canManage: boolean) {
       ]
     }
     if (url.pathname === '/api/admin/scheduling/calendar') {
+      calendarReads += 1
       const start = url.searchParams.get('startDate')!
       const end = url.searchParams.get('endDate')!
       const id = url.searchParams.get('programId')
@@ -83,7 +87,14 @@ async function openCalendar(page: Page, canManage: boolean) {
         month: 11,
         startDate: start,
         endDate: end,
-        events: events.filter((event) => event.date >= start && event.date <= end && (!id || String(event.classEventId) === id)),
+        events: events.filter((event) => event.date >= start && event.date <= end && (!id || String(event.classEventId) === id))
+          .map((event) => ({
+            ...event,
+            isIndividuallyCancelled: event.isCancelled,
+            isCancelledByDay: cancelledDates.has(event.date),
+            isCancelled: event.isCancelled || cancelledDates.has(event.date),
+          })),
+        cancelledDates: [...cancelledDates].filter((day) => day >= start && day <= end),
         tbdPatterns: [],
       }
     }
@@ -101,11 +112,33 @@ async function openCalendar(page: Page, canManage: boolean) {
       event!.isCancelled = update.cancelled
       data = update
     }
+    if (url.pathname === '/api/admin/scheduling/calendar/day') {
+      expect(request.method()).toBe('PUT')
+      const update = request.postDataJSON() as typeof dayUpdates[number]
+      dayUpdates.push(update)
+      if (failNextUpdate) {
+        failNextUpdate = false
+        return route.fulfill({ status: 409, json: { success: false, message: 'Could not update the day. Try again.' } })
+      }
+      if (update.cancelled) cancelledDates.add(update.date)
+      else cancelledDates.delete(update.date)
+      data = update
+    }
     await route.fulfill({ json: { success: true, data } })
   })
   await page.goto('/')
   await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Calendar', exact: true }).click()
-  return { updates, failNextUpdate: () => { failNextUpdate = true } }
+  return {
+    updates,
+    dayUpdates,
+    calendarReads: () => calendarReads,
+    failNextUpdate: () => { failNextUpdate = true },
+    cancelSeparately: (slotId: number, sessionDate: string) => {
+      const event = events.find((item) => item.date === sessionDate && item.timeSlotId === slotId)
+      if (!event) throw new Error('No matching fixture event')
+      event.isCancelled = true
+    },
+  }
 }
 
 test('calendar cancels and restores an individual regular or trial session by date', async ({ page }) => {
@@ -156,10 +189,72 @@ test('calendar cancels and restores an individual regular or trial session by da
 })
 
 test('staff with calendar view access can inspect session status', async ({ page }) => {
-  const { updates } = await openCalendar(page, false)
+  const { updates } = await openCalendar(page, false, [followingWeek])
+  await expect(page.getByText('Day cancelled', { exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: /(?:Cancel|Restore) full day/ })).toHaveCount(0)
   await page.getByRole('button', { name: /Tumbling, November 16, 2026/ }).click()
   const dialog = page.getByRole('dialog', { name: activeClassName })
   await expect(dialog.getByRole('status')).toHaveText('Scheduled')
   await expect(dialog.getByRole('button')).toHaveCount(1)
   expect(updates).toHaveLength(0)
+})
+
+test('full-day cancellation stops regular classes and trials and reloads separate cancellations when restored', async ({ page }) => {
+  const { dayUpdates, calendarReads, cancelSeparately, failNextUpdate } = await openCalendar(page, true)
+  const firstClass = page.getByRole('button', { name: /Tumbling, November 16, 2026/ })
+  const trialSession = page.getByRole('button', { name: /Trial skills assessment, November 16, 2026/ })
+  const laterClass = page.getByRole('button', { name: /Tumbling, November 23, 2026/ })
+  const closeDate = page.getByRole('button', { name: 'Cancel full day for November 16, 2026', exact: true })
+  const restoreDate = page.getByRole('button', { name: 'Restore full day for November 16, 2026', exact: true })
+
+  await closeDate.click()
+  let dialog = page.getByRole('dialog', { name: 'Cancel full day' })
+  await expect(dialog.getByText('Monday, November 16, 2026', { exact: true })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Go back', exact: true }).click()
+  expect(dayUpdates).toEqual([])
+  await expect(trialSession).not.toHaveAccessibleName(/Cancelled/)
+  cancelSeparately(32, date)
+
+  const readsBeforeCancellation = calendarReads()
+  await closeDate.click()
+  failNextUpdate()
+  await dialog.getByRole('button', { name: 'Cancel full day', exact: true }).click()
+  await expect(dialog.getByRole('alert')).toHaveText('Could not update the day. Try again.')
+  await dialog.getByRole('button', { name: 'Cancel full day', exact: true }).click()
+  await expect(restoreDate).toBeVisible()
+  expect(calendarReads()).toBeGreaterThan(readsBeforeCancellation)
+  await expect(firstClass).toHaveAccessibleName(/Cancelled/)
+  await expect(trialSession).toHaveAccessibleName(/Cancelled/)
+  await expect(laterClass).not.toHaveAccessibleName(/Cancelled/)
+
+  await firstClass.click()
+  const session = page.getByRole('dialog', { name: activeClassName })
+  await expect(session.getByText('Full day cancelled', { exact: true })).toBeVisible()
+  await expect(session.getByRole('button', { name: 'Restore class' })).toHaveCount(0)
+  await session.getByRole('button', { name: 'Close', exact: true }).click()
+
+  const readsBeforeRestore = calendarReads()
+  await restoreDate.click()
+  dialog = page.getByRole('dialog', { name: 'Restore full day' })
+  await dialog.getByRole('button', { name: 'Restore full day', exact: true }).click()
+  await expect(closeDate).toBeVisible()
+  expect(calendarReads()).toBeGreaterThan(readsBeforeRestore)
+  await expect(firstClass).not.toHaveAccessibleName(/Cancelled/)
+  await expect(trialSession).toHaveAccessibleName(/Cancelled/)
+  expect(dayUpdates).toEqual([{ date, cancelled: true }, { date, cancelled: true }, { date, cancelled: false }])
+})
+
+test('an empty date can be cancelled in Week and restored in Day view', async ({ page }) => {
+  const { dayUpdates } = await openCalendar(page, true)
+  await page.getByRole('button', { name: 'week', exact: true }).click()
+  await page.getByRole('button', { name: 'Cancel full day for November 17, 2026', exact: true }).click()
+  await page.getByRole('dialog', { name: 'Cancel full day' }).getByRole('button', { name: 'Cancel full day', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Restore full day for November 17, 2026', exact: true })).toBeVisible()
+  await page.getByRole('button', { name: 'day', exact: true }).click()
+  await page.getByRole('button', { name: 'Next period', exact: true }).click()
+  await page.getByRole('button', { name: 'Restore full day', exact: true }).click()
+  await expect(page.getByRole('dialog', { name: 'Restore full day' }).getByText('Tuesday, November 17, 2026', { exact: true })).toBeVisible()
+  await page.getByRole('dialog', { name: 'Restore full day' }).getByRole('button', { name: 'Restore full day', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Cancel full day', exact: true })).toBeVisible()
+  expect(dayUpdates).toEqual([{ date: '2026-11-17', cancelled: true }, { date: '2026-11-17', cancelled: false }])
 })

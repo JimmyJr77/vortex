@@ -1,13 +1,15 @@
 import { expandCalendarRange } from './calendarExpansion.js'
+import { listSchedulingDayCancellations, lockSchedulingDay } from './dayCancellation.js'
 import { scheduleCountsSql } from './scheduleCapacity.js'
 
 function formatDateOnly(value) {
   if (value == null || value === '') return null
   const s = String(value).trim()
-  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s
   const d = new Date(s)
   if (Number.isNaN(d.getTime())) return null
-  return d.toISOString().slice(0, 10)
+  const date = d.toISOString().slice(0, 10)
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date.startsWith('0000-')) return null
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && s !== date ? null : date
 }
 
 export function parseCalendarDateRange(query) {
@@ -54,9 +56,15 @@ export function parseCalendarDateRange(query) {
  * }} options
  */
 export async function loadSchedulingCalendar(pool, options) {
+  // Use the same recorded dates for the date headers and their sessions.
+  // The date header must still be present when event filters hide every slot.
+  const cancelledDates = options.includeCancelled && options.facilityId != null
+    ? await listSchedulingDayCancellations(pool, options.facilityId, options.startDate, options.endDate)
+    : null
   const rows = await loadSchedulingCalendarRows(pool, options)
-  const calendar = expandCalendarRange({ startDate: options.startDate, endDate: options.endDate, rows })
+  const calendar = expandCalendarRange({ startDate: options.startDate, endDate: options.endDate, rows, dayCancelledDates: cancelledDates })
   if (!options.includeCancelled) calendar.events = calendar.events.filter(event => !event.isCancelled)
+  if (cancelledDates) calendar.cancelledDates = cancelledDates
   return calendar
 }
 
@@ -150,6 +158,9 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
       ARRAY(SELECT cancellation.occurrence_date::text
               FROM scheduling_occurrence_cancellation cancellation
              WHERE cancellation.time_slot_id = ts.id) AS cancelled_dates,
+      ARRAY(SELECT cancellation.occurrence_date::text
+              FROM scheduling_day_cancellation cancellation
+             WHERE cancellation.facility_id = p.facility_id) AS day_cancelled_dates,
       ${scheduleCountsSql('sg.id')}
     FROM scheduling_time_slot ts
     JOIN scheduling_slot_group sg ON sg.id = ts.slot_group_id
@@ -170,6 +181,7 @@ export async function setSchedulingOccurrenceCancellation(pool, { facilityId, sl
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+    await lockSchedulingDay(client, facilityId, date, { shared: true })
     // Booking and recurring schedule edits take the same group lock before
     // reading dated availability or editing its slots.
     const { rows: [group] } = await client.query(`
@@ -199,6 +211,9 @@ export async function setSchedulingOccurrenceCancellation(pool, { facilityId, sl
     if (!occurrence) {
       await client.query('ROLLBACK')
       return null
+    }
+    if (occurrence.isCancelledByDay) {
+      throw Object.assign(new Error('Restore classes for this day before changing an individual session.'), { statusCode: 409 })
     }
 
     if (cancelled) {

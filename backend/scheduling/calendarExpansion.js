@@ -59,7 +59,7 @@ function getWeekLetterForDate(dateStr, anchorStr, weekLetters) {
   return sorted[idx]
 }
 
-function mapRowToContext(row, offeringById = null) {
+function mapRowToContext(row, offeringById, dayCancelledDates) {
   const form = {
     start_date: row.form_start_date,
     end_date: row.form_end_date,
@@ -118,6 +118,7 @@ function mapRowToContext(row, offeringById = null) {
     slotGroupActive: Boolean(row.sg_is_active),
     slotActive: Boolean(row.is_active),
     cancelledDates: new Set(row.cancelled_dates),
+    dayCancelledDates: dayCancelledDates ?? new Set(row.day_cancelled_dates),
     scheduleMode: row.schedule_mode || 'day',
     weekLetter: row.week_letter || null,
     dayOfWeek: row.day_of_week,
@@ -141,6 +142,8 @@ function buildTbdKey(ctx) {
 }
 
 function buildEventPayload(ctx, date, weekLetter) {
+  const isCancelledByDay = ctx.dayCancelledDates.has(date)
+  const isIndividuallyCancelled = ctx.cancelledDates.has(date)
   return {
     id: buildEventKey(ctx, date),
     date,
@@ -168,7 +171,9 @@ function buildEventPayload(ctx, date, weekLetter) {
     enrollVisible: ctx.enrollVisible,
     classActive: ctx.classActive,
     isTrialAssessment: ctx.isTrialAssessment,
-    isCancelled: ctx.cancelledDates.has(date),
+    isCancelled: isCancelledByDay || isIndividuallyCancelled,
+    isCancelledByDay,
+    isIndividuallyCancelled,
     slotGroupActive: ctx.slotGroupActive,
     slotActive: ctx.slotActive,
     weekLetter: weekLetter ?? null,
@@ -210,9 +215,10 @@ function buildTbdPayload(ctx) {
 /**
  * Expand flat DB rows into calendar events for a date range (inclusive).
  */
-export function expandCalendarRange({ startDate, endDate, rows }) {
+export function expandCalendarRange({ startDate, endDate, rows, dayCancelledDates = null }) {
   const offeringById = buildOfferingByIdFromRows(rows)
-  const contexts = rows.map((row) => mapRowToContext(row, offeringById))
+  const sharedDayCancelledDates = dayCancelledDates ? new Set(dayCancelledDates) : null
+  const contexts = rows.map((row) => mapRowToContext(row, offeringById, sharedDayCancelledDates))
   const weekLettersByGroup = new Map()
   for (const ctx of contexts) {
     if (!weekLettersByGroup.has(ctx.slotGroupId)) {

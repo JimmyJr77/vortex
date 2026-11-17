@@ -19,7 +19,10 @@ export const DROP_IN_CALENDAR_COLUMNS = `
   offering.start_date AS calendar_offering_start, offering.end_date AS calendar_offering_end,
   ARRAY(SELECT cancelled.occurrence_date::text
           FROM scheduling_occurrence_cancellation cancelled
-         WHERE cancelled.time_slot_id = ts.id) AS calendar_cancelled_dates`
+         WHERE cancelled.time_slot_id = ts.id) AS calendar_cancelled_dates,
+  ARRAY(SELECT cancelled.occurrence_date::text
+          FROM scheduling_day_cancellation cancelled
+         WHERE cancelled.facility_id = p.facility_id) AS calendar_day_cancelled_dates`
 
 /** A booking identifies a group/date, so every available slot must allow the requested booking type. */
 export function dropInOccurrences(rows, startDate, endDate = startDate) {
@@ -39,6 +42,7 @@ export function dropInOccurrences(rows, startDate, endDate = startDate) {
     form_start_date: row.calendar_form_start, form_end_date: row.calendar_form_end,
     is_active: row.calendar_slot_active, sg_is_active: true, form_is_active: true, class_is_active: true,
     cancelled_dates: row.calendar_cancelled_dates,
+    day_cancelled_dates: row.calendar_day_cancelled_dates,
   }))
   const { events } = expandCalendarRange({ startDate, endDate, rows: calendarRows })
   const active = events.filter(event => event.slotActive).map(event => {

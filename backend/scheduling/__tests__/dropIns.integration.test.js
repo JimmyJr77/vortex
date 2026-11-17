@@ -7,6 +7,7 @@ import {
   resolveDropInOutcome,
 } from '../dropIns.js'
 import { finalizePendingDropIn } from '../../platform/familySignup.js'
+import { checkoutDropIn } from '../dropInCheckout.js'
 
 test('requested drop-in date must satisfy occurrence rule and effective date window', () => {
   const weekly = {
@@ -184,6 +185,7 @@ test('pending guest bookings recheck the date and booking type after account sig
   const date = '2026-07-21'
   for (const [slot, benefitType, error] of [
     [pendingDropInSlot(date, { calendar_cancelled_dates: [date] }), 'paid', /canceled for that date/],
+    [pendingDropInSlot(date, { calendar_day_cancelled_dates: [date] }), 'paid', /canceled for that date/],
     [pendingDropInSlot(date, { excluded_from_drop_ins: true }), 'paid', /no longer available for drop-ins/],
     [pendingDropInSlot(date, { allows_free_trial: false }), 'free_trial', /Free trials are not available/],
   ]) {
@@ -203,6 +205,25 @@ test('pending guest bookings recheck the date and booking type after account sig
       createdMembers: [{ member: { id: 12, family_id: 4, facility_id: 1, first_name: 'Jordan', last_name: 'Lee' } }],
     }), error)
   }
+})
+
+test('an unpaid drop-in cannot start checkout after the facility cancels that day', async () => {
+  const date = '2026-07-21'
+  const db = { async query(sql) {
+    if (sql.includes('pg_advisory_lock') || sql.includes('pg_advisory_unlock')) return { rows: [] }
+    if (sql.includes('SELECT charge.*, booking.status')) return { rows: [{
+      booking_status: 'payment_pending', id: 67, slot_group_id: 20, class_date: date, upcoming: true,
+    }] }
+    if (sql.includes('UPDATE drop_in_registration booking')) return { rows: [] }
+    if (sql.includes('FROM scheduling_slot_group sg')) return { rows: [
+      pendingDropInSlot(date, { calendar_day_cancelled_dates: [date] }),
+    ] }
+    assert.fail('Unpaid checkout must stop before creating any payment attempt.')
+  } }
+  await assert.rejects(checkoutDropIn(db, { account: { id: 4 }, dropInId: 60 }), {
+    statusCode: 409,
+    message: /canceled for that date/,
+  })
 })
 
 test('pending drop-in cannot be confirmed for an adult whose own waivers were not signed', async () => {

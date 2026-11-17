@@ -4,6 +4,7 @@ import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
 import { calculateDropInPrice } from '../shared/dropInPricing.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
+import { lockSchedulingDay } from './dayCancellation.js'
 
 const DEFAULT_TIME_ZONE = 'America/New_York'
 const TRIAL_PROGRAMS = new Set(['gymnastics', 'fit-flip'])
@@ -170,6 +171,7 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
     WHERE member_id = $1 AND benefit_type = 'free_trial' AND status = 'account_required' AND expires_at <= now()`, [memberId])
 
   // Use a fresh snapshot after any concurrent cancellation or eligibility edit.
+  await lockSchedulingDay(client, facilityId, selection.classDate, { shared: true })
   await client.query(`SELECT sg.id FROM scheduling_slot_group sg
     JOIN scheduling_form sf ON sf.id=sg.form_id
     JOIN program p ON p.id=sf.program_id

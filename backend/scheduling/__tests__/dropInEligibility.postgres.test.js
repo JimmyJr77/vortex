@@ -46,6 +46,7 @@ test('drop-in readers honor program, class and individual schedule eligibility w
     for (const migration of [
       '848_class_owned_pricing.sql', '858_enrollment_catalog_order.sql', '860_trial_assessment_booking_policy.sql',
       '863_class_schedule_drop_in_overrides.sql', '872_scheduling_occurrence_cancellations.sql', '873_schedule_free_trial_overrides.sql',
+      '874_scheduling_day_cancellations.sql',
     ]) {
       await db.query(await fs.readFile(new URL(`../../migrations/${migration}`, import.meta.url), 'utf8'))
     }
@@ -115,6 +116,23 @@ test('drop-in readers honor program, class and individual schedule eligibility w
     await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: groupId, classDate: dates.allowed }, trialContext), /no longer available/)
     assert.equal(Number((await one('SELECT count(*) FROM drop_in_registration WHERE slot_group_id=$1', [groupId])).count), 0)
     await db.query('DELETE FROM scheduling_occurrence_cancellation WHERE time_slot_id=$1 AND occurrence_date=$2', [allowedSlot, dates.allowed])
+    assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId).map(row => row.date), [dates.allowed])
+    assert.deepEqual(await trialDates(), [dates.allowed])
+
+    const otherFacilityId = Number((await one("INSERT INTO facility(name,timezone) VALUES('Other drop-in facility','America/New_York') RETURNING id")).id)
+    const closeDay = (id) => db.query('INSERT INTO scheduling_day_cancellation (facility_id, occurrence_date) VALUES ($1,$2)', [id, dates.allowed])
+    await closeDay(otherFacilityId)
+    assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId).map(row => row.date), [dates.allowed])
+    assert.deepEqual(await trialDates(), [dates.allowed])
+    await closeDay(facilityId)
+    assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId), [])
+    assert.deepEqual(await trialDates(), [])
+    const closedDay = await request('post', '/api/public/drop-ins/register', { ...guest, classDate: dates.allowed })
+    assert.equal(closedDay.status, 409, closedDay.message)
+    assert.match(closedDay.message, /canceled for that date/)
+    await assert.rejects(bookMemberFreeTrial(db, { program: 'fit-flip', slotGroupId: groupId, classDate: dates.allowed }, trialContext), /no longer available/)
+    assert.equal(Number((await one('SELECT count(*) FROM drop_in_registration WHERE slot_group_id=$1', [groupId])).count), 0)
+    await db.query('DELETE FROM scheduling_day_cancellation WHERE facility_id=$1 AND occurrence_date=$2', [facilityId, dates.allowed])
     assert.deepEqual((await catalog()).sessions.filter(row => row.classId === classId).map(row => row.date), [dates.allowed])
     assert.deepEqual(await trialDates(), [dates.allowed])
 

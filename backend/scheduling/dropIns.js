@@ -14,6 +14,7 @@ import { normalizePhoneNumber, normalizeUpdatedPhoneNumber } from '../phoneNumbe
 import { registerFreeTrialCatalogRoutes } from './freeTrials.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
+import { lockSchedulingDay } from './dayCancellation.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -713,8 +714,18 @@ export function registerDropInRoutes(app, pool) {
       }
       if (member && memberId != null) await assertCurrentMemberWaivers(client, Number(member.id), member.facility_id)
       const benefits = await memberBenefits(client, member)
-      // Date cancellations and eligibility edits lock the same group. Read
-      // again after acquiring the lock to see any committed change.
+      const { rows: [scope] } = await client.query(`
+        SELECT p.facility_id
+        FROM scheduling_slot_group sg
+        JOIN scheduling_form sf ON sf.id = sg.form_id
+        JOIN program p ON p.id = sf.program_id
+        WHERE sg.id = $1`, [slotGroupId])
+      if (scope?.facility_id == null) {
+        await client.query('ROLLBACK')
+        return res.status(404).json({ success: false, message: 'Class not found.' })
+      }
+      // Read availability after taking the facility/date and group locks.
+      await lockSchedulingDay(client, scope.facility_id, classDate, { shared: true })
       await client.query('SELECT id FROM scheduling_slot_group WHERE id=$1 FOR UPDATE', [slotGroupId])
       const slot = await client.query(`
         SELECT ${DROP_IN_CALENDAR_COLUMNS}, sg.id, sg.form_id, sg.max_participants, sg.offering_id, sf.title,

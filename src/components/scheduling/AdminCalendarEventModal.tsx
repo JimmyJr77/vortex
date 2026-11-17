@@ -141,6 +141,9 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
                 </span>
               }
             />
+            {event.isCancelledByDay && (
+              <DetailRow label="Day status" value="Full day cancelled" />
+            )}
             <DetailRow
               label="Class status"
               value={
@@ -243,7 +246,7 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
             </div>
           )}
         </div>
-        {canManage && (
+        {canManage && !event.isCancelledByDay && (
           <div className="portal-dialog-footer shrink-0 space-y-3 border-t border-gray-200 px-6 py-4">
             {confirmCancel && (
               <p className="text-sm text-gray-700">

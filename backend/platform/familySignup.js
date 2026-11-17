@@ -7,6 +7,7 @@ import { loadCanonicalAccessContext, resolveCanonicalTokenUserId } from './acces
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { bookMemberFreeTrial, validateTrialSelection } from '../scheduling/freeTrials.js'
 import { loadDropInDateAvailability } from '../scheduling/dropInOccurrences.js'
+import { lockSchedulingDay } from '../scheduling/dayCancellation.js'
 import { normalizeLoginPhone, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
 import { normalizeOptionalPhoneNumber, normalizePhoneNumber, normalizeUpdatedPhoneNumber, PHONE_FORMAT_ERROR } from '../phoneNumbers.js'
 import { sendAccountInviteEmail, sendInviteSignupCompleteEmail } from '../email/accountInviteEmail.js'
@@ -1161,8 +1162,10 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
 
   const memberId = Number(match.member.id)
   await assertCurrentMemberWaivers(client, memberId, match.member.facility_id)
+  const classDate = formatDateOnly(row.class_date)
+  await lockSchedulingDay(client, row.class_facility_id, classDate, { shared: true })
   await client.query('SELECT id FROM scheduling_slot_group WHERE id = $1 FOR UPDATE', [row.slot_group_id])
-  const availability = await loadDropInDateAvailability(client, row.slot_group_id, formatDateOnly(row.class_date))
+  const availability = await loadDropInDateAvailability(client, row.slot_group_id, classDate)
   if (availability.cancelled) {
     throw Object.assign(new Error('This class has been canceled for that date. Please choose another date.'), { statusCode: 409 })
   }
@@ -1195,7 +1198,7 @@ export async function finalizePendingDropIn(client, pendingDropInId, { primaryEm
           service_period_start, service_period_end)
        VALUES ($1,$2,'drop_in',$3,$4,$5,$6,$7,'one_time','one_time',$8,$8)
        ON CONFLICT (source_type, source_id) WHERE source_id IS NOT NULL DO NOTHING`,
-      [account.rows[0].id, memberId, String(row.id), `${row.title} drop-in — ${formatDateOnly(row.class_date)}`, amountCents, baseCents, Math.max(0, baseCents - amountCents), formatDateOnly(row.class_date)],
+      [account.rows[0].id, memberId, String(row.id), `${row.title} drop-in — ${classDate}`, amountCents, baseCents, Math.max(0, baseCents - amountCents), classDate],
     )
   }
   return { id: Number(row.id), memberId, status, benefitType: row.benefit_type }
