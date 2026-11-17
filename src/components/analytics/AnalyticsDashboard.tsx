@@ -22,6 +22,7 @@ import {
   Target,
 } from 'lucide-react'
 import DateRangeFilter from './DateRangeFilter'
+import AcquisitionReport from './AcquisitionReport'
 import SearchConsoleTopics from './SearchConsoleTopics'
 import { EngagementReport, FunnelReport, TrafficReport } from './WebsiteReports'
 import {
@@ -30,6 +31,7 @@ import {
   type DatePreset,
   fetchOverview,
   fetchTraffic,
+  fetchAcquisition,
   fetchEngagement,
   fetchFunnel,
   fetchPrograms,
@@ -45,6 +47,7 @@ import {
   createMarketingCampaign,
   type OverviewData,
   type TrafficData,
+  type AcquisitionData,
   type EngagementData,
   type FunnelData,
   type ProgramsData,
@@ -58,6 +61,7 @@ import {
 type TabId =
   | 'overview'
   | 'traffic'
+  | 'acquisition'
   | 'engagement'
   | 'funnel'
   | 'programs'
@@ -69,6 +73,7 @@ type TabId =
 const TABS: { id: TabId; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'traffic', label: 'Traffic & Acquisition' },
+  { id: 'acquisition', label: 'Lead & purchase sources' },
   { id: 'engagement', label: 'Engagement & Speed' },
   { id: 'funnel', label: 'Website Funnels' },
   { id: 'programs', label: 'Programs & Capacity' },
@@ -131,6 +136,7 @@ export default function AnalyticsDashboard() {
 
   const [overview, setOverview] = useState<OverviewData | null>(null)
   const [traffic, setTraffic] = useState<TrafficData | null>(null)
+  const [acquisition, setAcquisition] = useState<AcquisitionData | null>(null)
   const [engagement, setEngagement] = useState<EngagementData | null>(null)
   const [funnel, setFunnel] = useState<FunnelData | null>(null)
   const [programs, setPrograms] = useState<ProgramsData | null>(null)
@@ -164,6 +170,9 @@ export default function AnalyticsDashboard() {
           break
         case 'traffic':
           commit(setTraffic, await fetchTraffic(query))
+          break
+        case 'acquisition':
+          commit(setAcquisition, await fetchAcquisition(query))
           break
         case 'engagement':
           commit(setEngagement, await fetchEngagement(query))
@@ -402,6 +411,7 @@ export default function AnalyticsDashboard() {
       )}
 
       {reportReady && tab === 'traffic' && traffic && <TrafficReport data={traffic} />}
+      {reportReady && tab === 'acquisition' && <AcquisitionReport data={acquisition} />}
       {reportReady && tab === 'engagement' && engagement && <EngagementReport data={engagement} />}
       {reportReady && tab === 'funnel' && funnel && <FunnelReport data={funnel} />}
 

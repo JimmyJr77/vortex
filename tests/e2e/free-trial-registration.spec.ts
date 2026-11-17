@@ -81,7 +81,7 @@ async function signTestWaivers(page: Page) {
 test('mobile new-family trial requires waivers and registers the child without checkout', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const submitted = await mockTrialApi(page)
-  await page.goto('/fit-and-flip')
+  await page.goto('/fit-and-flip?utm_source=google&utm_medium=cpc&utm_campaign=fit_flip&gclid=private-test-token')
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await page.getByRole('checkbox', { name: /^Analytics/ }).check()
   await page.getByRole('button', { name: 'Save preferences' }).click()
@@ -100,6 +100,7 @@ test('mobile new-family trial requires waivers and registers the child without c
   await expect(page.getByRole('heading', { name: 'You’re in. Let’s get moving.' })).toBeVisible()
   await expect(page.getByText('Tuesday, January 12, 2027', { exact: true })).toBeVisible()
   const signup = submitted.find(item => item.path === '/api/signup/family')!
+  expect(signup.body.acquisition).toEqual({ source: 'google', medium: 'cpc', campaign: 'fit_flip', landingPath: '/fit-and-flip' })
   expect(signup.body.freeTrial).toEqual({ program: 'fit-flip', age: 10, slotGroupId: 200, classDate: '2027-01-12', memberIndex: 1 })
   expect(signup.body.enrollments).toEqual([])
   expect(signup.body.additionalMembers).toHaveLength(1)
@@ -133,6 +134,7 @@ test('existing guardian signs for an authorized child and receives the zero-doll
     memberId: 102, program: 'fit-flip', slotGroupId: 200, classDate: '2027-01-12',
     waivers: { acceptedTemplateIds: [11, 12], signatureName: 'Test Parent', paymentPolicyAcknowledged: true },
   })
+  expect(submitted.find(item => item.path === '/api/members/free-trials/register')?.body).not.toHaveProperty('acquisition')
   expect(submitted.filter(item => /billing|checkout|stripe/.test(item.path))).toEqual([])
 })
 

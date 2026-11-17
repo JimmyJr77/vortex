@@ -1,7 +1,5 @@
 import { trackEvent } from '../../utils/analyticsClient'
-import { getActiveConsent } from '../../utils/consent'
-import { getSessionId, getVisitorId, isStaffSession } from '../../utils/visitorId'
-import { getAttributionPayload } from '../../utils/utmCapture'
+import { getInquiryAttributionPayload } from '../../utils/businessAcquisition'
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { ArrowRight, Check, LoaderCircle } from 'lucide-react'
 import { TEAM_EMAIL } from '../../config/contact'
@@ -85,7 +83,6 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
       const interests = INQUIRY_INTERESTS.filter((interest) => selectedProgram === 'gymnastics'
         ? interest === 'Gymnastics'
         : selectedProgram === 'fit-flip' && interest !== 'Gymnastics')
-      const allowAnalytics = getActiveConsent().analytics && !isStaffSession()
       const payload = {
         firstName,
         lastName,
@@ -95,11 +92,7 @@ export default function NewPageInquiry({ program, onDone }: NewPageInquiryProps)
         newsletter: false,
         ...(interests.length ? { interests } : {}),
         inquirySource: '/',
-        ...(allowAnalytics ? {
-          ...getAttributionPayload(),
-          visitorId: getVisitorId(true),
-          sessionId: getSessionId(true),
-        } : {}),
+        ...getInquiryAttributionPayload(),
         message: `Program interest: ${programLabels[selectedProgram]}${message ? `\n\n${message}` : ''}`,
       }
       const capabilities = await getRegistrationApiCapabilities()

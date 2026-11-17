@@ -1,4 +1,5 @@
 import { adminApiRequest, getApiUrl } from './api'
+import { getBusinessAcquisition } from './businessAcquisition'
 import { dateInputValue } from './dateUtils'
 import { ENROLL_PATH, type EnrollSiteKey } from '../config/enrollSites'
 import {
@@ -1348,7 +1349,7 @@ export async function createEnrollmentCheckoutSession(
       Authorization: `Bearer ${memberToken}`,
       'Idempotency-Key': requestKey,
     },
-    body: JSON.stringify(requestPayload),
+    body: JSON.stringify({ ...requestPayload, acquisition: getBusinessAcquisition() }),
   })
   return parseJson<{
     url?: string

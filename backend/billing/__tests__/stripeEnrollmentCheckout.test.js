@@ -244,6 +244,7 @@ function enrollmentCheckoutCreationHarness({
         }
         return { rows: [{ ...state.pending }] }
       }
+      if (/INSERT INTO business_acquisition/.test(text)) return { rows: [], rowCount: 1 }
       if (/UPDATE stripe_pending_enrollment/.test(text) && /expires_at = to_timestamp/.test(text)) {
         state.pending = {
           ...state.pending,
@@ -2211,16 +2212,24 @@ test('family checkout rejects an incomplete per-child pricing snapshot', async (
 test('a multi-child order creates one Stripe session and replays that same payment', async () => {
   const { pool, stripe, state, options, preview } = enrollmentCheckoutCreationHarness()
   options.batchPayload.familyBatches = [62,63].map(memberId => ({memberId,payload:{signups:[]}}))
+  options.acquisition = { source: 'google', medium: 'cpc', campaign: 'gymnastics', landingPath: '/gymnastics' }
   preview.familyOrders = [62,63].map(memberId => ({memberId,preview:{}}))
   preview.firstMonth.items = [
     {...preview.firstMonth.items[0],displayLine:'First child · Gymnastics',proratedCents:400},
     {...preview.firstMonth.items[0],displayLine:'Second child · Gymnastics',proratedCents:600},
   ]
   const first = await createAndBindEnrollmentCheckoutSession(pool,stripe,options)
-  const replay = await createAndBindEnrollmentCheckoutSession(pool,stripe,options)
+  const replay = await createAndBindEnrollmentCheckoutSession(pool,stripe,{
+    ...options, acquisition: { source: 'yelp', medium: 'cpc', campaign: 'other' },
+  })
   assert.equal(first.session.id,replay.session.id)
   assert.equal(state.createCalls,1)
   assert.equal(state.pending.payload.familyBatches.length,2)
   assert.equal(state.pending.due_now_cents,6000)
   assert.deepEqual(state.sessions[0].params.line_items.map(line=>line.price_data.unit_amount),[400,600,5000])
+  const captures = state.queries.filter(({ text }) => text.includes('INSERT INTO business_acquisition'))
+  assert.deepEqual(captures.map(({ params }) => params), [['enrollment_checkout', '44', 'google', 'cpc', 'gymnastics', null, '/gymnastics']])
+  assert.ok(state.queries.indexOf(captures[0]) > state.queries.findIndex(({ text }) => text === 'COMMIT'))
+  assert.equal(state.pending.payload.acquisition, undefined)
+  assert.equal(state.sessions[0].params.metadata.acquisition, undefined)
 })

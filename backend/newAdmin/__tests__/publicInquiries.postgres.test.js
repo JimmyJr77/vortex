@@ -32,6 +32,7 @@ test('public inquiry intake accepts repeat addresses and preserves archived inqu
     await db.query(await readFile(new URL('../../migrations/841_new_admin.sql', import.meta.url), 'utf8'))
     await db.query(await readFile(new URL('../../migrations/855_repeat_public_inquiries.sql', import.meta.url), 'utf8'))
     await db.query(await readFile(new URL('../../migrations/857_admin_lead_submission.sql', import.meta.url), 'utf8'))
+    await db.query(await readFile(new URL('../../migrations/875_business_acquisition.sql', import.meta.url), 'utf8'))
     await db.query('INSERT INTO new_admin_public_lead_facility(facility_id) VALUES(1)')
 
     let handle
@@ -45,12 +46,15 @@ test('public inquiry intake accepts repeat addresses and preserves archived inqu
 
     const returning = { firstName: 'Returning', lastName: 'Parent', email: 'returning@example.com' }
     const first = await submit({ ...returning, phone: '+1 (202) 555-0101', classTypes: ['Camps'], message: 'First follow-up',
+      acquisition: { source: 'google', medium: 'cpc', campaign: 'summer_camp', referrer: 'https://google.com/example?test=discard', landingPath: '/camp_interest' },
       campers: [{ firstName: 'Camper', dateOfBirth: '2014-01-22', gender: 'female' }], interests: ['Tumbling'], facilityId: 2, memberId: 1 })
     const second = await submit({ ...returning, message: 'Second follow-up' })
     assert.deepEqual([first.statusCode, second.statusCode], [200, 200])
     assert.deepEqual(Object.keys(first.data).sort(), ['id', 'message', 'success'])
     assert.notEqual(first.data.id, second.data.id)
     assert.deepEqual(attributionIds, [first.data.id, second.data.id])
+    const storedAcquisition = (await db.query('SELECT record_kind, record_id, source, medium, campaign, referrer_host, landing_path FROM business_acquisition')).rows
+    assert.deepEqual(storedAcquisition, [{ record_kind: 'inquiry', record_id: String(first.data.id), source: 'google', medium: 'cpc', campaign: 'summer_camp', referrer_host: 'google.com', landing_path: '/camp_interest' }])
     assert.equal((await submit({ ...returning, campers: [{ dateOfBirth: '2014-01-22', gender: 'female' }] })).statusCode, 400)
     assert.equal((await submit({ ...returning, phone: '2025550101', campers: [{ dateOfBirth: '2014-01-22' }] })).statusCode, 400)
     assert.equal((await submit({ ...returning, phone: '2025550101', campers: [{ gender: 'male' }] })).statusCode, 400)

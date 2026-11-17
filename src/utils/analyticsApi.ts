@@ -98,6 +98,29 @@ export interface TrafficData {
   sources: Array<SessionConversions & { channel: string; source: string; medium: string | null; campaign: string | null }>
 }
 
+export interface AcquisitionTotals {
+  inquiries: number
+  freeTrials: number
+  paidDropIns: number
+  paidClassCheckouts: number
+  storePurchases: number
+  revenueCents: number | null
+}
+
+export interface AcquisitionRow extends AcquisitionTotals {
+  channel: string
+  source: string
+  medium: string | null
+  campaign: string | null
+}
+
+export interface AcquisitionData {
+  canViewRevenue: boolean
+  rows: AcquisitionRow[]
+  totals: AcquisitionTotals
+  attributed: AcquisitionTotals
+}
+
 export interface EngagementData {
   pageViews: number
   timedViews: number
@@ -289,6 +312,20 @@ export const fetchOverview = (q: AnalyticsQuery) =>
   fetchJson<OverviewData>('/api/admin/analytics/overview', q)
 export const fetchTraffic = (q: AnalyticsQuery) =>
   fetchJson<TrafficData>('/api/admin/analytics/traffic', q)
+export async function fetchAcquisition({ from, to }: AnalyticsQuery): Promise<AcquisitionData | null> {
+  const response = await adminApiRequest(`/api/admin/analytics/acquisition${queryString({ from, to })}`)
+  if (response.status === 404) return null
+  const result = await response.json().catch(() => null)
+  const data: AcquisitionData | null | undefined = result?.data
+  if (!response.ok || result?.success !== true) {
+    throw new Error(result?.message || 'Could not load lead and purchase sources.')
+  }
+  if (data === null) return null
+  if (!data?.totals || !data.attributed || !Array.isArray(data.rows)) {
+    throw new Error('Could not load lead and purchase sources.')
+  }
+  return data
+}
 export const fetchEngagement = (q: AnalyticsQuery) =>
   fetchJson<EngagementData>('/api/admin/analytics/engagement', q)
 export const fetchFunnel = (q: AnalyticsQuery) =>

@@ -3,6 +3,7 @@ import { phoneSearchPattern } from '../phoneNumbers.js'
 import { hasActiveAnnualMembershipSql } from '../scheduling/annualMembership.js'
 import { id, inputError, pagination, pageResult, searchValue } from './common.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
+import { inquiryAcquisition, inquiryAcquisitionJoin } from './leadInquiry.js'
 
 const SORT_COLUMNS = Object.freeze({
   id: 'id', name: 'lower(name)', firstName: 'lower(first_name)', lastName: 'lower(last_name)',
@@ -327,8 +328,9 @@ async function readInquiries(pool, facilityId, leadId, memberIds) {
     SELECT r.id, r.first_name, r.last_name, r.lead_status, r.message, r.admin_notes, r.created_at,
       r.campers, r.child_ages, r.athlete_age, r.interest, r.interests_array, r.class_types, r.submitter_role,
       r.inquiry_source, r.contacted, r.follow_up, ctx.today::text,
+      r.utm_source, r.utm_medium, r.utm_campaign, r.landing_page, to_jsonb(acquisition) AS acquisition_snapshot,
       COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NOT NULL AS member_inquiry
-    FROM registrations r JOIN ctx ON ctx.id = r.facility_id
+    FROM registrations r JOIN ctx ON ctx.id = r.facility_id ${inquiryAcquisitionJoin}
     ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
     WHERE r.id = $2 OR COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) = ANY($3::bigint[])
     ORDER BY r.created_at DESC NULLS LAST, r.id DESC LIMIT 25`, [facilityId, leadId, memberIds])).rows
@@ -373,7 +375,7 @@ export async function loadCrmDetail(pool, facilityId, kind, recordId, query = {}
       .filter(row => row.age == null ? row.dependent : row.age < 18).map(personDetails),
     inquiries: inquiries.map(row => ({ id: Number(row.id), firstName: row.first_name, lastName: row.last_name,
       status: row.lead_status ?? 'new', memberInquiry: row.member_inquiry, message: row.message, notes: row.admin_notes, createdAt: row.created_at,
-      source: row.inquiry_source, submitterRole: row.submitter_role, interest: row.interest, interests: row.interests_array,
+      source: row.inquiry_source, acquisition: inquiryAcquisition(row), submitterRole: row.submitter_role, interest: row.interest, interests: row.interests_array,
       classTypes: row.class_types, contacted: row.contacted, followUp: row.follow_up, children: leadChildren(row) })),
     address: individual?.address ?? null, gender: individual?.gender ?? null, username: individual?.username ?? staff?.rows[0]?.username ?? null }
 }

@@ -40,6 +40,7 @@ import {
 } from '../scheduling/slotSort.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 import { assertCurrentMemberWaivers } from './waiverCompletion.js'
+import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 
 const DEFAULT_FACILITY_TIME_ZONE = 'America/New_York'
 
@@ -1946,11 +1947,12 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
       }
       client = await pool.connect()
       await client.query('BEGIN')
-      const result = await processExistingFamilyFreeTrial(client, req.body, {
+      const { reused, ...result } = await processExistingFamilyFreeTrial(client, req.body, {
         signerMemberId: access.memberId, facilityId: access.facilityId,
         ipAddress: req.ip, userAgent: req.get('user-agent') ?? null,
       })
       await client.query('COMMIT')
+      if (!reused && req.body?.acquisition) await recordBusinessAcquisition(client, 'drop_in', result.id, req.body.acquisition)
       void sendDropInConfirmationNotifications(pool, result.id).catch(error => console.warn('[free-trials] confirmation failed:', error.message))
       return res.json({ success: true, data: result })
     } catch (error) {
@@ -1972,6 +1974,9 @@ export function registerFamilySignupRoutes(app, pool, { jwtSecret } = {}) {
         userAgent: req.get('user-agent') ?? null,
       })
       await client.query('COMMIT')
+      if (req.body?.freeTrial && result.completedDropIn?.id && !result.completedDropIn.reused && req.body.acquisition) {
+        await recordBusinessAcquisition(client, 'drop_in', result.completedDropIn.id, req.body.acquisition)
+      }
       void sendPostSignupNotifications(result)
       res.json({ success: true, data: result })
     } catch (error) {

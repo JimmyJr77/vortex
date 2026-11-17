@@ -1,17 +1,19 @@
 import { appendStaffNote } from '../notes/handlers.js'
 import { createPortalFamilyMember, initializeSignupBillingAccount, isAdultOnDate } from '../platform/familySignup.js'
 import { id, inputError, pagination, pageResult } from './common.js'
-import { inquiryInput } from './leadInquiry.js'
+import { inquiryAcquisition, inquiryAcquisitionJoin, inquiryInput } from './leadInquiry.js'
 import { leadFilters } from './leadFilters.js'
 import { loadAccountNotes } from './accountNotes.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
+import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
   return { id: Number(row.id), archived: row.archived === true, firstName: row.first_name, lastName: row.last_name,
     email: row.email, phone: row.phone, status: (row.converted_member_id || row.member_id) ? 'converted' : row.lead_status || 'new',
     contacted: Boolean(row.contacted), followUp: Boolean(row.follow_up), firstContactedAt: row.first_contacted_at ?? null,
+    acquisition: inquiryAcquisition(row),
     inquiry: { athleteAge: row.athlete_age, interests: row.interests_array ?? row.interests, interest: row.interest, classTypes: row.class_types, childAges: row.child_ages, campers: row.campers, submitterRole: row.submitter_role, source: row.inquiry_source, newsletter: row.newsletter_opt_in ?? null, submittedBy: row.submitted_by_name ? { userId: row.submitted_by_user_id == null ? null : Number(row.submitted_by_user_id), name: row.submitted_by_name } : null },
     invitation: row.invitation ?? null,
     notes: row.admin_notes || '', message: row.message || '', createdAt: row.created_at,
@@ -23,11 +25,11 @@ export async function listLeads(db, facilityId, query = {}) {
   const paging = pagination(query)
   const { where, values, join } = leadFilters(query, id(facilityId, 'facility'), LEAD_STATUSES)
   const [rows, count] = await Promise.all([
-    db.query(`SELECT r.*, inquiry_contact.member_id AS matched_member_id,
+    db.query(`SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot,
       (SELECT jsonb_build_object('id',ai.id,'username',ai.suggested_username,'expiresAt',ai.expires_at,
         'status',CASE WHEN ai.used_at IS NOT NULL THEN 'completed' WHEN ai.expires_at<=now() THEN 'expired' ELSE ai.delivery_status END)
         FROM account_invite ai WHERE ai.registration_id=r.id AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
-      FROM registrations r ${join} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
+      FROM registrations r ${inquiryAcquisitionJoin} ${join} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
       WHERE ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
     db.query(`SELECT COUNT(*)::int AS total FROM registrations r ${join} WHERE ${where}`, values),
   ])
@@ -69,6 +71,10 @@ export function leadInput(body, { partial = false, currentPhone } = {}) {
 
 export async function createLead(db, facilityId, body, { userId = null } = {}) {
   const input = leadInput(body)
+  const acquisitionSource = text(body.acquisitionSource, 'Acquisition source', 100)
+  if (acquisitionSource && !/^[a-z][a-z0-9 _.-]*$/i.test(acquisitionSource)) {
+    throw inputError('Acquisition source must start with a letter and use only letters, numbers, spaces, dashes, underscores or periods.')
+  }
   const facility = id(facilityId)
   let submittedBy = null
   if (userId != null) {
@@ -92,7 +98,11 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
     inquiry.interests ?? null,inquiry.interests?.join(', ') ?? null,inquiry.classTypes ?? null,JSON.stringify(inquiry.campers ?? []),
     inquiry.submitterRole ?? null,inquiry.source || 'admin_portal',inquiry.interest ?? null,inquiry.athleteAge ?? null,inquiry.childAges ?? null,
     submittedBy?.id ?? null,submittedBy?.name ?? null,inquiry.newsletter ?? false])
-  return leadRow(result.rows[0])
+  const row = result.rows[0]
+  if (acquisitionSource && await recordBusinessAcquisition(db, 'inquiry', row.id, { source: acquisitionSource, medium: 'self_reported' })) {
+    row.acquisition_snapshot = { source: acquisitionSource, medium: 'self_reported', campaign: null, referrer_host: null, landing_path: null }
+  }
+  return leadRow(row)
 }
 
 export async function updateLead(db, facilityId, leadId, body, currentPhone) {
@@ -117,7 +127,8 @@ export async function updateLead(db, facilityId, leadId, body, currentPhone) {
     WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE RETURNING *),
     subscribed AS (INSERT INTO newsletter_subscribers(email)
       SELECT email FROM saved WHERE $${subscribeParameter}::boolean AND NULLIF(btrim(email),'') IS NOT NULL ON CONFLICT (email) DO NOTHING)
-    SELECT r.*, inquiry_contact.member_id AS matched_member_id FROM saved r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`, values)
+    SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot
+    FROM saved r ${inquiryAcquisitionJoin} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`, values)
   if (!result.rows[0]) throw inputError('Lead not found.',404)
   return leadRow(result.rows[0])
 }

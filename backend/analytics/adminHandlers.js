@@ -9,8 +9,10 @@ import {
 import { syncExternalAnalytics } from './syncExternal.js'
 import { getSearchConsoleProgramPages, getSearchConsoleTopics, isSearchConsoleConfigured } from './gscClient.js'
 import { getBusinessOutcomes } from './businessOutcomes.js'
+import { getBusinessAcquisitionReport } from './acquisitionReport.js'
 import { countWebsiteSessions, getWebsiteTraffic, getWebsiteEngagement, getWebsiteFunnel } from './websiteReports.js'
 import { publicPaths, sanitizeAnalyticsId, sanitizeAnalyticsPath, sanitizeCampaign, sanitizeHostname } from './eventContract.js'
+import { canonicalAdminPermission } from '../platform/canonicalAdminAuth.js'
 
 export function createAdminAnalyticsHandlers(pool) {
   const getOverview = async (req, res) => {
@@ -119,6 +121,23 @@ export function createAdminAnalyticsHandlers(pool) {
   const getTraffic = websiteReport(getWebsiteTraffic)
   const getEngagement = websiteReport(getWebsiteEngagement)
   const getFunnel = websiteReport(getWebsiteFunnel)
+
+  const getAcquisition = async (req, res) => {
+    try {
+      const range = parseDateRange(req.query)
+      if (!range) return res.status(400).json({ success: false, message: 'Invalid date range' })
+      const access = req.canonicalAccess
+      if (!access?.facilityId || !access.userId) {
+        return res.status(403).json({ success: false, message: 'Facility access required' })
+      }
+      const canViewRevenue = await canonicalAdminPermission(pool, access.userId, 'billing.view')
+      const data = await getBusinessAcquisitionReport(pool, range, access.facilityId, { canViewRevenue })
+      return res.json({ success: true, data })
+    } catch (error) {
+      console.error('[analytics acquisition]', error.message)
+      return res.status(500).json({ success: false, message: 'Could not load acquisition report' })
+    }
+  }
 
   const getPrograms = async (req, res) => {
     try {
@@ -624,6 +643,7 @@ export function createAdminAnalyticsHandlers(pool) {
   return {
     getOverview,
     getTraffic,
+    getAcquisition,
     getEngagement,
     getFunnel,
     getPrograms,

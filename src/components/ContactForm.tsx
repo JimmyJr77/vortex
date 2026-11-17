@@ -8,8 +8,7 @@ import {
   getRegistrationApiCapabilities,
 } from '../utils/registrationApi'
 import { TEAM_EMAIL, TEAM_PHONE } from '../config/contact'
-import { getAttributionPayload } from '../utils/utmCapture'
-import { getVisitorId, getSessionId } from '../utils/visitorId'
+import { getInquiryAttributionPayload } from '../utils/businessAcquisition'
 import { getActiveConsent } from '../utils/consent'
 import { trackEvent } from '../utils/analyticsClient'
 import { pushGtmEvent } from '../utils/googleAnalytics'
@@ -171,11 +170,7 @@ const ContactForm = ({
       if (formData.message) payload.message = formData.message
       if (inquirySource) payload.inquirySource = inquirySource
 
-      const consent = getActiveConsent()
-      const attribution = getAttributionPayload()
-      payload.visitorId = getVisitorId(consent.analytics)
-      payload.sessionId = getSessionId(consent.analytics)
-      Object.assign(payload, attribution)
+      Object.assign(payload, getInquiryAttributionPayload())
 
       const capabilities = await getRegistrationApiCapabilities()
       const apiPayload = adaptRegistrationPayloadForApi(payload, capabilities.registrationInquiryOverhaul)

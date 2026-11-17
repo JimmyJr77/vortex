@@ -224,7 +224,7 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
       WHERE member_id = $1 AND benefit_type = 'free_trial' AND status <> 'cancelled' ORDER BY id`, [memberId],
   )).rows
   const same = previous.find(row => Number(row.slot_group_id) === selection.slotGroupId && formatDateOnly(row.class_date) === selection.classDate && ['confirmed', 'attended'].includes(row.status))
-  if (same && Number(same.amount_cents) === 0) return { id: Number(same.id), memberId: Number(memberId), status: 'confirmed', benefitType: 'free_trial', totalCents: 0, ...selection }
+  if (same && Number(same.amount_cents) === 0) return { id: Number(same.id), memberId: Number(memberId), status: 'confirmed', benefitType: 'free_trial', totalCents: 0, ...selection, reused: true }
   if (previous.length || Number(entitlement?.lifetime_trial_granted ?? 0) < 1) throw trialError('This athlete has already used their one-time free trial.', 409)
 
   const alreadyEnrolled = await client.query(

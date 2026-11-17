@@ -21,6 +21,7 @@ export function registerAnalyticsRoutes(app, pool) {
 
   app.get('/api/admin/analytics/overview', admin.getOverview)
   app.get('/api/admin/analytics/traffic', admin.getTraffic)
+  app.get('/api/admin/analytics/acquisition', admin.getAcquisition)
   app.get('/api/admin/analytics/engagement', admin.getEngagement)
   app.get('/api/admin/analytics/funnel', admin.getFunnel)
   app.get('/api/admin/analytics/programs', admin.getPrograms)

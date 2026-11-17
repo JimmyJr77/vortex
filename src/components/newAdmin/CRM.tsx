@@ -5,6 +5,8 @@ import { formatDateShort } from '../../utils/dateUtils'
 import MemberRecordActions from '../admin/MemberRecordActions'
 import { allowed, useRead, useSearch, type Access, type Page } from './api'
 import { button, cell, Dialog, Empty, ErrorNotice, input, Loading, Pager, Status } from './shared'
+import { AcquisitionDetails } from './LeadInquiry'
+import type { LeadAcquisition } from './leadTypes'
 
 const crmPath = '/api/admin/new-admin/crm'
 const unknown = '—'
@@ -71,6 +73,7 @@ interface Inquiry {
   notes: string | null
   createdAt: string | null
   source?: string | null
+  acquisition?: LeadAcquisition | null
   interest?: string | null
   interests?: string[]
   classTypes?: string[]
@@ -216,6 +219,7 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
                 {inquiry.contacted ? <span>Contacted</span> : null}
                 {inquiry.followUp ? <span className="font-medium text-amber-800">Follow-up needed</span> : null}
               </div>
+              {inquiry.acquisition ? <div className="text-slate-700"><span className="font-semibold">Acquisition source</span><AcquisitionDetails acquisition={inquiry.acquisition} /></div> : null}
               {interests ? <p className="break-words text-slate-700"><span className="font-semibold">Interests</span> · {interests}</p> : null}
               {inquiry.message ? <p className="whitespace-pre-wrap break-words text-slate-700">{inquiry.message}</p> : null}
               {inquiry.notes ? <p className="whitespace-pre-wrap break-words text-slate-600">{inquiry.notes}</p> : null}

@@ -11,7 +11,10 @@ test('the public inquiry form confirms success only after the server saves the i
     }
     if (pathname === '/api/registrations') {
       attempts += 1
-      expect(route.request().postDataJSON()).toMatchObject({ email: 'returning@example.com', phone: '443-555-0104', interests: ['Tumbling & Trampoline'], classTypes: ['Youth Classes'] })
+      const submission = route.request().postDataJSON()
+      expect(submission).toMatchObject({ email: 'returning@example.com', phone: '443-555-0104', interests: ['Tumbling & Trampoline'], classTypes: ['Youth Classes'],
+        acquisition: { source: 'google', medium: 'cpc', landingPath: '/contact' }, utmSource: 'google', utmMedium: 'cpc' })
+      expect(JSON.stringify(submission)).not.toContain('fixture-click-never-store')
       if (attempts === 1) return route.abort('failed')
       if (attempts === 2) return route.fulfill({ status: 409, json: { success: false, message: 'Email already registered' } })
       return route.fulfill({ json: { success: true, id: 42 } })
@@ -19,7 +22,8 @@ test('the public inquiry form confirms success only after the server saves the i
     return route.fulfill({ json: { success: true, data: [] } })
   })
 
-  await page.goto('/contact')
+  await page.goto('/contact?gclid=fixture-click-never-store')
+  await page.getByRole('button', { name: 'Accept all', exact: true }).click()
   await page.getByRole('button', { name: 'Send an Inquiry', exact: true }).click()
   const interests = page.getByRole('group', { name: 'Interests', exact: true })
   await expect(interests.getByRole('checkbox')).toHaveCount(4)
@@ -88,5 +92,6 @@ test('adding an athlete requires phone, birthday and gender but athlete names ar
   await page.getByRole('button', { name: 'Submit', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Thank You!' })).toBeVisible()
   expect(submissions).toHaveLength(1)
+  expect(submissions[0]).not.toHaveProperty('acquisition')
   expect(submissions[0]).toMatchObject({ phone: '202-555-0101', campers: [{ dateOfBirth: '2020-02-20', gender: 'female' }] })
 })

@@ -46,6 +46,7 @@ import {
 import { findMemberById } from '../members/createMemberStub.js'
 import { isValidEmail, resolveMemberContactEmail } from '../email/memberContact.js'
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
+import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
 import { billingMigrationCollectionLocked } from './canonicalBillingMigrationState.js'
 import {
@@ -1046,6 +1047,7 @@ export async function createAndBindEnrollmentCheckoutSession(
     requestFingerprint,
     previewRequest,
     loadPreview = null,
+    acquisition,
   },
 ) {
   const accountId = Number(account?.id)
@@ -1135,6 +1137,7 @@ export async function createAndBindEnrollmentCheckoutSession(
     if (!enrollmentNeedsStripeCheckout(preview)) {
       if (!batchPayload.familyBatches) return { skipCheckout: true, preview }
       const afterCommit = []
+      let pendingId
       await db.query('BEGIN')
       try {
         await db.query('LOCK TABLE family_member IN SHARE MODE')
@@ -1154,12 +1157,14 @@ export async function createAndBindEnrollmentCheckoutSession(
           await assertEnrollmentMembershipCoverage(db, { memberId: batch.memberId, preview: childPreview, checkoutPaid: false })
           await executeSignupBatch(pool, stripSignupBatchPayload(batch.payload), { preview: childPreview }, { client: db, afterCommit })
         }
-        await db.query(`INSERT INTO stripe_pending_enrollment
+        const inserted = await db.query(`INSERT INTO stripe_pending_enrollment
           (family_billing_account_id, member_id, payload, preview_snapshot, due_now_cents, checkout_mode, status, request_key, request_fingerprint)
-          VALUES ($1,$2,$3,$4,0,'payment','completed',$5,$6)`,
+          VALUES ($1,$2,$3,$4,0,'payment','completed',$5,$6) RETURNING id`,
           [accountId, athleteId, JSON.stringify(batchPayload), JSON.stringify(preview), requestKey, requestFingerprint])
+        pendingId = inserted.rows[0]?.id
         await db.query('COMMIT')
       } catch (error) { await db.query('ROLLBACK'); throw error }
+      if (acquisition) await recordBusinessAcquisition(db, 'enrollment_checkout', pendingId, acquisition)
       for (const notify of afterCommit) { try { await notify() } catch (error) { console.error('[enrollment] notification:', error) } }
       return { skipCheckout: true, alreadyCompleted: true, status: 'completed', preview }
     }
@@ -1191,6 +1196,7 @@ export async function createAndBindEnrollmentCheckoutSession(
     const customerId = await ensureStripeCustomer(db, stripe, account)
 
     let transactionOpen = false
+    let createdPending = false
     try {
       await db.query('BEGIN')
       transactionOpen = true
@@ -1328,6 +1334,7 @@ export async function createAndBindEnrollmentCheckoutSession(
           ],
         ).then((result) => result.rows[0] ?? null)
         if (!durable) throw checkoutIdempotencyConflict()
+        createdPending = true
       }
       await db.query('COMMIT')
       transactionOpen = false
@@ -1337,6 +1344,9 @@ export async function createAndBindEnrollmentCheckoutSession(
     }
 
     const pendingId = Number(durable.id)
+    if (createdPending && acquisition) {
+      await recordBusinessAcquisition(db, 'enrollment_checkout', pendingId, acquisition)
+    }
     const sessionParams = {
       mode,
       customer: customerId,
@@ -1526,7 +1536,7 @@ export async function previewFamilyEnrollmentOrder(pool, options) {
 
 export async function createEnrollmentCheckoutSession(
   pool,
-  { account, memberId, batchPayload, successUrl, cancelUrl, idempotencyKey },
+  { account, memberId, batchPayload, successUrl, cancelUrl, idempotencyKey, acquisition },
 ) {
   if (!stripeEnabled()) return null
   await ensureStripeBillingSchema(pool)
@@ -1795,6 +1805,7 @@ export async function createEnrollmentCheckoutSession(
     requestFingerprint,
     previewRequest,
     loadPreview: batchPayload.familyBatches ? db => buildFamilyEnrollmentOrderPreview(db, batchPayload.familyBatches, batchPayload.promoCodes) : null,
+    acquisition,
   })
   if (creation.skipCheckout) return creation
 

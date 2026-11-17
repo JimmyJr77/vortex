@@ -3715,7 +3715,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
       return res.status(403).json({ success: false, message: 'Only the family payer can complete enrollment checkout.' })
     }
 
-    const { signups, promoCodes, signupAuthToken, responses, analytics, familyBatches } = req.body ?? {}
+    const { signups, promoCodes, signupAuthToken, responses, analytics, acquisition, familyBatches } = req.body ?? {}
     if (!familyBatches && (!Array.isArray(signups) || signups.length === 0)) {
       return res.status(400).json({ success: false, message: 'No enrollment items provided.' })
     }
@@ -3746,6 +3746,7 @@ export function registerPlatformRoutes(app, pool, { jwtSecret }) {
         successUrl: `${base}/?enrollment=paid&session_id={CHECKOUT_SESSION_ID}`,
         cancelUrl: `${base}/?enrollment=cancelled`,
         idempotencyKey: req.get('Idempotency-Key'),
+        acquisition,
       })
       if (!result) {
         return res.status(503).json({ success: false, message: 'Online payments are not available right now.' })

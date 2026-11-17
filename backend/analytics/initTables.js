@@ -1,5 +1,8 @@
+import { readFile } from 'node:fs/promises'
+
 /** Creates analytics-related tables (idempotent). Called from initDatabase(). */
 export async function initAnalyticsTables(pool) {
+  await pool.query(await readFile(new URL('../migrations/875_business_acquisition.sql', import.meta.url), 'utf8'))
   await pool.query(`
     ALTER TABLE registrations ADD COLUMN IF NOT EXISTS visitor_id VARCHAR(64)
   `)

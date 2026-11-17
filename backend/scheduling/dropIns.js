@@ -15,6 +15,7 @@ import { registerFreeTrialCatalogRoutes } from './freeTrials.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 import { lockSchedulingDay } from './dayCancellation.js'
+import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
 
@@ -896,6 +897,9 @@ export function registerDropInRoutes(app, pool) {
         )
       }
       await client.query('COMMIT')
+      if (req.body?.acquisition) {
+        await recordBusinessAcquisition(client, 'drop_in', inserted.rows[0].id, req.body.acquisition)
+      }
       if (status === 'confirmed') {
         try {
           await sendDropInConfirmationNotifications(pool, Number(inserted.rows[0].id))

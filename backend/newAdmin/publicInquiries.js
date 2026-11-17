@@ -1,5 +1,6 @@
 import Joi from 'joi'
 import { applyRegistrationAttribution } from '../analytics/adminHandlers.js'
+import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 import { normalizePhoneNumber, PHONE_FORMAT_ERROR } from '../phoneNumbers.js'
 
 const registrationSchema = Joi.object({
@@ -44,6 +45,7 @@ const registrationSchema = Joi.object({
   utmCampaign: Joi.string().max(100).optional().allow('', null),
   utmContent: Joi.string().max(100).optional().allow('', null),
   utmTerm: Joi.string().max(100).optional().allow('', null),
+  acquisition: Joi.any().optional(),
 })
 
 export function registerPublicInquiryRoutes(app, pool, { applyAttribution = applyRegistrationAttribution } = {}) {
@@ -95,6 +97,7 @@ export function registerPublicInquiryRoutes(app, pool, { applyAttribution = appl
       } catch (attrError) {
         console.warn('[registrations] attribution attach failed:', attrError.message)
       }
+      if (value.acquisition) await recordBusinessAcquisition(pool, 'inquiry', inquiry.id, value.acquisition)
       return res.json({ success: true, message: 'Registration submitted successfully', id: inquiry.id })
     } catch (error) {
       console.error('[registrations] unable to save inquiry:', error.code)

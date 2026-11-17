@@ -118,7 +118,7 @@ test('enrollment actions expose dates, waitlist position, activation and timed d
 
 test('leads support contacted, follow-up, original inquiry and shared account notes', async ({ page }) => {
   await authenticate(page)
-  const lead = {id:5,firstName:'Jordan',lastName:'Rivera',email:'jordan@example.test',phone:'202-555-0100',status:'new',contacted:false,followUp:false,notes:'Original staff note',message:'Interested in a tumbling trial',createdAt:'2026-10-01',convertedMemberId:null,inquiry:{athleteAge:9,interests:['Tumbling'],campers:[{firstName:'Casey',lastName:'Rivera',gender:'female',dateOfBirth:'2016-11-12'}]}}
+  const lead = {id:5,firstName:'Jordan',lastName:'Rivera',email:'jordan@example.test',phone:'202-555-0100',status:'new',contacted:false,followUp:false,notes:'Original staff note',message:'Interested in a tumbling trial',createdAt:'2026-10-01',convertedMemberId:null,acquisition:{source:'google',medium:'cpc',campaign:'gymnastics',referrerHost:'google.com',landingPath:'/gymnastics',direct:false},inquiry:{athleteAge:9,interests:['Tumbling'],campers:[{firstName:'Casey',lastName:'Rivera',gender:'female',dateOfBirth:'2016-11-12'}]}}
   const notes = [{id:1,subjectType:'member',subjectId:11,noteType:'staff_note',body:'Account note from old admin',authorName:'Coach Taylor',createdAt:'2026-10-03T12:00:00Z'}]
   await page.route('**/api/**',async route => {
     const req=route.request(),path=new URL(req.url()).pathname
@@ -136,7 +136,8 @@ test('leads support contacted, follow-up, original inquiry and shared account no
   })
   await page.goto('/')
   await page.getByRole('button',{name:'Leads',exact:true}).click()
-  await expect(page.getByRole('columnheader')).toHaveText(['Contacted','Follow-up','Name','Contact','Status','Kid details','Actions'])
+  await expect(page.getByRole('columnheader')).toHaveText(['Contacted','Follow-up','Name','Contact','Status','Acquisition source','Kid details','Actions'])
+  await expect(page.getByRole('row').filter({ hasText: 'Jordan Rivera' })).toContainText('google · cpc · gymnastics')
   await expect(page.getByRole('button',{name:'Edit',exact:true})).toHaveCount(0)
   await expect(page.getByText('Female · 9 years old')).toBeVisible()
   await page.getByLabel('Contacted Jordan Rivera').click()
@@ -152,6 +153,7 @@ test('leads support contacted, follow-up, original inquiry and shared account no
   await notesDialog.getByRole('button',{name:'Close'}).click()
   await page.getByRole('button',{name:'Jordan Rivera',exact:true}).click()
   const inquiry=page.getByRole('dialog',{name:'Notes · Jordan Rivera'})
+  await expect(inquiry.getByText('Landing page /gymnastics', { exact: true })).toBeVisible()
   await expect(inquiry.getByText('Interested in a tumbling trial')).toBeVisible()
   await expect(inquiry.getByRole('region',{name:'Scrollable account notes'})).toBeVisible()
   await inquiry.getByRole('button',{name:'Edit lead information'}).click()

@@ -6,6 +6,7 @@ import { terminalEnabledForFacility } from '../billing/stripeTerminalConfig.js'
 import { sendStoreOrderReceiptEmail } from '../email/storeReceiptEmail.js'
 import { publicAppUrl } from '../email/publicAppUrl.js'
 import { createXlsxWorkbook } from './xlsxExport.js'
+import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 
 const PICKUP_NOTE = 'Pickup at Vortex Athletics. We do not ship store items.'
 const STORE_PRODUCT_CATEGORIES = new Set(['clothing', 'equipment', 'food', 'drink', 'other'])
@@ -788,6 +789,7 @@ async function createStoreOrder(pool, {
   actorUserId = null,
   allowInternal = false,
   requireBillingPayer = false,
+  acquisition,
 }) {
   const requestFingerprint = checkoutFingerprint({
     items: rawItems,
@@ -977,6 +979,7 @@ async function createStoreOrder(pool, {
       },
     })
     await client.query('COMMIT')
+    if (acquisition) await recordBusinessAcquisition(client, 'store_order', orderId, acquisition)
     return { order, reused: false }
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
@@ -1650,6 +1653,7 @@ export function registerStoreRoutes(app, pool, { memberAuth, requirePermission }
         idempotencyKey: requestKey,
         actorUserId: integer(req.platformAuth?.user?.id, null),
         requireBillingPayer: true,
+        acquisition: req.body?.acquisition,
       })
       if (paymentMethod === 'card' && result.order.status === 'awaiting_payment') {
         const checkoutUrl = await createCardCheckout(pool, result.order)

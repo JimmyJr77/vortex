@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import crypto from 'node:crypto'
+import { readFile } from 'node:fs/promises'
 import pg from 'pg'
 import { listLeads, leadNotes } from '../leads.js'
 import { familyNotes } from '../accountNotes.js'
@@ -17,6 +18,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     await db.query('BEGIN')
     await db.query(`CREATE SCHEMA ${schema}`)
     await db.query(`SET LOCAL search_path=${schema}`)
+    await db.query(await readFile(new URL('../../migrations/875_business_acquisition.sql', import.meta.url), 'utf8'))
     await db.query(`
       CREATE TABLE facility(id bigint PRIMARY KEY,timezone text);
       CREATE TABLE family(id bigint PRIMARY KEY,facility_id bigint);
@@ -45,6 +47,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
         (6,2,'Foreign','Inquiry','foreign@example.test',NULL,FALSE,FALSE),
         (7,1,'Jamie','Converted','jamie@example.test',NULL,TRUE,TRUE),
         (8,1,'Invalid','Birthday','invalid@example.test',NULL,FALSE,FALSE);
+      INSERT INTO business_acquisition(record_kind,record_id,landing_path) VALUES ('inquiry',1,'/gymnastics');
       UPDATE registrations SET archived=TRUE WHERE id=5;
       UPDATE registrations SET converted_member_id=1,class_types=ARRAY['Adult Classes'] WHERE id=2;
       UPDATE registrations SET member_id=2 WHERE id=7;
@@ -62,6 +65,11 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       UPDATE note SET is_deleted=TRUE WHERE id=6;
     `)
     const ids = async query => (await listLeads(db, 1, query)).rows.map(row => row.id).sort((a,b) => a-b)
+    await t.test('known direct inquiries are distinct from older records with no source', async () => {
+      const { rows } = await listLeads(db, 1)
+      assert.deepEqual(rows.find(row => row.id === 1).acquisition, { source: null, medium: null, campaign: null, referrerHost: null, landingPath: '/gymnastics', direct: true })
+      assert.equal(rows.find(row => row.id === 3).acquisition, null)
+    })
     await t.test('contact, follow-up and conversion are independent, combinable filters', async () => {
       assert.deepEqual(await ids({contacted:'false'}),[1,3,4,8])
       assert.deepEqual(await ids({contacted:'true'}),[])

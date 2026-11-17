@@ -5,7 +5,7 @@ import { Plus } from 'lucide-react'
 import { button, cell, Dialog, Empty, ErrorNotice, Loading, Pager, primary, Status } from './shared'
 import AccountNotes from './AccountNotes'
 import LeadFilters, { type LeadFilterValues } from './LeadFilters'
-import { InquiryInformation, KidDetails, LeadFields } from './LeadInquiry'
+import { AcquisitionDetails, InquiryInformation, KidDetails, LeadFields } from './LeadInquiry'
 import ConvertLead from './ConvertLead'
 import { leadDisplayName, type Lead } from './leadTypes'
 import { allowed, request, useRead, useSearch, type Access, type Page } from './api'
@@ -44,7 +44,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     <ErrorNotice message={invalidAge ? 'Enter whole child ages from 0 to 120, with minimum age no greater than maximum age.' : null} />
     <ErrorNotice message={saveError} />
     <ErrorNotice message={data.error} onRetry={refresh} />
-    {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{['Contacted', 'Follow-up', 'Name', 'Contact', 'Status', 'Kid details', 'Actions'].map((title, index) => <th key={title} className={index < 2 ? checkboxCell : index === 2 ? nameCell : cell}>{title}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => <tr key={lead.id}>
+    {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{['Contacted', 'Follow-up', 'Name', 'Contact', 'Status', 'Acquisition source', 'Kid details', 'Actions'].map((title, index) => <th key={title} className={index < 2 ? checkboxCell : index === 2 ? nameCell : cell}>{title}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => <tr key={lead.id}>
       <td className={checkboxCell}><input type="checkbox" aria-label={`Contacted ${leadDisplayName(lead)}`} checked={lead.contacted} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { contacted: event.target.checked })} /></td>
       <td className={checkboxCell}><input type="checkbox" aria-label={`Follow up ${leadDisplayName(lead)}`} checked={lead.followUp} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { followUp: event.target.checked })} /></td>
       <td className={nameCell}>
@@ -53,6 +53,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
       </td>
       <td className={cell}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
       <td className={cell}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">Registration invitation {lead.invitation.status}</p>}</td>
+      <td className={cell}><AcquisitionDetails acquisition={lead.acquisition} /></td>
       <td className={cell}><KidDetails children={lead.inquiry?.campers || []} /></td>
       <td className={cell}><div className="flex flex-wrap items-start gap-2">
         <button className={button} onClick={() => setNotes(lead)}>Notes</button>
@@ -70,7 +71,10 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
 function LeadNotesDialog({ lead, revision, canManage, onClose, onSaved }: { lead: Lead; revision: number; canManage: boolean; onClose: () => void; onSaved: (lead: Lead) => void }) {
   const [editing, setEditing] = useState(false)
   return <Dialog title={`Notes · ${leadDisplayName(lead)}`} onClose={onClose}><div className="grid h-[72vh] min-h-0 grid-rows-[minmax(0,0.8fr)_minmax(0,1fr)] gap-5 lg:grid-cols-[minmax(260px,1fr)_minmax(0,1.6fr)] lg:grid-rows-1">
-    <aside className="min-h-0 overflow-y-auto rounded-xl border bg-slate-50 p-4" aria-label="Lead information"><details open><summary className="cursor-pointer font-semibold">{lead.matchedMemberId ? 'Member inquiry information' : 'Lead form information'}</summary><div className="mt-4">{editing ? <LeadFields lead={lead} onCancel={() => setEditing(false)} onSaved={saved => { setEditing(false); onSaved(saved) }} /> : <><InquiryInformation lead={lead} />{canManage && <button className={`${button} mt-4`} onClick={() => setEditing(true)}>{lead.matchedMemberId ? 'Edit inquiry information' : 'Edit lead information'}</button>}</>}</div></details></aside>
+    <aside className="min-h-0 overflow-y-auto rounded-xl border bg-slate-50 p-4" aria-label="Lead information"><details open><summary className="cursor-pointer font-semibold">{lead.matchedMemberId ? 'Member inquiry information' : 'Lead form information'}</summary>
+      <div className="mt-4 text-sm"><p className="font-semibold">Acquisition source</p><AcquisitionDetails acquisition={lead.acquisition} /></div>
+      <div className="mt-4">{editing ? <LeadFields lead={lead} onCancel={() => setEditing(false)} onSaved={saved => { setEditing(false); onSaved(saved) }} /> : <><InquiryInformation lead={lead} />{canManage && <button className={`${button} mt-4`} onClick={() => setEditing(true)}>{lead.matchedMemberId ? 'Edit inquiry information' : 'Edit lead information'}</button>}</>}</div>
+    </details></aside>
     <div className="min-h-0 overflow-y-auto pr-2" role="region" aria-label="Scrollable account notes" tabIndex={0}><AccountNotes endpoint={`/api/admin/new-admin/leads/${lead.id}/notes`} revision={revision} canManage={canManage} subjectType="registration" subjectId={lead.id} /></div>
   </div></Dialog>
 }

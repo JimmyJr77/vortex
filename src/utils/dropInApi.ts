@@ -1,4 +1,5 @@
 import { getApiUrl } from './api'
+import { getBusinessAcquisition } from './businessAcquisition'
 import { getMemberSessionToken } from './portalSession'
 
 export interface DropInClass {
@@ -87,7 +88,7 @@ export async function registerDropIn(input: {
   const response = await fetch(`${getApiUrl()}/api/public/drop-ins/register`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders() },
-    body: JSON.stringify(input),
+    body: JSON.stringify({ ...input, acquisition: getBusinessAcquisition() }),
   })
   const body = await response.json()
   if (!response.ok || !body.success) throw new Error(body.message || 'Failed to register')

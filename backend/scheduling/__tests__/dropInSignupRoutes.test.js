@@ -8,7 +8,8 @@ const payer = { id: 7, app_user_id: 17, facility_id: 1, family_id: 3, email: 'pa
 const athlete = { id: 8, facility_id: 1, family_id: 3, first_name: 'Avery', last_name: 'Stone' }
 const tomorrow = new Date(Date.now() + 86400000).toISOString().slice(0, 10)
 
-function routeFixture({ authorized = true, signed = true, annualMember = false, annualUsed = 0 } = {}) {
+function routeFixture({ authorized = true, signed = true, annualMember = false, annualUsed = 0,
+  existingBooking = null, acquisitionFails = false } = {}) {
   const calls = []
   const client = {
     release() {},
@@ -50,7 +51,14 @@ function routeFixture({ authorized = true, signed = true, annualMember = false, 
         specific_date: tomorrow, monthly_enrolled: 0, fallback_monthly_cents: 12000,
       }] }
       if (sql.includes('SELECT COUNT(*)::int AS count FROM drop_in_registration')) return { rows: [{ count: 0 }] }
+      if (sql.includes('SELECT id, amount_cents, benefit_type, status FROM drop_in_registration')) {
+        return { rows: existingBooking ? [existingBooking] : [] }
+      }
       if (sql.includes('INSERT INTO drop_in_registration')) return { rows: [{ id: 50 }] }
+      if (sql.includes('INSERT INTO business_acquisition')) {
+        if (acquisitionFails) throw Object.assign(new Error('Acquisition storage is unavailable.'), { code: '42P01' })
+        return { rows: [], rowCount: 1 }
+      }
       if (sql.includes('FROM family_billing_account WHERE family_id=$1')) return { rows: [{ id: 90 }] }
       return { rows: [] }
     },
@@ -133,6 +141,27 @@ test('explicit member registration needs no duplicate identity form and remains 
     assert.equal(charge.params[1], 8)
     assert.equal(charge.params[4], annualMember ? 3000 : 4000)
   }
+})
+
+test('drop-in attribution is saved after the new booking commit and cannot break or relabel a booking', async () => {
+  const body = { memberId: 8, slotGroupId: 20, classDate: tomorrow,
+    acquisition: { source: 'google', medium: 'cpc', campaign: 'gymnastics', landingPath: '/gymnastics' } }
+  for (const acquisitionFails of [false, true]) {
+    const fixture = routeFixture({ acquisitionFails })
+    const response = await fixture.request('post', '/api/public/drop-ins/register', { body })
+    assert.equal(response.status, 201)
+    assert.equal(response.body.data.status, 'payment_pending')
+    const commit = fixture.calls.findIndex(({ sql }) => sql === 'COMMIT')
+    const saved = fixture.calls.findIndex(({ sql }) => sql.includes('INSERT INTO business_acquisition'))
+    assert.ok(commit >= 0 && saved > commit)
+    assert.deepEqual(fixture.calls[saved].params, ['drop_in', '50', 'google', 'cpc', 'gymnastics', null, '/gymnastics'])
+    assert.equal(fixture.calls.some(({ sql }) => sql === 'ROLLBACK'), false)
+  }
+
+  const fixture = routeFixture({ existingBooking: { id: 50, amount_cents: 4000, benefit_type: 'paid', status: 'confirmed' } })
+  const replay = await fixture.request('post', '/api/public/drop-ins/register', { body })
+  assert.equal(replay.body.data.status, 'confirmed')
+  assert.equal(fixture.calls.some(({ sql }) => sql.includes('INSERT INTO business_acquisition')), false)
 })
 
 test('registration with unsigned athlete waivers cannot create a booking, use credits, or start billing', async () => {

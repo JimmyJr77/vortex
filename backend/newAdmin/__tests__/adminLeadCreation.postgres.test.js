@@ -30,7 +30,7 @@ test('admin inquiry creation stores trusted staff attribution, optional public f
   await db.connect()
   try {
     await db.query('BEGIN')
-    for (const migration of ['855_repeat_public_inquiries.sql', '857_admin_lead_submission.sql']) {
+    for (const migration of ['855_repeat_public_inquiries.sql', '857_admin_lead_submission.sql', '875_business_acquisition.sql']) {
       await db.query(await readFile(new URL(`../../migrations/${migration}`, import.meta.url), 'utf8'))
     }
     const facility = (await db.query("INSERT INTO facility(name) VALUES('Admin lead fixture') RETURNING id")).rows[0]
@@ -57,7 +57,11 @@ test('admin inquiry creation stores trusted staff attribution, optional public f
     assert.equal(incompleteEdit.inquiry.submittedBy.userId, Number(staff.id))
     assert.equal((await db.query("SELECT count(*)::int AS count FROM newsletter_subscribers WHERE NULLIF(btrim(email),'') IS NULL")).rows[0].count, subscribersBefore)
     const email = `${randomUUID()}@example.test`
-    const lead = await createLead(db, facility.id, { email, submittedBy: { name: 'Forged' }, inquiry: { submittedBy: { userId: -1, name: 'Forged' } } }, { userId: staff.id })
+    const lead = await createLead(db, facility.id, { email, acquisitionSource: 'Friend referral', submittedBy: { name: 'Forged' }, inquiry: { submittedBy: { userId: -1, name: 'Forged' } } }, { userId: staff.id })
+    assert.equal(lead.acquisition.source, 'Friend referral')
+    assert.equal(lead.acquisition.medium, 'self_reported')
+    const attemptedSourceEdit = await updateLead(db, facility.id, lead.id, { message: 'Follow up', acquisitionSource: 'Google Ads' })
+    assert.deepEqual(attemptedSourceEdit.acquisition, lead.acquisition)
     assert.equal(lead.firstName, '')
     assert.equal(lead.lastName, '')
     assert.equal(lead.inquiry.submittedBy.name, 'Staff Who Entered Lead')

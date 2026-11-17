@@ -1,10 +1,25 @@
-import { publicAnalyticsPath } from './analyticsPaths'
+import { STUB_HOSTS } from '../config/stubSites'
+import { analyticsReferrer, publicAnalyticsPath } from './analyticsPaths'
 import { getActiveConsent } from './consent'
 import { getSessionId } from './visitorId'
 
 const UTM_SESSION_KEY = 'vortex_utm'
 export type UtmParams = { source?: string; medium?: string; campaign?: string; content?: string; term?: string }
-type Attribution = { sessionId?: string; first: UtmParams; last: UtmParams; landingPath?: string }
+type Attribution = { sessionId?: string; first: UtmParams; last: UtmParams; landingPath?: string; referrer?: string }
+const VORTEX_HOSTS = ['vortexathletics.com', ...STUB_HOSTS]
+
+export function acquisitionReferrer(origin?: string) {
+  if (!origin) return undefined
+  try {
+    const url = new URL(origin)
+    const excludedHosts = [...VORTEX_HOSTS, 'stripe.com', 'stripe.network', 'link.com']
+    if (!['http:', 'https:'].includes(url.protocol) || excludedHosts.some(host =>
+      url.hostname === host || url.hostname.endsWith(`.${host}`))) return undefined
+    return url.origin
+  } catch {
+    return undefined
+  }
+}
 
 export function parseUtmFromSearch(search: string): UtmParams {
   const params = new URLSearchParams(search)
@@ -45,14 +60,24 @@ export function captureUtmFromLocation(path: string, search: string) {
   const sessionId = getSessionId(true)
   if (!sessionId) return
   const existing = getStoredUtm(sessionId)
-  const capture = `${sessionId}:${path}:${search}`
+  const incoming = parseUtmFromSearch(search)
+  const params = new URLSearchParams(search)
+  const fromGoogleAd = ['gclid', 'gbraid', 'wbraid'].some(key => Boolean(params.get(key)?.trim()))
+  if (fromGoogleAd && (!incoming.source || incoming.source.toLowerCase() === 'google') &&
+    (!incoming.medium || /^(cpc|ppc|paid[ _-]?search)$/i.test(incoming.medium))) {
+    incoming.source ??= 'google'
+    incoming.medium ??= 'cpc'
+  }
+  const safePath = publicAnalyticsPath(path)
+  const referrer = acquisitionReferrer(analyticsReferrer())
+  const capture = JSON.stringify([sessionId, safePath, incoming, referrer])
   if (capture === lastCapture) return
   lastCapture = capture
-  const incoming = parseUtmFromSearch(search)
   const hasCampaign = Object.keys(incoming).length > 0
   touch = {
     sessionId,
-    landingPath: existing.landingPath ?? publicAnalyticsPath(path),
+    landingPath: existing.landingPath ?? safePath,
+    referrer: acquisitionReferrer(existing.referrer) ?? referrer,
     first: Object.keys(existing.first).length ? existing.first : incoming,
     last: hasCampaign ? incoming : existing.last,
   }

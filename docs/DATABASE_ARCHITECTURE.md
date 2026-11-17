@@ -119,6 +119,7 @@ hit (program categories, discipline tags, discount engine), guarded by in-memory
 ### 3.6 Where to put a new schema change
 - **Coaching / platform change** → new numbered migration appended to the `initPlatformTables` list (idempotent). This is the established path for `008+`.
 - **Public-domain change in an actively-initialized module** (scheduling/programs/analytics) → that module's init file, or an `add_*.sql` wired into the appropriate ensure/init + the `migrate:all` order.
+- [875_business_acquisition.sql](../backend/migrations/875_business_acquisition.sql) is on the deploy migration list and also runs idempotently in `initAnalyticsTables()` for direct backend starts.
 - **Always** keep it idempotent if it runs on boot, and **update this doc** (data model + relationship map).
 
 ---
@@ -438,6 +439,18 @@ Four canonical templates are seeded per facility on boot via [seedCanonicalWaive
 - **Payment types are separated** for Ads bidding: `initial_enrollment` (session `metadata.checkoutType === 'enrollment'`) vs `outstanding_balance` (no checkoutType); `enrollment_type` `recurring`/`one_time` from `hasRecurring` / `checkout_mode` (`payment`|`setup`|legacy `subscription`).
 
 **Still requires an ops/credentials step (deferred, cannot be validated without a live Stripe account):** production keys + webhook secret config; auto-charging recurring cycles (today `generateRecurringCharges` posts records only — wiring it to Stripe invoices/off-session PaymentIntents is the remaining piece); periodic reconciliation of Stripe charges vs `billing_payment`; optional monthly billing-summary email.
+
+### Acquisition sources for business outcomes
+
+`business_acquisition` stores a source, medium, campaign, referring hostname, and landing page alongside an existing business record. The `(record_kind, record_id)` primary key identifies one snapshot per record. The capture is optional, uses analytics consent for website visits, and leaves the existing business and payment flows independent of the analytics write. The report scopes each record through its owning facility and left joins the snapshot so records without a source remain visible. There is no polymorphic foreign key because the same key maps to four established tables. Referrer paths, click IDs, and contact details are excluded from the snapshot. The report checks `billing.view` before returning amounts.
+
+```mermaid
+erDiagram
+  registrations ||..o| business_acquisition : "inquiry record"
+  drop_in_registration ||..o| business_acquisition : "drop-in or trial record"
+  stripe_pending_enrollment ||..o| business_acquisition : "enrollment checkout"
+  store_order ||..o| business_acquisition : "store order"
+```
 
 ---
 

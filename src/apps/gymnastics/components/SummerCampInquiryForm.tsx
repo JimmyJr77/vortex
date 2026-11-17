@@ -17,8 +17,7 @@ import {
 import { getActiveConsent } from '../../../utils/consent'
 import { trackEvent } from '../../../utils/analyticsClient'
 import { pushGtmEvent } from '../../../utils/googleAnalytics'
-import { getVisitorId, getSessionId } from '../../../utils/visitorId'
-import { getAttributionPayload } from '../../../utils/utmCapture'
+import { getInquiryAttributionPayload } from '../../../utils/businessAcquisition'
 import { isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../../utils/phoneUtils'
 
 type CamperRow = { firstName: string; lastName: string; dateOfBirth: string; gender: string }
@@ -157,11 +156,7 @@ const SummerCampInquiryForm = () => {
       if (completedCampers.length > 0) payload.campers = completedCampers
       if (formData.message.trim()) payload.message = formData.message.trim()
 
-      const consent = getActiveConsent()
-      const attribution = getAttributionPayload()
-      payload.visitorId = getVisitorId(consent.analytics)
-      payload.sessionId = getSessionId(consent.analytics)
-      Object.assign(payload, attribution)
+      Object.assign(payload, getInquiryAttributionPayload())
 
       const capabilities = await getRegistrationApiCapabilities()
       const apiPayload = adaptRegistrationPayloadForApi(payload, capabilities.registrationInquiryOverhaul)

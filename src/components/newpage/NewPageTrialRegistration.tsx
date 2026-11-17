@@ -7,6 +7,7 @@ import SignupPasswordInput from '../signup/SignupPasswordInput'
 import WaiverSigningBlock from '../signup/WaiverSigningBlock'
 import { validateWaiverSigning, type PublicWaiverTemplate } from '../signup/waiverSigningUtils'
 import { getApiUrl } from '../../utils/api'
+import { getBusinessAcquisition } from '../../utils/businessAcquisition'
 import { calculateAge, formatDateForDisplay, isAdult } from '../../utils/dateUtils'
 import { clearPortalSession, getMemberSessionToken, loginMemberWithCredentials, persistMemberSession } from '../../utils/portalSession'
 import './NewPageTrialRegistration.css'
@@ -191,6 +192,7 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
         method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
           memberId, slotGroupId: selection.slotGroupId, classDate: selection.classDate, program: selection.program,
+          acquisition: getBusinessAcquisition(),
           gymnasticsTrack: selection.gymnasticsTrack,
           pottyTrained: selection.gymnasticsTrack === 'mommy-me' ? pottyTrainedConfirmed : selection.pottyTrained,
           experience: selection.experience,

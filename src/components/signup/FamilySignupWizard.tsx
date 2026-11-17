@@ -7,6 +7,7 @@ import { ChevronLeft, ChevronRight, Loader2, Plus, Trash2, UserPlus } from 'luci
 import ScheduleOptionCheckboxGrid from './ScheduleOptionCheckboxGrid'
 import { groupScheduleOptions } from './scheduleOptionGrouping'
 import { getApiUrl, adminApiRequest } from '../../utils/api'
+import { getBusinessAcquisition } from '../../utils/businessAcquisition'
 import { loginMemberWithCredentials, persistMemberSession } from '../../utils/portalSession'
 import { cleanPhoneNumber, formatPhoneForDisplay, isCompletePhoneNumber, PHONE_FORMAT_ERROR } from '../../utils/phoneUtils'
 import { formatDateForInput, isAdult } from '../../utils/dateUtils'
@@ -1382,7 +1383,7 @@ export default function FamilySignupWizard({
         return
       }
 
-      const payload = buildPayload()
+      const payload = { ...buildPayload(), acquisition: isFreeTrial && !leadRegistration ? getBusinessAcquisition() : undefined }
       const endpoint = leadRegistration ? `/api/signup/lead/${leadRegistration.inviteId}/complete` : isAdmin ? '/api/admin/signup/family' : '/api/signup/family'
       const res = isAdmin
         ? await adminApiRequest(endpoint, { method: 'POST', body: JSON.stringify(leadRegistration ? { ...payload, token: leadRegistration.token, session: leadRegistration.session } : payload) })

@@ -1,6 +1,22 @@
 import { isValidCalendarDate } from '../members/dateOnlyAge.js'
 import { inputError } from './common.js'
 
+export const inquiryAcquisitionJoin = `LEFT JOIN business_acquisition acquisition
+  ON acquisition.record_kind = 'inquiry' AND acquisition.record_id = r.id`
+
+export function inquiryAcquisition(row) {
+  const snapshot = row.acquisition_snapshot
+  const result = snapshot ? {
+    source: snapshot.source, medium: snapshot.medium, campaign: snapshot.campaign,
+    referrerHost: snapshot.referrer_host, landingPath: snapshot.landing_path,
+    direct: Boolean(snapshot.landing_path && !snapshot.source && !snapshot.medium && !snapshot.campaign && !snapshot.referrer_host),
+  } : {
+    source: row.utm_source ?? null, medium: row.utm_medium ?? null, campaign: row.utm_campaign ?? null,
+    referrerHost: null, landingPath: row.landing_page ?? null, direct: false,
+  }
+  return Object.values(result).some(Boolean) ? result : null
+}
+
 export function inquiryInput(value, { requireAthleteDetails = false } = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw inputError('Invalid inquiry details.')
   const result = {}

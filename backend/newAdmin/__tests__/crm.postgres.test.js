@@ -19,6 +19,7 @@ test('CRM paginates the facility directory and computes activity from enrollment
   const fixture = await readFile(new URL('../../billing/__tests__/fixtures/turnover-schema.sql', import.meta.url), 'utf8')
   await pool.query(fixture.replaceAll('public.', `"${schema}".`))
   await installSharedAccountRecords(pool)
+  await pool.query(await readFile(new URL('../../migrations/875_business_acquisition.sql', import.meta.url), 'utf8'))
   await pool.query(`
     ALTER TABLE scheduling_signup DROP CONSTRAINT scheduling_signup_status_check;
     ALTER TABLE scheduling_signup ADD CONSTRAINT scheduling_signup_status_check
@@ -30,6 +31,7 @@ test('CRM paginates the facility directory and computes activity from enrollment
       email text, phone text, lead_status text, archived boolean, member_id bigint, converted_member_id bigint,
       athlete_age int, child_ages int[], campers jsonb, submitter_role text, message text, admin_notes text,
       interest text, interests_array text[], class_types text[], inquiry_source text, contacted boolean, follow_up boolean,
+      utm_source text, utm_medium text, utm_campaign text, landing_page text,
       created_at timestamp DEFAULT now(), updated_at timestamp DEFAULT now());
     INSERT INTO facility(id,name,timezone) VALUES (1,'CRM fixture','America/New_York'),(2,'Other facility','America/New_York');
     INSERT INTO family(id,facility_id,family_name) VALUES (1,1,'First Household'),(2,1,'Second Household'),(3,2,'Foreign Family');
@@ -51,6 +53,8 @@ test('CRM paginates the facility directory and computes activity from enrollment
       (1,1,'Linked','Parent','parent@example.test','converted',1,'[]',NULL,'Original inquiry is retained'),
       (2,1,'Open','Prospect','open@example.test','qualified',NULL,'[{"firstName":"Camper","gender":"female"}]',ARRAY[8],NULL),
       (3,2,'Foreign','Prospect','foreign-lead@example.test','new',NULL,'[]',NULL,NULL);
+    INSERT INTO business_acquisition(record_kind,record_id,source,medium,campaign,referrer_host,landing_path)
+      VALUES ('inquiry',2,'google','cpc','fit_and_flip','google.com','/fit-and-flip');
     INSERT INTO scheduling_form(id,title) VALUES (1,'Gymnastics'),(2,'Evening Class');
     INSERT INTO scheduling_signup(id,form_id,member_id,status,enrollment_start_date) VALUES
       (1,1,2,'confirmed',current_date-1),(2,1,2,'cancelled',current_date-365),
@@ -98,6 +102,7 @@ test('CRM paginates the facility directory and computes activity from enrollment
 
   await t.test('details load children, linked inquiry and class history independently of the directory', async () => {
     const lead = await loadCrmDetail(pool, 1, 'lead', 2)
+    assert.deepEqual(lead.inquiries[0].acquisition, { source: 'google', medium: 'cpc', campaign: 'fit_and_flip', referrerHost: 'google.com', landingPath: '/fit-and-flip', direct: false })
     assert.deepEqual(lead.children.map(child => [child.name, child.age, child.gender]), [['Camper', 8, 'female']])
     assert.deepEqual(lead.classes.rows, [])
     const parent = await loadCrmDetail(pool, 1, 'member', 1)

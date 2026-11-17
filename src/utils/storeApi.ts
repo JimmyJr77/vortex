@@ -1,4 +1,5 @@
 import { adminApiRequest, getApiUrl } from './api'
+import { getBusinessAcquisition } from './businessAcquisition'
 
 export type StoreCategory = 'clothing' | 'equipment' | 'food' | 'drink' | 'other'
 export type StorePaymentMethod = 'billing_account' | 'card' | 'cash' | 'check' | 'mobile'
@@ -126,7 +127,7 @@ export async function checkoutMemberStoreOrder(
       'Content-Type': 'application/json',
       'Idempotency-Key': requestKey('member-store'),
     },
-    body: JSON.stringify(payload),
+    body: JSON.stringify({ ...payload, acquisition: getBusinessAcquisition() }),
   })
   return parseResponse<StoreOrder>(response)
 }
