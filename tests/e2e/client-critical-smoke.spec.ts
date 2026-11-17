@@ -188,8 +188,9 @@ test.describe('Client-critical smoke flows', () => {
       ({ id: formId, formId, displayName, skillLevel, enrollVisible })
     const classes = [
       enrollmentClass(9, 'Tornadoes', 'BEGINNER'),
-      { ...enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'), excludeFromDropIns: true },
-      enrollmentClass(14, 'Hidden class', 'ADVANCED', false), enrollmentClass(15, 'Expired class', 'ADVANCED'),
+      { ...enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'), skillRequirements: 'Forward roll, handstand and round-off.', excludeFromDropIns: true },
+      { ...enrollmentClass(14, 'Hidden class', 'ADVANCED', false), skillRequirements: 'Hidden placement requirement.' },
+      enrollmentClass(15, 'Expired class', 'ADVANCED'),
       enrollmentClass(16, 'Different program form', 'ADVANCED'),
     ]
     await page.route('**/api/public/classes-offered', (route) => route.fulfill({ json: {
@@ -223,6 +224,10 @@ test.describe('Client-critical smoke flows', () => {
     await expect(times.first()).toBeHidden()
     await schedule.getByText('Tornadoes Beginner', { exact: true }).click()
     await expect(times.first()).toBeVisible()
+    await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeHidden()
+    await schedule.getByText('Cyclones Intermediate', { exact: true }).click()
+    await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeVisible()
+    await expect(schedule.getByText('Hidden placement requirement.')).toHaveCount(0)
     await expect(schedule.getByRole('link', { name: 'Check dates and availability' }))
       .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics')
     expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])

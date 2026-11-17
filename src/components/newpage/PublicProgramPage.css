@@ -135,6 +135,11 @@
   font-weight: 400;
 }
 
+.np-program-schedule .np-recurring-skill-requirements {
+  margin: 0 0.75rem 0.4rem;
+  font-weight: 400;
+}
+
 .np-class-pricing {
   margin-top: 16px;
   padding: 12px 16px;

@@ -90,7 +90,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     recurringSchedule: {
       id: 'youth-gymnastics-schedule',
       heading: 'Weekly youth gymnastics class schedule',
-      description: 'Check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. For a first visit, use the age and placement guidance below to find a free trial.',
+      description: 'Check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. Open a class to see its times and published skill requirements. Use the placement guidance below to choose a first visit.',
       programName: DEVELOPMENTAL_GYMNASTICS_PROGRAM,
     },
     sections: [
@@ -126,15 +126,32 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           },
         ],
         links: [
+          { href: '/gymnastics#class-placement', label: 'Compare beginner, intermediate, and advanced gymnastics levels', analyticsKey: 'read_gymnastics_placement' },
           { href: '/gymnastics#first-visit', label: 'Prepare for your first visit', analyticsKey: 'read_first_visit' },
           { href: '/gymnastics#youth-gymnastics-schedule', label: 'See weekly gymnastics class times', analyticsKey: 'read_youth_gymnastics_schedule' },
         ],
       },
       {
         id: 'class-placement',
-        heading: 'How do I know what gymnastics level my child is ready for?',
-        description: 'A cartwheel gives your coach one skill to build on. Beginner Tornadoes teaches rolls, cartwheels, and handstands. Intermediate Cyclones in developmental gymnastics expects several foundations together, including forward and backward rolls, handstands, cartwheels, and round-offs.',
+        heading: 'Youth gymnastics levels and placement',
+        description: 'Compare the three developmental levels for ages 6 and up. If your child has taken gymnastics before, a Trial Assessment helps the coach choose a class based on the skills your child can repeat with control.',
         topics: [
+          {
+            id: 'gymnastics-level-beginner',
+            heading: 'Beginner Tornadoes',
+            description: 'Start here with no gymnastics experience. Coaches teach body shapes, rolls, cartwheels, handstands, and controlled landings. First-time gymnasts ages 6–17 can look for a Tornadoes trial.',
+          },
+          {
+            id: 'gymnastics-level-intermediate',
+            heading: 'Intermediate Cyclones',
+            description: 'Coaches look for forward and backward rolls, a handstand, a cartwheel, a round-off, a front limber, and a kickover from a bridge. They also check split readiness. A cartwheel gives the coach one skill to build on as they check the rest.',
+          },
+          {
+            id: 'gymnastics-level-advanced',
+            heading: 'Advanced Vortex A4 Elite',
+            description: 'Athletes build on the Cyclones skills. Coaches also look for a front or back handspring and a full split. Gymnasts in this developmental class can keep progressing without joining the competitive team.',
+            link: { href: '/gymnastics#competitive-gymnastics-team', label: 'Compare advanced classes and team placement', analyticsKey: 'compare_gymnastics_pathways' },
+          },
           {
             id: 'experienced-trial',
             heading: 'How to find a Trial Assessment',
@@ -143,7 +160,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'assessment-preparation',
             heading: 'What to tell the coach',
-            description: 'Tell the coach which skills your child can repeat comfortably, including skills they learned at home or in cheer or tumbling. The coach will assess what your child is ready to work on and recommend a starting group.',
+            description: 'Tell the coach which skills your child can repeat comfortably, including skills from cheer or tumbling. For a cartwheel, a coach might watch the order of the hands, how the athlete supports their weight, and whether they can finish in balance.',
           },
         ],
         trialLabel: 'Find a free Trial Assessment',

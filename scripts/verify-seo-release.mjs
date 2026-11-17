@@ -843,8 +843,10 @@ const verifyHtml = (
       `${label}: missing the crawlable guide link in the preschool class section`)
     assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),
       `${label}: missing the placement link for experienced and returning gymnasts`)
-    assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones in developmental gymnastics/.test(placement) &&
-      /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement),
+    assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones/.test(placement) && /Advanced Vortex A4 Elite/.test(placement) &&
+      /front limber/.test(placement) && /front or back handspring/.test(placement) && /finish in balance/.test(placement) &&
+      /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
+      anchorUrls(placement).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
       `${label}: missing the placement comparison or assessment action in the rendered page`)
     assert(anchorUrls(pathways).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
       `${label}: the youth class choices must link to the team comparison`)

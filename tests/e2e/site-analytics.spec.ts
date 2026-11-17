@@ -212,6 +212,9 @@ test('takes experienced gymnasts from the comparison guide to Trial Assessment d
   await expect(page).toHaveURL('/gymnastics#class-placement')
   const placement = page.locator('#class-placement')
   await expect(placement.getByRole('heading', { level: 2 })).toBeInViewport()
+  await expect(placement.getByRole('heading', { level: 3, name: 'Advanced Vortex A4 Elite' })).toBeVisible()
+  await expect(placement.getByRole('link', { name: 'Compare advanced classes and team placement' }))
+    .toHaveAttribute('href', '/gymnastics#competitive-gymnastics-team')
   await placement.getByRole('button', { name: 'Find a free Trial Assessment' }).click()
 
   const dialog = page.getByRole('dialog')

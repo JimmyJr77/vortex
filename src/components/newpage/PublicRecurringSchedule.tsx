@@ -13,7 +13,7 @@ import { sortOccurrences } from '../../utils/slotSort'
 import { programUsesWeeklyTierPricing } from '../../utils/weeklyTierPricing'
 import PublicClassPricing, { type RecurringPriceClass } from './PublicClassPricing'
 
-type ClassTimes = RecurringPriceClass & { skillLevel: string | null; times: string[] }
+type ClassTimes = RecurringPriceClass & { skillLevel: string | null; skillRequirements: string | null; times: string[] }
 type ScheduleState =
   | { status: 'loading' | 'unavailable' }
   | { status: 'loaded'; classes: ClassTimes[]; usesClassTuition: boolean }
@@ -35,7 +35,7 @@ async function loadSchedule(programName: RecurringBookingProgram): Promise<Extra
   const dateParts = easternDate.formatToParts(new Date())
   const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type)?.value).join('-')
   const timesByClass = await Promise.allSettled(program.classes.map(async ({
-    id: classId, formId, displayName, skillLevel, excludeFromDropIns,
+    id: classId, formId, displayName, skillLevel, skillRequirements, excludeFromDropIns,
   }) => {
     const [form, offerings] = await Promise.all([
       fetchPublicSchedulingForm(formId), fetchPublicSchedulingOfferings(formId),
@@ -61,7 +61,7 @@ async function loadSchedule(programName: RecurringBookingProgram): Promise<Extra
     const times = Array.from(new Set(sortOccurrences(slots).map((slot) =>
       formatSchedulingOccurrenceLabel(slot, { includeWeek }))))
     return times.length ? {
-      classId, formId, name: displayName, skillLevel, times, groups,
+      classId, formId, name: displayName, skillLevel, skillRequirements: skillRequirements?.trim() || null, times, groups,
       excludeFromDropIns: excludeFromDropIns ?? program.excludeFromDropIns,
     } : null
   }))
@@ -96,13 +96,14 @@ export default function PublicRecurringSchedule({ programName }: {
       ) : schedule.status === 'loaded' && schedule.classes.length ? (
         <>
           <ul className={isDevelopmentalGymnastics ? 'np-recurring-schedule-groups' : undefined}>
-            {schedule.classes.map(({ formId, name, times, skillLevel }) => {
+            {schedule.classes.map(({ formId, name, times, skillLevel, skillRequirements }) => {
               const timeList = <ul>{times.map((time) => <li key={time}>{time}</li>)}</ul>
               return (
                 <li key={formId}>
                   {isDevelopmentalGymnastics ? (
                     <details>
                       <summary>{name} {skillLevel && <span>{formatSkillLevel(skillLevel)}</span>}</summary>
+                      {skillRequirements && <p className="np-recurring-skill-requirements"><strong>Skill requirements</strong> {skillRequirements}</p>}
                       {timeList}
                     </details>
                   ) : <>{name}{timeList}</>}
