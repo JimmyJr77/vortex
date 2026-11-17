@@ -14,6 +14,23 @@ const cyclones: SchedulingCalendarEvent = {
 }
 
 test.describe('Client-critical smoke flows', () => {
+  test('homeschool families can compare local options and return to gymnastics class times', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/gymnastics#homeschool')
+    const homeschool = page.locator('#homeschool')
+    await expect(homeschool.getByRole('heading')).toBeInViewport()
+    await homeschool.getByRole('link', { name: 'Compare homeschool gymnastics and PE near Bowie' }).click()
+
+    await expect(page).toHaveURL('/blog/youth-sports-bowie#homeschool-pe')
+    const comparison = page.locator('#homeschool-pe')
+    await expect(comparison.getByRole('heading')).toBeInViewport()
+    await expect(comparison.getByRole('link', { name: 'Look up seasonal homeschool classes' }))
+      .toHaveAttribute('href', 'https://www.pgparks.com/your-guide')
+    await comparison.getByRole('link', { name: 'Check Vortex’s weekly gymnastics times' }).click()
+    await expect(page).toHaveURL('/gymnastics#youth-gymnastics-schedule')
+    await expect(page.locator('#youth-gymnastics-schedule').getByRole('heading').first()).toBeInViewport()
+  })
+
   test('public homepage renders core CTAs', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics & youth athletic training in Bowie, MD' })).toBeVisible()

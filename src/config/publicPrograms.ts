@@ -230,7 +230,11 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       {
         id: 'homeschool',
         heading: 'Gymnastics for homeschool families',
-        description: 'If you are fitting gymnastics into a homeschool or co-op schedule, contact us with the athlete’s age, skill level, and preferred class times. We can help you check which current classes fit.',
+        description: 'Use our regular class schedule to find gymnastics that fits your homeschool week. For daytime classes or group PE, see which nearby programs enroll individual children and which work with homeschool groups.',
+        links: [
+          { href: '/gymnastics#youth-gymnastics-schedule', label: 'Check weekly youth gymnastics times', analyticsKey: 'view_youth_gymnastics_schedule' },
+          { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#homeschool-pe`, label: 'Compare homeschool gymnastics and PE near Bowie', analyticsKey: 'read_bowie_youth_sports_guide' },
+        ],
       },
     ],
     faqs: [

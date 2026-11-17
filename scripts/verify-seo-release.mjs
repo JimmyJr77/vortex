@@ -850,6 +850,15 @@ const verifyHtml = (
       trainingLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/youth-athlete-development') &&
       trainingLinks.some(url => url.href === 'https://www.goatlabperformance.com/programs/the-performance-lab'),
       `${label}: missing the crawlable comparison of Fit & Flip, Redline and The GOAT Lab`)
+    const homeschool = content.match(/<section\b[^>]*\sid=["']homeschool-pe["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const homeschoolLinks = anchorUrls(homeschool)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#homeschool-pe') &&
+      homeschoolLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#youth-gymnastics-schedule`) &&
+      homeschoolLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#first-visit`) &&
+      homeschoolLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
+      homeschoolLinks.some(url => url.href === 'https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex') &&
+      /individual enrollment/.test(homeschool) && /homeschool groups ages 5–17/.test(homeschool),
+      `${label}: missing the comparison of regular gymnastics, daytime homeschool classes, and group PE`)
   }
   if (shouldIndex && pagePath === '/gymnastics') {
     const preschool = html.match(/<article\b[^>]*\sid=["']preschool["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
@@ -857,7 +866,12 @@ const verifyHtml = (
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const homeschool = html.match(/<section\b[^>]*\sid=["']homeschool["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const teamLinks = anchorUrls(team)
+    const homeschoolLinks = anchorUrls(homeschool)
+    assert(homeschoolLinks.some(url => url.href === `${canonical}#youth-gymnastics-schedule`) &&
+      homeschoolLinks.some(url => url.href === `${bowieGuideCanonical}#homeschool-pe`),
+      `${label}: the homeschool section must link to class times and the local PE comparison`)
     assert(anchorUrls(preschool).some((url) => url.href === preschoolGuideCanonical),
       `${label}: missing the crawlable guide link in the preschool class section`)
     assert(anchorUrls(teen).some((url) => url.href === `${canonical}#class-placement`),

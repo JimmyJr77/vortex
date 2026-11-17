@@ -45,6 +45,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#local-programs">Where to look</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
             <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
+            <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
           </ul>
         </nav>
@@ -84,7 +85,7 @@ export default function BowieYouthSportsGuide() {
               member. Check youth supervision rules before visiting.{' '}
               <a href="https://www.cityofbowie.org/104/Gymnasium">Check city gym membership and rules</a>
               {' '}The city also runs separate Wiggle and Giggle sessions for residents and nonresidents. They’re
-              designed for ages 1–6.{' '}
+              designed for ages 1–6, and the city also welcomes ages 7–10.{' '}
               <a href="https://www.cityofbowie.org/278/Programs-at-the-Gym">See the city’s gym programs</a>
             </li>
             <li>
@@ -164,6 +165,34 @@ export default function BowieYouthSportsGuide() {
             beginner. If your child already plays a sport, share their practice and game schedule with the coach.
             Confirm whether your first visit is a regular class, a trial session, or a separate assessment.
           </p>
+        </section>
+
+        <section id="homeschool-pe">
+          <h2>Homeschool gymnastics and PE near Bowie</h2>
+          <ul>
+            <li>
+              <strong>Weekly gymnastics or a single class at Vortex Athletics in Bowie.</strong> Use the regular
+              class schedule to match your child’s age and experience. For a younger child, start with preschool
+              gymnastics for ages 2–5. For a school-age child, see which developmental gymnastics classes offer a
+              trial.{' '}
+              <Link to="/gymnastics#youth-gymnastics-schedule">Check Vortex’s weekly gymnastics times</Link> ·{' '}
+              <Link to="/gymnastics#first-visit">Find a gymnastics trial</Link> ·{' '}
+              <Link to="/drop-in">Browse available drop-in classes</Link>
+            </li>
+            <li>
+              <strong>Daytime homeschool gymnastics in Landover.</strong> Prince George’s Sports &amp; Learning
+              Complex lists homeschool gymnastics for individual enrollment. Search the county’s current guide
+              for “Home-School” and check the age range and prerequisites for the specific class. The Silver &amp;
+              Gold listing calls for prior Bronze-level experience.{' '}
+              <a href="https://www.pgparks.com/your-guide">Look up seasonal homeschool classes</a>
+            </li>
+            <li>
+              <strong>PE for a homeschool group or co-op.</strong> The same county complex offers structured PE
+              for homeschool groups ages 5–17, with one-hour weekly lessons over six weeks. Ask the complex
+              about group size, dates, and fees.{' '}
+              <a href="https://www.pgparks.com/facilities/prince-georges-sports-and-learning-complex">See the county’s homeschool group program</a>
+            </li>
+          </ul>
         </section>
 
         <section id="before-signup">
