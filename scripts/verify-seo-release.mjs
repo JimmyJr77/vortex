@@ -1140,6 +1140,20 @@ const verifyHtml = (
         `${label}: missing the crawlable guide link to ${path}`)
     }
     assert(hasDropInProgramLink(links, 'Fit & Flip'), `${label}: missing the guide link to Cyclones drop-in dates`)
+    const nearbyGymnastics = content.match(/<section\b[^>]*\sid=["']youth-gymnastics-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const nearbyGymnasticsLinks = anchorUrls(nearbyGymnastics)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#youth-gymnastics-classes'),
+      `${label}: missing the jump link to the youth gymnastics comparison`)
+    for (const destination of [
+      `${HUB_ORIGIN}/gymnastics`,
+      `${HUB_ORIGIN}/gymnastics#first-visit`,
+      `${HUB_ORIGIN}/gymnastics#youth-gymnastics-schedule`,
+      'https://www.thrivegym.org/classes',
+      'https://www.docksidersgymnastics.com/class-info',
+    ]) {
+      assert(nearbyGymnasticsLinks.some(url => url.href === destination),
+        `${label}: the youth gymnastics comparison is missing ${destination}`)
+    }
     assert(links.some((url) => url.href === 'https://bowiesoccer.com/programs/') && /U4–U10 players without tryouts/.test(content),
       `${label}: missing the sourced comparison of Bowie FC soccer pathways`)
     assert(links.some(url => url.href === 'https://www.bbgc.com/programs/baseball') &&
@@ -1300,7 +1314,8 @@ const verifyHtml = (
   if (shouldIndex && canonical === tumblingGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const links = anchorUrls(content)
-    for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control', '/read-board#classes', '/#free-trial']) {
+    for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control', '/read-board#classes',
+      '/#free-trial', `${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#youth-gymnastics-classes`]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable comparison guide link to ${path}`)
     }

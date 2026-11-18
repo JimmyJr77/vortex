@@ -104,7 +104,9 @@ export default function GymnasticsVsTumblingGuide() {
             a specific skill in mind, tell the coach what they can already do and ask which class works on it.
           </p>
           <p>
-            For a cheer team, <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-cheerleading`}>compare sideline and all-star cheer in Bowie</Link>.
+            <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-gymnastics-classes`}>Compare youth gymnastics classes near Bowie</Link>{' '}
+            by age and how coaches place new students. For a cheer team,{' '}
+            <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-cheerleading`}>compare sideline and all-star cheer in Bowie</Link>.
           </p>
           <p>For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what kids practice in preschool gymnastics</Link>.</p>
         </section>

@@ -45,6 +45,7 @@ export default function BowieYouthSportsGuide() {
         <nav className="athletic-guide-index" aria-label="In this guide">
           <ul>
             <li><a href="#local-programs">Where to look</a></li>
+            <li><a href="#youth-gymnastics-classes">Youth gymnastics classes near Bowie</a></li>
             <li><a href="#youth-cheerleading">Youth cheerleading in Bowie</a></li>
             <li><a href="#indoor-winter-sports">Indoor winter sports</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
@@ -128,6 +129,37 @@ export default function BowieYouthSportsGuide() {
           </ul>
         </section>
 
+        <section id="youth-gymnastics-classes">
+          <h2>Compare youth gymnastics classes near Bowie</h2>
+          <p>
+            Start with your child’s age and the skills they can already do comfortably. Ask which class takes
+            first-time gymnasts, how coaches place children with experience, and whether you can try a class
+            before enrolling.
+          </p>
+          <ul>
+            <li>
+              <strong>Vortex Athletics and Gymnastics in Bowie.</strong> We offer caregiver classes for ages 2–3 and
+              preschool gymnastics for ages 4–5. Beginners ages 6–17 can look for a Tornadoes trial. Gymnasts in
+              that age range who’ve taken classes before can look for a Trial Assessment to find a starting level.{' '}
+              <Link to="/gymnastics">Compare Vortex gymnastics classes by age and level</Link> ·{' '}
+              <Link to="/gymnastics#youth-gymnastics-schedule">See weekly Vortex gymnastics times</Link> ·{' '}
+              <Link to="/gymnastics#first-visit">See what to expect at a first Vortex class</Link>
+            </li>
+            <li>
+              <strong>Thrive Gym on Defense Highway in Annapolis.</strong> Thrive lists toddler and preschool
+              classes, grade-school gymnastics for ages 5–12, and middle and high school gymnastics for ages
+              10–18. If your child is 10–12, ask which group fits their experience.{' '}
+              <a href="https://www.thrivegym.org/classes">Check Thrive’s Defense Highway gymnastics listings</a>
+            </li>
+            <li>
+              <strong>Docksiders Gymnastics in Millersville.</strong> Docksiders lists preschool classes and
+              separate boys’ and girls’ programs. Families can request an evaluation to help choose a starting
+              class.{' '}
+              <a href="https://www.docksidersgymnastics.com/class-info">Compare Docksiders class levels</a>
+            </li>
+          </ul>
+        </section>
+
         <section id="youth-cheerleading">
           <h2>Youth cheerleading in Bowie</h2>
           <p>
@@ -206,10 +238,8 @@ export default function BowieYouthSportsGuide() {
             them a chance to try individual events in a team setting.
           </p>
           <p>
-            If they keep talking about tumbling or learning a cartwheel, look for a gymnastics class matched to
-            their age and experience. <Link to="/gymnastics">Explore youth gymnastics at Vortex</Link> and see{' '}
-            <Link to="/gymnastics#first-visit">what to expect at their first class</Link>. Compare{' '}
-            <Link to="/gymnastics#youth-gymnastics-schedule">weekly youth gymnastics times</Link> before choosing a class.
+            If they keep talking about learning a cartwheel,{' '}
+            <a href="#youth-gymnastics-classes">compare gymnastics classes near Bowie</a>.
             For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what children learn in preschool gymnastics</Link>.
             {' '}For a class focused on floor and track skills, <Link to={`${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`}>compare dedicated tumbling classes near Bowie</Link>.
           </p>
