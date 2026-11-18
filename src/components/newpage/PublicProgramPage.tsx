@@ -85,12 +85,20 @@ export default function PublicProgramPage({ path, initialPricing }: {
   const [trialOpen, setTrialOpen] = useState(false)
   const handledTrialLocation = useRef<string | null>(null)
   const restoredPricing = useRef(false)
+  const scheduleLayoutSettled = useRef(false)
+  const restorePricingVisibility = useRef<(() => void) | null>(null)
   const trialSectionId = trial && (trial.program === 'gymnastics' ? 'first-visit' : 'training-fit')
   const adultBooking = path === '/adult-gymnastics' ? publicBookingSnapshot?.[path] : null
   const youthBooking = path === '/adult-gymnastics' ? null : publicBookingSnapshot?.[path]
 
+  const handleScheduleLayoutSettled = useCallback(() => {
+    scheduleLayoutSettled.current = true
+    restorePricingVisibility.current?.()
+  }, [])
+
   useEffect(() => {
     if (!hash && !initialPricing) return
+    let cancelPendingRestore: (() => void) | undefined
     const frame = requestAnimationFrame(() => {
       if (initialPricing && !restoredPricing.current) {
         restoredPricing.current = true
@@ -102,13 +110,44 @@ export default function PublicProgramPage({ path, initialPricing }: {
             if (initialPricing.summaryFocused) summary.focus({ preventScroll: true })
             const shift = summary.getBoundingClientRect().top - initialPricing.summaryViewportTop
             window.scrollBy({ top: shift, behavior: 'instant' })
+
+            if (!scheduleLayoutSettled.current) {
+              const position = window.scrollY
+              const listeners = new AbortController()
+              const cancel = () => {
+                listeners.abort()
+                restorePricingVisibility.current = null
+              }
+              cancelPendingRestore = cancel
+              for (const type of ['pointerdown', 'wheel', 'keydown', 'focusin']) {
+                document.addEventListener(type, cancel, { capture: true, passive: true, signal: listeners.signal })
+              }
+              window.addEventListener('scroll', () => {
+                if (window.scrollY !== position) cancel()
+              }, { passive: true, signal: listeners.signal })
+              restorePricingVisibility.current = () => {
+                cancel()
+                if (!pricing.open || !summary.isConnected || window.scrollY !== position) return
+                const { x, y, width, height } = summary.getBoundingClientRect()
+                const centeredTop = (window.innerHeight - height) / 2
+                const targetTop = Math.min(initialPricing.summaryViewportTop, centeredTop)
+                if (targetTop >= 0 && y > targetTop) {
+                  window.scrollBy({ top: y - targetTop, behavior: 'instant' })
+                } else if (!summary.contains(document.elementFromPoint(x + width / 2, y + height / 2))) {
+                  window.scrollBy({ top: y - centeredTop, behavior: 'instant' })
+                }
+              }
+            }
             return
           }
         }
       }
       if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
     })
-    return () => cancelAnimationFrame(frame)
+    return () => {
+      cancelAnimationFrame(frame)
+      cancelPendingRestore?.()
+    }
   }, [hash, initialPricing, key, path])
 
   const openTrial = useCallback((section: string) => {
@@ -210,6 +249,7 @@ export default function PublicProgramPage({ path, initialPricing }: {
               key={recurringSchedule.programName}
               programName={recurringSchedule.programName}
               scheduleId={recurringSchedule.id}
+              onLayoutSettled={initialPricing ? handleScheduleLayoutSettled : undefined}
             />
             <Link to={primaryAction.href} className="np-program-plain-link" data-analytics-cta={primaryAction.analyticsKey} data-analytics-section={recurringSchedule.id.replaceAll('-', '_')}>
               Check dates and availability <ArrowUpRight size={16} aria-hidden="true" />

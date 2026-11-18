@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { formatSkillLevel } from '../../utils/classDisplayUtils'
 import { getEasternDateString } from '../../utils/dateUtils'
@@ -80,9 +80,10 @@ async function loadSchedule(programName: RecurringBookingProgram): Promise<Extra
   }
 }
 
-export default function PublicRecurringSchedule({ programName, scheduleId }: {
+export default function PublicRecurringSchedule({ programName, scheduleId, onLayoutSettled }: {
   programName: RecurringBookingProgram
   scheduleId: string
+  onLayoutSettled?: () => void
 }) {
   const { hash } = useLocation()
   const controlsRef = useRef<HTMLDivElement>(null)
@@ -118,6 +119,10 @@ export default function PublicRecurringSchedule({ programName, scheduleId }: {
     })
     return () => { current = false }
   }, [programName, requested])
+
+  useLayoutEffect(() => {
+    if (schedule.status !== 'loading') onLayoutSettled?.()
+  }, [onLayoutSettled, schedule.status])
 
   return <div ref={controlsRef}>
     <div className="np-recurring-schedule" data-prerender-dynamic="" aria-live="polite">

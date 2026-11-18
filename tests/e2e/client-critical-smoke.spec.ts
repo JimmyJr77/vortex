@@ -584,20 +584,49 @@ test.describe('Client-critical smoke flows', () => {
 
   test('pricing opened before startup stays open and focused on each program page', async ({ browser, baseURL }) => {
     const programs = [
-      { path: '/gymnastics', schedule: 'youth-gymnastics-schedule', pricing: 'youth-gymnastics-pricing', label: 'Compare youth gymnastics prices' },
-      { path: '/fit-and-flip', schedule: 'fit-flip-schedule', pricing: 'fit-flip-class-pricing', label: 'Compare Fit & Flip prices' },
-      { path: '/adult-gymnastics', schedule: 'adult-class-schedule', pricing: 'adult-class-pricing', label: 'Compare adult gymnastics prices' },
+      { path: '/gymnastics', program: 'Developmental Gymnastics', schedule: 'youth-gymnastics-schedule', pricing: 'youth-gymnastics-pricing', label: 'Compare youth gymnastics prices' },
+      { path: '/fit-and-flip', program: 'Fit & Flip', schedule: 'fit-flip-schedule', pricing: 'fit-flip-class-pricing', label: 'Compare Fit & Flip prices' },
+      { path: '/adult-gymnastics', program: 'Adult Fitness & Acrobatics', schedule: 'adult-class-schedule', pricing: 'adult-class-pricing', label: 'Compare adult gymnastics prices' },
     ]
-    for (const { path, schedule, pricing, label } of programs) {
+    for (const { path, program, schedule, pricing, label } of programs) {
       const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } })
+      await context.addCookies([{ name: '_vortex_cid', value: 'c_test_pricing_handoff', url: baseURL }])
       const page = await context.newPage()
       let releaseEntry = () => {}
       const entryGate = new Promise<void>(resolve => { releaseEntry = resolve })
+      let releaseCatalog = () => {}
+      const catalogGate = new Promise<void>(resolve => { releaseCatalog = resolve })
+      let releaseConsent = () => {}
+      const consentGate = new Promise<void>(resolve => { releaseConsent = resolve })
+      const classes = Array.from({ length: 9 }, (_, index) => ({
+        id: 20 + index, formId: 20 + index, displayName: `Published class ${index + 1}`, enrollVisible: true,
+      }))
       let priceRequests = 0
-      await page.route('**/api/**', route => {
+      await page.route('**/api/**', async route => {
         const requestPath = new URL(route.request().url()).pathname
-        if (requestPath === '/api/public/drop-ins') priceRequests += 1
-        return route.fulfill({ json: { success: true, data: { programs: [], sessions: [] } } })
+        const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
+        if (requestPath === '/api/public/classes-offered') {
+          await catalogGate
+          return json({ programs: [{ id: 1, displayName: program, classes }] })
+        }
+        if (requestPath === '/api/public/drop-ins') {
+          priceRequests += 1
+          return json({ classes: [], sessions: [] })
+        }
+        if (requestPath === '/api/consent/sync/c_test_pricing_handoff') {
+          await consentGate
+          return route.fulfill({ json: { success: true, consent: null } })
+        }
+        const form = requestPath.match(/^\/api\/scheduling\/forms\/(\d+)(\/offerings)?$/)
+        if (!form) return json({})
+        if (form[2]) return json([])
+        const formId = Number(form[1])
+        return json({ id: formId, programsId: 1, isActive: true, slotGroups: [
+          { id: formId, formId, offeringId: null, isActive: true, scheduleMode: 'day', occurrences: [
+            { id: formId, formId, slotGroupId: formId, isActive: true, scheduleMode: 'day',
+              dayOfWeek: 1, startTime: '18:00', endTime: '19:00' },
+          ] },
+        ] })
       })
       await page.route(url => url.pathname === '/src/main.tsx', async route => {
         await entryGate
@@ -623,19 +652,33 @@ test.describe('Client-critical smoke flows', () => {
         await expect(page.getByText('First response', { exact: true })).toHaveCount(1)
         const details = page.locator(`#${pricing}`)
         const summary = details.locator('summary')
+        await summary.evaluate(element => element.scrollIntoView({ block: 'center', behavior: 'instant' }))
         await summary.press('Enter')
         await expect(details).toHaveAttribute('open', '')
         await expect(summary).toBeFocused()
+        await expect(summary).toBeInViewport()
 
         releaseEntry()
         await expect(page.getByText('First response', { exact: true })).toHaveCount(0)
         await expect(details).toHaveAttribute('open', '')
-        await expect(summary).toBeInViewport()
         await expect(summary).toBeFocused()
         await expect(page).toHaveURL(`${path}#${schedule}`)
+        releaseCatalog()
+        await expect(page.locator('.np-recurring-schedule').getByText('Published class 9', { exact: false })).toBeVisible()
+        const consent = page.getByRole('dialog', { name: 'Cookie consent' })
+        await expect(consent).toHaveCount(0)
+        releaseConsent()
+        await expect(consent).toBeVisible()
+        await expect.poll(() => summary.evaluate(element => {
+          const { x, y, width, height } = element.getBoundingClientRect()
+          return element.contains(document.elementFromPoint(x + width / 2, y + height / 2))
+        })).toBe(true)
+        await expect(summary).toBeFocused()
         await expect.poll(() => priceRequests).toBe(1)
       } finally {
         releaseEntry()
+        releaseCatalog()
+        releaseConsent()
         await context.close()
       }
     }
