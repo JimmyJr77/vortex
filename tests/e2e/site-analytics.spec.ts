@@ -339,6 +339,70 @@ test('opens a preselected trial from the program page and credits the signup to 
   await expect(dialog).toHaveCount(0)
 })
 
+for (const { path, entrySection, trialSection, label, program } of [
+  { path: '/gymnastics', entrySection: 'first-visit', trialSection: 'first-visit', label: 'Find a free gymnastics trial', program: 'gymnastics' },
+  { path: '/gymnastics', entrySection: 'experienced-trial', trialSection: 'class-placement', label: 'Find a free Trial Assessment', program: 'gymnastics' },
+  { path: '/fit-and-flip', entrySection: 'training-fit', trialSection: 'training-fit', label: 'Find a free Fit & Flip trial', program: 'fit-flip' },
+]) {
+  test(`keeps a trial tap on the ${trialSection} section before startup`, async ({ page }) => {
+    const events = await mockSite(page)
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/')
+    await page.getByRole('button', { name: 'Settings', exact: true }).click()
+    await grantAnalyticsOnly(page)
+
+    const trialAnchor = `open-free-trial-${trialSection}`
+    let releaseEntry = () => {}
+    const entryGate = new Promise<void>(resolve => { releaseEntry = resolve })
+    await page.route(url => url.pathname === '/src/main.tsx', async route => {
+      await entryGate
+      await route.continue()
+    })
+    await page.route(url => url.pathname === path, async route => {
+      const response = await route.fetch()
+      const html = await response.text()
+      expect(html).toContain('<div id="root"></div>')
+      const entry = `<div id="root" data-prerendered-program="${path}">
+        <div id="${entrySection}">
+          <p>Trial first response</p>
+          <a href="#${trialAnchor}" id="${trialAnchor}" role="button">${label}</a>
+        </div>
+      </div>`
+      await route.fulfill({ response, body: html.replace('<div id="root"></div>', entry) })
+    })
+
+    try {
+      const url = `${path}?utm_source=guide-trial`
+      await page.goto(`${url}#${entrySection}`, { waitUntil: 'commit' })
+      const snapshot = page.getByText('Trial first response', { exact: true })
+      const dialog = page.getByRole('dialog', { name: 'How old is your athlete?' })
+      await expect(snapshot).toHaveCount(1)
+      await page.getByRole('button', { name: label, exact: true }).click()
+      await expect(page).toHaveURL(`${url}#${trialAnchor}`)
+      await expect(dialog).toHaveCount(0)
+
+      releaseEntry()
+      await expect(snapshot).toHaveCount(0)
+      await expect(dialog.getByLabel('Your child’s age')).toBeVisible()
+      await expect(page).toHaveURL(`${url}#${trialAnchor}`)
+      await expect.poll(() => events.filter(event => event.eventName === 'trial_start')
+        .map(event => [event.pagePath, event.properties])).toEqual([
+        [path, { section: trialSection.replaceAll('-', '_'), program_slug: program }],
+      ])
+      await page.keyboard.press('Escape')
+      await expect(dialog).toHaveCount(0)
+      const trigger = page.locator(`#${trialSection}`).getByRole('button', { name: label, exact: true })
+      await expect(trigger).toHaveAttribute('href', `#${trialAnchor}`)
+      await expect(trigger).toBeFocused()
+      await trigger.press('Space')
+      await expect(dialog.getByLabel('Your child’s age')).toBeVisible()
+      await expect.poll(() => events.filter(event => event.eventName === 'trial_start')).toHaveLength(2)
+    } finally {
+      releaseEntry()
+    }
+  })
+}
+
 test('takes experienced gymnasts from the comparison guide to Trial Assessment dates', async ({ page }) => {
   const events = await mockSite(page)
   await page.goto('/blog/gymnastics-vs-tumbling')

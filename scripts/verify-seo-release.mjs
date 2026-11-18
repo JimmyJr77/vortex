@@ -140,6 +140,14 @@ const anchorUrls = (html) => tags(html, 'a')
   .filter(Boolean)
   .map((href) => new URL(href, HUB_ORIGIN))
 
+const hasProgramTrialLink = (html, section) => {
+  const anchor = `open-free-trial-${section}`
+  return tags(html, 'a').some(tag => attribute(tag, 'href') === `#${anchor}` &&
+    attribute(tag, 'id') === anchor && attribute(tag, 'aria-haspopup') === 'dialog' &&
+    attribute(tag, 'data-analytics-cta') === 'free_trial' &&
+    attribute(tag, 'data-analytics-section') === section.replaceAll('-', '_'))
+}
+
 const verifyPublicNotFoundHtml = (label, html) => {
   assert(titleValues(html).length === 1 && h1Values(html).length === 1,
     `${label}: expected one title and one H1`)
@@ -777,8 +785,8 @@ const verifyHtml = (
         /parent or legal guardian/i.test(firstVisit), `${label}: missing first-visit attire or guardian guidance`)
       assert(/60 minutes/i.test(firstVisit) && /90 minutes/i.test(firstVisit),
         `${label}: missing the typical length of the youth gymnastics trials`)
-      assert(tags(firstVisit, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
-        `${label}: missing the trial finder button in the first visit section`)
+      assert(hasProgramTrialLink(firstVisit, 'first-visit'),
+        `${label}: the first visit trial finder must work as a native link before startup`)
       const accessLinks = anchorUrls(firstVisit)
       assert(accessLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`) &&
         accessLinks.some(url => url.href === `${HUB_ORIGIN}${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#accessible-gymnastics`),
@@ -835,8 +843,8 @@ const verifyHtml = (
       assert(/ages 6–7.*Tornadoes/.test(ageOptions) &&
         anchorUrls(ageOptions).some(url => url.href === `${HUB_ORIGIN}/gymnastics#first-visit`),
         `${label}: missing the beginner gymnastics trial path for ages 6–7`)
-      assert(tags(firstClass, 'button').some(tag => attribute(tag, 'data-analytics-cta') === 'free_trial'),
-        `${label}: missing the Fit & Flip trial finder button`)
+      assert(hasProgramTrialLink(firstClass, 'training-fit'),
+        `${label}: the Fit & Flip trial finder must work as a native link before startup`)
       assert(anchorUrls(firstClass).some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-class-pricing`),
         `${label}: missing the price comparison link from the Fit & Flip first-class options`)
       assert(/Use your child’s age on the class date/.test(firstClass) && /12–15 group/.test(firstClass) &&
@@ -1247,6 +1255,8 @@ const verifyHtml = (
       /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
       anchorUrls(placement).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
       `${label}: missing the placement comparison or assessment action in the rendered page`)
+    assert(hasProgramTrialLink(placement, 'class-placement'),
+      `${label}: the Trial Assessment must work as a native link before startup`)
     assert(anchorUrls(pathways).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
       `${label}: the youth class choices must link to the team comparison`)
     assert(/Competitive gymnastics team in Bowie/.test(team) && /ages 6 and up/.test(team) &&
@@ -1719,11 +1729,6 @@ for (const set of expectedSets) {
 if (live) {
   const athleticsWwwOrigin = 'https://www.vortexathletics.com'
   const gymnasticsApexOrigin = 'https://vortex-gymnastics.com'
-  const hostAliases = new Map([
-    [gymnasticsApexOrigin, GYMNASTICS_ORIGIN],
-    [athleticsWwwOrigin, HUB_ORIGIN],
-  ])
-
   const verifyLiveRedirect = async (source, destination) => {
     let current = source
     for (let hop = 0; hop < 3; hop += 1) {
@@ -1745,10 +1750,10 @@ if (live) {
         return
       }
 
-      const aliasOrigin = hostAliases.get(current.origin)
-      const aliasTarget = aliasOrigin && new URL(current.pathname + current.search + current.hash, aliasOrigin)
-      const temporaryGymnasticsAlias = current.origin === gymnasticsApexOrigin && response.status === 307
-      const aliasRedirect = next.href === aliasTarget?.href && (permanent || temporaryGymnasticsAlias)
+      const aliasTarget = current.origin === athleticsWwwOrigin
+        ? new URL(current.pathname + current.search + current.hash, HUB_ORIGIN)
+        : undefined
+      const aliasRedirect = permanent && next.href === aliasTarget?.href
       const slashlessTarget = new URL(current)
       slashlessTarget.pathname = current.pathname.replace(/\/$/, '')
       const slashRedirect = permanent && slashlessTarget.href !== current.href && next.href === slashlessTarget.href

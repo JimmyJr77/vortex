@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { Suspense, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ArrowUpRight, ChevronDown } from 'lucide-react'
 import {
@@ -19,6 +19,7 @@ import './PublicProgramPage.css'
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
 const TRIAL_ANCHOR = 'open-free-trial'
 const TRIAL_HASH = `#${TRIAL_ANCHOR}`
+const sectionTrialAnchor = (sectionId: string) => `${TRIAL_ANCHOR}-${sectionId}`
 
 const HERO_IMAGE_SIZES = [
   '(max-width: 620px) calc(100vw - 44px)',
@@ -90,6 +91,9 @@ export default function PublicProgramPage({ path, initialPricing }: {
   const trialSectionId = trial && (trial.program === 'gymnastics' ? 'first-visit' : 'training-fit')
   const adultBooking = path === '/adult-gymnastics' ? publicBookingSnapshot?.[path] : null
   const youthBooking = path === '/adult-gymnastics' ? null : publicBookingSnapshot?.[path]
+  const trialIntentSection = hash === TRIAL_HASH ? 'program' : program.sections
+    .find(section => section.trialLabel && hash === `#${sectionTrialAnchor(section.id)}`)
+    ?.id.replaceAll('-', '_')
 
   const handleScheduleLayoutSettled = useCallback(() => {
     scheduleLayoutSettled.current = true
@@ -157,7 +161,7 @@ export default function PublicProgramPage({ path, initialPricing }: {
   }, [path, trial])
 
   useEffect(() => {
-    if (!trial || hash !== TRIAL_HASH) {
+    if (!trial || !trialIntentSection) {
       if (handledTrialLocation.current !== null) {
         handledTrialLocation.current = null
         setTrialOpen(false)
@@ -165,21 +169,37 @@ export default function PublicProgramPage({ path, initialPricing }: {
       return
     }
 
-    // React may start after a native click on the prerendered hero link.
-    // Treat its fragment like a direct link into this program’s trial.
-    if (handledTrialLocation.current === key) return
-    handledTrialLocation.current = key
-    document.getElementById(TRIAL_ANCHOR)?.focus({ preventScroll: true })
-    openTrial('program')
-  }, [hash, key, openTrial, trial])
+    // A native click can record the trial intent before React starts.
+    const location = key + hash
+    if (handledTrialLocation.current === location) return
+    handledTrialLocation.current = location
+    document.getElementById(hash.slice(1))?.focus({ preventScroll: true })
+    openTrial(trialIntentSection)
+  }, [hash, key, openTrial, trial, trialIntentSection])
 
-  function renderTrialButton(section: string, label: string) {
-    if (!trial) return null
+  function activateTrialLink(event: MouseEvent<HTMLAnchorElement>, section: string) {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
+    event.preventDefault()
+    openTrial(section)
+  }
+
+  function renderSectionTrialLink(sectionId: string, label: string) {
+    const anchor = sectionTrialAnchor(sectionId)
+    const analyticsSection = sectionId.replaceAll('-', '_')
     return (
-      <button type="button" className="np-program-plain-link" data-analytics-cta="free_trial" data-analytics-section={section}
-        onClick={() => openTrial(section)}>
+      <a
+        id={anchor} href={`#${anchor}`} role="button" aria-haspopup="dialog"
+        className="np-program-plain-link scroll-mt-24" data-analytics-cta="free_trial" data-analytics-section={analyticsSection}
+        onClick={event => activateTrialLink(event, analyticsSection)}
+        onKeyDown={event => { if (event.key === ' ') event.preventDefault() }}
+        onKeyUp={event => {
+          if (event.key !== ' ') return
+          event.preventDefault()
+          event.currentTarget.click()
+        }}
+      >
         {label} <ArrowUpRight size={16} aria-hidden="true" />
-      </button>
+      </a>
     )
   }
 
@@ -207,11 +227,7 @@ export default function PublicProgramPage({ path, initialPricing }: {
               {trial && (
                 <a href={TRIAL_HASH} className="np-program-plain-link" aria-haspopup="dialog"
                   data-analytics-cta="free_trial" data-analytics-section="program"
-                  onClick={event => {
-                    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return
-                    event.preventDefault()
-                    openTrial('program')
-                  }}>
+                  onClick={event => activateTrialLink(event, 'program')}>
                   {trial.label} <ArrowUpRight size={16} aria-hidden="true" />
                 </a>
               )}
@@ -286,7 +302,7 @@ export default function PublicProgramPage({ path, initialPricing }: {
             )}
             {(section.links || section.trialLabel) && (
               <div className="np-program-page-actions">
-                {section.trialLabel && renderTrialButton(section.id.replaceAll('-', '_'), section.trialLabel)}
+                {trial && section.trialLabel && renderSectionTrialLink(section.id, section.trialLabel)}
                 {section.links?.map(({ href, label, analyticsKey }) => (
                   <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={section.id}>
                     {label} <ArrowUpRight size={16} aria-hidden="true" />
