@@ -60,6 +60,7 @@ import { initDropInTables, registerDropInRoutes } from './scheduling/dropIns.js'
 import { registerProgramsAdminRoutes, registerProgramsPublicRoutes } from './programs/registerRoutes.js'
 import { registerCampRegistrationRoutes } from './campRegistrations/registerRoutes.js'
 import { registerPublicInquiryRoutes } from './newAdmin/publicInquiries.js'
+import { registerPublicJobApplicationRoutes } from './newAdmin/jobApplications.js'
 import { initDbFeatureTables } from './dbfeatures/initTables.js'
 import { registerSchoolsRoutes } from './schools/registerRoutes.js'
 import { registerNotesRoutes } from './notes/registerRoutes.js'
@@ -335,9 +336,6 @@ const applicationJson=express.json({
     }
   },
 })
-// The signed notice endpoint must receive original bytes in its bounded raw parser.
-app.use((req,res,next)=>req.originalUrl?.split('?')[0]===w2ProviderPath?next():applicationJson(req,res,next))
-
 // Rate limiting — higher cap in dev (React Strict Mode doubles effect fetches).
 const isProduction = process.env.NODE_ENV === 'production'
 const apiRateLimitMax =
@@ -348,9 +346,6 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.',
   skip: (req) => req.method === 'OPTIONS',
 })
-app.use('/api/', limiter)
-console.log(`🛡️ API rate limit: ${apiRateLimitMax} requests / 15 min`)
-
 const passwordResetLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: Number(process.env.PASSWORD_RESET_RATE_LIMIT_MAX) || 5,
@@ -391,6 +386,14 @@ const pool = new Pool({
   port: process.env.DB_PORT || 5432,
   ssl: databaseSsl
 })
+
+// Job applications use their own request limit and JSON size cap before the generic parser.
+registerPublicJobApplicationRoutes(app, pool)
+// The signed notice endpoint must receive original bytes in its bounded raw parser.
+app.use((req,res,next)=>req.originalUrl?.split('?')[0]===w2ProviderPath?next():applicationJson(req,res,next))
+app.use('/api/', limiter)
+console.log(`🛡️ API rate limit: ${apiRateLimitMax} requests / 15 min`)
+
 let requiredBillingSchemaReady = false
 let requiredAccessSchemaReady = false
 
