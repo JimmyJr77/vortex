@@ -502,12 +502,22 @@
 }
 .np-path-help {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
-  gap: 28px;
+  gap: 16px 28px;
   margin-top: 33px;
-  font-size: 12px;
-  color: var(--np-muted);
+  padding: clamp(18px, 3vw, 32px);
+  background: var(--np-paper);
+  border: 1px solid var(--np-line);
+  border-inline-start: 3px solid var(--np-red);
+  border-radius: 4px;
+  font-size: clamp(17px, 2vw, 21px);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.np-path-help > .np-button {
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .np-triad-section {
   background: var(--np-paper);
@@ -1189,10 +1199,6 @@
     font-size: 6px;
     letter-spacing: 1px;
   }
-  .np-path-help {
-    font-size: 11px;
-    gap: 15px;
-  }
   .np-triad-tabs button {
     font-size: 16px;
     gap: 10px;
@@ -1368,10 +1374,7 @@
   }
   .np-path-help {
     flex-direction: column;
-    text-align: center;
-    gap: 12px;
-    margin-top: 29px;
-    font-size: 11px;
+    align-items: stretch;
   }
   .np-triad-tabs {
     margin-top: 30px;
@@ -1689,11 +1692,6 @@
     min-height: 60px;
     font-size: 14px;
   }
-  .np-path-help {
-    font-size: 14px;
-    line-height: 1.75;
-    gap: 6px;
-  }
   .np-triad-tabs button {
     display: grid;
     grid-template-columns: 1fr;
@@ -1932,7 +1930,6 @@
   }
   .np-text-button,
   .np-program-link,
-  .np-path-help,
   .np-triad-cues,
   .np-triad-equation {
     font-size: 14px;

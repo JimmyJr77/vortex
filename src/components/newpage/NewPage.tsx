@@ -1,12 +1,12 @@
 import { Suspense, useCallback, useEffect, useRef, useState, type MouseEvent } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ArrowDown, ArrowRight, ArrowUpRight, Check, Menu, Pause, Play, Plus, X } from 'lucide-react'
+import { ArrowDown, ArrowRight, ArrowUpRight, Check, Pause, Play, Plus } from 'lucide-react'
 import { BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import SeoHead from '../SeoHead'
 import ParallaxGym from '../ParallaxGym'
 import PublicBrandImage from './PublicBrandImage'
 import PublicDialog from './PublicDialog'
-import PublicNavigationLinks from './PublicNavigationLinks'
+import { PublicSiteHeader } from './PublicSiteChrome'
 import { getHubSeoForPath } from '../../config/hubSeo'
 import { HOME_FAQS } from '../../config/faqs'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
@@ -201,8 +201,6 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
     })
     return () => cancelAnimationFrame(frame)
   }, [hash])
-  const [menuOpen, setMenuOpen] = useState(false)
-  const menuToggle = useRef<HTMLButtonElement>(null)
   const [overlay, setOverlay] = useState<Overlay>(null)
   const [inquiryProgram, setInquiryProgram] = useState<Program | undefined>()
   const [trialProgram, setTrialProgram] = useState<Program | undefined>()
@@ -298,26 +296,11 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
   return (
     <div className={`np-page${motionPaused ? ' np-motion-paused' : ''}`} id="top">
       <SeoHead {...getHubSeoForPath('/')} schema={getHubSchema('/')} />
-      <a className="np-skip" href="#main">Skip to content</a>
-      <header className="np-header" onKeyDown={(event) => {
-        if (event.key !== 'Escape' || !menuOpen) return
-        setMenuOpen(false)
-        menuToggle.current?.focus({ preventScroll: true })
-      }}>
-        <div className="np-container np-nav">
-          <Brand />
-          <nav className="np-desktop-nav" aria-label="Main navigation"><PublicNavigationLinks /></nav>
-          <div className="np-nav-actions">
-            <button className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={onLogin}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} /></button>
-            <a className="np-button np-nav-cta" href={`#${TRIAL_ANCHORS.navigation}`} aria-haspopup="dialog"
-              data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={event => activateTrialLink(event, 'navigation')}>
-              Try a free class <ArrowUpRight size={16} aria-hidden="true" />
-            </a>
-            <button ref={menuToggle} className="np-menu-toggle" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} aria-controls="np-mobile-nav" onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? <X /> : <Menu />}</button>
-          </div>
-        </div>
-        {menuOpen && <nav id="np-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation"><PublicNavigationLinks mobile onNavigate={() => setMenuOpen(false)} /><button data-analytics-cta="member_login" data-analytics-section="navigation" onClick={() => { setMenuOpen(false); onLogin() }}>{isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={18} /></button></nav>}
-      </header>
+      <PublicSiteHeader
+        isLoggedIn={isLoggedIn}
+        onLogin={onLogin}
+        homeTrial={{ href: `#${TRIAL_ANCHORS.navigation}`, onClick: event => activateTrialLink(event, 'navigation') }}
+      />
 
       <main id="main">
         <section className="np-hero">
@@ -353,6 +336,12 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
             <button className="np-program-image" onClick={() => openProgram(id, 'program_cards')} aria-label={`Explore ${program.name}`}><img {...homepagePhoto(program.image)} alt={program.alt} width="900" height="675" loading="lazy" /><span className="np-program-number">0{index + 1}</span><span className="np-image-arrow"><ArrowUpRight size={24} /></span></button>
             <div className="np-program-body"><p className="np-eyebrow">{program.eyebrow}</p><h3>{program.name}</h3><p>{program.summary}</p><p className="np-program-audience">{program.audience}</p><div className="np-tags">{program.tags.map(tag => <span key={tag}>{tag}</span>)}</div><Link className="np-program-link" to={program.page} data-analytics-cta={`explore_${id}`} data-analytics-section="program_cards">{program.linkText}<ArrowUpRight size={21} aria-hidden="true" /></Link></div>
           </article>)}</div>
+          <div className="np-path-help">
+            <p>Compare programs based on what your athlete wants to learn.</p>
+            <button type="button" className="np-button" aria-haspopup="dialog" data-analytics-cta="program_finder" data-analytics-section="programs" onClick={() => setOverlay('finder')}>
+              Find your fit <ArrowRight size={18} aria-hidden="true" />
+            </button>
+          </div>
           <section className="np-class-paths" id="starting-classes" aria-labelledby="np-starting-classes-heading">
             <h3 id="np-starting-classes-heading">Find a class by age and experience</h3>
             <nav className="np-class-options" aria-label="Choose a program by age">
@@ -384,7 +373,6 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
               ))}
             </ul>
           </section>
-          <div className="np-path-help"><span>Compare programs based on what your athlete wants to learn.</span><button className="np-text-button" data-analytics-cta="program_finder" data-analytics-section="programs" onClick={() => setOverlay('finder')}>Find your fit <ArrowRight size={18} /></button></div>
         </section>
 
         <section className="np-container np-trial-section" id="free-trial" aria-labelledby="np-free-trial-heading">

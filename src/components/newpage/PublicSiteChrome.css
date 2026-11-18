@@ -58,6 +58,10 @@
   flex-shrink: 0;
   color: var(--np-ink);
 }
+.np-header .np-brand {
+  flex-shrink: 1;
+  min-width: 0;
+}
 .np-brand img {
   display: block;
   width: 100%;
@@ -128,18 +132,21 @@
   padding-inline-start: 14px;
   border-inline-start: 1px solid var(--np-line);
 }
-.np-desktop-nav .np-nav-schedule {
-  justify-content: center;
-  min-width: 44px;
-}
-.np-nav-label {
-  display: inline-flex;
+.np-portal-actions {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  white-space: nowrap;
+  gap: 4px;
 }
-.np-nav-label svg {
+.np-nav-schedule {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
+  transition: color .2s;
+}
+.np-nav-schedule:hover {
+  color: var(--np-red);
 }
 .np-nav-actions {
   display: flex;
@@ -150,6 +157,7 @@
   display: flex;
   gap: 6px;
   align-items: center;
+  min-height: 44px;
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
@@ -329,9 +337,6 @@
   .np-nav-actions {
     gap: 18px;
   }
-  .np-login {
-    display: none;
-  }
 }
 @media(max-width:860px) {
   .np-container {
@@ -340,6 +345,9 @@
   }
   .np-header { --np-navbar-height: 77px; }
   .np-desktop-nav {
+    display: none;
+  }
+  .np-nav-actions > .np-portal-actions {
     display: none;
   }
   .np-menu-toggle {
@@ -354,12 +362,15 @@
     border-top: 1px solid var(--np-line);
     padding: 8px 28px 20px;
   }
-  .np-mobile-nav a,.np-mobile-nav>button,.np-mobile-nav .np-nav-programs summary {
+  .np-mobile-nav a:not(.np-nav-schedule),.np-mobile-nav .np-login,.np-mobile-nav .np-nav-programs summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
     padding: 12px 0;
+  }
+  .np-mobile-nav .np-login {
+    flex: 1;
   }
   .np-nav-actions {
     gap: 14px;
@@ -487,7 +498,7 @@
     padding-left: 22px;
     padding-right: 22px;
   }
-  .np-mobile-nav a,.np-mobile-nav>button,.np-mobile-nav .np-nav-programs summary {
+  .np-mobile-nav a:not(.np-nav-schedule),.np-mobile-nav .np-login,.np-mobile-nav .np-nav-programs summary {
     min-height: 50px;
     font-size: 16px;
   }
@@ -568,7 +579,6 @@
   }
 }
 @media (min-width: 861px) and (max-width: 1150px) {
-  .np-login { display: flex; }
   .np-nav-actions { gap: 14px; }
   .np-desktop-nav { gap: 14px; }
 }
@@ -603,38 +613,6 @@
 @media (min-width: 1280px) {
   .np-nav { gap: 18px; }
   .np-desktop-nav { gap: 22px; }
-}
-/* Collapse Schedule to its accessible icon before switching to the dropdown. */
-@media (min-width: 1280px) and (max-width: 1399px) {
-  .np-desktop-nav .np-nav-schedule .np-nav-text { display: none; }
-}
-/* Keep the full supplied logo clear without crowding the navigation. */
-@media (min-width: 861px) and (max-width: 1279px) {
-  .np-header .np-desktop-nav { display: none; }
-  .np-header .np-menu-toggle {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-  }
-  .np-header .np-mobile-nav {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--np-line);
-    padding: 8px 36px 20px;
-  }
-  .np-header .np-mobile-nav a,
-  .np-header .np-mobile-nav > button,
-  .np-header .np-mobile-nav .np-nav-programs summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    font-size: 14px;
-    padding: 12px 0;
-  }
-}
-@media (min-width: 861px) and (max-width: 1150px) {
-  .np-header .np-brand { width: clamp(176px, calc(100vw - 686px), 300px); }
 }
 @media (max-width: 620px) {
   .np-header .np-brand { width: clamp(120px, calc(100vw - 234px), 220px); }
