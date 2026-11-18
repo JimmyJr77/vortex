@@ -39,8 +39,13 @@ test('analytics admins can filter reports and check Google search visibility', a
           totals: { sessions: 5, page_views: 7, visitors: 4, returning_visitors: 1,
             engaged_sessions: 3, converting_sessions: 2, timed_sessions: 2, avg_active_seconds: 17.5 },
           pageViewsByDay: [], topPages: [], paths: [], devices: [],
-          channels: [{ channel: 'Email', sessions: 5, conversions: 2 }],
-          sources: [{ channel: 'Email', source: 'newsletter', medium: 'email', campaign: 'Fall classes', sessions: 5, conversions: 2 }],
+          channels: [{ channel: 'Email', sessions: 2, conversions: 1 }, { channel: 'Organic search', sessions: 3, conversions: 1 }],
+          sources: [{ channel: 'Email', source: 'newsletter', medium: 'email', campaign: 'Fall classes', sessions: 2, conversions: 1 },
+            { channel: 'Organic search', source: 'google.com', medium: null, campaign: null, sessions: 3, conversions: 1 }],
+          organicGymnasticsLandings: [
+            { hostname: 'vortexathletics.com', page_path: '/', sessions: 2, trial_selected_sessions: 1, trial_confirmed_sessions: 1 },
+            { hostname: 'vortexathletics.com', page_path: '/gymnastics', sessions: 1, trial_selected_sessions: 1, trial_confirmed_sessions: 0 },
+          ],
         }
         break
       case '/api/admin/analytics/acquisition':
@@ -142,6 +147,9 @@ test('analytics admins can filter reports and check Google search visibility', a
   await expect(page.getByRole('heading', { name: 'Business outcomes' })).toBeVisible()
   await page.getByRole('button', { name: 'Traffic & Acquisition' }).click()
   await expect(page.getByRole('heading', { name: 'Acquisition channels' })).toBeVisible()
+  const organicTrials = page.getByRole('table', { name: 'Organic search and gymnastics trials' })
+  await expect(organicTrials.getByRole('row').filter({ hasText: '/gymnastics' }).getByRole('cell'))
+    .toHaveText([/\/gymnastics/, '1', '1', '0'])
   await expect(page.getByRole('cell', { name: 'Fall classes' })).toBeVisible()
   await expect(page.getByText('3 new · 1 returning')).toBeVisible()
   await page.getByRole('button', { name: 'Custom', exact: true }).click()

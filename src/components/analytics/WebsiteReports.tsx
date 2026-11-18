@@ -104,6 +104,15 @@ export function TrafficReport({ data }: { data: TrafficData }) {
           </ResponsiveContainer>
         </div>
       )}
+      {data.organicGymnasticsLandings && (
+        <ReportTable title="Organic search and gymnastics trials"
+          description="Consented search visits grouped by their first page. Each trial action is counted once per session."
+          items={data.organicGymnasticsLandings} columns={[
+            { label: 'Landing page', cell: pageLabel }, sessionColumn,
+            { label: 'Selected a trial date', cell: row => number.format(row.trial_selected_sessions) },
+            { label: 'Confirmed a trial', cell: row => number.format(row.trial_confirmed_sessions) },
+          ]} />
+      )}
       <div className="grid gap-4 xl:grid-cols-2">
         <ReportTable title="Acquisition channels" items={data.channels} columns={[
           { label: 'Channel', cell: row => row.channel }, sessionColumn, conversionColumn, rateColumn,

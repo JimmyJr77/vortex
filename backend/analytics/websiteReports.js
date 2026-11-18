@@ -3,7 +3,12 @@ import { actionNames, conversionNames, intentNames, publicPaths, sanitizeHostnam
 const dateAtFacility = (timestamp) => `(${timestamp} AT TIME ZONE 'America/New_York')::date`
 const allowedPaths = [...publicPaths]
 const normalizeHostname = (col) => `REGEXP_REPLACE(LOWER(${col}), '^www\\.', '')`
-const routePath = "LOWER(RTRIM(SPLIT_PART(SPLIT_PART(ae.page_path, '?', 1), '#', 1), '/'))"
+const normalizePath = (col) => `LOWER(RTRIM(SPLIT_PART(SPLIT_PART(${col}, '?', 1), '#', 1), '/'))`
+const routePath = normalizePath('ae.page_path')
+const storedLandingPath = normalizePath('vs.landing_path')
+const reportPath = (path) => `CASE WHEN ${path} = '' THEN '/'
+                                 WHEN ${path} = ANY($4::text[]) THEN ${path}
+                                 ELSE '/other' END`
 
 function websiteParams({ from, to }, hostname) {
   return [from, to, sanitizeHostname(hostname), allowedPaths, actionNames, conversionNames]
@@ -13,9 +18,7 @@ function websiteParams({ from, to }, hostname) {
 const eligibleEvents = `
   SELECT ae.id, ae.event_id, ae.event_name, ae.occurred_at, ae.visitor_id, ae.session_id,
          ${normalizeHostname('ae.hostname')} AS hostname, ae.properties,
-         CASE WHEN ${routePath} = '' THEN '/'
-              WHEN ${routePath} = ANY($4::text[]) THEN ${routePath}
-              ELSE '/other' END AS page_path
+         ${reportPath(routePath)} AS page_path
   FROM analytics_events ae
   WHERE ae.occurred_at BETWEEN $1 AND $2
     AND ae.consent_analytics IS TRUE AND ae.is_staff IS NOT TRUE
@@ -82,12 +85,17 @@ export async function getWebsiteTraffic(pool, range, hostname) {
       FROM view_timing GROUP BY hostname, session_id, visitor_id
     ), session_actions AS (
       SELECT hostname, session_id, visitor_id,
-             BOOL_OR(event_name = ANY($6::text[])) AS converted
+             BOOL_OR(event_name = ANY($6::text[])) AS converted,
+             BOOL_OR(event_name = 'trial_class_select' AND properties->>'program_slug' = 'gymnastics') AS trial_selected,
+             BOOL_OR(event_name = 'trial_confirmed' AND properties->>'program_slug' = 'gymnastics') AS trial_confirmed
       FROM events WHERE event_name = ANY($5::text[] || $6::text[])
       GROUP BY hostname, session_id, visitor_id
     ), audience AS MATERIALIZED (
-      SELECT s.*, COALESCE(a.converted, false) AS converted, t.active_ms,
+      SELECT s.*, COALESCE(a.converted, false) AS converted, a.trial_selected, a.trial_confirmed, t.active_ms,
              (s.views >= 2 OR COALESCE(t.active_ms >= 10000, false) OR a.session_id IS NOT NULL) AS engaged,
+             CASE WHEN NULLIF(vs.landing_path, '') IS NULL THEN s.landing_page
+                  WHEN vs.landing_path !~ '^/([^/]|$)' THEN '/other'
+                  ELSE ${reportPath(storedLandingPath)} END AS original_landing_page,
              CASE WHEN TRIM(vs.utm_source) ~ '^[a-zA-Z0-9][a-zA-Z0-9 ._-]{0,99}$' THEN TRIM(vs.utm_source) END AS utm_source,
              CASE WHEN TRIM(vs.utm_medium) ~ '^[a-zA-Z0-9][a-zA-Z0-9 ._-]{0,99}$' THEN LOWER(TRIM(vs.utm_medium)) END AS utm_medium,
              CASE WHEN TRIM(vs.utm_campaign) ~ '^[a-zA-Z0-9][a-zA-Z0-9 ._-]{0,99}$' THEN TRIM(vs.utm_campaign) END AS utm_campaign,
@@ -161,6 +169,12 @@ export async function getWebsiteTraffic(pool, range, hostname) {
              COUNT(*)::int AS sessions, COUNT(*) FILTER (WHERE converted)::int AS conversions
       FROM attributed GROUP BY channel, source, utm_medium, utm_campaign
       ORDER BY sessions DESC, channel, source, medium, campaign LIMIT 25
+    ), organic_gymnastics_landings AS (
+      SELECT hostname, original_landing_page AS page_path, COUNT(*)::int AS sessions,
+             COUNT(*) FILTER (WHERE trial_selected)::int AS trial_selected_sessions,
+             COUNT(*) FILTER (WHERE trial_confirmed)::int AS trial_confirmed_sessions
+      FROM attributed WHERE channel = 'Organic search'
+      GROUP BY hostname, original_landing_page
     )
     SELECT TO_JSONB(totals) AS totals,
            COALESCE((SELECT JSONB_AGG(trend ORDER BY day) FROM trend), '[]') AS "pageViewsByDay",
@@ -168,7 +182,9 @@ export async function getWebsiteTraffic(pool, range, hostname) {
            COALESCE((SELECT JSONB_AGG(paths ORDER BY entrances + exits DESC, hostname, page_path) FROM paths), '[]') AS paths,
            COALESCE((SELECT JSONB_AGG(devices ORDER BY sessions DESC, device) FROM devices), '[]') AS devices,
            COALESCE((SELECT JSONB_AGG(channels ORDER BY sessions DESC, channel) FROM channels), '[]') AS channels,
-           COALESCE((SELECT JSONB_AGG(sources ORDER BY sessions DESC, channel, source, medium, campaign) FROM sources), '[]') AS sources
+           COALESCE((SELECT JSONB_AGG(sources ORDER BY sessions DESC, channel, source, medium, campaign) FROM sources), '[]') AS sources,
+           COALESCE((SELECT JSONB_AGG(organic_gymnastics_landings ORDER BY sessions DESC, hostname, page_path)
+             FROM organic_gymnastics_landings), '[]') AS "organicGymnasticsLandings"
     FROM totals`,
   [...websiteParams(range, hostname).slice(0, 4), intentNames, conversionNames])
   return row

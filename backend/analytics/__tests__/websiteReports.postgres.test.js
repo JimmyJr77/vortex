@@ -157,6 +157,57 @@ test('consented site events produce deduplicated traffic, engagement, and ordere
   const inquiry = funnel.journeys.find(journey => journey.name === 'Inquiry')
   assert.deepEqual(inquiry.steps.map(({ count }) => count), [2, 1, 1])
   assert.deepEqual(inquiry.steps.map(({ conversionFromPrevious }) => conversionFromPrevious), [null, 50, 100])
+
+  await t.test('reports organic gymnastics trial sessions by their original public landing page', async () => {
+    const trialRange = parseDateRange({ from: '2026-11-18', to: '2026-11-18' })
+    const previousDay = '2026-11-17T20:00:00.000Z'
+    const guide = '/blog/gymnastics-vs-tumbling'
+    const google = 'https://www.google.com'
+    const bing = 'https://www.bing.com'
+    const identifiers = (name) => ({ visitorId: `v_trial_${name}_test`, sessionId: `s_trial_${name}_test` })
+    const organicGuide = identifiers('guide')
+    const organicHome = identifiers('home')
+    const organicWithoutStoredPath = identifiers('fallback')
+    const organicPrivatePath = identifiers('private')
+    const paidGuide = identifiers('paid')
+    const inRange = minute => new Date(Date.UTC(2026, 10, 18, 16, minute)).toISOString()
+    const trial = (name, minute, identifiers, program) => event(name, inRange(minute), {
+      ...identifiers, pagePath: '/gymnastics', properties: program ? { program_slug: program } : {},
+    })
+    const trials = [
+      event('page_view', previousDay, { ...organicGuide, pagePath: guide, referrer: google }),
+      event('page_view', inRange(1), { ...organicGuide, pagePath: '/gymnastics' }),
+      trial('trial_class_select', 2, organicGuide, 'gymnastics'),
+      trial('trial_class_select', 2, organicGuide, 'gymnastics'),
+      trial('trial_confirmed', 3, organicGuide, 'gymnastics'),
+      trial('trial_confirmed', 3, organicGuide, 'gymnastics'),
+      event('page_view', previousDay, { ...organicHome, pagePath: '/', referrer: bing }),
+      event('page_view', inRange(1), { ...organicHome, pagePath: '/fit-and-flip' }),
+      trial('trial_class_select', 2, organicHome, 'fit-flip'),
+      trial('trial_confirmed', 3, organicHome, 'fit-flip'),
+      event('page_view', inRange(1), { ...organicWithoutStoredPath, pagePath: '/', referrer: bing }),
+      trial('trial_class_select', 2, organicWithoutStoredPath, 'fit-flip'),
+      trial('trial_confirmed', 3, organicWithoutStoredPath),
+      event('page_view', inRange(1), { ...organicPrivatePath, pagePath: '/gymnastics', referrer: google }),
+      trial('trial_class_select', 2, organicPrivatePath, 'gymnastics'),
+      event('page_view', inRange(1), { ...paidGuide, pagePath: guide, referrer: google, utm: { source: 'google', medium: 'cpc' } }),
+      trial('trial_class_select', 2, paidGuide, 'gymnastics'),
+      trial('trial_confirmed', 3, paidGuide, 'gymnastics'),
+    ]
+    assert.equal(await send(trials), trials.length)
+    await pool.query('UPDATE visitor_sessions SET landing_path = $2 WHERE session_id = $1', [organicGuide.sessionId, guide.toUpperCase() + '/?private=token#section'])
+    await pool.query('UPDATE visitor_sessions SET landing_path = NULL WHERE session_id = $1', [organicWithoutStoredPath.sessionId])
+    await pool.query('UPDATE visitor_sessions SET landing_path = $2 WHERE session_id = $1', [organicPrivatePath.sessionId, '/private-landing/token'])
+
+    const { organicGymnasticsLandings } = await getWebsiteTraffic(pool, trialRange, 'vortexathletics.com')
+    assert.deepEqual(organicGymnasticsLandings, [
+      { hostname: 'vortexathletics.com', page_path: '/', sessions: 2, trial_selected_sessions: 0, trial_confirmed_sessions: 0 },
+      { hostname: 'vortexathletics.com', page_path: guide, sessions: 1, trial_selected_sessions: 1, trial_confirmed_sessions: 1 },
+      { hostname: 'vortexathletics.com', page_path: '/other', sessions: 1, trial_selected_sessions: 1, trial_confirmed_sessions: 0 },
+    ])
+    assert.deepEqual((await getWebsiteTraffic(pool, trialRange, 'vortex-gymnastics.com')).organicGymnasticsLandings, [])
+  })
+
   await pool.query(`
     CREATE TABLE program (id bigint, facility_id bigint);
     CREATE TABLE scheduling_form (id bigint, program_id bigint);

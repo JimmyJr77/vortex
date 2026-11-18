@@ -93,6 +93,11 @@ export interface TrafficData {
   pageViewsByDay: Array<{ day: string; page_views: number; sessions: number; visitors: number }>
   topPages: Array<WebsitePage & { views: number; sessions: number }>
   paths: Array<WebsitePage & { entrances: number; exits: number; conversions: number }>
+  organicGymnasticsLandings?: Array<WebsitePage & {
+    sessions: number
+    trial_selected_sessions: number
+    trial_confirmed_sessions: number
+  }>
   devices: Array<SessionConversions & { device: string }>
   channels: Array<SessionConversions & { channel: string }>
   sources: Array<SessionConversions & { channel: string; source: string; medium: string | null; campaign: string | null }>
