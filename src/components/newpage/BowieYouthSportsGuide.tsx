@@ -144,7 +144,8 @@ export default function BowieYouthSportsGuide() {
               that age range who’ve taken classes before can look for a Trial Assessment to find a starting level.{' '}
               <Link to="/gymnastics">Compare Vortex gymnastics classes by age and level</Link> ·{' '}
               <Link to="/gymnastics#youth-gymnastics-schedule">See weekly Vortex gymnastics times</Link> ·{' '}
-              <Link to="/gymnastics#first-visit">See what to expect at a first Vortex class</Link>
+              <Link to="/gymnastics#first-visit">See what to expect at a first Vortex class</Link> ·{' '}
+              <Link to="/gymnastics#trampoline-tumbling">See how Vortex teaches floor tumbling in group classes</Link>
             </li>
             <li>
               <strong>Train For Greatness in Bowie.</strong> Its girls’ beginner and intermediate classes start at age 5.
@@ -189,9 +190,11 @@ export default function BowieYouthSportsGuide() {
               <a href="https://www.powerathleticsmd.com/">Compare POWER Athletics cheer levels</a>.
             </li>
             <li>
-              <strong>Tumbling or strength practice.</strong> For a floor skill,{' '}
+              <strong>Tumbling or strength practice.</strong>{' '}
+              <Link to="/gymnastics#trampoline-tumbling">Find coached floor tumbling in Vortex’s group gymnastics classes</Link>.
+              For a class focused on floor or track skills,{' '}
               <Link to={`${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`}>compare dedicated tumbling classes</Link>{' '}
-              and ask what your child needs to know before starting. Fit &amp; Flip offers athletes ages 8–15 coached
+              and check what your child needs to know before starting. Fit &amp; Flip offers athletes ages 8–15 coached
               strength, jumping, and body control practice alongside their sport.{' '}
               <Link to="/fit-and-flip#body-control">See what Fit &amp; Flip athletes practice</Link>.
             </li>

@@ -341,6 +341,12 @@ test.describe('Client-critical smoke flows', () => {
       await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible()
     }
 
+    await page.goto('/blog/youth-sports-bowie#youth-cheerleading')
+    await expect(page.locator('#youth-gymnastics-classes').getByRole('link', { name: 'See how Vortex teaches floor tumbling in group classes' }))
+      .toHaveAttribute('href', '/gymnastics#trampoline-tumbling')
+    await expect(page.locator('#youth-cheerleading').getByRole('link', { name: 'Find coached floor tumbling in Vortex’s group gymnastics classes' }))
+      .toHaveAttribute('href', '/gymnastics#trampoline-tumbling')
+
     await page.goto('/blog/gymnastics-vs-tumbling')
     await page.getByRole('link', { name: 'tumbling and trampoline training at Vortex', exact: true }).click()
     await expect(page).toHaveURL('/gymnastics#trampoline-tumbling')
