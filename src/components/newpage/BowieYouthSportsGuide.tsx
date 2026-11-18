@@ -45,6 +45,7 @@ export default function BowieYouthSportsGuide() {
         <nav className="athletic-guide-index" aria-label="In this guide">
           <ul>
             <li><a href="#local-programs">Where to look</a></li>
+            <li><a href="#youth-cheerleading">Youth cheerleading in Bowie</a></li>
             <li><a href="#indoor-winter-sports">Indoor winter sports</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
             <li><a href="#first-sports-ages-2-5">First sports classes for ages 2–5</a></li>
@@ -91,7 +92,7 @@ export default function BowieYouthSportsGuide() {
             <li>
               <strong>South Bowie Boys &amp; Girls Club.</strong> For 2026–27, Sharks basketball serves ages 5–14.
               The coed Sharks Squirts group introduces ages 5–8 to basketball with three players per side and
-              eight-foot baskets. The club also offers sports such as soccer and cheerleading.{' '}
+              eight-foot baskets.{' '}
               <a href="https://southbowiesharks.org/winter-sports-are-open/sbbgcc-basketball/">Check South Bowie basketball</a> ·{' '}
               <a href="https://southbowiesharks.org/open-sports/">Check South Bowie Sharks registrations</a>
             </li>
@@ -123,6 +124,35 @@ export default function BowieYouthSportsGuide() {
               age and location. Try Bowie Community Center or South Bowie Community Center for nearby options.{' '}
               <a href="https://www.pgparks.com/things-to-do/sports">Explore county youth sports</a> ·{' '}
               <a href="https://help.pgparksdirect.com/a/1416705-how-to-register-for-an-activity">Find and register for a county activity</a>
+            </li>
+          </ul>
+        </section>
+
+        <section id="youth-cheerleading">
+          <h2>Youth cheerleading in Bowie</h2>
+          <p>
+            Start with where your child wants to perform. Sideline cheer takes place at games. All-star programs
+            can teach routine skills in a beginner group or prepare a team for competition.
+          </p>
+          <ul>
+            <li>
+              <strong>Sideline cheer.</strong> South Bowie Boys &amp; Girls Club lists sideline cheer for ages 5–14
+              during football season. Athletes learn motions, jumps, and cheers. Check the next season’s age
+              cutoff and registration.{' '}
+              <a href="https://southbowiesharks.org/lady-sharks-cheer-program/sbbgc-sideline-cheer/">See the Lady Sharks sideline cheer program</a>.
+            </li>
+            <li>
+              <strong>All-star cheer.</strong> POWER Athletics in Bowie lists a noncompetitive Exhibition level
+              and a Novice level that performs at evaluated events. Ask which level fits a first-time cheerleader,
+              what the evaluation involves, and which events require travel.{' '}
+              <a href="https://www.powerathleticsmd.com/">Compare POWER Athletics cheer levels</a>.
+            </li>
+            <li>
+              <strong>Tumbling or strength practice.</strong> For a floor skill,{' '}
+              <Link to={`${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`}>compare dedicated tumbling classes</Link>{' '}
+              and ask what your child needs to know before starting. Fit &amp; Flip offers athletes ages 8–15 coached
+              strength, jumping, and body control practice alongside their sport.{' '}
+              <Link to="/fit-and-flip#body-control">See what Fit &amp; Flip athletes practice</Link>.
             </li>
           </ul>
         </section>

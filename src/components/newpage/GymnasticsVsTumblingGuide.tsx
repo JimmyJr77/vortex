@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
@@ -101,6 +102,9 @@ export default function GymnasticsVsTumblingGuide() {
             A 10-year-old who wants to learn a cartwheel can start with Tornadoes. A 10-year-old cheer athlete
             working on a stronger takeoff and steadier landing could start with Fit &amp; Flip. If your child has
             a specific skill in mind, tell the coach what they can already do and ask which class works on it.
+          </p>
+          <p>
+            For a cheer team, <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-cheerleading`}>compare sideline and all-star cheer in Bowie</Link>.
           </p>
           <p>For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what kids practice in preschool gymnastics</Link>.</p>
         </section>
