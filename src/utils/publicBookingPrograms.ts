@@ -26,7 +26,17 @@ export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
 const fitAndFlipSearchCopy = Object.values(FIT_AND_FLIP_PUBLIC_COPY).join(' ')
-const fitAndFlipSearchAliases = new Set(['youth athletics', 'athleticism development', 'youth sports'])
+const fitAndFlipSearchAliases = new Set([
+  'athleticism development',
+  'youth athleticism training',
+  'youth athletics',
+  'youth conditioning',
+  'youth plyometrics',
+  'youth sports',
+  'youth sports training',
+  'youth strength training',
+  'youth training',
+])
 
 export function isAdultBookingProgram(name: string | null): boolean {
   return name !== null && normalize(name) === normalizedAdultBookingProgram

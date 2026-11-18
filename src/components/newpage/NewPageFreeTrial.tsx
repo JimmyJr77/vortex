@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, ArrowUpRight, CalendarDays, Check, ChevronDown, Clock3, LoaderCircle, RefreshCw, Users } from 'lucide-react'
-import { TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { CONTACT_INQUIRY_PATH, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { fetchFreeTrialAvailability, type FreeTrialAvailability, type FreeTrialProgram, type FreeTrialSession, type GymnasticsTrialAnswers } from '../../utils/freeTrialApi'
 import NewPageTrialRegistration from './NewPageTrialRegistration'
 import './NewPageFreeTrial.css'
@@ -60,6 +60,7 @@ export default function NewPageFreeTrial({
   const [gymnasticsAnswers, setGymnasticsAnswers] = useState<GymnasticsTrialAnswers>({})
   const [pottyNotReady, setPottyNotReady] = useState(false)
   const headingRef = useRef<HTMLHeadingElement>(null)
+  const allDaysRef = useRef<HTMLButtonElement>(null)
   const previousStep = useRef(step)
   const programName = PROGRAMS.find(option => option.id === program)?.name ?? ''
   const activeStep = step === 'program' ? 0 : step === 'age' || step === 'qualification' ? 1 : step === 'registration' ? 3 : 2
@@ -120,6 +121,16 @@ export default function NewPageFreeTrial({
     (classFilter === 'all' || String(session.classId) === classFilter)
     && (dayFilter === null || weekdayFor(session.date) === dayFilter),
   )
+  const firstOpenTrialIndex = sessions.findIndex(session => !session.isFull)
+  const hasOpenTrials = firstOpenTrialIndex >= 0
+  const hasOpenFilteredTrials = filteredSessions.some(session => !session.isFull)
+
+  function clearTrialFilters() {
+    setClassFilter('all')
+    setDayFilter(null)
+    setVisibleCount(Math.max(8, firstOpenTrialIndex + 1))
+    allDaysRef.current?.focus()
+  }
 
   function chooseProgram(nextProgram: FreeTrialProgram) {
     trackEvent('program_interest', sourcePath, { properties: { program_slug: nextProgram, target: 'trial_program' } })
@@ -270,14 +281,28 @@ export default function NewPageFreeTrial({
         </div>
       ) : <>
         {offeredClasses.length > 1 && <label className="np-trial-class-filter">Class<select value={classFilter} onChange={event => { setClassFilter(event.target.value); setDayFilter(null); setVisibleCount(8) }}><option value="all">All age-appropriate classes</option>{offeredClasses.map(([id, name]) => <option key={id} value={id}>{name}</option>)}</select></label>}
-        <div className="np-trial-days" aria-label="Filter classes by day"><button aria-pressed={dayFilter === null} onClick={() => { setDayFilter(null); setVisibleCount(8) }}>All days</button>{days.map(day => <button key={day} aria-pressed={dayFilter === day} onClick={() => { setDayFilter(day); setVisibleCount(8) }}>{WEEKDAYS[day]}</button>)}</div>
+        <div className="np-trial-days" aria-label="Filter classes by day"><button ref={allDaysRef} aria-pressed={dayFilter === null} onClick={() => { setDayFilter(null); setVisibleCount(8) }}>All days</button>{days.map(day => <button key={day} aria-pressed={dayFilter === day} onClick={() => { setDayFilter(day); setVisibleCount(8) }}>{WEEKDAYS[day]}</button>)}</div>
         <p className="np-trial-availability-note">All times Eastern. Enrollment counts are current as of {loadedAt?.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' })} ET.</p>
+        {!hasOpenFilteredTrials && (
+          <div className="np-trial-empty">
+            <p role="status">{hasOpenTrials
+              ? 'No trial spots are open with these filters. Other dates have openings.'
+              : 'All published trial dates are full. Ask our team about the next trial, or refresh to check for new openings.'}</p>
+            {hasOpenTrials ? (
+              <button type="button" className="np-button" onClick={clearTrialFilters}>Show all trial dates <ArrowUpRight size={17} /></button>
+            ) : (
+              <Link className="np-button" to={CONTACT_INQUIRY_PATH} onClick={onDone}
+                data-analytics-cta="ask_about_trial" data-analytics-section="trial">
+                Ask about another trial date <ArrowUpRight size={17} />
+              </Link>
+            )}
+          </div>
+        )}
         <div className="np-trial-sessions">{filteredSessions.slice(0, visibleCount).map(session => <button key={`${session.slotGroupId}:${session.date}:${session.startTime}`} className="np-trial-session" disabled={session.isFull} onClick={() => { trackEvent('trial_class_select', sourcePath, { properties: { program_slug: program } }); setSelected(session); setStep('review') }}>
           <span className="np-trial-session-date"><span>{WEEKDAYS[weekdayFor(session.date)]}</span><strong>{formatTrialDate(session.date)}</strong></span>
           <span className="np-trial-session-body"><strong>{session.className}</strong><span><Clock3 size={14} />{formatTrialTime(session.startTime)}–{formatTrialTime(session.endTime)}</span><span><Users size={14} />{session.enrolledCount} {session.enrolledCount === 1 ? 'athlete' : 'athletes'} enrolled</span></span>
           <span className={`np-trial-session-places${session.isFull ? ' is-full' : ''}`}>{session.isFull ? 'Class full' : `${session.spotsRemaining} ${session.spotsRemaining === 1 ? 'spot' : 'spots'} available`}{!session.isFull && <ArrowRight size={17} />}</span>
         </button>)}</div>
-        {filteredSessions.length === 0 && <p className="np-trial-footnote">No dates match this day. Choose another day or class.</p>}
         {filteredSessions.length > visibleCount && <button className="np-trial-more" onClick={() => setVisibleCount(count => count + 8)}>Show more dates <ChevronDown size={17} /></button>}
         <p className="np-trial-footnote">Places are confirmed after registration and waivers are complete. Pending reservations may also use available places.</p>
       </>}

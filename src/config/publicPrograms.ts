@@ -274,6 +274,15 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description: 'Enter your child’s age in the trial finder and pick an available date. A parent or legal guardian must create or sign in to a family account, add the athlete’s details, and sign the waivers before the class is confirmed. Each athlete can use one free trial. No payment card is required.',
           },
           {
+            id: 'full-gymnastics-dates',
+            heading: 'What if the gymnastics class is full?',
+            description: 'Check other days in the trial finder. If all trial times are full, ask our team about another first visit. For monthly enrollment, check the class listing for waitlist options.',
+            links: [
+              { href: CONTACT_INQUIRY_PATH, label: 'Ask about another trial date', analyticsKey: 'ask_about_trial' },
+              { href: DEVELOPMENTAL_GYMNASTICS_HREF, label: 'Check monthly enrollment and waitlist options', analyticsKey: 'browse_classes' },
+            ],
+          },
+          {
             id: 'gymnastics-class-access',
             heading: 'Questions about class access or participation?',
             description: 'If you have questions about the space, noise levels, or how your child would take part, ask our team before booking a trial.',

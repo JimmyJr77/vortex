@@ -142,6 +142,50 @@ test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path af
   expect(requests).toEqual([5, 6, 7, 8, 16].map(age => `program=fit-flip&age=${age}`))
 })
 
+test('a full gymnastics trial day offers open dates or an inquiry when every date is full', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  let allDatesFull = false
+  await page.route('**/api/public/free-trials?*', route => {
+    const params = new URL(route.request().url()).searchParams
+    const session = { classId: 1, slotGroupId: 20, className: 'Dirt Devils', startTime: '16:00:00', endTime: '17:00:00', enrolledCount: 6 }
+    return route.fulfill({ json: {
+      success: true,
+      data: {
+        program: 'gymnastics', age: 2, ageBand: { min: 2, max: 3 }, classes: [],
+        gymnasticsRouting: { track: 'mommy-me' },
+        sessions: params.has('gymnasticsTrack') ? [
+          { ...session, date: '2027-01-15', spotsRemaining: 0, isFull: true },
+          { ...session, date: '2027-01-19', spotsRemaining: allDatesFull ? 0 : 2, isFull: allDatesFull },
+        ] : [],
+      },
+    } })
+  })
+
+  await page.goto('/gymnastics#open-free-trial')
+  const dialog = page.locator('dialog.np-dialog-trial[open]')
+  await dialog.getByLabel('Your child’s age').fill('2')
+  await dialog.getByRole('button', { name: 'Find available classes' }).click()
+  await dialog.getByRole('button', { name: /^Yes, potty trained/ }).click()
+  const openTrial = dialog.getByRole('button', { name: /Dirt Devils.*2 spots available/ })
+  await expect(openTrial).toBeEnabled()
+
+  await dialog.getByRole('button', { name: 'Friday', exact: true }).click()
+  await expect(openTrial).toHaveCount(0)
+  await expect(dialog.getByRole('button', { name: /Dirt Devils.*Class full/ })).toBeDisabled()
+  await expect(dialog.getByRole('status')).toContainText('Other dates have openings.')
+  await dialog.getByRole('button', { name: 'Show all trial dates' }).press('Enter')
+  await expect(dialog.getByRole('button', { name: 'All days', exact: true })).toBeFocused()
+  await expect(openTrial).toBeEnabled()
+
+  allDatesFull = true
+  await dialog.getByRole('button', { name: 'Refresh class availability' }).click()
+  await expect(dialog.getByRole('status')).toContainText('All published trial dates are full.')
+  await dialog.getByRole('link', { name: 'Ask about another trial date' }).click()
+  await expect(page).toHaveURL('/contact#inquiry')
+  await expect(dialog).toHaveCount(0)
+  await expect(page.getByRole('heading', { name: 'What to include in your inquiry' })).toBeVisible()
+})
+
 test('mobile new-family trial requires waivers and registers the child without checkout', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const submitted = await mockTrialApi(page)

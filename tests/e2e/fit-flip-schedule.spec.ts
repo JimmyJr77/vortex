@@ -280,6 +280,8 @@ for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', '
     for (const term of [
       'youth fitness', 'athletic training', 'strength training', 'sports performance',
       'Youth Athletics', 'Athleticism Development', 'Youth Sports', 'Fit and Flip', 'fit-and-flip',
+      'youth training', 'youth athleticism training', 'youth strength training', 'youth conditioning',
+      'youth plyometrics', 'youth sports training',
     ]) {
       await search.fill(term)
       await expect(fitAndFlipHeading).toBeVisible()

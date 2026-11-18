@@ -1286,6 +1286,12 @@ const verifyHtml = (
     const disciplines = html.match(/<section\b[^>]*\sid=["']disciplines["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const homeschool = html.match(/<section\b[^>]*\sid=["']homeschool["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const fullClass = html.match(/<article\b[^>]*\sid=["']full-gymnastics-dates["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const fullClassLinks = anchorUrls(fullClass)
+    assert(fullClassLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`) &&
+      fullClassLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
+        url.searchParams.get('program') === 'Developmental Gymnastics'),
+      `${label}: the full class guidance must link to a trial inquiry and scoped monthly enrollment`)
     const teamLinks = anchorUrls(team)
     const homeschoolLinks = anchorUrls(homeschool)
     assert(homeschoolLinks.some(url => url.href === `${canonical}#youth-gymnastics-schedule`) &&
