@@ -431,6 +431,16 @@
   ],
   "routes": [
     {
+      "src": "^/(artistic-gymnastics-early|artistic-gymnastics-6-12|artistic-gymnastics-13-18|campaigns/artistic-gymnastics-early|campaigns/artistic-gymnastics-6-12|campaigns/artistic-gymnastics-13-18|acro-gymnastics|artistic-gymnastics|rhythmic-gymnastics|trampoline-tumbling|aerobic-gymnastics|beginner-gymnastics|homeschool-gymnastics|athleticism-accelerator|strength-conditioning|summer-athletic-training)(?:/index\\.html)?/?$",
+      "methods": ["GET", "HEAD"],
+      "has": [
+        { "type": "host", "value": "(?:www\\.)?vortex-gymnastics\\.com" },
+        { "type": "query", "key": "vcid" }
+      ],
+      "missing": [{ "type": "query", "key": "sport" }],
+      "dest": "/api/legacy-public-consent.ts"
+    },
+    {
       "src": "^/(gymnastics|fit-and-flip|read-board|drop-in|contact|support)/?$",
       "methods": ["GET", "HEAD"],
       "has": [

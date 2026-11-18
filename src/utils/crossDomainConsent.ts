@@ -2,6 +2,7 @@ import { HUB_URL, STUB_HOSTS } from '../config/stubSites'
 import {
   CONSENT_COOKIE_MAX_AGE,
   CONSENT_COOKIE_NAME,
+  CONSENT_FRAGMENT_ANCHOR,
   CONSENT_ID_COOKIE_NAME,
   CONSENT_ID_QUERY_PARAM,
   type ConsentChoices,
@@ -10,7 +11,6 @@ import { getApiUrl } from './api'
 
 const HUB_HOSTS = ['vortexathletics.com', 'www.vortexathletics.com']
 const CONSENT_FRAGMENT_PREFIX = `#${CONSENT_ID_QUERY_PARAM}=`
-const CONSENT_FRAGMENT_ANCHOR = 'anchor'
 
 const readConsentFragment = (hash: string): URLSearchParams | null =>
   hash.startsWith(CONSENT_FRAGMENT_PREFIX) ? new URLSearchParams(hash.slice(1)) : null

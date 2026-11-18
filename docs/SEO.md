@@ -167,6 +167,10 @@ lets the browser carry the section anchor. Retired paths on the primary host
 that lead to those pages also normalize consent in the same redirect. When a
 retired path maps to a specific section, the redirect uses that section. A
 valid ID goes into the same necessary consent cookie the browser already uses.
+On the retired gymnastics hosts, old program URLs with a fixed section on
+the current site move a valid ID and that section into the browser-only
+fragment in the first redirect. The canonical page sets the cookie and
+restores the section. This preserves any campaign and booking parameters.
 Other legacy consent links
 still load with `X-Robots-Tag: noindex` so the browser can apply consent. The
 live check verifies that ordinary booking and campaign URLs remain indexable.

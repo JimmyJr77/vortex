@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url'
 import {
   DEFAULT_OG_IMAGE,
   getIndexNowVerificationKey,
+  GYMNASTICS_VS_TUMBLING_GUIDE_PATH,
   HUB_ARTICLE_PATHS,
   HUB_GUIDE_INDEX_PATH,
   HUB_LEGACY_CHROME_PATHS,
@@ -30,6 +31,7 @@ const distDir = join(rootDir, 'dist')
 const displayFontNotNeededAtStart = new Set([
   '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path, '/contact', '/jobs',
 ])
+const desktopInterPreloadPaths = new Set(['/gymnastics', GYMNASTICS_VS_TUMBLING_GUIDE_PATH])
 const publicPagePaths = new Set(HUB_SITEMAP_ENTRIES.map(({ path }) => path))
 let previewPort = 0
 let previewOrigin = ''
@@ -236,6 +238,7 @@ const prerenderAppRoutes = async () => {
       ...HUB_PRERENDER_PATHS.map((routePath) => ({
         url: `${previewOrigin}${routePath}`,
         omitDisplayFontPreload: displayFontNotNeededAtStart.has(routePath),
+        desktopInterPreload: desktopInterPreloadPaths.has(routePath),
         programPath: HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
         waitForLegacyChrome: HUB_LEGACY_CHROME_PATHS.includes(routePath),
         publicPagePath: publicPagePaths.has(routePath) && !HUB_PROGRAM_PATHS.includes(routePath) ? routePath : null,
@@ -272,7 +275,7 @@ const prerenderAppRoutes = async () => {
           )
           // Remove live data and defer background media. Preserve the watch
           // page's own video URL so browsers and crawlers can find the player.
-          const snapshot = await page.evaluate(({ omitDisplayFontPreload, programPath, publicPagePath, watchVideoAssetPath }) => {
+          const snapshot = await page.evaluate(({ omitDisplayFontPreload, desktopInterPreload, programPath, publicPagePath, watchVideoAssetPath }) => {
             const html = document.documentElement.cloneNode(true)
             html.querySelectorAll('[data-prerender-dynamic]').forEach((node) => node.remove())
             html.querySelectorAll('video[src], video source[src]').forEach((node) => {
@@ -280,6 +283,11 @@ const prerenderAppRoutes = async () => {
             })
             if (omitDisplayFontPreload) {
               html.querySelector('link[rel="preload"][href="/fonts/oswald-latin-variable.woff2"]')?.remove()
+            }
+            if (desktopInterPreload) {
+              // Let the hero use more bandwidth before the font on narrow screens.
+              html.querySelector('link[rel="preload"][href="/fonts/inter-latin-variable.woff2"]')
+                ?.setAttribute('media', '(min-width: 761px)')
             }
             const heroImages = html.querySelectorAll('img[fetchpriority="high"][src]:not([loading="lazy"])')
             const viewport = html.querySelector('head meta[name="viewport"]')
@@ -312,6 +320,7 @@ const prerenderAppRoutes = async () => {
             return { html: `<!doctype html>\n${html.outerHTML}`, title: document.title }
           }, {
             omitDisplayFontPreload: target.omitDisplayFontPreload,
+            desktopInterPreload: target.desktopInterPreload,
             programPath: target.programPath,
             publicPagePath: target.publicPagePath,
             watchVideoAssetPath: target.watchVideoAssetPath,

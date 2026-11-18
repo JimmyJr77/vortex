@@ -66,6 +66,7 @@ const consentQueryParam = 'vcid'
 const normalizedConsentPaths = ['/gymnastics', '/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support']
 const legacyNormalizedConsentPaths = Object.entries(legacyLandingRedirects)
   .filter(([, destination]) => normalizedConsentPaths.includes(new URL(destination, HUB_ORIGIN).pathname))
+const legacyAnchoredConsentPaths = legacyNormalizedConsentPaths.filter(([, destination]) => destination.includes('#'))
 const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS.filter(path => !normalizedConsentPaths.includes(path)), '/terms-of-service']
 const failures = []
 const indexedTitles = new Map()
@@ -1045,6 +1046,12 @@ const verifyHtml = (
   const preschoolGuideCanonical = canonicalFor(HUB_ORIGIN, PRESCHOOL_GYMNASTICS_GUIDE_PATH)
   const tumblingGuideCanonical = canonicalFor(HUB_ORIGIN, GYMNASTICS_VS_TUMBLING_GUIDE_PATH)
   const fitAndFlipCanonical = canonicalFor(HUB_ORIGIN, '/fit-and-flip')
+  if (shouldIndex && [canonicalFor(HUB_ORIGIN, '/gymnastics'), tumblingGuideCanonical].includes(canonical)) {
+    const interPreloads = tags(html, 'link').filter(tag => attribute(tag, 'rel') === 'preload' &&
+      attribute(tag, 'href') === '/fonts/inter-latin-variable.woff2')
+    assert(interPreloads.length === 1 && attribute(interPreloads[0], 'media') === '(min-width: 761px)',
+      `${label}: the Inter preload must leave priority for visible content on mobile`)
+  }
   if (shouldIndex && [HUB_ORIGIN, guideCanonical, fitAndFlipCanonical].includes(canonical)) {
     const content = (canonical === guideCanonical
       ? html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)
@@ -1930,9 +1937,34 @@ if (live) {
     await verifyTrackedRedirect(`${path}/`, legacyLandingRedirects[path])
   }
 
-  await verifyTrackedRedirect('/trampoline-tumbling', legacyLandingRedirects['/trampoline-tumbling'], {
-    [consentQueryParam]: 'c_consent_release_check',
-  }, [gymnasticsApexOrigin, GYMNASTICS_ORIGIN])
+  const oldConsentLinks = [
+    ...legacyAnchoredConsentPaths.map(([path, destination]) => ({ path, destination })),
+    { path: '/trampoline-tumbling/', destination: legacyLandingRedirects['/trampoline-tumbling'], method: 'HEAD' },
+    { path: '/trampoline-tumbling/index.html/', destination: legacyLandingRedirects['/trampoline-tumbling'] },
+    { path: '/trampoline-tumbling', destination: legacyLandingRedirects['/trampoline-tumbling'], consentIds: ['bad-id'] },
+    { path: '/trampoline-tumbling', destination: legacyLandingRedirects['/trampoline-tumbling'], consentIds: ['c_old_one', 'c_old_two'] },
+  ]
+  for (const origin of [gymnasticsApexOrigin, GYMNASTICS_ORIGIN]) {
+    await Promise.all(oldConsentLinks.map(async ({ path, destination, method = 'GET', consentIds = ['c_old_link_check'] }) => {
+      const source = new URL(path, origin)
+      const target = new URL(destination, HUB_ORIGIN)
+      target.searchParams.append('utm_source', 'seo-release-check')
+      target.searchParams.append('tag', 'one')
+      target.searchParams.append('tag', 'two')
+      source.search = target.search
+      consentIds.forEach(id => source.searchParams.append(consentQueryParam, id))
+      if (consentIds.length === 1 && consentIds[0] === 'c_old_link_check') {
+        target.hash = new URLSearchParams({ [consentQueryParam]: consentIds[0], anchor: target.hash.slice(1) }).toString()
+      }
+      const response = await fetch(source, { method, redirect: 'manual' })
+      await response.body?.cancel()
+      const scope = `${origin}${path} (${method})`
+      assert(response.status === 308 && response.headers.get('location') === target.href,
+        `${scope}: expected one permanent redirect to the matching canonical section with a clean query`)
+      assert(!response.headers.has('set-cookie') && /\bno-store\b/.test(response.headers.get('cache-control') ?? ''),
+        `${scope}: the retired host must not set the destination cookie or cache the consent handoff`)
+    }))
+  }
   await verifyTrackedRedirect('/trampoline-tumbling/index.html/', legacyLandingRedirects['/trampoline-tumbling'])
   await verifyTrackedRedirect('/gymnastics/index.html/', '/gymnastics')
 
@@ -2123,20 +2155,26 @@ assert(headers.some(rule => rule.source === '/:path((?!(?:' + normalizedConsentS
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam)),
   'vercel.json: legacy consent query URLs outside the normalized paths must have a noindex header on the canonical host')
 const consentHandler = 'api/legacy-public-consent.ts'
-const findConsentRewrite = (slugs) => vercelConfig.routes?.find(rule => rule.src === '^/(' + slugs + ')/?$' &&
+const findConsentRewrite = (source, hosts) => vercelConfig.routes?.find(rule => rule.src === source &&
   rule.dest === '/' + consentHandler && !rule.check && rule.methods?.join(' ') === 'GET HEAD' &&
-  rule.has?.some(condition => condition.type === 'host' &&
-    condition.value === '(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)') &&
+  rule.has?.some(condition => condition.type === 'host' && condition.value === hosts) &&
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam) &&
   rule.missing?.some(condition => condition.type === 'query' && condition.key === 'sport'))
-const currentConsentRewrite = findConsentRewrite(normalizedConsentSlugs)
-const retiredConsentRewrite = findConsentRewrite(legacyNormalizedConsentPaths.map(([path]) => path.slice(1)).join('|'))
+const canonicalConsentHosts = '(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)'
+const currentConsentRewrite = findConsentRewrite(`^/(${normalizedConsentSlugs})/?$`, canonicalConsentHosts)
+const retiredConsentSlugs = legacyNormalizedConsentPaths.map(([path]) => path.slice(1)).join('|')
+const retiredConsentRewrite = findConsentRewrite(`^/(${retiredConsentSlugs})/?$`, canonicalConsentHosts)
+const legacyAnchoredSlugs = legacyAnchoredConsentPaths.map(([path]) => path.slice(1)).join('|')
+const legacyAnchoredConsentRewrite = findConsentRewrite(`^/(${legacyAnchoredSlugs})(?:/index\\.html)?/?$`,
+  '(?:www\\.)?vortex-gymnastics\\.com')
 assert(vercelConfig.builds?.some(build => build.src === consentHandler && build.use === '@vercel/node' &&
   build.config?.includeFiles?.includes('src/config/publicLandingRedirects.json')) &&
   currentConsentRewrite,
   'vercel.json: normalized consent requests must reach the Node handler before the static pages')
 assert(retiredConsentRewrite,
   'vercel.json: the consent handler must intercept each retired path whose destination already normalizes consent')
+assert(legacyAnchoredConsentRewrite,
+  'vercel.json: retired gymnastics hosts must normalize consent in one redirect to each fixed program section')
 for (const [source, path] of Object.entries(legacyLandingRedirects)) {
   const destination = new URL(path, HUB_ORIGIN)
   assert(
@@ -2218,7 +2256,7 @@ assert(
   ),
   'vercel.json: generic robots fallback routing is missing',
 )
-assert(vercelConfig.routes?.length === 2 && currentConsentRewrite && retiredConsentRewrite,
+assert(vercelConfig.routes?.length === 3 && currentConsentRewrite && retiredConsentRewrite && legacyAnchoredConsentRewrite,
   'vercel.json: only the scoped consent rewrites belong before static routing')
 const cacheHeaderValues = headers.flatMap((rule) =>
   (rule.headers ?? [])

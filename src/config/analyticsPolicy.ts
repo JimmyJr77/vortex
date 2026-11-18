@@ -9,6 +9,7 @@ export const CONSENT_COOKIE_NAME = '_vortex_consent'
 export const CONSENT_ID_COOKIE_NAME = '_vortex_cid'
 
 export const CONSENT_ID_QUERY_PARAM = 'vcid'
+export const CONSENT_FRAGMENT_ANCHOR = 'anchor'
 
 export const CONSENT_COOKIE_MAX_AGE = 365 * 24 * 60 * 60
 
