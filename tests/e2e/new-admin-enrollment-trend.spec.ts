@@ -79,39 +79,43 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
   return { requests, errors }
 }
 
-test('current class signups show all students and class-specific age and gender averages', async ({ page }) => {
+test('current class signups show averages and student counts by number of classes', async ({ page }) => {
   const { requests, errors } = await prepare(page, {
     financial: false,
     classLoad: {
-      overall: { students: 30, classEnrollments: 40, averageClasses: 40 / 30 },
+      overall: { students: 30, classEnrollments: 40, averageClasses: 40 / 30, distribution: { one: 22, two: 6, threePlus: 2 } },
       classTypes: [
-        { id: '10', label: 'Tumbling', students: 18, classEnrollments: 23, averageClasses: 23 / 18 },
-        { id: '20', label: 'Team', students: 17, classEnrollments: 17, averageClasses: 1 },
+        { id: '10', label: 'Tumbling', students: 18, classEnrollments: 23, averageClasses: 23 / 18, distribution: { one: 13, two: 5, threePlus: 0 } },
+        { id: '20', label: 'Team', students: 17, classEnrollments: 17, averageClasses: 1, distribution: { one: 17, two: 0, threePlus: 0 } },
       ],
       cohorts: [
-        { classTypeId: null, ageGroup: '5–7', gender: 'Male', students: 12, classEnrollments: 19, averageClasses: 19 / 12 },
-        { classTypeId: null, ageGroup: '8–11', gender: 'Female', students: 18, classEnrollments: 21, averageClasses: 21 / 18 },
-        { classTypeId: '10', ageGroup: '5–7', gender: 'Male', students: 8, classEnrollments: 10, averageClasses: 1.25 },
-        { classTypeId: '10', ageGroup: '8–11', gender: 'Female', students: 10, classEnrollments: 13, averageClasses: 1.3 },
-        { classTypeId: '20', ageGroup: '5–7', gender: 'Male', students: 9, classEnrollments: 9, averageClasses: 1 },
-        { classTypeId: '20', ageGroup: '8–11', gender: 'Female', students: 8, classEnrollments: 8, averageClasses: 1 },
+        { classTypeId: null, ageGroup: '5–7', gender: 'Male', students: 12, classEnrollments: 19, averageClasses: 19 / 12, distribution: { one: 7, two: 3, threePlus: 2 } },
+        { classTypeId: null, ageGroup: '8–11', gender: 'Female', students: 18, classEnrollments: 21, averageClasses: 21 / 18, distribution: { one: 15, two: 3, threePlus: 0 } },
+        { classTypeId: '10', ageGroup: '5–7', gender: 'Male', students: 8, classEnrollments: 10, averageClasses: 1.25, distribution: { one: 6, two: 2, threePlus: 0 } },
+        { classTypeId: '10', ageGroup: '8–11', gender: 'Female', students: 10, classEnrollments: 13, averageClasses: 1.3, distribution: { one: 7, two: 3, threePlus: 0 } },
+        { classTypeId: '20', ageGroup: '5–7', gender: 'Male', students: 9, classEnrollments: 9, averageClasses: 1, distribution: { one: 9, two: 0, threePlus: 0 } },
+        { classTypeId: '20', ageGroup: '8–11', gender: 'Female', students: 8, classEnrollments: 8, averageClasses: 1, distribution: { one: 8, two: 0, threePlus: 0 } },
       ],
     },
   })
   const report = page.getByRole('region', { name: 'Classes per student', exact: true })
   await expect(report.getByText('1.33', { exact: true })).toBeVisible()
   await expect(report.getByText('40 signups · 30 students')).toBeVisible()
+  const overallDistribution = report.getByLabel('Overall student counts by number of classes')
+  await expect(overallDistribution.locator('dt')).toHaveText(['1 class', '2 classes', '3+ classes'])
+  await expect(overallDistribution.locator('dd')).toHaveText(['22', '6', '2'])
   const classTypes = report.getByRole('table', { name: 'Classes per student by class type' })
-  await expect(classTypes.getByRole('row', { name: /Tumbling/ }).getByRole('cell')).toHaveText(['18', '23', '1.28'])
+  await expect(classTypes.getByRole('columnheader', { name: '3+ classes', exact: true })).toBeVisible()
+  await expect(classTypes.getByRole('row', { name: /Tumbling/ }).getByRole('cell')).toHaveText(['18', '23', '1.28', '13', '5', '0'])
 
   const classType = report.getByRole('combobox', { name: 'Class type' })
   const cohorts = report.getByRole('table', { name: /Classes per student by age group and gender/ })
   await expect(classType).toHaveValue('')
-  await expect(cohorts.getByRole('row', { name: /5–7 Male/ }).getByRole('cell')).toHaveText(['12', '19', '1.58'])
+  await expect(cohorts.getByRole('row', { name: /5–7 Male/ }).getByRole('cell')).toHaveText(['12', '19', '1.58', '7', '3', '2'])
   await classType.selectOption({ label: 'Tumbling' })
-  await expect(cohorts.getByRole('row', { name: /5–7 Male/ }).getByRole('cell')).toHaveText(['8', '10', '1.25'])
+  await expect(cohorts.getByRole('row', { name: /5–7 Male/ }).getByRole('cell')).toHaveText(['8', '10', '1.25', '6', '2', '0'])
   await classType.selectOption({ label: 'Team' })
-  await expect(cohorts.getByRole('row', { name: /8–11 Female/ }).getByRole('cell')).toHaveText(['8', '8', '1.00'])
+  await expect(cohorts.getByRole('row', { name: /8–11 Female/ }).getByRole('cell')).toHaveText(['8', '8', '1.00', '8', '0', '0'])
   await page.setViewportSize({ width: 390, height: 844 })
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   expect(requests.filter(path => path.endsWith('/enrollment-trend'))).toHaveLength(1)

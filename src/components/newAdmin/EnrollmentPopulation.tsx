@@ -35,10 +35,17 @@ export default function EnrollmentPopulation({ current, asOf, students }: Pick<E
   </div>
 }
 
+const CLASS_COUNT_BUCKETS = [
+  { key: 'one', label: '1 class' },
+  { key: 'two', label: '2 classes' },
+  { key: 'threePlus', label: '3+ classes' },
+] as const
+
 function ClassesPerStudent({ data, asOf }: { data: ClassLoadBreakdown; asOf: string }) {
   const [selectedId, setSelectedId] = useState('')
   const selectedType = data.classTypes.find(type => type.id === selectedId)
   const cohorts = data.cohorts.filter(cohort => cohort.classTypeId === (selectedType?.id ?? null))
+  const { overall } = data
   return <section aria-label="Classes per student" className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6">
     <div className="flex flex-wrap items-start justify-between gap-4">
       <div>
@@ -49,11 +56,18 @@ function ClassesPerStudent({ data, asOf }: { data: ClassLoadBreakdown; asOf: str
       </div>
       <div className="rounded-xl bg-blue-50 px-4 py-3">
         <p className="text-xs font-medium text-blue-900">Overall average</p>
-        <p className="text-2xl font-bold tabular-nums text-blue-800">{number(data.overall.averageClasses, 2)}</p>
-        <p className="text-xs text-blue-900">{number(data.overall.classEnrollments)} signups · {number(data.overall.students)} students</p>
+        <p className="text-2xl font-bold tabular-nums text-blue-800">{number(overall.averageClasses, 2)}</p>
+        <p className="text-xs text-blue-900">{number(overall.classEnrollments)} signups · {number(overall.students)} students</p>
+        {overall.distribution && <dl aria-label="Overall student counts by number of classes" className="mt-3 grid grid-cols-3 gap-3 border-t border-blue-200 pt-2 text-blue-900">
+          {CLASS_COUNT_BUCKETS.map(({ key, label }) => <div key={key}>
+            <dt className="text-xs">{label}</dt>
+            <dd className="text-lg font-bold tabular-nums">{number(overall.distribution?.[key])}</dd>
+          </div>)}
+        </dl>}
       </div>
     </div>
-    {data.overall.students > 0 ? <div className="mt-5 grid gap-6 xl:grid-cols-2">
+    {overall.distribution && overall.students > 0 && <p className="mt-4 text-xs text-slate-600 sm:hidden">Swipe the tables to see all columns.</p>}
+    {overall.students > 0 ? <div className="mt-5 grid gap-6 2xl:grid-cols-2">
       <div className="min-w-0">
         <h4 className="font-semibold">By class type</h4>
         <ClassLoadTable title="Classes per student by class type" rowHeading="Class type" rows={data.classTypes.map(type => ({
@@ -90,26 +104,35 @@ function ClassLoadTable({ title, rowHeading, rows }: {
   rows: Array<ClassLoadTotals & { key: string; label: string; detail?: string }>
 }) {
   if (!rows.length) return <p className="mt-3 text-sm text-slate-600">No current enrollments in this group.</p>
-  return <div className="mt-2 overflow-x-auto">
-    <table className="w-full text-left text-sm">
+  const hasDistribution = rows.some(row => row.distribution != null)
+  return <div className="mt-2 overflow-x-auto focus-visible:outline-blue-600" tabIndex={0} role="region" aria-label={title}>
+    <table className={`w-full text-left text-sm${hasDistribution ? ' min-w-[29rem]' : ''}`}>
       <caption className="sr-only">{title}</caption>
       <thead className="border-b border-slate-200 text-xs text-slate-600">
         <tr>
-          <th scope="col" className="py-2 pr-2 font-semibold">{rowHeading}</th>
+          <th scope="col" className="sticky left-0 bg-white py-2 pr-2 font-semibold">{rowHeading}</th>
           <th scope="col" className="px-2 py-2 text-right font-semibold">Students</th>
           <th scope="col" className="px-2 py-2 text-right font-semibold">Class signups</th>
-          <th scope="col" className="py-2 pl-2 text-right font-semibold">Avg per student</th>
+          <th scope="col" className="px-2 py-2 text-right font-semibold">Avg per student</th>
+          {hasDistribution && CLASS_COUNT_BUCKETS.map(({ key, label }) => (
+            <th key={key} scope="col" className="px-2 py-2 text-right font-semibold">{label}</th>
+          ))}
         </tr>
       </thead>
       <tbody className="divide-y divide-slate-100">
         {rows.map(row => <tr key={row.key}>
-          <th scope="row" className="break-words py-2.5 pr-2 font-semibold">
+          <th scope="row" className="sticky left-0 break-words bg-white py-2.5 pr-2 font-semibold">
             {row.label}
             {row.detail && <span className="block text-xs font-normal text-slate-600">{row.detail}</span>}
           </th>
           <td className="px-2 py-2.5 text-right tabular-nums">{number(row.students)}</td>
           <td className="px-2 py-2.5 text-right tabular-nums">{number(row.classEnrollments)}</td>
-          <td className="py-2.5 pl-2 text-right font-semibold tabular-nums text-blue-800">{number(row.averageClasses, 2)}</td>
+          <td className="px-2 py-2.5 text-right font-semibold tabular-nums text-blue-800">{number(row.averageClasses, 2)}</td>
+          {hasDistribution && CLASS_COUNT_BUCKETS.map(({ key }) => (
+            <td key={key} className="px-2 py-2.5 text-right tabular-nums">
+              {row.distribution?.[key] != null ? number(row.distribution[key]) : <><span aria-hidden="true">—</span><span className="sr-only">Unavailable</span></>}
+            </td>
+          ))}
         </tr>)}
       </tbody>
     </table>

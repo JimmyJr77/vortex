@@ -24,6 +24,7 @@ export interface ClassLoadTotals {
   students: number
   classEnrollments: number
   averageClasses: number | null
+  distribution?: { one: number; two: number; threePlus: number }
 }
 export interface ClassLoadBreakdown {
   overall: ClassLoadTotals
