@@ -487,10 +487,14 @@ const verifyHtml = (
         attribute(tag, 'type') === 'image/avif' && attribute(tag, 'srcset') && !attribute(tag, 'media'))
       const candidate = preferredSource ?? hero
       const sourceSet = attribute(candidate, 'srcset')
-      if (pagePath === '/gymnastics') {
+      const avifHeroPrefix = {
+        '/gymnastics': 'gymnastics-hero',
+        [GYMNASTICS_VS_TUMBLING_GUIDE_PATH]: 'tramp-tumble-hero',
+      }[pagePath]
+      if (avifHeroPrefix) {
         assert(preferredSource && attribute(hero, 'src').endsWith('.webp') &&
-          [768, 1080, 1600].every(width => sourceSet.includes(`/gymnastics-hero-${width}.avif ${width}w`)),
-          `${label}: the youth gymnastics hero must offer responsive AVIF with a WebP fallback`)
+          [768, 1080, 1600].every(width => sourceSet.includes(`/${avifHeroPrefix}-${width}.avif ${width}w`)),
+          `${label}: the hero must offer responsive AVIF with a WebP fallback`)
       }
       assert(heroes.length === 1 && hints.length === 1 && attribute(hint, 'fetchpriority') === 'high' &&
         viewport && html.indexOf(viewport) < html.indexOf(hint) && firstStylesheet && html.indexOf(hint) < html.indexOf(firstStylesheet),

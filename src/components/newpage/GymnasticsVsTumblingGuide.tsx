@@ -11,6 +11,8 @@ import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
+const HERO_IMAGE_SIZES = '(max-width: 760px) 91vw, (max-width: 1264px) 43vw, 520px'
+
 export default function GymnasticsVsTumblingGuide() {
   const guide = GYMNASTICS_VS_TUMBLING_GUIDE
   const { hash } = useLocation()
@@ -37,10 +39,12 @@ export default function GymnasticsVsTumblingGuide() {
             </p>
             <GuideByline datePublished={guide.datePublished} dateModified={guide.dateModified} />
           </div>
-          <img className="athletic-guide-image" src={guide.image} alt={guide.imageAlt}
-            srcSet={guide.imageSrcSet}
-            sizes="(max-width: 760px) 91vw, (max-width: 1264px) 43vw, 520px"
-            width={1600} height={1067} fetchPriority="high" />
+          <picture>
+            <source type="image/avif" srcSet={guide.imageAvifSrcSet} sizes={HERO_IMAGE_SIZES} />
+            <img className="athletic-guide-image" src={guide.image} alt={guide.imageAlt}
+              srcSet={guide.imageSrcSet} sizes={HERO_IMAGE_SIZES}
+              width={1600} height={1067} fetchPriority="high" />
+          </picture>
         </div>
       </header>
 

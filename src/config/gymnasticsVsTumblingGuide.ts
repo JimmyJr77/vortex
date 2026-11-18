@@ -12,6 +12,7 @@ export const GYMNASTICS_VS_TUMBLING_GUIDE = {
     'Compare developmental gymnastics, boys’ apparatus classes, and dedicated tumbling near Bowie, MD. See beginner requirements and where to try a first class.',
   image: searchPhotos.tumbling,
   imageSrcSet: tumblingImageSrcSet,
+  imageAvifSrcSet: '/tramp-tumble-hero-768.avif 768w, /tramp-tumble-hero-1080.avif 1080w, /tramp-tumble-hero-1600.avif 1600w',
   cardImage: searchPhotos.tumbling,
   cardImageSrcSet: tumblingImageSrcSet,
   imageAlt: 'A Vortex athlete flipping above a tumble track in Bowie, Maryland',
