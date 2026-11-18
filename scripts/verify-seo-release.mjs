@@ -1345,6 +1345,9 @@ const verifyHtml = (
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable comparison guide link to ${path}`)
     }
+    const tumblingSkills = content.match(/<section\b[^>]*\sid=["']where-tumbling-fits["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    assert(anchorUrls(tumblingSkills).some(url => url.href === `${watchUrl}#gymnastics-skills`),
+      `${label}: the floor and track explanation must link to the corresponding film scene`)
     const handspring = content.match(/<h3\b[^>]*\sid=["']handspring-class-placement["'][^>]*>[\s\S]*?<\/h3>(?:\s*<p\b[^>]*>[\s\S]*?<\/p>){2}/i)?.[0] ?? ''
     const handspringLinks = anchorUrls(handspring)
     assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#handspring-class-placement') &&

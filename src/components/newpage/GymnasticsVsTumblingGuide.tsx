@@ -5,6 +5,7 @@ import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { contactInquiryHref, CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import trainingVideo from '../../config/publicTrainingVideo.json'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
@@ -70,6 +71,9 @@ export default function GymnasticsVsTumblingGuide() {
             athletes perform power tumbling on a sprung runway. USA Gymnastics also lists individual trampoline,
             synchronized trampoline, and double mini as events in that discipline. If you’re looking for a
             dedicated tumbling class, ask how much time the coach spends on floor or track skills.
+          </p>
+          <p>
+            <Link to={`${trainingVideo.path}#gymnastics-skills`}>Watch tumbling on the track and floor at Vortex</Link>.
           </p>
           <p>
             <a href="https://members.usagym.org/pages/gymnastics101/women/events.html">Artistic gymnastics events</a>
