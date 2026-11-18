@@ -533,12 +533,12 @@ const verifyHtml = (
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
   const usesLegacyHeader = HUB_LEGACY_CHROME_PATHS.includes(pagePath)
   if (shouldIndex && (usesLegacyHeader || [
-    '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in',
+    '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in', '/contact',
   ].includes(pagePath))) {
     const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(navigation)
     const expectedPaths = [...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH]
-    if (!usesLegacyHeader) expectedPaths.push('/#programs')
+    if (!usesLegacyHeader) expectedPaths.push('/#programs', '/contact')
     for (const path of expectedPaths) {
       assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
         `${label}: expected one crawlable main navigation link to ${path}`)

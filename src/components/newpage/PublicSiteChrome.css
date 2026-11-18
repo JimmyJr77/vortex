@@ -74,6 +74,7 @@
 .np-desktop-nav {
   display: flex;
   align-items: center;
+  margin-inline-start: auto;
   gap: 28px;
   font-size: 12px;
   font-weight: 500;
@@ -362,15 +363,12 @@
     border-top: 1px solid var(--np-line);
     padding: 8px 28px 20px;
   }
-  .np-mobile-nav a:not(.np-nav-schedule),.np-mobile-nav .np-login,.np-mobile-nav .np-nav-programs summary {
+  .np-mobile-nav a,.np-mobile-nav .np-login,.np-mobile-nav .np-nav-programs summary {
     display: flex;
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
     padding: 12px 0;
-  }
-  .np-mobile-nav .np-login {
-    flex: 1;
   }
   .np-nav-actions {
     gap: 14px;
@@ -498,7 +496,7 @@
     padding-left: 22px;
     padding-right: 22px;
   }
-  .np-mobile-nav a:not(.np-nav-schedule),.np-mobile-nav .np-login,.np-mobile-nav .np-nav-programs summary {
+  .np-mobile-nav a,.np-mobile-nav .np-login,.np-mobile-nav .np-nav-programs summary {
     min-height: 50px;
     font-size: 16px;
   }
@@ -588,6 +586,7 @@
   .np-nav-cta { font-size: 10px; padding: 10px; }
 }
 @media (min-width: 861px) {
+  .np-nav { column-gap: 8px; }
   .np-dialog-content>p:not(.np-eyebrow) {
     font-size: 15px;
   }
@@ -611,7 +610,6 @@
   }
 }
 @media (min-width: 1280px) {
-  .np-nav { gap: 18px; }
   .np-desktop-nav { gap: 22px; }
 }
 @media (max-width: 620px) {

@@ -61,7 +61,7 @@ test('moves cross-domain consent out of requested URLs and restores the original
   await mockSite(page)
   const consentId = 'c_test_fragment_handoff'
   await context.addCookies([{ name: '_vortex_cid', value: consentId, url: baseURL! }])
-  await page.goto('/contact')
+  await page.goto('/support')
 
   const footer = page.getByRole('contentinfo')
   await expect(footer.getByRole('link', { name: 'Classes & Events' }))

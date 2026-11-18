@@ -157,7 +157,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
         <PortalNavButtons activePortal="new-admin" availablePortals={availablePortals} onSwitchPortal={onSwitchPortal} onLogout={onLogout} notifications={<NotificationBell apiPrefix="admin" />} />
       </div>
     </header>
-    <div className={fullscreen ? "flex flex-col flex-1 min-h-0 overflow-hidden" : "container-admin pt-6 pb-6 flex flex-col lg:grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden"}>
+    <div className={fullscreen ? "flex flex-col flex-1 min-h-0 overflow-hidden" : `container-admin pt-6 pb-6 flex flex-col lg:grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)] lg:grid-rows-[minmax(0,1fr)] flex-1 min-h-0 overflow-hidden${current?.id === 'leads' ? ' xl:!px-4' : ''}`}>
       <nav id="new-admin-navigation" aria-label="Admin sections" className={`portal-sidebar ${fullscreen ? 'hidden' : navOpen ? 'block' : 'hidden lg:block'} h-full max-h-full shrink-0 min-h-0 overflow-y-auto overscroll-contain`}>
         <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2">
           {visibleGroups.map(group => <Fragment key={group.label ?? 'start'}>

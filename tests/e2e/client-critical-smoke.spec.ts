@@ -45,27 +45,37 @@ test.describe('Client-critical smoke flows', () => {
     await expect(photo).toHaveAttribute('src', '/tramp-tumble-hero-1600.webp')
   })
 
-  test('the Contact menu supports keyboard navigation and restores focus on Escape', async ({ page }) => {
+  test('a direct gym link shows the shared mobile menu with keyboard navigation', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.goto('/contact')
-    const openMenu = page.getByRole('button', { name: 'Open navigation menu', exact: true })
-    const navigation = page.getByRole('navigation', { name: 'Main navigation' })
-    const adultGymnastics = navigation.getByRole('link', { name: 'Adult Gymnastics', exact: true })
+    await page.goto('/contact#inside-the-gym')
+    await expect(page.getByRole('heading', { name: 'Inside the Bowie gym', exact: true })).toBeInViewport()
+    const openMenu = page.getByRole('button', { name: 'Open menu', exact: true })
+    const navigation = page.getByRole('navigation', { name: 'Mobile navigation' })
+    const programs = navigation.getByText('Our Programs', { exact: true })
+    const contact = navigation.getByRole('link', { name: 'Contact Us', exact: true })
 
     await openMenu.press('Enter')
-    await expect(adultGymnastics).toBeVisible()
-    await adultGymnastics.press('Escape')
+    await programs.press('Tab')
+    await expect(contact).toBeFocused()
+    await contact.press('Escape')
     await expect(navigation).toBeHidden()
     await expect(openMenu).toBeFocused()
 
     await openMenu.press('Enter')
-    await adultGymnastics.press('Enter')
+    await programs.press('Enter')
+    await navigation.getByRole('link', { name: 'Adult gymnastics', exact: true }).press('Enter')
     await expect(page).toHaveURL('/adult-gymnastics')
     await expect(page.getByRole('heading', { name: 'Adult gymnastics and acrobatics in Bowie, MD', exact: true })).toBeVisible()
+
+    await openMenu.press('Enter')
+    await contact.click()
+    await expect(page).toHaveURL('/contact')
+    await expect(page.getByRole('heading', { name: 'Contact Vortex Athletics in Bowie, MD', level: 1 })).toBeVisible()
+    await expect(navigation).toBeHidden()
   })
 
   test('the shared skip link moves keyboard focus to public content', async ({ page }) => {
-    for (const path of ['/read-board', '/enroll', '/drop-in', '/blog/youth-sports-bowie', '/gymnastics']) {
+    for (const path of ['/read-board', '/enroll', '/drop-in', '/contact', '/blog/youth-sports-bowie', '/gymnastics']) {
       await page.goto(path)
       const skip = page.getByRole('link', { name: 'Skip to content', exact: true })
       await skip.press('Enter')
@@ -207,6 +217,8 @@ test.describe('Client-critical smoke flows', () => {
     await readiness.getByRole('link', { name: 'See a kettlebell swing in the Vortex training film' }).click()
     await expect(page).toHaveURL('/watch/training-at-vortex#strength-and-handstand')
     await expect(page.getByRole('button', { name: 'Play this scene from 0:12', exact: true })).toBeInViewport()
+    await expect(page.getByRole('link', { name: 'See inside the Bowie gym', exact: true }))
+      .toHaveAttribute('href', '/contact#inside-the-gym')
   })
 
   test('the Fit & Flip landing example links to sourced growth-spurt guidance', async ({ page }) => {
@@ -271,10 +283,17 @@ test.describe('Client-critical smoke flows', () => {
   test('public homepage renders core CTAs', async ({ page }) => {
     await page.goto('/', { waitUntil: 'domcontentloaded' })
     await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics & youth athletic training in Bowie, MD' })).toBeVisible()
+    const navigation = page.getByRole('navigation', { name: 'Main navigation' })
+    const contact = navigation.getByRole('link', { name: 'Contact Us', exact: true })
+    await navigation.getByText('Our Programs', { exact: true }).press('Tab')
+    await expect(contact).toBeFocused()
+    await expect(contact).toHaveAttribute('href', '/contact')
     await expect(page.getByRole('link', { name: 'Directions to the Bowie gym' })).toHaveAttribute('href', '/contact')
     const visit = page.getByRole('region', { name: 'Visit Vortex in Bowie, MD' })
     await expect(visit.getByText('4961 Tesla Dr Suite E', { exact: false })).toBeVisible()
     await expect(visit.getByRole('link', { name: 'See the class schedule' })).toHaveAttribute('href', '/read-board#schedule')
+    await expect(visit.getByRole('link', { name: 'See inside the Bowie gym', exact: true }))
+      .toHaveAttribute('href', '/contact#inside-the-gym')
     await expect(page.getByRole('link', { name: 'Book a free trial', exact: true })).toBeVisible()
     await expect(page.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('href', '/read-board#schedule')
     await page.setViewportSize({ width: 360, height: 740 })
@@ -461,7 +480,14 @@ test.describe('Client-critical smoke flows', () => {
     await visit.getByRole('link', { name: 'See inside the Bowie gym' }).click()
     await expect(page).toHaveURL('/contact#inside-the-gym')
     const gym = page.getByRole('region', { name: 'Inside the Bowie gym' })
-    await expect(gym.getByRole('heading', { level: 2 })).toBeInViewport()
+    const gymHeading = gym.getByRole('heading', { level: 2 })
+    const header = page.getByRole('banner')
+    await expect(header.getByRole('button', { name: 'Open menu', exact: true })).toBeVisible()
+    await expect(gymHeading).toBeInViewport()
+    await expect.poll(async () => {
+      const [headingBounds, headerBounds] = await Promise.all([gymHeading.boundingBox(), header.boundingBox()])
+      return headingBounds !== null && headerBounds !== null && headingBounds.y >= headerBounds.y + headerBounds.height
+    }).toBe(true)
     await expect(gym.getByRole('img')).toHaveCount(5)
     await expect(gym.getByRole('img', { name: /Padded trampoline/ })).toHaveAttribute('src', '/gym-DSC02700-1600.webp')
     const directions = new URL(await page.getByRole('link', { name: 'Get directions to Vortex', exact: true }).getAttribute('href') ?? '')

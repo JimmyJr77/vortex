@@ -36,7 +36,7 @@ const HUB_PROGRAM_ENTRIES = [
   { path: '/adult-gymnastics', lastmod: '2026-11-17', images: [searchPhotos.facility] },
 ]
 export const HUB_PROGRAM_PATHS = HUB_PROGRAM_ENTRIES.map(({ path }) => path)
-export const HUB_LEGACY_CHROME_PATHS = ['/contact', '/store', '/support', '/privacy-policy', '/terms-of-service']
+export const HUB_LEGACY_CHROME_PATHS = ['/store', '/support', '/privacy-policy', '/terms-of-service']
 
 const guidePhotos = {
   athleticDevelopment: searchPhotos.plyometrics,

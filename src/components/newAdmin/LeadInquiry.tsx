@@ -7,12 +7,17 @@ import { INQUIRY_INTERESTS, INQUIRY_CLASS_TYPES, SUBMITTER_ROLES } from '../../c
 import TextInput from '../common/TextInput'
 import type { Lead, LeadAcquisition, LeadChild } from './leadTypes'
 
-export function AcquisitionDetails({ acquisition }: { acquisition?: LeadAcquisition | null }) {
+export function AcquisitionDetails({ acquisition, onOpen }: { acquisition?: LeadAcquisition | null; onOpen?: () => void }) {
   if (!acquisition) return <span className="text-slate-500">Not recorded</span>
   const source = acquisition.source ?? acquisition.referrerHost ?? (acquisition.direct ? 'Direct' : 'Source not recorded')
   const medium = acquisition.medium === 'self_reported' ? 'Self-reported' : acquisition.medium
+  const summary = [source, medium, acquisition.campaign].filter(Boolean).join(' · ')
+  if (onOpen) return <button type="button" aria-haspopup="dialog" onClick={onOpen}
+    className="block w-full max-w-[50ch] truncate text-left text-[11px] underline decoration-slate-400 underline-offset-2">
+    {summary}
+  </button>
   return <div className="break-words">
-    <p>{[source, medium, acquisition.campaign].filter(Boolean).join(' · ')}</p>
+    <p>{summary}</p>
     {acquisition.referrerHost && acquisition.source ? <p className="text-xs text-slate-500">Referrer {acquisition.referrerHost}</p> : null}
     {acquisition.landingPath ? <p className="text-xs text-slate-500">Landing page {acquisition.landingPath}</p> : null}
   </div>

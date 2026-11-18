@@ -2,6 +2,7 @@ import { useRef, useState, type MouseEventHandler } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, CalendarDays, Menu, X } from 'lucide-react'
 import { SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { TRIAL_NAVIGATION_ANCHOR } from '../../config/publicCatalog'
 import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
 import PublicBrandImage from './PublicBrandImage'
 import PublicNavigationLinks from './PublicNavigationLinks'
@@ -22,23 +23,23 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false, ho
   const menuToggleRef = useRef<HTMLButtonElement>(null)
   useSiteHeaderHeight(headerRef)
   const closeMenu = () => setMenuOpen(false)
-  const portalActions = (
-    <div className="np-portal-actions">
-      <Link
-        className="np-nav-schedule"
-        to="/read-board#schedule"
-        aria-label="Schedule"
-        title="Schedule"
-        data-analytics-cta="schedule"
-        data-analytics-section="navigation"
-        onClick={closeMenu}
-      >
-        <CalendarDays size={18} aria-hidden="true" />
-      </Link>
-      <button type="button" className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={() => { closeMenu(); onLogin() }}>
-        {isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} aria-hidden="true" />
-      </button>
-    </div>
+  const scheduleLink = (mobile: boolean) => (
+    <Link
+      className={mobile ? undefined : 'np-nav-schedule'}
+      to="/read-board#schedule"
+      aria-label={mobile ? undefined : 'Schedule'}
+      title={mobile ? undefined : 'Schedule'}
+      data-analytics-cta="schedule"
+      data-analytics-section="navigation"
+      onClick={closeMenu}
+    >
+      {mobile ? 'Calendar' : <CalendarDays size={18} aria-hidden="true" />}
+    </Link>
+  )
+  const memberLogin = (
+    <button type="button" className="np-login" data-analytics-cta="member_login" data-analytics-section="navigation" onClick={() => { closeMenu(); onLogin() }}>
+      {isLoggedIn ? 'My portal' : 'Member login'}<ArrowUpRight size={14} aria-hidden="true" />
+    </button>
   )
 
   return <>
@@ -54,7 +55,10 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false, ho
           <PublicNavigationLinks />
         </nav>
         <div className="np-nav-actions">
-          {portalActions}
+          <div className="np-portal-actions">
+            {scheduleLink(false)}
+            {memberLogin}
+          </div>
           {homeTrial ? (
             <a className="np-button np-nav-cta" href={homeTrial.href} aria-haspopup="dialog"
               data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={event => {
@@ -73,7 +77,11 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false, ho
       </div>
       {menuOpen && <nav id="np-public-mobile-nav" className="np-mobile-nav" aria-label="Mobile navigation">
         <PublicNavigationLinks mobile onNavigate={closeMenu} />
-        {portalActions}
+        {scheduleLink(true)}
+        <Link to={`/#${TRIAL_NAVIGATION_ANCHOR}`} aria-haspopup="dialog" data-analytics-cta="free_trial" data-analytics-section="navigation" onClick={closeMenu}>
+          Schedule free trial <ArrowUpRight size={18} aria-hidden="true" />
+        </Link>
+        {memberLogin}
       </nav>}
     </header>
   </>

@@ -129,6 +129,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
     || isPublicRegistrationPage
     || publicGuideRoutes.some(({ path }) => Boolean(matchPath(path, location.pathname)))
     || Boolean(matchPath(publicPageLoaders.trainingWatch.path, location.pathname))
+    || Boolean(matchPath(publicPageLoaders.contact.path, location.pathname))
     || isEnrollmentPage
     || ['/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.

@@ -1,4 +1,5 @@
 export const PUBLIC_API_ORIGIN = 'https://vortex-backend-qybl.onrender.com'
+export const TRIAL_NAVIGATION_ANCHOR = 'open-free-trial-from-navigation'
 export const ADULT_BOOKING_PROGRAM = 'Adult Fitness & Acrobatics'
 export const DEVELOPMENTAL_GYMNASTICS_PROGRAM = 'Developmental Gymnastics'
 export const DEVELOPMENTAL_GYMNASTICS_CATALOG_NAMES = ['Development Gymnastics', DEVELOPMENTAL_GYMNASTICS_PROGRAM] as const

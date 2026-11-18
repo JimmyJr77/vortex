@@ -2,7 +2,7 @@ import MemberRecordActions from '../admin/MemberRecordActions'
 import { formatPhoneForDisplay } from '../../utils/phoneUtils'
 import { useState } from 'react'
 import { Plus } from 'lucide-react'
-import { button, cell, Dialog, Empty, ErrorNotice, Loading, Pager, primary, Status } from './shared'
+import { button, Dialog, Empty, ErrorNotice, Loading, Pager, primary, Status } from './shared'
 import AccountNotes from './AccountNotes'
 import LeadFilters, { type LeadFilterValues } from './LeadFilters'
 import { AcquisitionDetails, InquiryInformation, KidDetails, LeadFields } from './LeadInquiry'
@@ -10,8 +10,8 @@ import ConvertLead from './ConvertLead'
 import { leadDisplayName, type Lead } from './leadTypes'
 import { allowed, request, useRead, useSearch, type Access, type Page } from './api'
 
-const checkboxCell = 'w-px whitespace-nowrap px-2 py-3 text-center align-top'
-const nameCell = 'pl-2 pr-4 py-3 text-left align-top'
+const checkboxCell = 'w-[4.25rem] whitespace-nowrap px-0.5 py-3 text-center align-top'
+const cell = 'px-1.5 py-3 text-left align-top'
 
 const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '' }
 export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
@@ -24,6 +24,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   const [version, setVersion] = useState(0)
   const [adding, setAdding] = useState(false)
   const [notes, setNotes] = useState<Lead | null>(null)
+  const [acquisitionLead, setAcquisitionLead] = useState<Lead | null>(null)
   const [saving, setSaving] = useState<number | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [convert, setConvert] = useState<Lead | null>(null)
@@ -44,25 +45,50 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     <ErrorNotice message={invalidAge ? 'Enter whole child ages from 0 to 120, with minimum age no greater than maximum age.' : null} />
     <ErrorNotice message={saveError} />
     <ErrorNotice message={data.error} onRetry={refresh} />
-    {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">{data.data.rows.length ? <table className="w-full text-sm"><thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>{['Contacted', 'Follow-up', 'Name', 'Contact', 'Status', 'Acquisition source', 'Kid details', 'Actions'].map((title, index) => <th key={title} className={index < 2 ? checkboxCell : index === 2 ? nameCell : cell}>{title}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => <tr key={lead.id}>
-      <td className={checkboxCell}><input type="checkbox" aria-label={`Contacted ${leadDisplayName(lead)}`} checked={lead.contacted} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { contacted: event.target.checked })} /></td>
-      <td className={checkboxCell}><input type="checkbox" aria-label={`Follow up ${leadDisplayName(lead)}`} checked={lead.followUp} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { followUp: event.target.checked })} /></td>
-      <td className={nameCell}>
-        <button className="font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => setNotes(lead)}>{leadDisplayName(lead)}</button>
-        <p className="mt-1 text-xs text-slate-500">{lead.matchedMemberId ? 'Member inquiry' : 'Lead'} #{lead.id}</p>
-      </td>
-      <td className={cell}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
-      <td className={cell}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">Registration invitation {lead.invitation.status}</p>}</td>
-      <td className={cell}><AcquisitionDetails acquisition={lead.acquisition} /></td>
-      <td className={cell}><KidDetails children={lead.inquiry?.campers || []} /></td>
-      <td className={cell}><div className="flex flex-wrap items-start gap-2">
-        <button className={button} onClick={() => setNotes(lead)}>Notes</button>
-        {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}
-        {canManage && !lead.archived && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}
-        {allowed(access, 'accounts.lifecycle') && <MemberRecordActions record={{ kind: 'lead', id: lead.id, name: leadDisplayName(lead), archived: lead.archived === true }} onChanged={refresh} />}
-      </div></td></tr>)}</tbody></table> : <Empty>No inquiries match these filters.</Empty>}<Pager data={data.data} onPage={setPage} /></div> : null}
+    {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="rounded-xl border border-slate-200 bg-white">
+      {data.data.rows.length ? <div className="overflow-x-auto rounded-t-xl">
+        <table className="w-full min-w-[67.5rem] table-fixed text-sm">
+          <thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>
+            <th scope="col" className={`${checkboxCell} !text-[10px]`}>Contacted</th>
+            <th scope="col" className={`${checkboxCell} !text-[10px]`}>Follow-up</th>
+            <th scope="col" className={`${cell} w-[16%]`}>Name</th>
+            <th scope="col" className={`${cell} w-[5.875rem]`}>Contact</th>
+            <th scope="col" className={`${cell} w-16`}>Status</th>
+            <th scope="col" className={`${cell} w-[14.5rem] 2xl:w-[16.5rem]`}>Acquisition source</th>
+            <th scope="col" className={cell}>Kid details</th>
+            <th scope="col" className={`${cell} w-64 2xl:w-72`}>Actions</th>
+          </tr></thead>
+          <tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => {
+            const name = leadDisplayName(lead)
+            return <tr key={lead.id}>
+              <td className={checkboxCell}><input type="checkbox" aria-label={`Contacted ${name}`} checked={lead.contacted} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { contacted: event.target.checked })} /></td>
+              <td className={checkboxCell}><input type="checkbox" aria-label={`Follow up ${name}`} checked={lead.followUp} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { followUp: event.target.checked })} /></td>
+              <td className={cell}>
+                <button type="button" className="block max-w-full text-left font-semibold underline decoration-slate-300 underline-offset-4 [overflow-wrap:anywhere]" onClick={() => setNotes(lead)}>{name}</button>
+                <p className="mt-1 text-xs text-slate-500">{lead.matchedMemberId ? 'Member inquiry' : 'Lead'} #{lead.id}</p>
+              </td>
+              <td className="px-1 py-3 text-left align-top text-[12px] [overflow-wrap:anywhere]">{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
+              <td className="px-1 py-3 text-left align-top [overflow-wrap:anywhere]"><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-[11px] text-slate-500">Invitation {lead.invitation.status}</p>}</td>
+              <td className={cell}><AcquisitionDetails acquisition={lead.acquisition} onOpen={() => setAcquisitionLead(lead)} /></td>
+              <td className={`${cell} text-[13px] [overflow-wrap:anywhere]`}><KidDetails children={lead.inquiry?.campers || []} /></td>
+              <td className={cell}><div className="flex flex-wrap items-start gap-1 [&_button]:whitespace-nowrap [&_button]:px-1.5 [&_button]:!text-[11px]">
+                <button className={button} onClick={() => setNotes(lead)}>Notes</button>
+                {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}
+                {canManage && !lead.archived && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}
+                {allowed(access, 'accounts.lifecycle') && <MemberRecordActions record={{ kind: 'lead', id: lead.id, name, archived: lead.archived === true }} onChanged={refresh} />}
+              </div></td>
+            </tr>
+          })}</tbody>
+        </table>
+      </div> : <Empty>No inquiries match these filters.</Empty>}
+      <Pager data={data.data} onPage={setPage} />
+    </div> : null}
     {adding ? <Dialog title="Add lead" onClose={() => setAdding(false)}><LeadFields lead={null} onCancel={() => setAdding(false)} onSaved={() => { setAdding(false); refresh() }} /></Dialog> : null}
     {notes ? <LeadNotesDialog lead={notes} revision={revision + version} canManage={canManage} onClose={() => setNotes(null)} onSaved={lead => { setNotes(lead); refresh() }} /> : null}
+    {acquisitionLead ? <Dialog title="Acquisition source" onClose={() => setAcquisitionLead(null)}>
+      <p className="mb-2 font-semibold [overflow-wrap:anywhere]">{leadDisplayName(acquisitionLead)}</p>
+      <AcquisitionDetails acquisition={acquisitionLead.acquisition} />
+    </Dialog> : null}
     {convert ? <ConvertLead lead={convert} access={access} onClose={() => setConvert(null)} onSent={refresh} /> : null}
   </section>
 }

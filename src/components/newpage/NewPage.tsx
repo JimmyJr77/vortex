@@ -13,6 +13,7 @@ import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuid
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import { TRIAL_NAVIGATION_ANCHOR } from '../../config/publicCatalog'
 import { PUBLIC_PROGRAMS } from '../../config/publicPrograms'
 import searchPhotos from '../../config/publicSearchPhotos.json'
 import trainingFilm from '../../config/publicTrainingVideo.json'
@@ -27,7 +28,7 @@ import './NewPageFreeTrial.css'
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
 const NewPageInquiry = lazyWithRetry(() => import('./NewPageInquiry'))
 const TRIAL_ANCHORS = {
-  navigation: 'open-free-trial-from-navigation',
+  navigation: TRIAL_NAVIGATION_ANCHOR,
   free_trial: 'open-free-trial',
 } as const
 
