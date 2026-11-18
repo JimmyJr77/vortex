@@ -187,6 +187,11 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             heading: 'What to tell the coach',
             description: 'Tell the coach which skills your child can repeat comfortably, including skills from cheer or tumbling. For a cartwheel, a coach might watch the order of the hands, how the athlete supports their weight, and whether they can finish in balance.',
           },
+          {
+            id: 'gymnastics-progress',
+            heading: 'How to follow your child’s gymnastics progress',
+            description: 'When a coach publishes an evaluation for your child, sign in to your linked Vortex account and open Progress. Under Gymnastics Evaluation Reports, you can see your child’s strengths, what to practice next, and any note the coach included. Ask your coach which skills your child should be able to repeat before moving up.',
+          },
         ],
         trialLabel: 'Find a free Trial Assessment',
       },

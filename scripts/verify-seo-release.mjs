@@ -607,7 +607,7 @@ const verifyHtml = (
       `${label}: the homepage heading must identify the programs and Bowie location`)
     const heroDescription = html.match(/<p\b[^>]*\bclass=["']np-hero-description["'][^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
     const heroLinks = anchorUrls(heroDescription)
-    for (const path of ['/gymnastics', `${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#choose-a-class`]) {
+    for (const path of ['/gymnastics', `${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#choose-a-class`, '/adult-gymnastics']) {
       assert(heroLinks.some(url => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: the homepage introduction must link directly to ${path}`)
     }
@@ -1272,6 +1272,10 @@ const verifyHtml = (
     assert(anchorUrls(intermediate).some(url => url.href === `${fitAndFlipCanonical}#compare-cyclones-classes`),
       `${label}: intermediate Cyclones readers must have a direct link to compare Fit & Flip`)
     const placement = html.match(/<section\b[^>]*\sid=["']class-placement["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const progress = placement.match(/<article\b[^>]*\sid=["']gymnastics-progress["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    assert(/coach publishes an evaluation/.test(progress) && /linked Vortex account/.test(progress) &&
+      /open Progress/.test(progress) && /Gymnastics Evaluation Reports/.test(progress),
+      `${label}: missing the signed-in path for published gymnastics evaluation reports`)
     const pathways = html.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
     const disciplines = html.match(/<section\b[^>]*\sid=["']disciplines["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const team = html.match(/<section\b[^>]*\sid=["']competitive-gymnastics-team["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
