@@ -1066,8 +1066,12 @@ const verifyHtml = (
             `${label}: missing the link to the parent guide at ${hash}`)
         }
         const conditioning = content.match(/<article\b[^>]*\sid=["']conditioning["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
-        assert(anchorUrls(conditioning).some(url => url.href === `${guideCanonical}#sports-season`),
-          `${label}: the conditioning section must link to the in-season training guidance`)
+        const conditioningLinks = anchorUrls(conditioning)
+        const strength = content.match(/<article\b[^>]*\sid=["']strength["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+        assert(/short shuttle/.test(conditioning) && conditioningLinks.some(url => url.href === `${guideCanonical}#sports-season`) &&
+          conditioningLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
+          anchorUrls(strength).some(url => url.href === `${fitAndFlipCanonical}#conditioning`),
+          `${label}: families must be able to find the conditioning example and go to the schedule or in-season guide`)
       }
     } else {
       const examples = content.match(/<section\b[^>]*\sid=["']movement-examples["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
@@ -1107,9 +1111,11 @@ const verifyHtml = (
       assert(/smaller hop/.test(growth) &&
         anchorUrls(growth).some(url => url.href === 'https://www.healthychildren.org/english/healthy-living/sports/pages/is-your-child-ready-for-sports.aspx'),
         `${label}: missing the growth-spurt balance example or American Academy of Pediatrics source`)
+      const sportsSeasonLinks = anchorUrls(sportsSeason)
       assert(tags(sportsSeason, 'li').length === 2 &&
-        anchorUrls(sportsSeason).some((url) => url.href === `${fitAndFlipCanonical}#fit-flip-class-example`),
-        `${label}: missing the examples for training around the season or link to the public class example`)
+        sportsSeasonLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-class-example`) &&
+        sportsSeasonLinks.some(url => url.href === `${fitAndFlipCanonical}#conditioning`),
+        `${label}: missing the examples for training around the season or links to the class and conditioning examples`)
       assert(/Can they listen to a coach/i.test(readiness) &&
         anchorUrls(readiness).some((url) => url.href === `${fitAndFlipCanonical}#training-fit`),
         `${label}: missing the youth strength training readiness guidance or link to the beginner program options`)

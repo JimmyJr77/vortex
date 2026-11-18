@@ -398,11 +398,14 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'strength',
             heading: 'Youth strength training',
             description: 'Coaches teach kids to squat, hinge at the hips, push, and pull. These patterns help athletes support their body weight in gymnastics and control their position when they change direction in sports.',
-            link: {
-              href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#strength-training-readiness`,
-              label: 'See how kids progress from bodyweight to light resistance',
-              analyticsKey: 'read_youth_strength_readiness',
-            },
+            links: [
+              {
+                href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#strength-training-readiness`,
+                label: 'See how kids progress from bodyweight to light resistance',
+                analyticsKey: 'read_youth_strength_readiness',
+              },
+              { href: '/fit-and-flip#conditioning', label: 'See how coaches pace conditioning drills', analyticsKey: 'read_youth_conditioning' },
+            ],
           },
           {
             id: 'explosiveness',
@@ -456,12 +459,19 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'conditioning',
             heading: 'Youth conditioning for sports',
-            description: 'Conditioning helps athletes keep moving well as a practice or game goes on. A coach can adjust the work and recovery if an athlete loses control when they land or slow down. Tell the coach about your child’s practices and games so the extra training fits their week.',
-            link: {
-              href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`,
-              label: 'Fit training around practices and games',
-              analyticsKey: 'read_youth_sports_training_schedule',
-            },
+            description:
+              'Conditioning helps athletes keep moving well as a practice or game goes on. ' +
+              'A coach might have an athlete repeat a short shuttle, slowing down before turning and walking between efforts. ' +
+              'If the stops or turns get less controlled, the coach can give the athlete more recovery or ask for fewer repeats. ' +
+              'Tell the coach about your child’s practices and games so the extra training fits their week.',
+            links: [
+              {
+                href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`,
+                label: 'Fit training around practices and games',
+                analyticsKey: 'read_youth_sports_training_schedule',
+              },
+              { href: '/fit-and-flip#fit-flip-schedule', label: 'See weekly Cyclones class times', analyticsKey: 'read_fit_flip_schedule' },
+            ],
           },
         ],
         links: [

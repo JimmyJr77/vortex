@@ -6,6 +6,8 @@ const younger = 'Cyclones ages 8–11'
 const older = 'Cyclones ages 12–15'
 const currentDay = '2026-11-17'
 const staleDescription = 'Legacy catalog wording about ninja course dynamics.'
+const staleDevelopmentDescription = 'Our developmental classes teach the full spectrum of gymnastics disciplines, including rhythmic and aerobic gymnastics.'
+const developmentalDescription = /^Coached preschool and recreational gymnastics\./
 const teamName = 'Vortex Gymnastics Team'
 const staleTeamProgramDescription = 'VGT is the official artistic gymnastics team of Vortex Gymnastics'
 const staleTeamClassDescription = 'Team athletes will participate in any of the following types of gymnastics competitions: Artistic, Acrobatics, Rhythmic, Aerobics, and Trampoline.'
@@ -36,7 +38,7 @@ async function mockSchedule(page: Page, unavailableForms: number[] = []) {
         { id: 5, displayName: 'Adult Fitness & Acrobatics', classes: [
           { id: 63, displayName: 'Typhoons', ageMin: 18, formId: 3, enrollVisible: true },
         ] },
-        { id: 2, displayName: 'Development Gymnastics', classes: [
+        { id: 2, displayName: 'Development Gymnastics', description: staleDevelopmentDescription, classes: [
           { id: 64, displayName: 'Tornadoes', ageMin: 6, skillLevel: 'BEGINNER', formId: 5, enrollVisible: true },
           { id: 65, displayName: 'Dirt Devils (Mommy & Me)', ageMin: 2, ageMax: 3, skillLevel: 'EARLY_STAGE', formId: 11, enrollVisible: true },
           { id: 66, displayName: 'Gymnastics Cyclones', ageMin: 6, skillLevel: 'INTERMEDIATE', formId: 22, enrollVisible: true, description: 'Progress from beginner gymnastics skills.' },
@@ -52,6 +54,9 @@ async function mockSchedule(page: Page, unavailableForms: number[] = []) {
       return json({ classes: [{
         classId: 60, formId: 30, className: younger, programId: 9, programName: fitAndFlip,
         programDescription: staleDescription, ageMin: 8, ageMax: 11,
+      }, {
+        classId: 64, formId: 5, className: 'Tornadoes', programId: 2, programName: 'Development Gymnastics',
+        programDescription: staleDevelopmentDescription, ageMin: 6, skillLevel: 'BEGINNER',
       }], sessions: [] })
     }
 
@@ -243,6 +248,8 @@ test('uses verified program descriptions on the public class board and team enro
   const board = page.locator('.np-browse-class-list')
   await expect(board.getByText(/Fit & Flip is a coached fitness class for ages 8–15/)).toBeVisible()
   await expect(board.getByText(staleDescription)).toHaveCount(0)
+  await expect(board.getByText(developmentalDescription)).toBeVisible()
+  await expect(board.getByText(staleDevelopmentDescription)).toHaveCount(0)
   const boardTeam = board.locator(':scope > div').filter({ has: page.getByRole('heading', { name: teamName, level: 3 }) })
   const teamPlacement = /^Vortex Gymnastics Team is listed for ages 6 and up\. The team requires an evaluation for placement\./
   await expect(boardTeam.getByText(teamPlacement)).toBeVisible()
@@ -276,6 +283,8 @@ for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', '
     await expect(gymnasticsHeading).toBeVisible()
     await expect(page.getByText(staleDescription)).toHaveCount(0)
     await expect(page.getByText(/Fit & Flip is a coached fitness class for ages 8–15/)).toBeVisible()
+    await expect(page.getByText(developmentalDescription)).toBeVisible()
+    await expect(page.getByText(staleDevelopmentDescription)).toHaveCount(0)
 
     for (const term of [
       'youth fitness', 'athletic training', 'strength training', 'sports performance',
@@ -306,6 +315,13 @@ for (const [path, searchLabel] of [['/enroll', 'Search classes'], ['/drop-in', '
     await expect(preschool).toHaveCount(0)
     await expect(intermediate).toHaveCount(0)
     await expect(fitAndFlipHeading).toHaveCount(0)
+
+    for (const term of ['Tumbling', 'Floor tumbling', 'Tumbling classes']) {
+      await search.fill(term)
+      await expect(tornadoes).toBeVisible()
+      await expect(intermediate).toBeVisible()
+      await expect(preschool).toHaveCount(0)
+    }
 
     for (const term of ['8-11', '8–11']) {
       await search.fill(term)

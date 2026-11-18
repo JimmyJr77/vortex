@@ -1,7 +1,7 @@
 import { FIT_AND_FLIP_PUBLIC_COPY } from '../config/fitAndFlipCopy'
 import {
   ADULT_BOOKING_PROGRAM, DEVELOPMENTAL_GYMNASTICS_CATALOG_NAMES, DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM,
-  GYMNASTICS_TEAM_PUBLIC_DESCRIPTION,
+  DEVELOPMENTAL_GYMNASTICS_PUBLIC_DESCRIPTION, GYMNASTICS_TEAM_PUBLIC_DESCRIPTION,
 } from '../config/publicCatalog'
 import type { PublicClassOffered, PublicProgramOffered } from './publicClassesApi'
 
@@ -71,6 +71,7 @@ export function getScopedDropInProgram(name: string | null) {
 }
 
 export function getPublicBookingDescription(programName: string, catalogDescription: string | null) {
+  if (programName === DEVELOPMENTAL_GYMNASTICS_PROGRAM) return DEVELOPMENTAL_GYMNASTICS_PUBLIC_DESCRIPTION
   if (programName === FIT_AND_FLIP_BOOKING_PROGRAM) return FIT_AND_FLIP_PUBLIC_COPY.intro
   if (programName === GYMNASTICS_TEAM_PROGRAM) return GYMNASTICS_TEAM_PUBLIC_DESCRIPTION
   return catalogDescription
@@ -94,9 +95,12 @@ export function matchesPublicBookingSearch(
   const term = normalizeBookingSearchText(query)
   const isDevelopmentalGymnastics = programName === DEVELOPMENTAL_GYMNASTICS_PROGRAM
   const isFitAndFlip = programName === FIT_AND_FLIP_BOOKING_PROGRAM
+  const level = skillLevel?.trim().toUpperCase() ?? ''
 
-  if (term === 'beginner gymnastics') return isDevelopmentalGymnastics && skillLevel?.trim().toUpperCase() === 'BEGINNER'
+  if (term === 'beginner gymnastics') return isDevelopmentalGymnastics && level === 'BEGINNER'
   if (isDevelopmentalGymnastics && term === 'youth gymnastics') return true
+  if (isDevelopmentalGymnastics && /^(?:floor )?tumbling(?: classes?)?$/.test(term) &&
+      /^(?:BEGINNER|INTERMEDIATE|ADVANCED)$/.test(level)) return true
   if (isFitAndFlip && fitAndFlipSearchAliases.has(term)) return true
 
   const programCopy = isFitAndFlip ? fitAndFlipSearchCopy : ''

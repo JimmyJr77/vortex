@@ -221,6 +221,24 @@ test.describe('Client-critical smoke flows', () => {
       .toHaveAttribute('href', '/contact#inside-the-gym')
   })
 
+  test('families can reach the conditioning example and Cyclones schedule from strength and in-season guidance', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    const conditioning = page.locator('#conditioning')
+    for (const [path, link] of [
+      ['/fit-and-flip#strength', 'See how coaches pace conditioning drills'],
+      ['/blog/athletic-development-young-athletes#sports-season', 'adjust the pace of a conditioning drill'],
+    ]) {
+      await page.goto(path)
+      await page.getByRole('link', { name: link, exact: true }).click()
+      await expect(page).toHaveURL('/fit-and-flip#conditioning')
+      await expect(conditioning.getByRole('heading', { name: 'Youth conditioning for sports' })).toBeInViewport()
+      await expect(conditioning.getByText(/repeat a short shuttle/)).toBeVisible()
+      await conditioning.getByRole('link', { name: 'See weekly Cyclones class times' }).click()
+      await expect(page).toHaveURL('/fit-and-flip#fit-flip-schedule')
+      await expect(page.getByRole('heading', { name: 'Recurring Fit & Flip class times' })).toBeInViewport()
+    }
+  })
+
   test('the Fit & Flip landing example links to sourced growth-spurt guidance', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
     await page.goto('/fit-and-flip#fit-flip-class-example')
