@@ -87,7 +87,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     serviceType: 'Youth gymnastics classes',
     path: '/gymnastics',
     title: 'Youth Gymnastics Classes in Bowie, MD | Vortex',
-    description: 'Find youth gymnastics classes in Bowie, MD, from preschool and beginner classes to competitive team. Compare weekly times, prices, trials, and placement options.',
+    description: 'Explore preschool, recreational, and competitive youth gymnastics in Bowie, MD. Compare class levels, weekly schedules, prices, and free trial options.',
     heading: 'Youth gymnastics classes in Bowie, MD',
     intro: 'Find a place to start and room to grow. Vortex coaches teach kids and teens gymnastics skills alongside the strength, coordination, and body control to use them.',
     image: searchPhotos.youthGymnastics,
@@ -147,15 +147,15 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           },
         ],
         links: [
-          { href: '/gymnastics#class-placement', label: 'Compare beginner, intermediate, and advanced gymnastics levels', analyticsKey: 'read_gymnastics_placement' },
+          { href: '/gymnastics#class-placement', label: 'Compare recreational gymnastics levels', analyticsKey: 'read_gymnastics_placement' },
           { href: '/gymnastics#first-visit', label: 'Prepare for your first visit', analyticsKey: 'read_first_visit' },
           { href: '/gymnastics#youth-gymnastics-schedule', label: 'See weekly gymnastics class times', analyticsKey: 'read_youth_gymnastics_schedule' },
         ],
       },
       {
         id: 'class-placement',
-        heading: 'Youth gymnastics levels and placement',
-        description: 'Compare the three developmental levels for ages 6 and up. If your child has taken gymnastics before, a Trial Assessment helps the coach choose a class based on the skills your child can repeat with control.',
+        heading: 'Recreational gymnastics levels and placement',
+        description: 'Vortex calls its recreational classes for ages 6 and up Developmental Gymnastics. Kids and teens can progress from beginner to advanced classes without entering meets. If your child has trained before, a Trial Assessment helps the coach choose a class based on the skills your child can repeat with control.',
         topics: [
           {
             id: 'gymnastics-level-beginner',

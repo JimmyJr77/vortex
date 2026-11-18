@@ -409,10 +409,10 @@ test('takes experienced gymnasts from the comparison guide to Trial Assessment d
   await page.getByRole('button', { name: 'Settings', exact: true }).click()
   await grantAnalyticsOnly(page)
 
-  await page.getByRole('link', { name: 'how coaches choose a gymnastics level' }).click()
+  await page.getByRole('link', { name: 'compare recreational gymnastics levels and placement' }).click()
   await expect(page).toHaveURL('/gymnastics#class-placement')
   const placement = page.locator('#class-placement')
-  await expect(placement.getByRole('heading', { level: 2 })).toBeInViewport()
+  await expect(placement.getByRole('heading', { level: 2, name: 'Recreational gymnastics levels and placement' })).toBeInViewport()
   await expect(placement.getByRole('heading', { level: 3, name: 'Advanced Vortex A4 Elite' })).toBeVisible()
   await expect(placement.getByRole('link', { name: 'Compare advanced classes and team placement' }))
     .toHaveAttribute('href', '/gymnastics#competitive-gymnastics-team')

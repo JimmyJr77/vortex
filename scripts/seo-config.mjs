@@ -31,7 +31,7 @@ export function getIndexNowVerificationKey() {
 }
 
 const HUB_PROGRAM_ENTRIES = [
-  { path: '/gymnastics', lastmod: '2026-11-17', images: [searchPhotos.youthGymnastics] },
+  { path: '/gymnastics', lastmod: '2026-11-18', images: [searchPhotos.youthGymnastics] },
   { path: '/fit-and-flip', lastmod: '2026-11-17', images: [searchPhotos.fitAndFlip] },
   { path: '/adult-gymnastics', lastmod: '2026-11-17', images: [searchPhotos.facility] },
 ]
