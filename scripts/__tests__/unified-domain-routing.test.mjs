@@ -7,6 +7,8 @@ const config = JSON.parse(readFileSync(new URL('../../vercel.json', import.meta.
 const landingRedirects = JSON.parse(readFileSync(new URL('../../src/config/publicLandingRedirects.json', import.meta.url), 'utf8'))
 const primary = 'https://vortexathletics.com'
 const aliases = ['www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex-gymnastics.com']
+const optionalSlash = '{/}?'
+const slashFallback = '/:path((?:[^/]+/)*[^/]+)/'
 
 // Resolve the source/host subset used by this configuration, preserving incoming
 // query parameters as Vercel's source-controlled redirects do. These tests check
@@ -14,24 +16,25 @@ const aliases = ['www.vortexathletics.com', 'vortex-gymnastics.com', 'www.vortex
 function nextLocation(input) {
   const url = new URL(input)
   const path = url.pathname
-  if (config.trailingSlash === false && path !== '/' && path.endsWith('/')) {
-    url.pathname = path.slice(0, -1)
-    return url.href
-  }
-  const rule = config.redirects.find(candidate => {
-    if (candidate.source !== '/:path*' && candidate.source !== path) return false
-    return (candidate.has ?? []).every(condition => {
+  for (const rule of config.redirects) {
+    const optional = rule.source.endsWith(optionalSlash)
+    const source = optional ? rule.source.slice(0, -optionalSlash.length) : rule.source
+    const slashMatch = source === slashFallback && /^\/(?:[^/]+\/)+$/.test(path)
+    const sourcePath = (optional || slashMatch) && path !== '/' ? path.replace(/\/$/, '') : path
+    if (source !== '/:path*' && source !== sourcePath && !slashMatch) continue
+    if (!(rule.has ?? []).every(condition => {
       assert.equal(condition.type, 'host', 'This routing test must model any new condition type explicitly')
       return new RegExp(`^(?:${condition.value})$`, 'i').test(url.hostname)
-    })
-  })
-  if (!rule) return null
-  assert.equal(rule.permanent, true)
-  const target = new URL(rule.destination.replace(':path*', url.pathname.slice(1)), url)
-  assert.equal(target.search, '', 'Do not replace login, enrollment, or campaign query parameters')
-  target.search = url.search
-  if (!target.hash) target.hash = url.hash
-  return target.href
+    })) continue
+
+    assert.equal(rule.permanent, true)
+    const target = new URL(rule.destination.replace(/:path\*?/, sourcePath.slice(1)), url)
+    assert.equal(target.search, '', 'Do not replace login, enrollment, or campaign query parameters')
+    target.search = url.search
+    if (!target.hash) target.hash = url.hash
+    return target.href
+  }
+  return null
 }
 
 function resolve(input) {
@@ -56,7 +59,7 @@ test('both gymnastics domains and athletics www resolve to the primary homepage'
     assert(index >= 0, `${host} needs an explicit root redirect`)
     assert.equal(config.redirects[index].destination, `${primary}/`)
     assert.equal(config.redirects[index].permanent, true)
-    const wildcardIndex = config.redirects.findIndex(rule => rule.source === '/:path*'
+    const wildcardIndex = config.redirects.findIndex(rule => rule.source === `/:path*${optionalSlash}`
       && rule.has?.some(condition => condition.type === 'host' && condition.value === host))
     assert(index < wildcardIndex, 'Root redirects must precede wildcard redirects')
   }
@@ -100,9 +103,9 @@ test('legacy pages resolve directly to the corresponding unified page or section
   for (const host of ['vortexathletics.com', ...aliases]) {
     for (const [path, destination] of Object.entries(expected)) {
       const target = new URL(`${primary}${destination}`)
-      target.search = '?utm_source=legacy'
-      assert.equal(nextLocation(`https://${host}${path}?utm_source=legacy`), target.href)
-      assert.equal(resolve(`https://${host}${path}/?utm_source=legacy`), target.href)
+      target.search = '?utm_source=legacy&tag=one&tag=two'
+      assert.equal(nextLocation(`https://${host}${path}${target.search}`), target.href)
+      assert.equal(nextLocation(`https://${host}${path}/${target.search}`), target.href)
     }
   }
 })
@@ -112,6 +115,7 @@ test('retired schedule links preserve booking selection and campaign attribution
   for (const host of ['vortexathletics.com', ...aliases]) {
     for (const path of ['/schedule', '/scheduling']) {
       assert.equal(nextLocation(`https://${host}${path}${queryAndHash}`), `${primary}/enroll${queryAndHash}`)
+      assert.equal(nextLocation(`https://${host}${path}/${queryAndHash}`), `${primary}/enroll${queryAndHash}`)
     }
   }
   assert.equal(nextLocation(`https://vortex-basketball.com/schedule${queryAndHash}`),
@@ -129,6 +133,7 @@ test('each published retired HTML snapshot goes to the matching public page in o
     target.searchParams.set('utm_source', 'legacy')
     for (const host of ['vortexathletics.com', ...aliases]) {
       assert.equal(nextLocation(`https://${host}${source}?utm_source=legacy`), target.href)
+      assert.equal(nextLocation(`https://${host}${source}/?utm_source=legacy`), target.href)
     }
   }
   assert.equal(nextLocation(`${primary}/_gym/unpublished.html`), null)
@@ -149,7 +154,7 @@ test('public program and guide paths use one canonical form across hosts', () =>
     assert.equal(nextLocation(`${primary}${path}`), null)
     for (const host of ['vortexathletics.com', ...aliases]) {
       assert.equal(
-        resolve(`https://${host}${path}/?utm_source=legacy#details`),
+        nextLocation(`https://${host}${path}/?utm_source=legacy#details`),
         `${primary}${path}?utm_source=legacy#details`,
       )
     }
@@ -173,6 +178,7 @@ test('other sport domains retain their existing homepage rewrites and do not red
     for (const variant of [host, `www.${host}`]) {
       assert.equal(nextLocation(`https://${variant}/`), null)
       assert.equal(nextLocation(`https://${variant}/gymnastics`), null)
+      assert.equal(nextLocation(`https://${variant}/gymnastics/`), `https://${variant}/gymnastics`)
       assert(config.rewrites.some(rule => rule.source === '/' && rule.destination === `/_seo/${host}.html`
         && rule.has.some(condition => new RegExp(`^(?:${condition.value})$`).test(variant))))
     }

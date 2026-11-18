@@ -1725,7 +1725,8 @@ for (const set of expectedSets) {
     }
 
     const consentMappings = [...normalizedConsentPaths.map(path => [path, path]), ...legacyNormalizedConsentPaths]
-    await Promise.all(consentMappings.map(async ([path, destination]) => {
+    const consentVariants = consentMappings.flatMap(([path, destination]) => [[path, destination], [`${path}/`, destination]])
+    await Promise.all(consentVariants.map(async ([path, destination]) => {
       const consentDestination = new URL(destination, set.origin)
       consentDestination.searchParams.append('utm_source', 'seo_release_check')
       consentDestination.searchParams.append('tag', 'one')
@@ -1850,10 +1851,7 @@ if (live) {
         ? new URL(current.pathname + current.search + current.hash, HUB_ORIGIN)
         : undefined
       const aliasRedirect = permanent && next.href === aliasTarget?.href
-      const slashlessTarget = new URL(current)
-      slashlessTarget.pathname = current.pathname.replace(/\/$/, '')
-      const slashRedirect = permanent && slashlessTarget.href !== current.href && next.href === slashlessTarget.href
-      if (!aliasRedirect && !slashRedirect) {
+      if (!aliasRedirect) {
         assert(false, `${source.href}: ${current.href} redirected to ${next.href} (HTTP ${response.status}); expected ${destination.href}`)
         return
       }
@@ -1877,6 +1875,8 @@ if (live) {
     const destination = new URL(target, HUB_ORIGIN)
     for (const [key, value] of Object.entries(query)) destination.searchParams.set(key, value)
     destination.searchParams.set('utm_source', 'seo-release-check')
+    destination.searchParams.append('tag', 'one')
+    destination.searchParams.append('tag', 'two')
     for (const origin of origins) {
       const source = new URL(path, origin)
       source.search = destination.search
@@ -1903,6 +1903,8 @@ if (live) {
   await verifyTrackedRedirect('/trampoline-tumbling', legacyLandingRedirects['/trampoline-tumbling'], {
     [consentQueryParam]: 'c_consent_release_check',
   }, [gymnasticsApexOrigin, GYMNASTICS_ORIGIN])
+  await verifyTrackedRedirect('/trampoline-tumbling/index.html/', legacyLandingRedirects['/trampoline-tumbling'])
+  await verifyTrackedRedirect('/gymnastics/index.html/', '/gymnastics')
 
   const wwwConsentSource = new URL('/trampoline-tumbling', athleticsWwwOrigin)
   wwwConsentSource.searchParams.set(consentQueryParam, 'c_consent_release_check')
@@ -2044,9 +2046,11 @@ for (const path of [HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_
 }
 
 const vercelConfig = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'))
-assert(vercelConfig.trailingSlash === false,
-  'vercel.json: trailing-slash variants must permanently redirect to the canonical slashless paths')
 const redirects = vercelConfig.redirects ?? []
+const slashFallback = redirects.at(-1)
+assert(vercelConfig.trailingSlash === undefined && slashFallback?.source === '/:path((?:[^/]+/)*[^/]+)/' &&
+  slashFallback.destination === '/:path' && slashFallback.permanent === true && !slashFallback.has,
+  'vercel.json: normalize slashes after the specific redirects')
 const headers = vercelConfig.headers ?? []
 const rewrites = vercelConfig.rewrites ?? []
 const publicNotFoundHandler = 'api/public-not-found.ts'
@@ -2060,7 +2064,7 @@ assert(publicNotFoundRewrite?.destination === '/' + publicNotFoundHandler &&
 const redirectFor = (host, source, destination) =>
   redirects.some(
     (redirect) =>
-      redirect.source === source &&
+      redirect.source === (source === '/' ? source : `${source}{/}?`) &&
       redirect.destination === destination &&
       redirect.permanent === true &&
       redirect.has?.some((condition) => condition.type === 'host' && new RegExp(`^(?:${condition.value})$`).test(host)),
@@ -2089,7 +2093,7 @@ assert(headers.some(rule => rule.source === '/:path((?!(?:' + normalizedConsentS
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam)),
   'vercel.json: legacy consent query URLs outside the normalized paths must have a noindex header on the canonical host')
 const consentHandler = 'api/legacy-public-consent.ts'
-const findConsentRewrite = (slugs) => vercelConfig.routes?.find(rule => rule.src === '^/(' + slugs + ')$' &&
+const findConsentRewrite = (slugs) => vercelConfig.routes?.find(rule => rule.src === '^/(' + slugs + ')/?$' &&
   rule.dest === '/' + consentHandler && !rule.check && rule.methods?.join(' ') === 'GET HEAD' &&
   rule.has?.some(condition => condition.type === 'host' &&
     condition.value === '(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)') &&
@@ -2119,7 +2123,7 @@ for (const path of HUB_PROGRAM_PATHS) {
     `${path}: an active program page must not remain in the client-side legacy redirects`)
   assert(!redirects.some((rule) => {
     const host = rule.has?.find((condition) => condition.type === 'host')
-    return rule.source === path && (!host || new RegExp(`^(?:${host.value})$`).test(new URL(HUB_ORIGIN).host))
+    return [path, `${path}{/}?`].includes(rule.source) && (!host || new RegExp(`^(?:${host.value})$`).test(new URL(HUB_ORIGIN).host))
   }), `vercel.json: ${path} must serve its program page on the canonical host`)
 }
 assert(

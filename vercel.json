@@ -1,7 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
-  "trailingSlash": false,
   "redirects": [
     {
       "source": "/",
@@ -16,311 +15,316 @@
       "permanent": true
     },
     {
-      "source": "/newpage",
+      "source": "/newpage{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/",
       "permanent": true
     },
     {
-      "source": "/sports",
+      "source": "/sports{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/#programs",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics-early",
+      "source": "/artistic-gymnastics-early{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#preschool",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics-6-12",
+      "source": "/artistic-gymnastics-6-12{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#youth",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics-13-18",
+      "source": "/artistic-gymnastics-13-18{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#teen",
       "permanent": true
     },
     {
-      "source": "/campaigns/artistic-gymnastics-early",
+      "source": "/campaigns/artistic-gymnastics-early{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#preschool",
       "permanent": true
     },
     {
-      "source": "/campaigns/artistic-gymnastics-6-12",
+      "source": "/campaigns/artistic-gymnastics-6-12{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#youth",
       "permanent": true
     },
     {
-      "source": "/campaigns/artistic-gymnastics-13-18",
+      "source": "/campaigns/artistic-gymnastics-13-18{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#teen",
       "permanent": true
     },
     {
-      "source": "/acro-gymnastics",
+      "source": "/acro-gymnastics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#acro",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics",
+      "source": "/artistic-gymnastics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#artistic",
       "permanent": true
     },
     {
-      "source": "/rhythmic-gymnastics",
+      "source": "/rhythmic-gymnastics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#rhythmic",
       "permanent": true
     },
     {
-      "source": "/trampoline-tumbling",
+      "source": "/trampoline-tumbling{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#trampoline-tumbling",
       "permanent": true
     },
     {
-      "source": "/aerobic-gymnastics",
+      "source": "/aerobic-gymnastics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#aerobic",
       "permanent": true
     },
     {
-      "source": "/beginner-gymnastics",
+      "source": "/beginner-gymnastics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#beginner",
       "permanent": true
     },
     {
-      "source": "/homeschool-gymnastics",
+      "source": "/homeschool-gymnastics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#homeschool",
       "permanent": true
     },
     {
-      "source": "/vortex-athletics",
+      "source": "/vortex-athletics{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip",
       "permanent": true
     },
     {
-      "source": "/athleticism-accelerator",
+      "source": "/athleticism-accelerator{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip#athleticism-development",
       "permanent": true
     },
     {
-      "source": "/strength-conditioning",
+      "source": "/strength-conditioning{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip#strength",
       "permanent": true
     },
     {
-      "source": "/summer-athletic-training",
+      "source": "/summer-athletic-training{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip#training-fit",
       "permanent": true
     },
     {
-      "source": "/value",
+      "source": "/value{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/#approach",
       "permanent": true
     },
     {
-      "source": "/summer-camp-26",
+      "source": "/summer-camp-26{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/camp_interest",
       "permanent": true
     },
     {
-      "source": "/sitemap-gymnastics.xml",
+      "source": "/sitemap-gymnastics.xml{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/sitemap.xml",
       "permanent": true
     },
     {
-      "source": "/sports",
+      "source": "/sports{/}?",
       "destination": "/",
       "permanent": true
     },
     {
-      "source": "/athleticism-accelerator",
+      "source": "/athleticism-accelerator{/}?",
       "destination": "/vortex-athletics",
       "permanent": true
     },
     {
-      "source": "/scheduling",
+      "source": "/scheduling{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/enroll",
       "permanent": true
     },
     {
-      "source": "/schedule",
+      "source": "/schedule{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/enroll",
       "permanent": true
     },
     {
-      "source": "/scheduling",
+      "source": "/scheduling{/}?",
       "destination": "/enroll",
       "permanent": true
     },
     {
-      "source": "/schedule",
+      "source": "/schedule{/}?",
       "destination": "/enroll",
       "permanent": true
     },
     {
-      "source": "/index.html",
+      "source": "/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/",
       "permanent": true
     },
     {
-      "source": "/:page(gymnastics|fit-and-flip|adult-gymnastics|read-board|enroll|drop-in|contact|jobs|support|store|privacy-policy|terms-of-service|blog|ninja)/index.html",
+      "source": "/:page(gymnastics|fit-and-flip|adult-gymnastics|read-board|enroll|drop-in|contact|jobs|support|store|privacy-policy|terms-of-service|blog|ninja)/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/:page",
       "permanent": true
     },
     {
-      "source": "/blog/:article(athletic-development-young-athletes|youth-sports-bowie|preschool-gymnastics-what-toddlers-learn|gymnastics-vs-tumbling|returning-to-gymnastics-as-an-adult)/index.html",
+      "source": "/blog/:article(athletic-development-young-athletes|youth-sports-bowie|preschool-gymnastics-what-toddlers-learn|gymnastics-vs-tumbling|returning-to-gymnastics-as-an-adult)/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/blog/:article",
       "permanent": true
     },
     {
-      "source": "/watch/training-at-vortex/index.html",
+      "source": "/watch/training-at-vortex/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/watch/training-at-vortex",
       "permanent": true
     },
     {
-      "source": "/vortex-athletics/index.html",
+      "source": "/vortex-athletics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip",
       "permanent": true
     },
     {
-      "source": "/summer-athletic-training/index.html",
+      "source": "/summer-athletic-training/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/fit-and-flip#training-fit",
       "permanent": true
     },
     {
-      "source": "/value/index.html",
+      "source": "/value/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/#approach",
       "permanent": true
     },
     {
-      "source": "/beginner-gymnastics/index.html",
+      "source": "/beginner-gymnastics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#beginner",
       "permanent": true
     },
     {
-      "source": "/homeschool-gymnastics/index.html",
+      "source": "/homeschool-gymnastics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#homeschool",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics-early/index.html",
+      "source": "/artistic-gymnastics-early/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#preschool",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics-6-12/index.html",
+      "source": "/artistic-gymnastics-6-12/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#youth",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics-13-18/index.html",
+      "source": "/artistic-gymnastics-13-18/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#teen",
       "permanent": true
     },
     {
-      "source": "/summer-camp-26/index.html",
+      "source": "/summer-camp-26/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/camp_interest",
       "permanent": true
     },
     {
-      "source": "/acro-gymnastics/index.html",
+      "source": "/acro-gymnastics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#acro",
       "permanent": true
     },
     {
-      "source": "/artistic-gymnastics/index.html",
+      "source": "/artistic-gymnastics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#artistic",
       "permanent": true
     },
     {
-      "source": "/rhythmic-gymnastics/index.html",
+      "source": "/rhythmic-gymnastics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#rhythmic",
       "permanent": true
     },
     {
-      "source": "/trampoline-tumbling/index.html",
+      "source": "/trampoline-tumbling/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#trampoline-tumbling",
       "permanent": true
     },
     {
-      "source": "/aerobic-gymnastics/index.html",
+      "source": "/aerobic-gymnastics/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/gymnastics#aerobic",
       "permanent": true
     },
     {
-      "source": "/_gym/index.html",
+      "source": "/_gym/index.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/",
       "permanent": true
     },
     {
-      "source": "/_gym/read-board.html",
+      "source": "/_gym/read-board.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/read-board",
       "permanent": true
     },
     {
-      "source": "/_gym/drop-in.html",
+      "source": "/_gym/drop-in.html{/}?",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/drop-in",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/:path*{/}?",
       "has": [{ "type": "host", "value": "www.vortexathletics.com" }],
       "destination": "https://vortexathletics.com/:path*",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/:path*{/}?",
       "has": [{ "type": "host", "value": "vortex-gymnastics.com" }],
       "destination": "https://vortexathletics.com/:path*",
       "permanent": true
     },
     {
-      "source": "/:path*",
+      "source": "/:path*{/}?",
       "has": [{ "type": "host", "value": "www.vortex-gymnastics.com" }],
       "destination": "https://vortexathletics.com/:path*",
+      "permanent": true
+    },
+    {
+      "source": "/:path((?:[^/]+/)*[^/]+)/",
+      "destination": "/:path",
       "permanent": true
     }
   ],
@@ -427,7 +431,7 @@
   ],
   "routes": [
     {
-      "src": "^/(gymnastics|fit-and-flip|read-board|drop-in|contact|support)$",
+      "src": "^/(gymnastics|fit-and-flip|read-board|drop-in|contact|support)/?$",
       "methods": ["GET", "HEAD"],
       "has": [
         { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },
@@ -437,7 +441,7 @@
       "dest": "/api/legacy-public-consent.ts"
     },
     {
-      "src": "^/(artistic-gymnastics-early|artistic-gymnastics-6-12|artistic-gymnastics-13-18|campaigns/artistic-gymnastics-early|campaigns/artistic-gymnastics-6-12|campaigns/artistic-gymnastics-13-18|acro-gymnastics|artistic-gymnastics|rhythmic-gymnastics|trampoline-tumbling|aerobic-gymnastics|beginner-gymnastics|homeschool-gymnastics|vortex-athletics|athleticism-accelerator|strength-conditioning|summer-athletic-training)$",
+      "src": "^/(artistic-gymnastics-early|artistic-gymnastics-6-12|artistic-gymnastics-13-18|campaigns/artistic-gymnastics-early|campaigns/artistic-gymnastics-6-12|campaigns/artistic-gymnastics-13-18|acro-gymnastics|artistic-gymnastics|rhythmic-gymnastics|trampoline-tumbling|aerobic-gymnastics|beginner-gymnastics|homeschool-gymnastics|vortex-athletics|athleticism-accelerator|strength-conditioning|summer-athletic-training)/?$",
       "methods": ["GET", "HEAD"],
       "has": [
         { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },

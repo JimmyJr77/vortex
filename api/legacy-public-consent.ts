@@ -21,6 +21,7 @@ export default function legacyPublicConsent(request: IncomingMessage, response: 
   }
 
   const url = new URL(request.url ?? '/', 'https://vortexathletics.com')
+  url.pathname = url.pathname.replace(/\/$/, '')
   const legacyDestination = legacyRedirects[url.pathname]
   const destination = legacyDestination ? new URL(legacyDestination, url) : url
   const consentIds = url.searchParams.getAll(CONSENT_ID_QUERY_PARAM)
