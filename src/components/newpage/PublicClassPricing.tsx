@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation, useNavigationType } from 'react-router-dom'
 import { CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { getApiUrl } from '../../utils/api'
-import { fetchNonmemberDropIns } from '../../utils/dropInApi'
 import { formatCents } from '../../utils/money'
 import {
   ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
@@ -10,15 +9,7 @@ import {
   FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
   getScopedDropInProgram, type RecurringBookingProgram,
 } from '../../utils/publicBookingPrograms'
-import { fetchSignupClassCatalog } from '../signup/signupEnrollmentUtils'
-
-export type RecurringPriceClass = {
-  classId: number
-  formId: number
-  name: string
-  excludeFromDropIns?: boolean
-  groups: { id: number; offeringId?: number | null }[]
-}
+import type { RecurringPriceClass } from './loadPublicRecurringSchedule'
 
 const PRICING_DETAILS = {
   [DEVELOPMENTAL_GYMNASTICS_PROGRAM]: {
@@ -46,6 +37,7 @@ function isPositivePrice(value: unknown): value is number {
 }
 
 async function fetchMonthlyTuition({ classId, formId, groups }: RecurringPriceClass, signal: AbortSignal) {
+  const { fetchSignupClassCatalog } = await import('../signup/signupEnrollmentUtils')
   const catalog = await fetchSignupClassCatalog(getApiUrl(), classId, signal)
   if (catalog.formId !== formId || catalog.costUnit !== 'per_month') return []
   const prices = groups.flatMap(group => {
@@ -58,6 +50,7 @@ async function fetchMonthlyTuition({ classId, formId, groups }: RecurringPriceCl
 }
 
 async function fetchDropInPrices(program: RecurringBookingProgram, signal: AbortSignal) {
+  const { fetchNonmemberDropIns } = await import('../../utils/dropInApi')
   const { sessions } = await fetchNonmemberDropIns(signal)
   return sessions.filter(session => getScopedDropInProgram(session.programName) === program &&
     !session.isFull && !session.excludedFromDropIns && isPositivePrice(session.totalCents))

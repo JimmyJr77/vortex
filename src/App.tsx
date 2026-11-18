@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback, useRef } from 'react'
+import { Suspense, useState, useEffect, useCallback, useRef, type ComponentType } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
@@ -8,7 +8,6 @@ import {
   type PublicSnapshotPage,
 } from './config/publicPageLoaders'
 import { PublicSiteFooter, PublicSiteHeader } from './components/newpage/PublicSiteChrome'
-import PortalTheme from './components/portal/PortalTheme'
 import { trackEngagement } from './utils/analytics'
 import PublicSiteAnalytics from './components/analytics/PublicSiteAnalytics'
 import { hasAdminSession } from './utils/api'
@@ -56,14 +55,29 @@ const LazyJobsPage = lazyWithRetry(publicPageLoaders.jobs.load)
 const LazySupportPage = lazyWithRetry(publicPageLoaders.support.load)
 const LazyPrivacyPolicyPage = lazyWithRetry(publicPageLoaders.privacyPolicy.load)
 const LazyTermsOfServicePage = lazyWithRetry(publicPageLoaders.termsOfService.load)
-const NewAdmin = lazyWithRetry(() => import('./components/newAdmin/NewAdmin'))
-const Admin = lazyWithRetry(() => import('./components/Admin'))
-const MemberDashboard = lazyWithRetry(() => import('./components/MemberDashboard'))
-const MemberWaiverPrompt = lazyWithRetry(() => import('./components/MemberWaiverPrompt'))
-const CoachDashboard = lazyWithRetry(() => import('./components/CoachDashboard'))
+const NewAdmin = lazyThemedPortal(() => import('./components/newAdmin/NewAdmin'))
+const Admin = lazyThemedPortal(() => import('./components/Admin'))
+const MemberDashboard = lazyThemedPortal(() => import('./components/MemberDashboard'))
+const MemberWaiverPrompt = lazyThemedPortal(() => import('./components/MemberWaiverPrompt'))
+const CoachDashboard = lazyThemedPortal(() => import('./components/CoachDashboard'))
 const LazyStorefront = lazyWithRetry(publicPageLoaders.store.load)
-const I9PreparerPortal = lazyWithRetry(() => import('./components/payroll/I9PreparerPortal'))
-const PayrollEmployeePortal = lazyWithRetry(() => import('./components/payroll/PayrollEmployeePortal'))
+const I9PreparerPortal = lazyThemedPortal(() => import('./components/payroll/I9PreparerPortal'))
+const PayrollEmployeePortal = lazyThemedPortal(() => import('./components/payroll/PayrollEmployeePortal'))
+
+function lazyThemedPortal<Props extends object>(loadPortal: () => Promise<{ default: ComponentType<Props> }>) {
+  return lazyWithRetry(async () => {
+    const [{ default: Portal }, { default: PortalTheme }] = await Promise.all([
+      loadPortal(),
+      import('./components/portal/PortalTheme'),
+    ])
+
+    return {
+      default: function ThemedPortal(props: Props) {
+        return <PortalTheme><Portal {...props} /></PortalTheme>
+      },
+    }
+  })
+}
 
 function PageLoader() {
   return (
@@ -301,19 +315,19 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
     ...(isAdmin ? ['admin', 'new-admin'] as const : []),
   ])]
 
-  if (location.pathname === '/employee/payroll/preparer') return <PortalTheme><Suspense fallback={<PageLoader />}><I9PreparerPortal /></Suspense></PortalTheme>
+  if (location.pathname === '/employee/payroll/preparer') return <Suspense fallback={<PageLoader />}><I9PreparerPortal /></Suspense>
 
   if (location.pathname === '/employee/payroll') {
-    return <PortalTheme><Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense></PortalTheme>
+    return <Suspense fallback={<PageLoader />}><PayrollEmployeePortal /></Suspense>
   }
 
   // Only a fresh account login can start waiver onboarding. Registration and
   // restored sessions use their own waiver flows.
   if (!isLeadRegistration && !(isLandingPage && activePortal === 'website') && memberToken && pendingWaiverToken === memberToken && availablePortals.includes('member')) {
     return (
-      <PortalTheme><Suspense fallback={<PageLoader />}>
+      <Suspense fallback={<PageLoader />}>
         <MemberWaiverPrompt key={memberToken} token={memberToken} onContinue={finishWaiverCheck} onLogout={handleMemberLogout} />
-      </Suspense></PortalTheme>
+      </Suspense>
     )
   }
 
@@ -321,13 +335,13 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   if (!isLeadRegistration && isAdmin && (activePortal === 'admin' || activePortal === 'new-admin')) {
     const AdminPortal = activePortal === 'new-admin' ? NewAdmin : Admin
     return (
-      <PortalTheme><Suspense fallback={<PageLoader />}>
+      <Suspense fallback={<PageLoader />}>
         <AdminPortal
           onLogout={handleLogout}
           availablePortals={availablePortals}
           onSwitchPortal={switchPortal}
         />
-      </Suspense></PortalTheme>
+      </Suspense>
     )
   }
 
@@ -335,7 +349,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   if (!isLeadRegistration && member && memberToken && showMemberDashboard) {
     if (activePortal === 'coach') {
       return (
-        <PortalTheme><Suspense fallback={<PageLoader />}>
+        <Suspense fallback={<PageLoader />}>
           <CoachDashboard
             coach={member}
             onLogout={handleMemberLogout}
@@ -343,11 +357,11 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             availablePortals={availablePortals}
             onSwitchPortal={switchPortal}
           />
-        </Suspense></PortalTheme>
+        </Suspense>
       )
     }
     return (
-      <PortalTheme><Suspense fallback={<PageLoader />}>
+      <Suspense fallback={<PageLoader />}>
         <MemberDashboard 
           member={member} 
           onLogout={handleMemberLogout}
@@ -359,7 +373,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             if (updated) setMember(updated)
           }}
         />
-      </Suspense></PortalTheme>
+      </Suspense>
     )
   }
 

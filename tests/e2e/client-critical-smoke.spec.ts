@@ -41,7 +41,7 @@ test.describe('Client-critical smoke flows', () => {
 
     await page.getByRole('link', { name: 'Gymnastics vs. tumbling for kids' }).click()
     await expect(page).toHaveURL('/blog/gymnastics-vs-tumbling')
-    await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(/tramp-tumble-hero-768\.webp$/)
+    await expect.poll(() => photo.evaluate((image: HTMLImageElement) => image.currentSrc)).toMatch(/tramp-tumble-hero-768\.avif$/)
     await expect(photo).toHaveAttribute('src', '/tramp-tumble-hero-1600.webp')
   })
 
