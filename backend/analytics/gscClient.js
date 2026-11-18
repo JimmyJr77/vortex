@@ -119,35 +119,52 @@ export async function syncGscRankings(pool) {
   return { rowsSynced: rows }
 }
 
-const YOUTH = "(?:youth|kids?['’]?|child(?:ren|['’]s)?|teens?|juniors?)"
+const YOUTH = "youth|kids?['’]?|child(?:ren)?(?:['’]s)?|teens?|juniors?"
+const YOUTH_ATHLETES = `${YOUTH}|young[ -]+athletes?`
+const CLASS_AGE = '(?:[2-9]|1[0-7])'
+const YOUTH_CLASS_AUDIENCE = `${YOUTH}|toddlers?|pre[ -]?school(?:ers?)?|ages?[ -]+${CLASS_AGE}|(?:an?[ -]+)?${CLASS_AGE}[ -]+year[ -]+olds?`
+const ADULT_GYMNASTS = 'adults?(?:[ -]+(?:beginner|introductory))?'
+const SPORTS_PERFORMANCE = 'sports?[ -]+performance(?:[ -]+training)?'
 const VORTEX_NAME_QUERY = String.raw`(?i)(?:^|[^a-z0-9])vortex(?:athletics|gymnastics)?(?:$|[^a-z0-9])`
 
-function youthQueryExpression(activity) {
-  return `(?i)\\b(?:${YOUTH}[ -]+${activity}|${activity}(?:[ -]+class(?:es)?)?[ -]+for[ -]+${YOUTH})\\b`
+function audienceQueryExpression(audience, activity) {
+  const group = `(?:${audience})`
+  const subject = `(?:${activity})`
+  return String.raw`(?i)\b(?:${group}[ -]+${subject}|${subject}(?:[ -]+(?:class(?:es)?|programs?))?[ -]+for[ -]+${group})\b`
 }
 
 const SEARCH_TOPICS = [
   {
     id: 'youth-athletics',
     label: 'Youth Athletics',
-    expression: youthQueryExpression('athletic(?:s|[ -]+(?:training|development|performance))'),
+    expression: audienceQueryExpression(YOUTH_ATHLETES,
+      `athletic(?:s|[ -]+(?:training|development|performance))|athlete[ -]+development|${SPORTS_PERFORMANCE}`),
   },
-  { id: 'youth-gymnastics', label: 'Youth Gymnastics', expression: youthQueryExpression('gymnastics') },
+  {
+    id: 'youth-gymnastics',
+    label: 'Youth Gymnastics',
+    expression: audienceQueryExpression(`${YOUTH_CLASS_AUDIENCE}|home[ -]?school(?:ers?)?`, 'gymnastics'),
+  },
   {
     id: 'athleticism-development',
     label: 'Athleticism Development',
-    expression: String.raw`(?i)\b(?:athleticism[ -]+(?:development|training)|develop(?:ing|ment[ -]+of)?[ -]+athleticism|(?:athletic|athlete)[ -]+development)\b`,
+    expression: String.raw`(?i)\b(?:athleticism[ -]+(?:development|training)|(?:develop(?:ing|ment[ -]+of)?|build(?:ing)?|improv(?:e|ing))[ -]+athleticism|(?:athletic|athlete)[ -]+development)\b`,
   },
-  { id: 'youth-sports', label: 'Youth Sports', expression: youthQueryExpression('sports?') },
+  {
+    id: 'youth-sports',
+    label: 'Youth Sports',
+    expression: audienceQueryExpression(YOUTH_CLASS_AUDIENCE, `${SPORTS_PERFORMANCE}|sports?`),
+  },
   {
     id: 'youth-fitness',
     label: 'Youth Fitness',
-    expression: youthQueryExpression('(?:fitness|conditioning|strength[ -]+(?:and[ -]+|&[ -]+)?conditioning)'),
+    expression: audienceQueryExpression(YOUTH_ATHLETES,
+      'fitness|conditioning|strength[ -]+(?:training|(?:and[ -]+|&[ -]+)?conditioning)|(?:speed(?:[ -]+(?:and[ -]+|&[ -]+)?agility)?|agility)[ -]+training'),
   },
   {
     id: 'adult-gymnastics',
     label: 'Adult Gymnastics',
-    expression: String.raw`(?i)\b(?:adults?[ -]+gymnastics|gymnastics(?:[ -]+class(?:es)?)?[ -]+for[ -]+adults?)\b`,
+    expression: audienceQueryExpression(ADULT_GYMNASTS, 'gymnastics|tumbling'),
   },
 ]
 

@@ -8,12 +8,31 @@ import { getSearchConsoleProgramPages, getSearchConsoleTopics } from '../gscClie
 const PROPERTY = 'sc-domain:example.test'
 const NOW = new Date('2026-11-16T07:59:59.000Z')
 const TOPICS = [
-  ['youth-athletics', 'Athletic training for teens in Bowie', 'sports for kids'],
-  ['youth-gymnastics', 'Gymnastics classes for kids near me', 'adult gymnastics'],
-  ['athleticism-development', 'Developing athleticism', 'adult gymnastics'],
-  ['youth-sports', 'Sports for children in Bowie', 'youth fitness'],
-  ['youth-fitness', 'Youth strength and conditioning', 'youth gymnastics'],
-  ['adult-gymnastics', 'Gymnastics classes for adults', 'kids gymnastics'],
+  ['youth-athletics', [
+    'Athletic training for teens in Bowie', 'athletic training for young athletes',
+    'junior athlete development', 'sports performance training for kids',
+  ], ['sports for kids', 'athletic training for adults', 'young athletes summer jobs']],
+  ['youth-gymnastics', [
+    'Gymnastics classes for kids near me', 'preschool gymnastics in Bowie', 'pre-school gymnastics', 'homeschool gymnastics',
+    'toddler gymnastics', 'gymnastics for toddlers', 'gymnastics classes for 5 year olds',
+    'gymnastics programs for 8-year-olds', '3-year-old gymnastics classes', 'gymnastics for ages 12 and up',
+  ], ['adult gymnastics', 'gymnastics for ages 20 and up', 'preschool programs near me']],
+  ['athleticism-development', [
+    'Developing athleticism', 'how to build athleticism', 'how to improve athleticism in young athletes',
+    'long-term athlete development',
+  ], ['adult gymnastics', 'define athleticism']],
+  ['youth-sports', [
+    'Sports for children in Bowie', 'sports programs for kids', 'sports performance training for kids',
+    'preschool sports classes', 'toddler sports classes', 'sports classes for a 3-year-old',
+  ], ['youth fitness', 'sports news', 'sports programs for adults', 'sports classes for a 30-year-old']],
+  ['youth-fitness', [
+    'Youth strength and conditioning', 'kids strength training', 'youth speed and agility training',
+    'fitness classes for children’s groups', 'agility training for young athletes',
+  ], ['youth gymnastics', 'strength training for adults', 'agility training for dogs']],
+  ['adult-gymnastics', [
+    'Gymnastics classes for adults', 'adult beginner gymnastics', 'adult introductory gymnastics near me',
+    'adult tumbling', 'tumbling classes for adults near me',
+  ], ['kids gymnastics', 'kids tumbling', 'adult open gym', 'adult beginner yoga']],
 ]
 
 function configure(t, updates) {
@@ -102,7 +121,7 @@ test('measures each topic independently using finalized Pacific data and preserv
   assert.equal(topicCalls.length, TOPICS.length)
   for (const [index, call] of topicCalls.entries()) {
     const [request] = call.arguments
-    const [, sample, unrelated] = TOPICS[index]
+    const [id, included, excluded] = TOPICS[index]
     const { dimensionFilterGroups, ...body } = request.requestBody
     assert.equal(request.siteUrl, PROPERTY)
     assert.deepEqual(body, {
@@ -120,9 +139,8 @@ test('measures each topic independently using finalized Pacific data and preserv
     assert.equal(operator, 'includingRegex')
     assert.ok(expression.startsWith('(?i)'))
     const regex = new RegExp(expression.slice(4), 'i')
-    assert.match(sample, regex)
-    assert.doesNotMatch(unrelated, regex)
-
+    for (const query of included) assert.match(query, regex, `${id} should match ${query}`)
+    for (const query of excluded) assert.doesNotMatch(query, regex, `${id} should exclude ${query}`)
   }
   assert.equal(report.status, 'partial')
   assert.equal(report.endDate, '2026-11-13')
@@ -157,7 +175,7 @@ test('excludes the Vortex name alongside each topic filter when requested', asyn
     assert.deepEqual(filters.map(({ dimension, operator }) => [dimension, operator]), [
       ['query', 'includingRegex'], ['query', 'excludingRegex'],
     ])
-    assert.match(TOPICS[index][1], new RegExp(filters[0].expression.slice(4), 'i'))
+    assert.match(TOPICS[index][1][0], new RegExp(filters[0].expression.slice(4), 'i'))
     const exclusion = filters[1].expression
     assert.ok(exclusion.startsWith('(?i)'))
     const regex = new RegExp(exclusion.slice(4), 'i')

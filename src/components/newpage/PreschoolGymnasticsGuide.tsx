@@ -1,5 +1,6 @@
 import { ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import { DEVELOPMENTAL_GYMNASTICS_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
@@ -83,6 +84,12 @@ export default function PreschoolGymnasticsGuide() {
             the child a chance to practice a steady landing and get ready for the next turn. Waiting,
             watching the demonstration, and returning to the group are skills children practice alongside
             the gymnastics movements.
+          </p>
+          <p>
+            If your child also likes playing with a ball,{' '}
+            <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#first-sports-ages-2-5`}>
+              compare first sports classes for ages 2–5 in Bowie
+            </Link>.
           </p>
         </section>
 

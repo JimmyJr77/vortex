@@ -47,6 +47,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#local-programs">Where to look</a></li>
             <li><a href="#indoor-winter-sports">Indoor winter sports</a></li>
             <li><a href="#choose-an-activity">How to choose an activity</a></li>
+            <li><a href="#first-sports-ages-2-5">First sports classes for ages 2–5</a></li>
             <li><a href="#compare-athletic-training">Compare coached fitness and athletic training</a></li>
             <li><a href="#high-school-sports-training">High school sports training</a></li>
             <li><a href="#youth-team-training">Youth team training</a></li>
@@ -191,6 +192,32 @@ export default function BowieYouthSportsGuide() {
           <p>
             A single-day class gives your child a chance to try an activity before committing to a weekly schedule.{' '}
             <Link to="/drop-in">See the current Vortex drop-in listings</Link>.
+          </p>
+          <h3 id="first-sports-ages-2-5" className="athletic-guide-subheading scroll-mt-24">
+            First sports classes for ages 2–5 in Bowie
+          </h3>
+          <ul>
+            <li>
+              <strong>Gymnastics with a caregiver, ages 2–3.</strong> In Dirt Devils at Vortex, plan to join your
+              child on the floor as they practice balancing, rolling, and jumping. Children must be potty
+              trained for a trial.
+            </li>
+            <li>
+              <strong>Group gymnastics, ages 4–5.</strong> In Twisters at Vortex, a coach shows the group what to
+              try. Children practice simple shapes and landings and take turns.{' '}
+              <Link to="/gymnastics#preschool">Compare Dirt Devils and Twisters</Link>.
+            </li>
+            <li>
+              <strong>Starting with a ball.</strong> BallerTykes Rookies introduces basketball through games for
+              ages 2–3. Bowie Community Center’s preschool soccer class teaches kicking, passing, and dribbling
+              for ages 3–5.{' '}
+              <a href="https://www.ballertykes.com/register">Check BallerTykes dates in Bowie</a> ·{' '}
+              <a href="https://www.pgparks.com/your-guide">Find preschool soccer in the county guide</a>
+            </li>
+          </ul>
+          <p className="mt-4">
+            Before booking, confirm the age cutoff, whether an adult joins the class, and what your child should
+            bring. <Link to="/gymnastics#first-visit">See what to expect at a first Vortex gymnastics class</Link>.
           </p>
         </section>
 
