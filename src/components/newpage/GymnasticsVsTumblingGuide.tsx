@@ -48,6 +48,7 @@ export default function GymnasticsVsTumblingGuide() {
           <ul>
             <li><a href="#where-tumbling-fits">Where tumbling fits</a></li>
             <li><a href="#choose-a-class">Which class to try</a></li>
+            <li><a href="#handspring-class-placement">Choosing a back handspring class</a></li>
             <li><a href="#teen-gymnastics-options">Starting gymnastics or tumbling as a teen</a></li>
             <li><a href="#boys-gymnastics">Boys’ gymnastics and apparatus classes</a></li>
             <li><a href="#nearby-tumbling-classes">Dedicated tumbling classes near Bowie</a></li>
@@ -103,6 +104,21 @@ export default function GymnasticsVsTumblingGuide() {
             A 10-year-old who wants to learn a cartwheel can start with Tornadoes. A 10-year-old cheer athlete
             working on a stronger takeoff and steadier landing could start with Fit &amp; Flip. If your child has
             a specific skill in mind, tell the coach what they can already do and ask which class works on it.
+          </p>
+          <h3 id="handspring-class-placement" className="athletic-guide-subheading scroll-mt-24">
+            First back handspring or connecting skills?
+          </h3>
+          <p>
+            Ask whether the class teaches the first back handspring or expects your child to have one on the floor.
+            Train For Greatness in Bowie introduces back handspring technique in Level 1 Advanced for athletes who
+            can do the Level 1 Intro skills without help. Its Level 2 class requires an unassisted back handspring
+            on the floor and works on connecting it with other skills.{' '}
+            <a href="https://www.trainforgreatnessmd.com/tumbling">Check Train For Greatness’s tumbling levels</a>.
+          </p>
+          <p>
+            For a developmental gymnastics class at Vortex, tell the coach which skills your child can do independently.
+            A front or back handspring is one of several skills coaches check for Vortex A4 Elite placement.{' '}
+            <Link to="/gymnastics#class-placement">See how Vortex places experienced gymnasts</Link>.
           </p>
           <p>
             <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-gymnastics-classes`}>Compare youth gymnastics classes near Bowie</Link>{' '}

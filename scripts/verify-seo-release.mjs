@@ -1293,6 +1293,8 @@ const verifyHtml = (
       /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
       anchorUrls(placement).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
       `${label}: missing the placement comparison or assessment action in the rendered page`)
+    assert(anchorUrls(placement).some(url => url.href === `${tumblingGuideCanonical}#handspring-class-placement`),
+      `${label}: the class-placement section must link to the handspring comparison`)
     assert(hasProgramTrialLink(placement, 'class-placement'),
       `${label}: the Trial Assessment must work as a native link before startup`)
     assert(anchorUrls(pathways).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
@@ -1343,6 +1345,12 @@ const verifyHtml = (
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable comparison guide link to ${path}`)
     }
+    const handspring = content.match(/<h3\b[^>]*\sid=["']handspring-class-placement["'][^>]*>[\s\S]*?<\/h3>(?:\s*<p\b[^>]*>[\s\S]*?<\/p>){2}/i)?.[0] ?? ''
+    const handspringLinks = anchorUrls(handspring)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#handspring-class-placement') &&
+      handspringLinks.some(url => url.href === 'https://www.trainforgreatnessmd.com/tumbling') &&
+      handspringLinks.some(url => url.href === `${HUB_ORIGIN}/gymnastics#class-placement`),
+      `${label}: the handspring comparison must link to its provider source and Vortex class placement`)
     const nearbyTumbling = content.match(/<section\b[^>]*\sid=["']nearby-tumbling-classes["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const nearbyTumblingLinks = anchorUrls(nearbyTumbling)
     for (const provider of [
@@ -1418,9 +1426,11 @@ const verifyHtml = (
       const videos = parsed.filter(item => item?.['@type'] === 'VideoObject')
       const video = videos[0]
       const { name, description, uploadDate, durationSeconds } = PUBLIC_TRAINING_VIDEO
+      const validUploadDate = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/.test(uploadDate) &&
+        isCalendarDate(uploadDate.slice(0, 10)) && Number.isFinite(Date.parse(uploadDate))
       assert(videos.length === 1 && video?.name === name && video?.description === description &&
         video?.contentUrl === videoUrl && video?.thumbnailUrl?.length === 1 && video.thumbnailUrl[0] === videoThumbnailUrl &&
-        ogImages[0] === videoThumbnailUrl && video.uploadDate === uploadDate && isCalendarDate(uploadDate) &&
+        ogImages[0] === videoThumbnailUrl && video.uploadDate === uploadDate && validUploadDate &&
         video.duration === `PT${durationSeconds}S` && video.publisher?.['@id'] === locationId &&
         page?.url === canonical && page?.mainEntity?.['@id'] === video['@id'] && video?.mainEntityOfPage?.['@id'] === page?.['@id'],
         `${label}: VideoObject must describe the visible film and be the main entity of its page`)

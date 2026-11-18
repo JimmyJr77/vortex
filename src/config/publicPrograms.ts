@@ -172,7 +172,10 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'gymnastics-level-advanced',
             heading: 'Advanced Vortex A4 Elite',
             description: 'Athletes build on the Cyclones skills. Coaches also look for a front or back handspring and a full split. Gymnasts in this developmental class can keep progressing without joining the competitive team.',
-            link: { href: '/gymnastics#competitive-gymnastics-team', label: 'Compare advanced classes and team placement', analyticsKey: 'compare_gymnastics_pathways' },
+            links: [
+              { href: '/gymnastics#competitive-gymnastics-team', label: 'Compare advanced classes and team placement', analyticsKey: 'compare_gymnastics_pathways' },
+              { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#handspring-class-placement`, label: 'Compare classes for a first back handspring', analyticsKey: 'read_handspring_class_placement' },
+            ],
           },
           {
             id: 'experienced-trial',
