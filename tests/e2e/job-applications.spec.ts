@@ -51,6 +51,7 @@ test('a coaching application can be retried, reviewed in Admin, and moved into r
   await page.getByRole('group', { name: 'Have you coached or trained children?' }).getByRole('radio', { name: 'Yes' }).check()
   await page.getByRole('checkbox', { name: '8–11', exact: true }).check()
   await page.getByLabel('What types of training did you lead with children?').fill('Beginner tumbling and youth strength sessions')
+  await expect(page.getByRole('group', { name: /artistic gymnastics/i })).toHaveCount(0)
   for (const { value, label } of JOB_DISCIPLINES) {
     const score = value === 'tumbling' ? '5, expert level' : value === 'dance' ? '1, no experience' : '3'
     await page.getByRole('group', { name: label, exact: true }).getByRole('radio', { name: score, exact: true }).check()
@@ -69,9 +70,9 @@ test('a coaching application can be retried, reviewed in Admin, and moved into r
     firstName: 'Jordan', lastName: 'Rivera', role: 'both', coachedChildren: true, ageGroups: ['8_11'],
     youthCoachingDetails: 'Beginner tumbling and youth strength sessions',
     certificationKeys: ['cpr_aed', 'personal_trainer'], certifications: 'Youth coaching certificate from my recreation league',
-    ratings: { tumbling: 5, dance: 1 },
+    ratings: { tumbling: 5, dance: 1, beam: 3, parallelBars: 3, unevenBars: 3, pommelHorse: 3, parkour: 3, ninja: 3 },
   })
-  expect(Object.keys(submissions[0].ratings as object)).toHaveLength(10)
+  expect(Object.keys(submissions[0].ratings as object)).toHaveLength(18)
   expect(submissions[1]).toEqual(submissions[0])
 
   await page.setViewportSize({ width: 1280, height: 900 })
@@ -89,6 +90,8 @@ test('a coaching application can be retried, reviewed in Admin, and moved into r
   await expect(review.getByText('CPR/AED', { exact: true })).toBeVisible()
   await expect(review.getByText('Youth coaching certificate from my recreation league')).toBeVisible()
   await expect(review.getByText('5 / 5', { exact: true })).toBeVisible()
+  await expect(review.getByText('Pommel Horse', { exact: true })).toBeVisible()
+  await expect(review.getByText('Ninja', { exact: true })).toBeVisible()
   await review.getByRole('combobox', { name: 'Review status', exact: true }).selectOption('in_review')
   await review.getByRole('button', { name: 'Save review status', exact: true }).click()
   await expect(review.getByRole('status')).toHaveText('Review status saved.')

@@ -11,15 +11,22 @@ import { registerNewAdminRoutes } from '../registerRoutes.js'
 const connectionString = process.env.NEW_ADMIN_TEST_DATABASE_URL
 if (connectionString) validateRehearsalDatabaseUrl(connectionString, { nodeEnv: 'development' })
 
-function application() {
+const sharedRatings = {
+  plyometrics: 1, strengthTraining: 2, speedAgility: 2, hiit: 1, tumbling: 5, trampoline: 4, acro: 1, dance: 1,
+}
+
+const legacyRatings = { ...sharedRatings, womensArtisticGymnastics: 3, mensArtisticGymnastics: 2 }
+const currentRatings = {
+  ...sharedRatings, beam: 4, bar: 3, parallelBars: 2, unevenBars: 4, vault: 4,
+  rings: 2, pommelHorse: 1, floor: 5, parkour: 3, ninja: 2,
+}
+
+function application(ratings = currentRatings) {
   return {
     requestId: randomUUID(), firstName: 'Taylor', lastName: 'Morgan', email: 'taylor@example.com',
     phone: '+1 (202) 555-0101', role: 'both', availability: 'Saturday mornings', coachedChildren: true,
     ageGroups: ['8_11', '5_7'], youthCoachingDetails: 'Taught beginner tumbling and youth strength classes.',
-    ratings: {
-      plyometrics: 1, strengthTraining: 2, speedAgility: 2, hiit: 1, tumbling: 5, trampoline: 4,
-      womensArtisticGymnastics: 3, mensArtisticGymnastics: 2, acro: 1, dance: 1,
-    },
+    ratings,
     certificationKeys: ['first_aid', 'cpr_aed'], certifications: 'Local coaching course',
     employmentType: 'part_time', earliestStartDate: '2030-08-15', resumeUrl: 'https://example.com/resume',
   }
@@ -51,6 +58,22 @@ test('job application validation requires the youth coaching details that apply 
   assert.deepEqual(newCoach.ageGroups, [])
   assert.equal(newCoach.youthCoachingDetails, null)
   assert.deepEqual(newCoach.certificationKeys, [])
+})
+
+test('job applications require a complete current or previous ratings catalog', () => {
+  assert.deepEqual(jobApplicationInput(application(currentRatings)).ratings, currentRatings)
+  assert.deepEqual(jobApplicationInput(application(legacyRatings)).ratings, legacyRatings)
+
+  for (const ratings of [
+    sharedRatings,
+    { ...currentRatings, unevenBars: undefined },
+    { ...currentRatings, ninja: 2.5 },
+    { ...currentRatings, rings: 0 },
+    { ...currentRatings, womensArtisticGymnastics: 3 },
+    { ...legacyRatings, mensArtisticGymnastics: undefined },
+    { ...legacyRatings, mensArtisticGymnastics: '2' },
+    { ...legacyRatings, parkour: 3 },
+  ]) assert.throws(() => jobApplicationInput(application(ratings)), { statusCode: 400 })
 })
 
 test('job applications are replay-safe and staff can read/update only their own facility', { skip: !connectionString }, async (t) => {
@@ -109,11 +132,16 @@ test('job applications are replay-safe and staff can read/update only their own 
   assert.deepEqual(receipts, [{ success: true, data: { id } }, { success: true, data: { id } }])
   assert.equal((await submit({ ...body, availability: 'Sunday' })).status, 409)
 
+  const olderFormResponse = await submit(application(legacyRatings))
+  assert.equal(olderFormResponse.status, 200)
+  const { data: { id: olderFormId } } = await olderFormResponse.json()
+  assert.deepEqual((await (await staff(`/${olderFormId}`)).json()).data.ratings, legacyRatings)
+
   assert.equal((await staff('', { headers: { 'x-test-role': 'viewer' } })).status, 403)
   const list = await staff('?pageSize=1')
   assert.equal(list.headers.get('Cache-Control'), 'private, no-store')
   const { data: page } = await list.json()
-  assert.equal(page.total, 1)
+  assert.equal(page.total, 2)
   assert.equal(page.rows[0].status, 'new')
   assert.equal(Object.hasOwn(page.rows[0], 'ratings'), false)
   assert.equal((await staff(`/${id}`, { headers: { 'x-test-facility': '2' } })).status, 404)

@@ -16,7 +16,15 @@ const reviewStatuses = {
   closed: 'Closed',
 } as const
 
+const legacyDisciplines = [
+  { value: 'womensArtisticGymnastics', label: 'Women’s artistic gymnastics' },
+  { value: 'mensArtisticGymnastics', label: 'Men’s artistic gymnastics' },
+] as const
+
+const reviewDisciplines = [...JOB_DISCIPLINES, ...legacyDisciplines]
+
 type ReviewStatus = keyof typeof reviewStatuses
+type RatedDiscipline = JobDiscipline | typeof legacyDisciplines[number]['value']
 
 interface ApplicationSummary {
   id: number
@@ -36,7 +44,7 @@ interface Application extends ApplicationSummary {
   coachedChildren: boolean
   ageGroups: JobAgeGroup[]
   youthCoachingDetails: string | null
-  ratings: Record<JobDiscipline, number>
+  ratings: Partial<Record<RatedDiscipline, number>>
   workExperience: string | null
   certificationKeys: JobCertification[]
   certifications: string | null
@@ -82,9 +90,12 @@ function ApplicationDetails({ application }: { application: Application }) {
       <h3 className="font-semibold">Self ratings</h3>
       <p className="mb-3 mt-1 text-xs text-slate-600">1 means no experience. 5 means expert.</p>
       <dl className="grid gap-x-6 sm:grid-cols-2">
-        {JOB_DISCIPLINES.map(({ value, label }) => <div key={value} className="flex justify-between gap-4 border-b border-slate-200 py-2">
-          <dt>{label}</dt><dd className="shrink-0 font-semibold">{application.ratings[value]} / 5</dd>
-        </div>)}
+        {reviewDisciplines.map(({ value, label }) => {
+          const rating = application.ratings[value]
+          return rating == null ? null : <div key={value} className="flex justify-between gap-4 border-b border-slate-200 py-2">
+            <dt>{label}</dt><dd className="shrink-0 font-semibold">{rating} / 5</dd>
+          </div>
+        })}
       </dl>
     </section>
 

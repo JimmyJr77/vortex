@@ -12,18 +12,42 @@ const certificationKeys = [
   'personal_trainer', 'group_fitness', 'youth_fitness', 'cscs',
 ]
 const statuses = ['new', 'in_review', 'interview', 'closed']
-const disciplines = {
+const sharedDisciplines = {
   plyometrics: 'Plyometrics',
   strengthTraining: 'Strength training',
   speedAgility: 'Speed & agility',
   hiit: 'HIIT',
   tumbling: 'Tumbling',
   trampoline: 'Trampoline',
-  womensArtisticGymnastics: 'Women’s artistic gymnastics',
-  mensArtisticGymnastics: 'Men’s artistic gymnastics',
   acro: 'Acro',
   dance: 'Dance',
 }
+
+function ratingCatalog(additionalDisciplines) {
+  const disciplines = { ...sharedDisciplines, ...additionalDisciplines }
+  return Joi.object(Object.fromEntries(Object.entries(disciplines).map(([key, label]) => [
+    key, Joi.number().integer().min(1).max(5).strict().required().label(label),
+  ]))).unknown(false)
+}
+
+const currentRatings = ratingCatalog({
+  beam: 'Beam',
+  bar: 'Bar',
+  parallelBars: 'Parallel Bars',
+  unevenBars: 'Uneven Bars',
+  vault: 'Vault',
+  rings: 'Rings',
+  pommelHorse: 'Pommel Horse',
+  floor: 'Floor',
+  parkour: 'Parkour',
+  ninja: 'Ninja',
+})
+
+// Accept complete submissions from a previous application page during rollout.
+const legacyRatings = ratingCatalog({
+  womensArtisticGymnastics: 'Women’s artistic gymnastics',
+  mensArtisticGymnastics: 'Men’s artistic gymnastics',
+})
 
 function text(label, max) {
   return Joi.string().trim().max(max).pattern(/\x00/, { invert: true }).label(label)
@@ -57,9 +81,7 @@ const submissionSchema = Joi.object({
     then: Joi.required(),
     otherwise: Joi.valid(null).empty('').default(null),
   }),
-  ratings: Joi.object(Object.fromEntries(Object.entries(disciplines).map(([key, label]) => [
-    key, Joi.number().integer().min(1).max(5).strict().required().label(label),
-  ]))).required().label('Experience ratings'),
+  ratings: Joi.alternatives().try(currentRatings, legacyRatings).required().label('Experience ratings'),
   employmentType: Joi.string().valid('part_time', 'full_time', 'either').empty('').allow(null).default(null).label('Employment preference'),
   earliestStartDate: optionalText('Earliest start date', 10).pattern(/^\d{4}-\d{2}-\d{2}$/)
     .custom((value, helpers) => isValidCalendarDate(value) ? value : helpers.error('any.invalid'))
