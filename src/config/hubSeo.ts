@@ -24,7 +24,7 @@ export const HUB_HOME_SEO: HubRouteSeo = {
   path: '/',
   title: 'Gymnastics & Youth Athletic Training in Bowie, MD | Vortex',
   description:
-    'Find youth gymnastics, Fit & Flip athletic development, and adult gymnastics at Vortex in Bowie, MD. Compare programs and find your first class.',
+    'Find youth gymnastics with coached tumbling, Fit & Flip athletic training, and adult gymnastics in Bowie, MD. See class times and trial options.',
   ogImage: `${HUB_ORIGIN}${homePreviewPhoto.src}`,
   ogImageAlt: homePreviewPhoto.alt,
   robots: LARGE_IMAGE_PREVIEW,

@@ -611,7 +611,7 @@ const verifyHtml = (
       `${label}: the homepage heading must identify the programs and Bowie location`)
     const heroDescription = html.match(/<p\b[^>]*\bclass=["']np-hero-description["'][^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
     const heroLinks = anchorUrls(heroDescription)
-    for (const path of ['/gymnastics', `${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#choose-a-class`, '/fit-and-flip', '/adult-gymnastics']) {
+    for (const path of ['/gymnastics', '/gymnastics#trampoline-tumbling', '/fit-and-flip', '/adult-gymnastics']) {
       assert(heroLinks.some(url => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: the homepage introduction must link directly to ${path}`)
     }

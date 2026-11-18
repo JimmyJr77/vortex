@@ -287,6 +287,8 @@ test.describe('Client-critical smoke flows', () => {
     const contact = navigation.getByRole('link', { name: 'Contact Us', exact: true })
     await expect(page.getByRole('link', { name: 'build strength and speed in Fit & Flip', exact: true }))
       .toHaveAttribute('href', '/fit-and-flip')
+    await expect(page.getByRole('link', { name: 'practice tumbling and trampoline skills', exact: true }))
+      .toHaveAttribute('href', '/gymnastics#trampoline-tumbling')
     await navigation.getByText('Our Programs', { exact: true }).press('Tab')
     await expect(contact).toBeFocused()
     await expect(contact).toHaveAttribute('href', '/contact')

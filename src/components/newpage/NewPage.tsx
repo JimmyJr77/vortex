@@ -313,9 +313,9 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
                 <Link className="np-hero-program-link" to="/gymnastics" data-analytics-cta="explore_youth_gymnastics" data-analytics-section="hero">
                   Find a youth gymnastics class
                 </Link>,{' '}
-                <Link className="np-hero-program-link" to={`${GYMNASTICS_VS_TUMBLING_GUIDE.path}#choose-a-class`}
-                  data-analytics-cta="read_gymnastics_vs_tumbling_guide" data-analytics-section="hero">
-                  compare tumbling options
+                <Link className="np-hero-program-link" to="/gymnastics#trampoline-tumbling"
+                  data-analytics-cta="read_trampoline_tumbling_options" data-analytics-section="hero">
+                  practice tumbling and trampoline skills
                 </Link>,{' '}
                 <Link className="np-hero-program-link" to="/fit-and-flip" data-analytics-cta="explore_fit-flip" data-analytics-section="hero">
                   build strength and speed in Fit &amp; Flip

@@ -291,7 +291,7 @@ export default function AthleticDevelopmentGuide() {
             The coach watches whether the athlete can repeat the motion while keeping their balance and controlling
             the return to standing. Once the motion is consistent, the coach might add a light kettlebell for a
             controlled lift and lower, then check whether the movement stays steady.{' '}
-            <a href="https://publications.aap.org/pediatrics/article/145/6/e20201011/76942/Resistance-Training-for-Children-and-Adolescents">Read the American Academy of Pediatrics’ guidance on adding resistance</a>.
+            <a href="https://www.healthychildren.org/English/healthy-living/sports/Pages/Strength-Training.aspx">Read the American Academy of Pediatrics’ guidance on adding resistance</a>.
           </p>
           <p>
             A kettlebell swing uses the hip hinge to produce power. Watch how the athlete straightens
@@ -326,7 +326,7 @@ export default function AthleticDevelopmentGuide() {
             Time, distance, and weight can show one part of progress. A coach can also track whether a child
             can repeat the same movement with more control. The National Strength and Conditioning Association
             recommends evaluating both how a child moves and what the movement achieves in its
-            {' '}<a href="https://www.nsca.com/about-us/position-statements/youth-training-and-long-term-athletic-development/long-term-athletic-development-position-statement/">position statement on long-term athletic development</a>.
+            {' '}<a href="https://www.nsca.com/globalassets/education/nsca_position_statement_on_ltad.pdf">position statement on long-term athletic development (PDF)</a>.
           </p>
           <h3 className="athletic-guide-subheading">The first two steps of a sprint</h3>
           <p>
