@@ -41,12 +41,14 @@ const AGE_BANDS = [[5, 'Under 5'], [8, '5–7'], [12, '8–11'], [16, '12–15']
 const AGE_GROUPS = [...AGE_BANDS.map(([, label]) => label), 'Unspecified']
 const CLASS_GENDERS = ['Female', 'Male', 'Other / unspecified']
 const classAgeGroup = age => age == null ? 'Unspecified' : AGE_BANDS.find(([limit]) => age < limit)[1]
-const emptyClassLoad = () => ({ students: 0, classEnrollments: 0 })
+const emptyClassLoad = () => ({ students: 0, classEnrollments: 0, distribution: { one: 0, two: 0, threePlus: 0 } })
 const withClassAverage = counts => ({ ...counts, averageClasses: counts.students ? counts.classEnrollments / counts.students : null })
 
 function addClassLoad(counts, classEnrollments) {
   counts.students++
   counts.classEnrollments += classEnrollments
+  const bucket = classEnrollments === 1 ? 'one' : classEnrollments === 2 ? 'two' : 'threePlus'
+  counts.distribution[bucket]++
 }
 
 function addClassCohort(cohorts, ageGroup, gender, classEnrollments) {
