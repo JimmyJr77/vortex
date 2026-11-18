@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback } from 'react'
+import { Suspense, useState, useEffect, useCallback, useRef } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
@@ -80,7 +80,8 @@ function PublicLandingRedirect({ destination }: { destination: string }) {
 
 function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   const HomePage = snapshotPage?.kind === 'home' ? snapshotPage.Component : NewPage
-  const ProgramPage = snapshotPage?.kind === 'program' ? snapshotPage.Component : PublicProgramPage
+  const programSnapshot = snapshotPage?.kind === 'program' ? snapshotPage : undefined
+  const ProgramPage = programSnapshot?.Component ?? PublicProgramPage
   const TrainingWatchPage = snapshotPage?.kind === 'watch' ? snapshotPage.Component : LazyTrainingWatchPage
   const pageSnapshot = snapshotPage?.kind === 'page' ? snapshotPage : undefined
   const Header = pageSnapshot?.chrome?.Header ?? LazyHeader
@@ -112,6 +113,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
     return hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'
   })
   const location = useLocation()
+  const initialLocation = useRef(location)
   const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
@@ -391,7 +393,11 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
               switchPortal(portals.includes('member') ? 'member' : portals.includes('coach') ? 'coach' : adminPortal)
             } else setIsLoginOpen(true)
           }} />} />
-          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => <Route key={path} path={path} element={<ProgramPage key={path} path={path} />} />)}
+          {Object.values(PUBLIC_PROGRAMS).map(({ path }) => (
+            <Route key={path} path={path} element={<ProgramPage key={path} path={path}
+              initialPricing={path === programSnapshot?.path && location === initialLocation.current
+                ? programSnapshot.openPricing : undefined} />} />
+          ))}
           {Object.entries(publicLandingRedirects).map(([path, destination]) => <Route key={path} path={path} element={<PublicLandingRedirect destination={destination} />} />)}
           <Route path="/copy" element={<CopyPage />} />
           <Route path="/camp_interest" element={<CampInterestPage />} />

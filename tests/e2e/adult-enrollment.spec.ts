@@ -73,6 +73,18 @@ async function mockClasses(page: Page, {
   return formRequests
 }
 
+test('Typhoons first-visit guidance explains confirmed and pending drop-in bookings', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto('/adult-gymnastics#adult-drop-in-confirmation')
+  const confirmation = page.locator('#adult-drop-in-confirmation')
+  await expect(confirmation.getByRole('heading', { name: 'How do I know my Typhoons drop-in is booked?' })).toBeInViewport()
+  await expect(confirmation).toContainText('Drop-in confirmed')
+  await expect(confirmation).toContainText('Check payment status')
+  await confirmation.getByRole('link', { name: 'Ask Vortex about a drop-in booking' }).click()
+  await expect(page).toHaveURL('/contact#inquiry')
+  await expect(page.locator('#inquiry').getByRole('heading')).toBeInViewport()
+})
+
 test('adult gymnastics, general enrollment, and published form links open the current Typhoons schedule', async ({ page }) => {
   await mockClasses(page)
   await page.goto('/blog/returning-to-gymnastics-as-an-adult#track-your-progress')

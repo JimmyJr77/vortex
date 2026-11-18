@@ -529,6 +529,12 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         description: 'Choose an available Typhoons drop-in date. The booking list shows the class time, nonmember price, remaining spots, and whether the date accepts free trials.',
         topics: [
           { id: 'adult-registration', heading: 'Register yourself and sign your waiver', description: 'Sign in or create an account, select yourself as the participant, and complete any waiver requested during booking. Review your total before confirming.' },
+          {
+            id: 'adult-drop-in-confirmation',
+            heading: 'How do I know my Typhoons drop-in is booked?',
+            description: 'When you see “Drop-in confirmed” on the page, your place is booked. If “Drop-in payment” still appears after card checkout, select “Check payment status” when it’s available. You can check the class date and time in your confirmation email.',
+            link: { href: CONTACT_INQUIRY_PATH, label: 'Ask Vortex about a drop-in booking', analyticsKey: 'inquire_adult_drop_in_booking' },
+          },
           { id: 'adult-what-to-bring', heading: 'What to bring', description: 'Bring water and wear comfortable clothes you can move in. Ask Vortex before your visit if you have questions about footwear or what to bring.' },
           {
             id: 'adult-weekly-training',

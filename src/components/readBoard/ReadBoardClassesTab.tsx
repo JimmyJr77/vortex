@@ -46,15 +46,17 @@ const ReadBoardClassesTab = () => {
         <ul className="np-browse-program-links" role="list">
           <li>
             <Link to="/gymnastics#choose-a-class">Youth gymnastics</Link>
-            <p>Start with preschool movement or choose a developmental level for kids and teens.</p>
+            <p><Link to="/gymnastics#preschool">Dirt Devils and Twisters for ages 2–5</Link></p>
+            <p><Link to="/gymnastics#class-placement">Tornadoes, gymnastics Cyclones, and Vortex A4 Elite</Link></p>
           </li>
           <li>
             <Link to="/fit-and-flip#fit-flip-schedule">Fit &amp; Flip youth fitness</Link>
-            <p>Cyclones classes for ages 8–11 and 12–15 combine strength, jumps, and body control.</p>
+            <p>Fit &amp; Flip Cyclones classes for ages 8–11 and 12–15 combine strength, jumps, and body control.</p>
           </li>
           <li>
             <Link to="/adult-gymnastics">Typhoons adult gymnastics</Link>
             <p>Coach-led gymnastics and introductory acrobatics for ages 18 and up.</p>
+            <p><Link to="/adult-gymnastics#adult-availability">Plan your first Typhoons class</Link></p>
           </li>
         </ul>
         <div data-prerender-dynamic="">

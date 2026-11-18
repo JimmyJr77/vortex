@@ -57,8 +57,14 @@ export const publicGuideLoaders = [
   { path: publicArticles.returningToGymnastics.path, load: () => import('../components/newpage/ReturningToGymnasticsGuide') },
 ]
 
+export type OpenProgramPricingSnapshot = {
+  id: string
+  summaryViewportTop: number
+  summaryFocused: boolean
+}
+
 export type PublicSnapshotPage =
   | { kind: 'home'; Component: Awaited<ReturnType<typeof loadHomePage>>['default'] }
-  | { kind: 'program'; Component: Awaited<ReturnType<typeof loadPublicProgramPage>>['default'] }
+  | { kind: 'program'; path: string; Component: Awaited<ReturnType<typeof loadPublicProgramPage>>['default']; openPricing?: OpenProgramPricingSnapshot }
   | { kind: 'guide'; path: string; Component: Awaited<ReturnType<(typeof publicGuideLoaders)[number]['load']>>['default'] }
   | Awaited<ReturnType<PublicPageLoader['snapshot']>>

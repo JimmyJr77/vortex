@@ -5,6 +5,7 @@ import {
   BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, PARKING_AND_ACCESSIBILITY_PATH, TEAM_PHONE, TEAM_PHONE_E164,
 } from '../../config/contact'
 import { publicBookingSnapshot, type PublicAdultBooking } from '../../config/publicBookingSnapshot'
+import type { OpenProgramPricingSnapshot } from '../../config/publicPageLoaders'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -74,23 +75,41 @@ function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
   )
 }
 
-export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
+export default function PublicProgramPage({ path, initialPricing }: {
+  path: PublicProgramPath
+  initialPricing?: OpenProgramPricingSnapshot
+}) {
   const program = PUBLIC_PROGRAMS[path]
   const { hash, key } = useLocation()
   const { primaryAction, secondaryAction, recurringSchedule, trial } = program
   const [trialOpen, setTrialOpen] = useState(false)
   const handledTrialLocation = useRef<string | null>(null)
+  const restoredPricing = useRef(false)
   const trialSectionId = trial && (trial.program === 'gymnastics' ? 'first-visit' : 'training-fit')
   const adultBooking = path === '/adult-gymnastics' ? publicBookingSnapshot?.[path] : null
   const youthBooking = path === '/adult-gymnastics' ? null : publicBookingSnapshot?.[path]
 
   useEffect(() => {
-    if (!hash) return
+    if (!hash && !initialPricing) return
     const frame = requestAnimationFrame(() => {
-      document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      if (initialPricing && !restoredPricing.current) {
+        restoredPricing.current = true
+        const pricing = document.getElementById(initialPricing.id)
+        if (pricing instanceof HTMLDetailsElement) {
+          const summary = pricing.querySelector('summary')
+          if (summary) {
+            pricing.open = true
+            if (initialPricing.summaryFocused) summary.focus({ preventScroll: true })
+            const shift = summary.getBoundingClientRect().top - initialPricing.summaryViewportTop
+            window.scrollBy({ top: shift, behavior: 'instant' })
+            return
+          }
+        }
+      }
+      if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
     })
     return () => cancelAnimationFrame(frame)
-  }, [hash, key, path])
+  }, [hash, initialPricing, key, path])
 
   const openTrial = useCallback((section: string) => {
     if (!trial) return

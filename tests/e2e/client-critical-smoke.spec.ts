@@ -531,6 +531,7 @@ test.describe('Client-critical smoke flows', () => {
     const calendar = page.locator('section#schedule').getByRole('button', { name: 'By class', exact: true })
     await expect(scheduleTab).toHaveAttribute('aria-current', 'location')
     await expect(calendar).toBeVisible()
+    await expect(page.locator('section#schedule')).toContainText('Check waitlist')
     const programTimes = page.getByRole('list', { name: 'Class times by program' })
     for (const [name, href] of [
       ['Check youth gymnastics class times', '/gymnastics#youth-gymnastics-schedule'],
@@ -564,6 +565,80 @@ test.describe('Client-critical smoke flows', () => {
     await expect(classes.getByRole('heading', { name: 'Typhoons (Adult)', exact: true })).toBeVisible()
     await expect(classes.getByRole('link', { name: 'Sign Up', exact: true })).toHaveAttribute('href', '/enroll?form=3')
     await expect(classes.getByText('Unpublished adult class')).toHaveCount(0)
+  })
+
+  test('the class board keeps named placement links when the live catalog fails', async ({ page }) => {
+    await page.route('**/api/public/classes-offered', route => route.fulfill({
+      status: 503, json: { success: false, message: 'Class catalog unavailable' },
+    }))
+    await page.setViewportSize({ width: 390, height: 844 })
+    await page.goto('/read-board')
+    const classes = page.getByRole('region', { name: 'Gymnastics and fitness classes in Bowie' })
+    await expect(classes.getByRole('link', { name: 'Dirt Devils and Twisters for ages 2–5' })).toHaveAttribute('href', '/gymnastics#preschool')
+    await expect(classes.getByText('Fit & Flip Cyclones classes for ages 8–11 and 12–15', { exact: false })).toBeVisible()
+    await expect(classes.getByRole('link', { name: 'Plan your first Typhoons class' })).toHaveAttribute('href', '/adult-gymnastics#adult-availability')
+    await classes.getByRole('link', { name: 'Tornadoes, gymnastics Cyclones, and Vortex A4 Elite' }).click()
+    await expect(page).toHaveURL('/gymnastics#class-placement')
+    await expect(page.locator('#class-placement').getByRole('heading', { level: 2 })).toBeInViewport()
+  })
+
+  test('pricing opened before startup stays open and focused on each program page', async ({ browser, baseURL }) => {
+    const programs = [
+      { path: '/gymnastics', schedule: 'youth-gymnastics-schedule', pricing: 'youth-gymnastics-pricing', label: 'Compare youth gymnastics prices' },
+      { path: '/fit-and-flip', schedule: 'fit-flip-schedule', pricing: 'fit-flip-class-pricing', label: 'Compare Fit & Flip prices' },
+      { path: '/adult-gymnastics', schedule: 'adult-class-schedule', pricing: 'adult-class-pricing', label: 'Compare adult gymnastics prices' },
+    ]
+    for (const { path, schedule, pricing, label } of programs) {
+      const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } })
+      const page = await context.newPage()
+      let releaseEntry = () => {}
+      const entryGate = new Promise<void>(resolve => { releaseEntry = resolve })
+      let priceRequests = 0
+      await page.route('**/api/**', route => {
+        const requestPath = new URL(route.request().url()).pathname
+        if (requestPath === '/api/public/drop-ins') priceRequests += 1
+        return route.fulfill({ json: { success: true, data: { programs: [], sessions: [] } } })
+      })
+      await page.route(url => url.pathname === '/src/main.tsx', async route => {
+        await entryGate
+        await route.continue()
+      })
+      await page.route(url => url.pathname === path, async route => {
+        const response = await route.fetch()
+        const html = await response.text()
+        const entry = `<div id="root" data-prerendered-program="${path}">
+          <div class="np-program-page">
+            <section id="${schedule}">
+              <div style="height:1500px"></div>
+              <details class="np-class-pricing" id="${pricing}"><summary>${label}</summary><p>First response</p></details>
+            </section>
+            <div style="height:1000px"></div>
+          </div>
+        </div>`
+        expect(html).toContain('<div id="root"></div>')
+        await route.fulfill({ response, body: html.replace('<div id="root"></div>', entry) })
+      })
+      try {
+        await page.goto(`${path}#${schedule}`, { waitUntil: 'commit' })
+        await expect(page.getByText('First response', { exact: true })).toHaveCount(1)
+        const details = page.locator(`#${pricing}`)
+        const summary = details.locator('summary')
+        await summary.press('Enter')
+        await expect(details).toHaveAttribute('open', '')
+        await expect(summary).toBeFocused()
+
+        releaseEntry()
+        await expect(page.getByText('First response', { exact: true })).toHaveCount(0)
+        await expect(details).toHaveAttribute('open', '')
+        await expect(summary).toBeInViewport()
+        await expect(summary).toBeFocused()
+        await expect(page).toHaveURL(`${path}#${schedule}`)
+        await expect.poll(() => priceRequests).toBe(1)
+      } finally {
+        releaseEntry()
+        await context.close()
+      }
+    }
   })
 
   test('keyboard pricing links focus the opened comparison', async ({ page }) => {

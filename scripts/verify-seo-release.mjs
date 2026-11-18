@@ -894,6 +894,10 @@ const verifyHtml = (
         `${label}: missing adult registration and first-visit guidance`)
       assert(hasDropInProgramLink(anchorUrls(firstVisit), 'Adult Fitness & Acrobatics'),
         `${label}: adult first-visit guidance must link to the Typhoons drop-in schedule`)
+      const confirmation = firstVisit.match(/<article\b[^>]*\sid=["']adult-drop-in-confirmation["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(['Drop-in confirmed', 'Drop-in payment', 'Check payment status'].every(text => confirmation.includes(text)) &&
+        anchorUrls(confirmation).some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
+        `${label}: missing the Typhoons confirmation and pending payment guidance or its inquiry link`)
       const weeklyTraining = firstVisit.match(/<article\b[^>]*\sid=["']adult-weekly-training["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
       assert(/one 90-minute Typhoons class a week/.test(weeklyTraining) &&
         anchorUrls(weeklyTraining).some(url => url.href === `${HUB_ORIGIN}/adult-gymnastics#adult-class-schedule`),
@@ -1099,9 +1103,12 @@ const verifyHtml = (
     }
     const classes = html.match(/<section\b[^>]*\baria-labelledby=["']read-board-classes-heading["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const classLinks = anchorUrls(classes)
-    assert(/Cyclones classes for ages 8–11 and 12–15/.test(classes) && /Typhoons adult gymnastics/.test(classes),
+    assert(/Fit &amp; Flip Cyclones classes for ages 8–11 and 12–15/.test(classes) &&
+      /Dirt Devils and Twisters/.test(classes) && /Tornadoes, gymnastics Cyclones, and Vortex A4 Elite/.test(classes) &&
+      /Typhoons adult gymnastics/.test(classes),
       `${label}: missing crawlable youth fitness age groups or adult gymnastics class information`)
-    for (const path of ['/gymnastics#choose-a-class', '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics']) {
+    for (const path of ['/gymnastics#choose-a-class', '/gymnastics#preschool', '/gymnastics#class-placement',
+      '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics', '/adult-gymnastics#adult-availability']) {
       assert(classLinks.some(url => url.href === `${HUB_ORIGIN}${path}`), `${label}: missing class board program link to ${path}`)
     }
     const schedule = html.match(/<section\b[^>]*\sid=["']schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''

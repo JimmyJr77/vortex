@@ -18,7 +18,7 @@ const ReadBoardScheduleTab = ({ showCalendar }: { showCalendar: boolean }) => (
       </ul>
       {showCalendar && (
         <div className="mt-6 space-y-4" data-prerender-dynamic="">
-          <p>Choose <strong>By class</strong> to find dates for one class. In <strong>Day</strong> view, choose <strong>Sign Up</strong> to start enrollment with that date and time selected.</p>
+          <p>Choose <strong>By class</strong> to find dates for one class. In <strong>Day</strong> view, <strong>Sign Up</strong> and <strong>Check waitlist</strong> keep your selected date and time.</p>
           <Suspense fallback={<p role="status">Loading class calendar…</p>}>
             <PublicSchedulingCalendar theme="light" />
           </Suspense>
