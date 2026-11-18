@@ -47,6 +47,7 @@ export default function GymnasticsVsTumblingGuide() {
           <ul>
             <li><a href="#where-tumbling-fits">Where tumbling fits</a></li>
             <li><a href="#choose-a-class">Which class to try</a></li>
+            <li><a href="#teen-gymnastics-options">Starting gymnastics or tumbling as a teen</a></li>
             <li><a href="#boys-gymnastics">Boys’ gymnastics and apparatus classes</a></li>
             <li><a href="#nearby-tumbling-classes">Dedicated tumbling classes near Bowie</a></li>
             <li><a href="#accessible-gymnastics">Adaptive and accessible gymnastics</a></li>
@@ -102,6 +103,36 @@ export default function GymnasticsVsTumblingGuide() {
             a specific skill in mind, tell the coach what they can already do and ask which class works on it.
           </p>
           <p>For ages 2–5, see <Link to={PRESCHOOL_GYMNASTICS_GUIDE.path}>what kids practice in preschool gymnastics</Link>.</p>
+        </section>
+
+        <section id="teen-gymnastics-options">
+          <h2>Gymnastics and tumbling classes for teens near Bowie</h2>
+          <p>
+            Teens can start with foundations, practice a specific tumbling skill, or return to skills they learned
+            when they were younger. Ask which ages share the class and whether teens need any skills before registering.
+          </p>
+          <ul>
+            <li>
+              <strong>Gymnastics foundations in Bowie.</strong> First-time gymnasts ages 13–17 can look for a{' '}
+              <Link to="/gymnastics#first-visit">Tornadoes trial at Vortex</Link>. Teens who have taken gymnastics
+              before can look for a <Link to="/gymnastics#experienced-trial">Trial Assessment</Link> for placement.
+            </li>
+            <li>
+              <strong>Apparatus and trampoline in Millersville.</strong> Docksiders lists Mantarays in its girls’
+              program for ages 12–16. The group is for beginner and intermediate gymnasts and rotates through
+              apparatus and trampoline.{' '}
+              <a href="https://www.docksidersgymnastics.com/girls-program">See Docksiders’ Mantarays class</a>.
+            </li>
+            <li>
+              <strong>Tumbling or trampoline in College Park.</strong> University of Maryland Gymkana lists Youth
+              Tumbling &amp; Trampoline for ages 7–13. Its Adult Tumbling and Adult Trampoline classes start at 14
+              and welcome beginner and intermediate participants.{' '}
+              <a href="https://sph.umd.edu/student-opportunities/student-organizations-honor-societies-and-honor-programs/gymkana/gymkana-classes">Check Gymkana’s ages and current sessions</a>.
+            </li>
+          </ul>
+          <p className="mt-4">
+            At Vortex, the <Link to="/adult-gymnastics#adult-availability">coached Typhoons class</Link> starts at age 18.
+          </p>
         </section>
 
         <section id="boys-gymnastics">
