@@ -611,7 +611,7 @@ const verifyHtml = (
       `${label}: the homepage heading must identify the programs and Bowie location`)
     const heroDescription = html.match(/<p\b[^>]*\bclass=["']np-hero-description["'][^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
     const heroLinks = anchorUrls(heroDescription)
-    for (const path of ['/gymnastics', `${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#choose-a-class`, '/adult-gymnastics']) {
+    for (const path of ['/gymnastics', `${GYMNASTICS_VS_TUMBLING_GUIDE_PATH}#choose-a-class`, '/fit-and-flip', '/adult-gymnastics']) {
       assert(heroLinks.some(url => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: the homepage introduction must link directly to ${path}`)
     }
@@ -1185,6 +1185,8 @@ const verifyHtml = (
       `${HUB_ORIGIN}/gymnastics`,
       `${HUB_ORIGIN}/gymnastics#first-visit`,
       `${HUB_ORIGIN}/gymnastics#youth-gymnastics-schedule`,
+      'https://www.trainforgreatnessmd.com/gymnastics',
+      'https://www.trainforgreatnessmd.com/private-lessons',
       'https://www.thrivegym.org/classes',
       'https://www.docksidersgymnastics.com/class-info',
     ]) {

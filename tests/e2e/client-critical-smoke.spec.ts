@@ -285,6 +285,8 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Gymnastics & youth athletic training in Bowie, MD' })).toBeVisible()
     const navigation = page.getByRole('navigation', { name: 'Main navigation' })
     const contact = navigation.getByRole('link', { name: 'Contact Us', exact: true })
+    await expect(page.getByRole('link', { name: 'build strength and speed in Fit & Flip', exact: true }))
+      .toHaveAttribute('href', '/fit-and-flip')
     await navigation.getByText('Our Programs', { exact: true }).press('Tab')
     await expect(contact).toBeFocused()
     await expect(contact).toHaveAttribute('href', '/contact')

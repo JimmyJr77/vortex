@@ -147,6 +147,14 @@ export default function BowieYouthSportsGuide() {
               <Link to="/gymnastics#first-visit">See what to expect at a first Vortex class</Link>
             </li>
             <li>
+              <strong>Train For Greatness in Bowie.</strong> Its girls’ beginner and intermediate classes start at age 5.
+              The beginner class introduces tumbling, beam, bars, and vault. The gym also lists an advanced group
+              and competitive team evaluations by request. For private gymnastics lessons, ask when booking whether
+              your athlete will work one-on-one. A private session can include up to three athletes.{' '}
+              <a href="https://www.trainforgreatnessmd.com/gymnastics">Compare Train For Greatness class levels</a> ·{' '}
+              <a href="https://www.trainforgreatnessmd.com/private-lessons">Check private gymnastics lesson options</a>
+            </li>
+            <li>
               <strong>Thrive Gym on Defense Highway.</strong> Thrive lists toddler and preschool
               classes, grade-school gymnastics for ages 5–12, and middle and high school gymnastics for ages
               10–18. If your child is 10–12, ask which group fits their experience.{' '}
