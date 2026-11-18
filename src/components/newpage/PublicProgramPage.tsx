@@ -203,6 +203,55 @@ export default function PublicProgramPage({ path, initialPricing }: {
     )
   }
 
+  const schedulePlacementIndex = program.sections.findIndex(section => section.id === recurringSchedule?.afterSection) + 1
+  const programSections = program.sections.map(section => (
+    <section key={section.id} id={section.id} className="np-program-section">
+      <h2 id={section.id === trialSectionId ? TRIAL_ANCHOR : undefined}
+        tabIndex={section.id === trialSectionId ? -1 : undefined}>{section.heading}</h2>
+      <p>{section.description}</p>
+      {section.topics && (
+        <div className="np-program-topics">
+          {section.topics.map(topic => {
+            const links = topic.links ?? (topic.link ? [topic.link] : [])
+            return (
+              <article key={topic.id} id={topic.id}>
+                <h3>{topic.heading}</h3>
+                <p>{topic.description}</p>
+                {links.length > 0 && (
+                  <div className="mt-3 flex flex-col items-start gap-1">
+                    {links.map(({ href, label, analyticsKey }) => (
+                      <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={topic.id}>
+                        {label} <ArrowUpRight size={16} aria-hidden="true" />
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </article>
+            )
+          })}
+        </div>
+      )}
+      {section.photo && (
+        <figure className="np-program-section-photo">
+          <img src={section.photo.src} srcSet={section.photo.srcSet} alt={section.photo.alt}
+            width={section.photo.width} height={section.photo.height} loading="lazy" decoding="async"
+            sizes="auto, (max-width: 620px) calc(100vw - 44px), (max-width: 760px) calc(100vw - 64px), 42rem" />
+          <figcaption>{section.photo.caption}</figcaption>
+        </figure>
+      )}
+      {(section.links || section.trialLabel) && (
+        <div className="np-program-page-actions">
+          {trial && section.trialLabel && renderSectionTrialLink(section.id, section.trialLabel)}
+          {section.links?.map(({ href, label, analyticsKey }) => (
+            <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={section.id}>
+              {label} <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
+          ))}
+        </div>
+      )}
+    </section>
+  ))
+
   return (
     <main id="public-content" className="np-program-page" tabIndex={-1}>
       <section className="np-program-hero">
@@ -252,6 +301,8 @@ export default function PublicProgramPage({ path, initialPricing }: {
       </section>
 
       <div className="np-container">
+        {programSections.slice(0, schedulePlacementIndex)}
+
         {recurringSchedule && (
           <section className="np-program-section np-program-schedule" id={recurringSchedule.id} aria-labelledby={`${recurringSchedule.id}-heading`}>
             <h2 id={`${recurringSchedule.id}-heading`}>{recurringSchedule.heading}</h2>
@@ -273,53 +324,7 @@ export default function PublicProgramPage({ path, initialPricing }: {
           </section>
         )}
 
-        {program.sections.map(section => (
-          <section key={section.id} id={section.id} className="np-program-section">
-            <h2 id={section.id === trialSectionId ? TRIAL_ANCHOR : undefined}
-              tabIndex={section.id === trialSectionId ? -1 : undefined}>{section.heading}</h2>
-            <p>{section.description}</p>
-            {section.topics && (
-              <div className="np-program-topics">
-                {section.topics.map(topic => {
-                  const links = topic.links ?? (topic.link ? [topic.link] : [])
-                  return (
-                    <article key={topic.id} id={topic.id}>
-                      <h3>{topic.heading}</h3>
-                      <p>{topic.description}</p>
-                      {links.length > 0 && (
-                        <div className="mt-3 flex flex-col items-start gap-1">
-                          {links.map(({ href, label, analyticsKey }) => (
-                            <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={topic.id}>
-                              {label} <ArrowUpRight size={16} aria-hidden="true" />
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </article>
-                  )
-                })}
-              </div>
-            )}
-            {section.photo && (
-              <figure className="np-program-section-photo">
-                <img src={section.photo.src} srcSet={section.photo.srcSet} alt={section.photo.alt}
-                  width={section.photo.width} height={section.photo.height} loading="lazy" decoding="async"
-                  sizes="auto, (max-width: 620px) calc(100vw - 44px), (max-width: 760px) calc(100vw - 64px), 42rem" />
-                <figcaption>{section.photo.caption}</figcaption>
-              </figure>
-            )}
-            {(section.links || section.trialLabel) && (
-              <div className="np-program-page-actions">
-                {trial && section.trialLabel && renderSectionTrialLink(section.id, section.trialLabel)}
-                {section.links?.map(({ href, label, analyticsKey }) => (
-                  <Link key={href} to={href} className="np-program-plain-link" data-analytics-cta={analyticsKey} data-analytics-section={section.id}>
-                    {label} <ArrowUpRight size={16} aria-hidden="true" />
-                  </Link>
-                ))}
-              </div>
-            )}
-          </section>
-        ))}
+        {programSections.slice(schedulePlacementIndex)}
 
         <section className="np-program-section np-program-faqs" aria-labelledby="program-faqs-heading">
           <h2 id="program-faqs-heading">Common questions</h2>

@@ -63,6 +63,7 @@ type PublicProgram = {
     heading: string
     description?: string
     programName: RecurringBookingProgram
+    afterSection?: string
   }
   sections: readonly ProgramSection[]
   faqs: Faq[]
@@ -103,14 +104,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     recurringSchedule: {
       id: 'youth-gymnastics-schedule',
       heading: 'Weekly youth gymnastics class schedule',
-      description: 'Check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. Open a class to see its times and published skill requirements. Use the placement guidance below to choose a first visit.',
+      description: 'Once you know your child’s level, check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. Open a class to see its times and published skill requirements.',
       programName: DEVELOPMENTAL_GYMNASTICS_PROGRAM,
+      afterSection: 'choose-a-class',
     },
     sections: [
       {
         id: 'choose-a-class',
         heading: 'Find the right starting class',
-        description: 'The gymnastics trial finder uses your child’s age and experience to show the right type of class and its current openings.',
+        description: 'Start with your child’s age and gymnastics or tumbling experience. The trial finder shows openings for the appropriate class or a coach-led Trial Assessment.',
+        trialLabel: 'Find a free trial for your child',
         topics: [
           {
             id: 'preschool',
@@ -129,7 +132,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'youth',
             heading: 'Gymnastics classes for ages 6–12',
-            description: 'Start with a Tornadoes beginner class if your child is new to gymnastics. If they’ve taken gymnastics before, start with a Trial Assessment so the coach can find the right class for the skills they can repeat.',
+            description: 'Start with a Tornadoes beginner class if your child is new to gymnastics and tumbling. If they’ve trained in either, start with a Trial Assessment so the coach can find the right class for the skills they can repeat.',
             links: [
               { href: '/gymnastics#youth-gymnastics-schedule', label: 'See weekly Tornadoes class times', analyticsKey: 'read_youth_gymnastics_schedule' },
               { href: '/gymnastics#experienced-trial', label: 'Find a Trial Assessment for an experienced gymnast', analyticsKey: 'read_gymnastics_placement' },
@@ -181,7 +184,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'experienced-trial',
             heading: 'How to find a Trial Assessment',
-            description: 'For a child ages 6–17 who has taken gymnastics before, enter their age and choose “Has gymnastics experience” to see available Trial Assessment dates.',
+            description: 'For a child ages 6–17 who has trained in gymnastics or tumbling, enter their age and choose “Has gymnastics or tumbling experience” to see available Trial Assessment dates. Include tumbling skills they learned in cheer.',
           },
           {
             id: 'assessment-preparation',

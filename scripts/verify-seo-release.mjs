@@ -793,6 +793,12 @@ const verifyHtml = (
       const schedule = mainHtml.match(/<section\b[^>]*\sid=["']youth-gymnastics-schedule["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me.*preschool/.test(schedule),
         `${label}: missing the crawlable youth gymnastics schedule and age-group guidance`)
+      const startingClass = mainHtml.match(/<section\b[^>]*\sid=["']choose-a-class["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      assert(startingClass && schedule && mainHtml.indexOf(startingClass) < mainHtml.indexOf(schedule) &&
+        hasProgramTrialLink(startingClass, 'choose-a-class') &&
+        /Dirt Devils.*ages 2–3.*Twisters.*ages 4–5/.test(startingClass) &&
+        /ages 6–17.*Tornadoes.*Trial Assessment/.test(startingClass),
+        `${label}: class placement and its free trial entry must appear before the youth gymnastics schedule`)
       if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       const prices = schedule.match(/<details\b[^>]*\sid=["']youth-gymnastics-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
       const priceLinks = anchorUrls(prices)
@@ -1352,7 +1358,7 @@ const verifyHtml = (
     }
     assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones/.test(placement) && /Advanced Vortex A4 Elite/.test(placement) &&
       /front limber/.test(placement) && /front or back handspring/.test(placement) && /finish in balance/.test(placement) &&
-      /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
+      /Has gymnastics or tumbling experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
       anchorUrls(placement).some(url => url.href === `${canonical}#competitive-gymnastics-team`),
       `${label}: missing the placement comparison or assessment action in the rendered page`)
     assert(anchorUrls(placement).some(url => url.href === `${tumblingGuideCanonical}#handspring-class-placement`),

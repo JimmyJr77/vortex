@@ -340,6 +340,7 @@ test('opens a preselected trial from the program page and credits the signup to 
 })
 
 for (const { path, entrySection, trialSection, label, program } of [
+  { path: '/gymnastics', entrySection: 'choose-a-class', trialSection: 'choose-a-class', label: 'Find a free trial for your child', program: 'gymnastics' },
   { path: '/gymnastics', entrySection: 'first-visit', trialSection: 'first-visit', label: 'Find a free gymnastics trial', program: 'gymnastics' },
   { path: '/gymnastics', entrySection: 'experienced-trial', trialSection: 'class-placement', label: 'Find a free Trial Assessment', program: 'gymnastics' },
   { path: '/fit-and-flip', entrySection: 'training-fit', trialSection: 'training-fit', label: 'Find a free Fit & Flip trial', program: 'fit-flip' },
@@ -421,7 +422,7 @@ test('takes experienced gymnasts from the comparison guide to Trial Assessment d
   const dialog = page.getByRole('dialog')
   await dialog.getByLabel('Your child’s age').fill('10')
   await dialog.getByRole('button', { name: 'Find available classes' }).click()
-  await dialog.getByRole('button', { name: /^Has gymnastics experience/ }).click()
+  await dialog.getByRole('button', { name: /^Has gymnastics or tumbling experience/ }).click()
   await expect(dialog.getByRole('button', { name: /Trial Assessment.*spots available/ })).toBeEnabled()
   await expect.poll(() => events.find(event => event.eventName === 'trial_start')).toMatchObject({
     pagePath: '/gymnastics', properties: { program_slug: 'gymnastics', section: 'class_placement' },

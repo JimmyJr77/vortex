@@ -240,10 +240,10 @@ export default function NewPageFreeTrial({
         </div>
         {pottyNotReady && <div className="np-trial-empty" role="status"><h3>A little more time to get ready.</h3><p>Potty training is required before booking Mommy & Me. We’d be happy to help you plan their first class when they’re ready.</p><a className="np-button" href={`tel:${TEAM_PHONE_E164}`}>Call {TEAM_PHONE} <ArrowUpRight size={17} /></a></div>}
       </> : gymnasticsRouting?.track === 'school-age' ? <>
-        <p className="np-trial-review-help">Has your child taken gymnastics before? We’ll guide them to the right first class.</p>
+        <p className="np-trial-review-help">Has your child trained in gymnastics or tumbling? Include tumbling they learned in cheer.</p>
         <div className="np-trial-answer-options">
-          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'beginner', experience: 'none' })}><strong>No gymnastics experience</strong><span>Try a Tornadoes class and build the foundations.</span><ArrowRight size={19} /></button>
-          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'experienced', experience: 'experienced' })}><strong>Has gymnastics experience</strong><span>Choose a Trial Assessment to find the right class, or call for placement.</span><ArrowRight size={19} /></button>
+          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'beginner', experience: 'none' })}><strong>New to gymnastics and tumbling</strong><span>Try a Tornadoes class and build the foundations.</span><ArrowRight size={19} /></button>
+          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'experienced', experience: 'experienced' })}><strong>Has gymnastics or tumbling experience</strong><span>Choose a Trial Assessment to find the right class, or call for placement.</span><ArrowRight size={19} /></button>
         </div>
       </> : <div className="np-trial-empty"><h3>Let’s choose the right class together.</h3><p>{gymnasticsRouting?.reason || 'Our team can help find the right gymnastics starting point for this age.'}</p><a className="np-button" href={`tel:${TEAM_PHONE_E164}`}>Call for placement <ArrowUpRight size={17} /></a><span>{TEAM_PHONE}</span></div>}
     </>}
