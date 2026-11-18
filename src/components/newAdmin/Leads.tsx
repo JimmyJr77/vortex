@@ -10,8 +10,8 @@ import ConvertLead from './ConvertLead'
 import { leadDisplayName, type Lead } from './leadTypes'
 import { allowed, request, useRead, useSearch, type Access, type Page } from './api'
 
-const checkboxCell = 'w-[4.25rem] whitespace-nowrap px-0.5 py-3 text-center align-top'
-const cell = 'px-1.5 py-3 text-left align-top'
+const checkboxCell = 'whitespace-nowrap px-0.5 py-3 text-center align-top'
+const cell = 'px-2.5 py-3 text-left align-top'
 
 const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '' }
 export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
@@ -24,7 +24,6 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   const [version, setVersion] = useState(0)
   const [adding, setAdding] = useState(false)
   const [notes, setNotes] = useState<Lead | null>(null)
-  const [acquisitionLead, setAcquisitionLead] = useState<Lead | null>(null)
   const [saving, setSaving] = useState<number | null>(null)
   const [saveError, setSaveError] = useState<string | null>(null)
   const [convert, setConvert] = useState<Lead | null>(null)
@@ -47,16 +46,23 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     <ErrorNotice message={data.error} onRetry={refresh} />
     {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="rounded-xl border border-slate-200 bg-white">
       {data.data.rows.length ? <div className="overflow-x-auto rounded-t-xl">
-        <table className="w-full min-w-[67.5rem] table-fixed text-sm">
+        <table className="w-full min-w-[60rem] table-fixed text-sm">
+          <colgroup>
+            <col span={2} className="w-[4.25rem]" />
+            <col className="w-[18%]" />
+            <col className="w-[23%]" />
+            <col className="w-28" />
+            <col />
+            <col className="w-40" />
+          </colgroup>
           <thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>
             <th scope="col" className={`${checkboxCell} !text-[10px]`}>Contacted</th>
             <th scope="col" className={`${checkboxCell} !text-[10px]`}>Follow-up</th>
-            <th scope="col" className={`${cell} w-[16%]`}>Name</th>
-            <th scope="col" className={`${cell} w-[5.875rem]`}>Contact</th>
-            <th scope="col" className={`${cell} w-16`}>Status</th>
-            <th scope="col" className={`${cell} w-[14.5rem] 2xl:w-[16.5rem]`}>Acquisition source</th>
+            <th scope="col" className={cell}>Name</th>
+            <th scope="col" className={cell}>Contact</th>
+            <th scope="col" className={cell}>Status</th>
             <th scope="col" className={cell}>Kid details</th>
-            <th scope="col" className={`${cell} w-64 2xl:w-72`}>Actions</th>
+            <th scope="col" className={cell}>Actions</th>
           </tr></thead>
           <tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => {
             const name = leadDisplayName(lead)
@@ -67,11 +73,10 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
                 <button type="button" className="block max-w-full text-left font-semibold underline decoration-slate-300 underline-offset-4 [overflow-wrap:anywhere]" onClick={() => setNotes(lead)}>{name}</button>
                 <p className="mt-1 text-xs text-slate-500">{lead.matchedMemberId ? 'Member inquiry' : 'Lead'} #{lead.id}</p>
               </td>
-              <td className="px-1 py-3 text-left align-top text-[12px] [overflow-wrap:anywhere]">{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
-              <td className="px-1 py-3 text-left align-top [overflow-wrap:anywhere]"><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-[11px] text-slate-500">Invitation {lead.invitation.status}</p>}</td>
-              <td className={cell}><AcquisitionDetails acquisition={lead.acquisition} onOpen={() => setAcquisitionLead(lead)} /></td>
-              <td className={`${cell} text-[13px] [overflow-wrap:anywhere]`}><KidDetails children={lead.inquiry?.campers || []} /></td>
-              <td className={cell}><div className="flex flex-wrap items-start gap-1 [&_button]:whitespace-nowrap [&_button]:px-1.5 [&_button]:!text-[11px]">
+              <td className={`${cell} [overflow-wrap:anywhere]`}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
+              <td className={`${cell} [overflow-wrap:anywhere]`}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">Invitation {lead.invitation.status}</p>}</td>
+              <td className={`${cell} [overflow-wrap:anywhere]`}><KidDetails children={lead.inquiry?.campers || []} /></td>
+              <td className={cell}><div className="flex flex-wrap items-start gap-1 [&_button]:whitespace-nowrap [&_button]:px-1.5 [&_button]:!text-xs">
                 <button className={button} onClick={() => setNotes(lead)}>Notes</button>
                 {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}
                 {canManage && !lead.archived && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}
@@ -85,10 +90,6 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     </div> : null}
     {adding ? <Dialog title="Add lead" onClose={() => setAdding(false)}><LeadFields lead={null} onCancel={() => setAdding(false)} onSaved={() => { setAdding(false); refresh() }} /></Dialog> : null}
     {notes ? <LeadNotesDialog lead={notes} revision={revision + version} canManage={canManage} onClose={() => setNotes(null)} onSaved={lead => { setNotes(lead); refresh() }} /> : null}
-    {acquisitionLead ? <Dialog title="Acquisition source" onClose={() => setAcquisitionLead(null)}>
-      <p className="mb-2 font-semibold [overflow-wrap:anywhere]">{leadDisplayName(acquisitionLead)}</p>
-      <AcquisitionDetails acquisition={acquisitionLead.acquisition} />
-    </Dialog> : null}
     {convert ? <ConvertLead lead={convert} access={access} onClose={() => setConvert(null)} onSent={refresh} /> : null}
   </section>
 }
