@@ -196,6 +196,42 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         trialLabel: 'Find a free Trial Assessment',
       },
       {
+        id: 'trampoline-tumbling',
+        heading: 'Tumbling and trampoline training in Bowie',
+        description: 'At Vortex, developmental gymnastics teaches floor tumbling. Fit & Flip combines trampoline and tumble-track drills with strength and conditioning. For a specific goal such as double mini or power tumbling, ask our team about coaching options.',
+        topics: [
+          {
+            id: 'beginner-floor-tumbling',
+            heading: 'Learn floor tumbling in Tornadoes',
+            description: 'Beginners practice rolls, cartwheels, round-offs, and controlled landings in this developmental gymnastics class. First-time gymnasts ages 6–17 can look for a Tornadoes trial.',
+            links: [
+              { href: '/gymnastics#youth-gymnastics-schedule', label: 'Check Tornadoes class times and prices', analyticsKey: 'read_youth_gymnastics_schedule' },
+              { href: '/gymnastics#open-free-trial', label: 'Find a Tornadoes trial', analyticsKey: 'free_trial_section' },
+            ],
+          },
+          {
+            id: 'experienced-floor-tumbling',
+            heading: 'Find a level for an experienced tumbler',
+            description: 'For youth ages 6–17 who have trained before, a Trial Assessment helps the coach choose a developmental level. Tell the coach what your child can do independently, including skills learned in cheer or tumbling.',
+            link: { href: '/gymnastics#open-free-trial-class-placement', label: 'Look for a Trial Assessment', analyticsKey: 'free_trial_section' },
+          },
+          {
+            id: 'fit-flip-trampoline',
+            heading: 'Practice trampoline skills in Fit & Flip',
+            description: 'Fit & Flip Cyclones uses trampoline and tumble-track drills to practice takeoffs, landings, and body control. Check class times for ages 8–11 or 12–15.',
+            links: [
+              { href: '/fit-and-flip#fit-flip-schedule', label: 'Check Fit & Flip class times', analyticsKey: 'read_fit_flip_schedule' },
+              { href: '/fit-and-flip#body-control', label: 'See trampoline and tumbling in Fit & Flip', analyticsKey: 'read_fit_flip_body_control' },
+            ],
+          },
+        ],
+        links: [
+          { href: contactInquiryHref('trampoline-tumbling'), label: 'Ask about trampoline and tumbling coaching', analyticsKey: 'inquire_trampoline_gymnastics' },
+          { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
+          { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-trampoline-gymnastics`, label: 'Compare coached trampoline gymnastics near Bowie', analyticsKey: 'read_trampoline_gymnastics_guide' },
+        ],
+      },
+      {
         id: 'competitive-gymnastics-team',
         heading: 'Competitive gymnastics team in Bowie',
         description: GYMNASTICS_TEAM_PUBLIC_DESCRIPTION,
@@ -280,20 +316,9 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             description: 'Aerobic routines combine continuous movement to music with jumps, balance, and strength. Tell us whether your child wants to learn a routine or compete so we can check which options are available.',
             link: { href: contactInquiryHref('aerobic-gymnastics'), label: 'Ask about aerobic gymnastics routines', analyticsKey: 'inquire_aerobic_gymnastics' },
           },
-          {
-            id: 'trampoline-tumbling',
-            heading: 'Trampoline gymnastics and tumbling',
-            description: 'For beginner floor tumbling, Tornadoes teaches rolls, cartwheels, and round-offs in a developmental gymnastics class for ages 6 and up. Fit & Flip uses trampoline and tumble-track drills alongside strength work for ages 8–15. If your child wants to work on a specific event such as competitive trampoline, double mini, or power tumbling, share their age and experience so we can check coaching and evaluation options.',
-            links: [
-              { href: '/gymnastics#youth-gymnastics-schedule', label: 'Check Tornadoes class times and prices', analyticsKey: 'read_youth_gymnastics_schedule' },
-              { href: '/fit-and-flip#body-control', label: 'See trampoline and tumbling in Fit & Flip', analyticsKey: 'read_fit_flip_body_control' },
-              { href: contactInquiryHref('trampoline-tumbling'), label: 'Ask about trampoline and tumbling coaching', analyticsKey: 'inquire_trampoline_gymnastics' },
-              { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
-              { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-trampoline-gymnastics`, label: 'Compare coached trampoline gymnastics near Bowie', analyticsKey: 'read_trampoline_gymnastics_guide' },
-            ],
-          },
         ],
         links: [
+          { href: '/gymnastics#trampoline-tumbling', label: 'See tumbling and trampoline training options', analyticsKey: 'read_trampoline_tumbling_options' },
           { href: GYMNASTICS_EQUIPMENT_PATH, label: 'See Vortex’s practice beams and training rings', analyticsKey: 'see_inside_the_gym' },
           { href: trainingFilm.path, label: 'Watch gymnastics and athletic training at Vortex', analyticsKey: 'watch_training_film' },
         ],

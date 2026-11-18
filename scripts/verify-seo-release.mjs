@@ -1300,10 +1300,6 @@ const verifyHtml = (
       ['rhythmic', [`${HUB_ORIGIN}/contact?topic=rhythmic-gymnastics#inquiry`]],
       ['acro', [`${HUB_ORIGIN}/contact?topic=acrobatic-gymnastics#inquiry`]],
       ['aerobic', [`${HUB_ORIGIN}/contact?topic=aerobic-gymnastics#inquiry`]],
-      ['trampoline-tumbling', [
-        `${canonical}#youth-gymnastics-schedule`, `${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`,
-        `${tumblingGuideCanonical}#nearby-trampoline-gymnastics`, `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`,
-      ]],
     ]
     for (const [id, targets] of disciplineLinks) {
       const topic = disciplines.match(new RegExp(`<article\\b[^>]*\\sid=["']${id}["'][^>]*>[\\s\\S]*?<\\/article>`, 'i'))?.[0] ?? ''
@@ -1314,6 +1310,20 @@ const verifyHtml = (
     }
     assert(anchorUrls(disciplines).some(url => url.href === `${HUB_ORIGIN}/contact#gymnastics-equipment`),
       `${label}: gymnastics disciplines must link to the equipment photos`)
+    assert(anchorUrls(disciplines).some(url => url.href === `${canonical}#trampoline-tumbling`),
+      `${label}: gymnastics disciplines must link to the tumbling and trampoline options`)
+    const tumblingSection = html.match(/<section\b[^>]*\sid=["']trampoline-tumbling["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    assert(/<h2\b[^>]*>Tumbling and trampoline training in Bowie<\/h2>/i.test(tumblingSection),
+      `${label}: the old tumbling URL must land on a dedicated section heading`)
+    const tumblingLinks = anchorUrls(tumblingSection)
+    for (const target of [
+      `${canonical}#youth-gymnastics-schedule`, `${canonical}#open-free-trial`, `${canonical}#open-free-trial-class-placement`,
+      `${fitAndFlipCanonical}#fit-flip-schedule`, `${fitAndFlipCanonical}#body-control`,
+      `${tumblingGuideCanonical}#nearby-tumbling-classes`, `${tumblingGuideCanonical}#nearby-trampoline-gymnastics`,
+      `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`,
+    ]) {
+      assert(tumblingLinks.some(url => url.href === target), `${label}: the tumbling section must link to ${target}`)
+    }
     assert(/Beginner Tornadoes/.test(placement) && /Intermediate Cyclones/.test(placement) && /Advanced Vortex A4 Elite/.test(placement) &&
       /front limber/.test(placement) && /front or back handspring/.test(placement) && /finish in balance/.test(placement) &&
       /Has gymnastics experience/.test(placement) && /Find a free Trial Assessment/.test(placement) &&
@@ -1355,16 +1365,18 @@ const verifyHtml = (
       countyLinks.some(url => url.href === 'https://www.pgparks.com/facilities/fairland-aquatic-center'),
       `${label}: missing the under-two gymnastics option or the county's official links`)
   }
-  if (shouldIndex && (pagePath === '/gymnastics' || pagePath === '/fit-and-flip')) {
-    const tumblingTopicId = pagePath === '/gymnastics' ? 'trampoline-tumbling' : 'body-control'
-    const articleTag = tags(html, 'article').find(tag => attribute(tag, 'id') === tumblingTopicId)
+  if (shouldIndex && pagePath === '/fit-and-flip') {
+    const articleTag = tags(html, 'article').find(tag => attribute(tag, 'id') === 'body-control')
     const topic = articleTag ? html.slice(html.indexOf(articleTag)).split('</article>', 1)[0] : ''
-    const guideDestination = pagePath === '/gymnastics' ? `${tumblingGuideCanonical}#nearby-tumbling-classes` : tumblingGuideCanonical
-    assert(anchorUrls(topic).some((url) => url.href === guideDestination),
+    assert(anchorUrls(topic).some((url) => url.href === tumblingGuideCanonical),
       `${label}: the tumbling topic must link to the comparison guide`)
   }
   if (shouldIndex && canonical === tumblingGuideCanonical) {
     const content = html.match(/<article\b[^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+    const lead = content.match(/<p\b[^>]*class=["']athletic-guide-lead["'][^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
+    assert(anchorUrls(lead).some(url => url.href === `${HUB_ORIGIN}/gymnastics#trampoline-tumbling`) &&
+      tags(lead, 'a').some(tag => attribute(tag, 'href') === '#nearby-tumbling-classes'),
+      `${label}: the guide intro must offer direct paths to Vortex instruction and dedicated tumbling classes`)
     const links = anchorUrls(content)
     for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control', '/read-board#classes',
       '/#free-trial', `${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#youth-gymnastics-classes`]) {

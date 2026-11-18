@@ -337,8 +337,15 @@ test.describe('Client-critical smoke flows', () => {
       await expect(page.getByRole('heading', { name: heading, level: 1 })).toBeVisible()
     }
 
-    await page.goto('/gymnastics#trampoline-tumbling')
-    await page.getByRole('link', { name: 'Compare tumbling classes near Bowie', exact: true }).click()
+    await page.goto('/blog/gymnastics-vs-tumbling')
+    await page.getByRole('link', { name: 'tumbling and trampoline training at Vortex', exact: true }).click()
+    await expect(page).toHaveURL('/gymnastics#trampoline-tumbling')
+    const tumbling = page.locator('#trampoline-tumbling')
+    await expect(tumbling.getByRole('heading', { level: 2 })).toBeInViewport()
+    await expect(tumbling.getByRole('link', { name: 'Find a Tornadoes trial' })).toHaveAttribute('href', '/gymnastics#open-free-trial')
+    await expect(tumbling.getByRole('link', { name: 'Look for a Trial Assessment' })).toHaveAttribute('href', '/gymnastics#open-free-trial-class-placement')
+    await expect(tumbling.getByRole('link', { name: 'Check Fit & Flip class times' })).toHaveAttribute('href', '/fit-and-flip#fit-flip-schedule')
+    await tumbling.getByRole('link', { name: 'Compare tumbling classes near Bowie', exact: true }).click()
     await expect(page).toHaveURL('/blog/gymnastics-vs-tumbling#nearby-tumbling-classes')
     const nearbyTumbling = page.locator('#nearby-tumbling-classes')
     await expect(nearbyTumbling.getByRole('heading')).toBeInViewport()

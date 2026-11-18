@@ -35,7 +35,9 @@ export default function GymnasticsVsTumblingGuide() {
             <p className="athletic-guide-lead">
               Tumbling is a group of acrobatic skills children practice on a floor or track.
               A gymnastics class can teach tumbling alongside other skills, such as balancing or working
-              on apparatus. Compare what kids practice in each format and where to find a dedicated tumbling class near Bowie.
+              on apparatus. See which classes include{' '}
+              <Link to="/gymnastics#trampoline-tumbling">tumbling and trampoline training at Vortex</Link>, or compare{' '}
+              <a href="#nearby-tumbling-classes">dedicated tumbling classes near Bowie</a>.
             </p>
             <GuideByline datePublished={guide.datePublished} dateModified={guide.dateModified} />
           </div>
