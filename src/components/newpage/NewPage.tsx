@@ -310,8 +310,12 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
               <p className="np-eyebrow"><span className="np-red-dash" /> Built for more.</p>
               <h1>Gymnastics &amp; <span>youth athletic training</span> in Bowie, MD</h1>
               <p className="np-hero-description">
-                <Link className="np-hero-gymnastics-link" to="/gymnastics" data-analytics-cta="explore_youth_gymnastics" data-analytics-section="hero">
+                <Link className="np-hero-program-link" to="/gymnastics" data-analytics-cta="explore_youth_gymnastics" data-analytics-section="hero">
                   Find a youth gymnastics class
+                </Link>,{' '}
+                <Link className="np-hero-program-link" to={`${GYMNASTICS_VS_TUMBLING_GUIDE.path}#choose-a-class`}
+                  data-analytics-cta="read_gymnastics_vs_tumbling_guide" data-analytics-section="hero">
+                  compare tumbling options
                 </Link>, build strength and speed in Fit &amp; Flip, or start adult gymnastics with a coach.
               </p>
               <div className="np-hero-buttons"><a href="#starting-classes" className="np-button" data-analytics-cta="explore_programs" data-analytics-section="hero">Explore programs <ArrowRight size={18} /></a><button className="np-text-button" onClick={() => openMedia('training_film')}><span className="np-play-outline"><Play size={13} fill="currentColor" /></span>See us in motion</button></div>
