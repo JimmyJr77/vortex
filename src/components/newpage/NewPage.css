@@ -63,6 +63,17 @@
   color: var(--np-muted);
   max-width: 42ch;
 }
+.np-hero-description .np-hero-gymnastics-link {
+  display: inline-block;
+  min-height: 24px;
+  color: var(--np-ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
+.np-hero-gymnastics-link:hover {
+  color: var(--np-red);
+}
 .np-hero-buttons {
   display: flex;
   align-items: center;

@@ -596,6 +596,9 @@ const verifyHtml = (
   if (pagePath === '/' && shouldIndex) {
     assert(h1s[0] === 'Gymnastics & youth athletic training in Bowie, MD',
       `${label}: the homepage heading must identify the programs and Bowie location`)
+    const heroDescription = html.match(/<p\b[^>]*\bclass=["']np-hero-description["'][^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
+    assert(anchorUrls(heroDescription).some(url => url.href === `${HUB_ORIGIN}/gymnastics`),
+      `${label}: the homepage introduction must link directly to youth gymnastics classes`)
     const freeTrial = html.match(/<section\b[^>]*\sid=["']free-trial["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const trialLinks = tags(html, 'a').filter(tag => attribute(tag, 'data-analytics-cta') === 'free_trial')
     for (const [anchor, source] of [['open-free-trial-from-navigation', 'navigation'], ['open-free-trial', 'free_trial']]) {
