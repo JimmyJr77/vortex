@@ -28,7 +28,7 @@ export const YOUTH_TRAINING_FAQS: Faq[] = [
   {
     question: 'Where is Vortex youth athletic training located?',
     answer:
-      'Training takes place at Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715. The facility serves families across Bowie, Crofton, Mitchellville, Upper Marlboro, Glenn Dale, and nearby central Maryland communities.',
+      'Training takes place at Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715, near Routes 50 and 3.',
   },
   {
     question: 'How can I find a youth training class?',

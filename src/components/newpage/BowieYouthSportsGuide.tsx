@@ -146,7 +146,7 @@ export default function BowieYouthSportsGuide() {
               <Link to="/gymnastics#first-visit">See what to expect at a first Vortex class</Link>
             </li>
             <li>
-              <strong>Thrive Gym on Defense Highway in Annapolis.</strong> Thrive lists toddler and preschool
+              <strong>Thrive Gym on Defense Highway.</strong> Thrive lists toddler and preschool
               classes, grade-school gymnastics for ages 5–12, and middle and high school gymnastics for ages
               10–18. If your child is 10–12, ask which group fits their experience.{' '}
               <a href="https://www.thrivegym.org/classes">Check Thrive’s Defense Highway gymnastics listings</a>

@@ -14,7 +14,6 @@ import {
   INSIDE_THE_GYM_ID,
   INSIDE_THE_GYM_PATH,
   PARKING_AND_ACCESSIBILITY_ID,
-  SERVICE_AREAS,
   TEAM_EMAIL,
   TEAM_PHONE,
   TEAM_PHONE_E164,
@@ -218,9 +217,8 @@ export default function ContactLocationPage({ onInquireClick }: ContactLocationP
           <p className="np-eyebrow">Find us in Bowie</p>
           <h2 className="np-contact-title">Our Bowie gym at Melford Town Center</h2>
           <p>
-            Find Vortex at 4961 Tesla Drive, Suite E, near Routes 50 and 3. Families visit us from{' '}
-            {SERVICE_AREAS.slice(0, 6).join(', ')}, and communities throughout Prince George&apos;s
-            and Anne Arundel counties.
+            Find Vortex at 4961 Tesla Drive, Suite E, near Routes 50 and 3. Families visit our Bowie
+            gym from across Prince George&apos;s and Anne Arundel counties.
           </p>
           <p>
             Contact us before visiting if you need help choosing an age group, assessing a skill

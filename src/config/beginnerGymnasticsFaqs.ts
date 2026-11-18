@@ -19,6 +19,6 @@ export const BEGINNER_GYMNASTICS_FAQS: Faq[] = [
   {
     question: 'Where are beginner gymnastics classes held?',
     answer:
-      'Classes are held at Vortex Gymnastics, 4961 Tesla Drive, Suite E, Bowie, Maryland 20715, convenient to families in Bowie, Crofton, Mitchellville, Upper Marlboro, Glenn Dale, and nearby communities.',
+      'Classes are held at Vortex Gymnastics, 4961 Tesla Drive, Suite E, Bowie, Maryland 20715, near Routes 50 and 3.',
   },
 ]

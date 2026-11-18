@@ -14,6 +14,7 @@ const contactInquiryMessages = {
   'rhythmic-gymnastics': 'I’d like to ask about rhythmic gymnastics coaching.',
   'acrobatic-gymnastics': 'I’d like to ask about partner and group acro.',
   'aerobic-gymnastics': 'I’d like to ask about aerobic gymnastics routines.',
+  'trampoline-tumbling': 'I’d like to ask about trampoline and tumbling classes or a skill evaluation.',
 } as const
 
 type ContactInquiryTopic = keyof typeof contactInquiryMessages
@@ -49,18 +50,6 @@ export const BUSINESS_NAP = {
   phone: TEAM_PHONE_E164,
   email: TEAM_EMAIL,
 } as const
-
-/** Areas Vortex serves (used in copy + schema areaServed). */
-export const SERVICE_AREAS = [
-  'Bowie, MD',
-  'Crofton, MD',
-  'Mitchellville, MD',
-  'Upper Marlboro, MD',
-  'Glenn Dale, MD',
-  'Annapolis, MD',
-  "Prince George's County, MD",
-  'Anne Arundel County, MD',
-] as const
 
 export const FACEBOOK_PROFILE_URL = 'https://www.facebook.com/VortexAthleticsUSA/'
 

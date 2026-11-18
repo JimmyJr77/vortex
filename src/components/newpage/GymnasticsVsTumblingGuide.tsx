@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
-import { CONTACT_INQUIRY_PATH } from '../../config/contact'
+import { contactInquiryHref, CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
@@ -51,6 +51,7 @@ export default function GymnasticsVsTumblingGuide() {
             <li><a href="#teen-gymnastics-options">Starting gymnastics or tumbling as a teen</a></li>
             <li><a href="#boys-gymnastics">Boys’ gymnastics and apparatus classes</a></li>
             <li><a href="#nearby-tumbling-classes">Dedicated tumbling classes near Bowie</a></li>
+            <li><a href="#nearby-trampoline-gymnastics">Coached trampoline gymnastics near Bowie</a></li>
             <li><a href="#accessible-gymnastics">Adaptive and accessible gymnastics</a></li>
             <li><a href="#questions-for-the-coach">Questions for the coach</a></li>
           </ul>
@@ -193,7 +194,7 @@ export default function GymnasticsVsTumblingGuide() {
               {' '}<a href="https://www.mga-gymnastics.com/tumbling.html">See MGA’s tumbling groups and equipment</a>
             </li>
             <li>
-              <strong>Platinum Force Athletics in Crofton.</strong> Its recreational program offers weekly one-hour classes and
+              <strong>Platinum Force Athletics.</strong> Its recreational program offers weekly one-hour classes and
               welcomes children without prior tumbling experience. Confirm your child’s age group before registering.
               {' '}<a href="https://www.platinumforceathletics.com/tumbling-classes">Check Platinum Force’s recreational tumbling</a>
             </li>
@@ -210,6 +211,41 @@ export default function GymnasticsVsTumblingGuide() {
               Compare adult tumbling, coached gymnastics, and open gym near Bowie
             </Link>.
           </p>
+        </section>
+
+        <section id="nearby-trampoline-gymnastics">
+          <h2>Coached trampoline gymnastics near Bowie</h2>
+          <p>
+            In a coached class, your child practices specific skills such as jumping in place and landing with control.
+            Ask how much lesson time uses the trampoline and whether the class teaches double mini or focuses on tumbling.
+            For a recreational outing or birthday party, look for jump sessions at a trampoline park.
+          </p>
+          <ul>
+            <li>
+              <strong>Vortex in Bowie.</strong> Fit &amp; Flip uses trampolines and tumble tracks as part of strength and
+              body-control training for ages 8–15. For a class or evaluation focused on Trampoline &amp; Tumbling, tell us
+              your child’s age, experience, and the equipment they want to use so we can check available options.{' '}
+              <Link to="/fit-and-flip#body-control">See how Fit &amp; Flip uses trampolines</Link> ·{' '}
+              <Link to={contactInquiryHref('trampoline-tumbling')}>Ask Vortex about trampoline gymnastics</Link>.
+            </li>
+            <li>
+              <strong>Docksiders Gymnastics in Millersville.</strong> Its coed Tumbling &amp; Tramp class is for ages 7
+              and up. It uses a trampoline and tumble track to work on tumbling skills. The program lists a round-off
+              as a prerequisite.{' '}
+              <a href="https://www.docksidersgymnastics.com/special-programs">Check the Tumbling &amp; Tramp requirements</a>.
+            </li>
+            <li>
+              <strong>Prince George’s County Parks and Recreation.</strong> The county guide lists beginner Trampoline
+              &amp; Tumbling at Fairland in Laurel and the Sports &amp; Learning Complex in Landover. The course covers
+              trampoline, tumbling, and double mini. Check prerequisites such as a seat drop and a forward roll.{' '}
+              <a href="https://www.pgparks.com/your-guide">Find the county’s current Trampoline &amp; Tumbling listings</a>.
+            </li>
+            <li>
+              <strong>Train For Greatness.</strong> Its competitive team lists trampoline, double mini, and power
+              tumbling. The team is by invitation.{' '}
+              <a href="https://www.trainforgreatnessmd.com/services">Check Team Greatness’s competitive pathway</a>.
+            </li>
+          </ul>
         </section>
 
         <section id="accessible-gymnastics">

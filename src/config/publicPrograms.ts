@@ -274,11 +274,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           },
           {
             id: 'trampoline-tumbling',
-            heading: 'Trampoline and tumbling',
-            description: 'Tumbling skills are part of developmental gymnastics. Fit & Flip uses trampoline and tumble-track drills alongside strength work to teach body control for ages 8–15. For a class focused on tumbling, compare nearby programs and their starting skills.',
+            heading: 'Trampoline gymnastics and tumbling',
+            description: 'Trampoline gymnastics teaches athletes to control jumps and landings. Double mini adds a running approach and a dismount onto a mat. Power tumbling uses a spring runway to connect skills. Developmental gymnastics teaches beginner tumbling, and Fit & Flip uses trampoline and tumble-track drills alongside strength work for ages 8–15. Tell us your child’s age and experience if you want us to check options for a specific event or evaluation.',
             links: [
               { href: '/fit-and-flip#body-control', label: 'See trampoline and tumbling in Fit & Flip', analyticsKey: 'read_fit_flip_body_control' },
               { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
+              { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-trampoline-gymnastics`, label: 'Compare coached trampoline gymnastics near Bowie', analyticsKey: 'read_trampoline_gymnastics_guide' },
+              { href: contactInquiryHref('trampoline-tumbling'), label: 'Ask about trampoline gymnastics options', analyticsKey: 'inquire_trampoline_gymnastics' },
             ],
           },
         ],
@@ -350,7 +352,16 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
               analyticsKey: 'read_youth_strength_readiness',
             },
           },
-          { id: 'explosiveness', heading: 'Explosiveness', description: 'Jumps, takeoffs, and dynamic movement teach athletes to produce force quickly. That carries over to a first step on the field or a stronger takeoff in cheer and tumbling.' },
+          {
+            id: 'explosiveness',
+            heading: 'Youth plyometrics and explosive movement',
+            description: 'Plyometrics help young athletes practice producing force quickly. A coach may begin with a small jump and a held landing. Once the athlete can repeat it with control, the coach can add a small rebound. Athletes can use that quick push-off in a first step on the field or a takeoff in cheer and tumbling.',
+            link: {
+              href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#youth-plyometrics`,
+              label: 'See how coaches introduce youth plyometrics',
+              analyticsKey: 'read_youth_plyometrics_guide',
+            },
+          },
           {
             id: 'body-control',
             heading: 'Body control and tumbling',
@@ -387,11 +398,20 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
               { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#soccer-speed-and-agility`, label: 'See how speed and agility fit youth soccer', analyticsKey: 'read_youth_soccer_speed_and_agility' },
             ],
           },
+          {
+            id: 'conditioning',
+            heading: 'Youth conditioning for sports',
+            description: 'Conditioning helps athletes keep moving well as a practice or game goes on. A coach can adjust the work and recovery if an athlete loses control when they land or slow down. Tell the coach about your child’s practices and games so the extra training fits their week.',
+            link: {
+              href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`,
+              label: 'Fit training around practices and games',
+              analyticsKey: 'read_youth_sports_training_schedule',
+            },
+          },
         ],
         links: [
           { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#movement-progression`, label: 'See how coaches build speed and agility', analyticsKey: 'read_movement_progression' },
           { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#progress`, label: 'See how coaches check athletic progress', analyticsKey: 'read_athletic_progress' },
-          { href: `${ATHLETIC_DEVELOPMENT_GUIDE.path}#sports-season`, label: 'Fit training around practices and games', analyticsKey: 'read_youth_sports_training_schedule' },
           { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#compare-athletic-training`, label: 'Compare youth athletic training in Bowie', analyticsKey: 'read_bowie_youth_sports_guide' },
           { href: `${BOWIE_YOUTH_SPORTS_GUIDE.path}#youth-team-training`, label: 'Find training for a whole youth team', analyticsKey: 'read_youth_team_training' },
         ],

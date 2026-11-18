@@ -416,7 +416,8 @@
     },
     {
       "src": "api/legacy-public-consent.ts",
-      "use": "@vercel/node"
+      "use": "@vercel/node",
+      "config": { "includeFiles": ["src/config/publicLandingRedirects.json"] }
     },
     {
       "src": "api/public-not-found.ts",
@@ -427,6 +428,16 @@
   "routes": [
     {
       "src": "^/(gymnastics|fit-and-flip|read-board|drop-in|contact|support)$",
+      "methods": ["GET", "HEAD"],
+      "has": [
+        { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },
+        { "type": "query", "key": "vcid" }
+      ],
+      "missing": [{ "type": "query", "key": "sport" }],
+      "dest": "/api/legacy-public-consent.ts"
+    },
+    {
+      "src": "^/(artistic-gymnastics-early|artistic-gymnastics-6-12|artistic-gymnastics-13-18|campaigns/artistic-gymnastics-early|campaigns/artistic-gymnastics-6-12|campaigns/artistic-gymnastics-13-18|acro-gymnastics|artistic-gymnastics|rhythmic-gymnastics|trampoline-tumbling|aerobic-gymnastics|beginner-gymnastics|homeschool-gymnastics|vortex-athletics|athleticism-accelerator|strength-conditioning|summer-athletic-training)$",
       "methods": ["GET", "HEAD"],
       "has": [
         { "type": "host", "value": "(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)" },

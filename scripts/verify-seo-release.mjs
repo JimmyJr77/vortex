@@ -64,6 +64,8 @@ const isBowieDirections = (url) => url.origin === 'https://www.google.com' && ur
 const publicServicePaths = [...HUB_PROGRAM_PATHS, '/drop-in']
 const consentQueryParam = 'vcid'
 const normalizedConsentPaths = ['/gymnastics', '/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support']
+const legacyNormalizedConsentPaths = Object.entries(legacyLandingRedirects)
+  .filter(([, destination]) => normalizedConsentPaths.includes(new URL(destination, HUB_ORIGIN).pathname))
 const consentVariantPaths = ['/', ...HUB_PROGRAM_PATHS.filter(path => !normalizedConsentPaths.includes(path)), '/terms-of-service']
 const failures = []
 const indexedTitles = new Map()
@@ -325,6 +327,10 @@ const verifyHtml = (
   canonical,
   { shouldIndex = true, requireH1 = true, requireSchema = true } = {},
 ) => {
+  if (new URL(canonical).origin === HUB_ORIGIN) {
+    const excludedLocation = decodeHtml(html).match(/\b(?:Davidsonville|Crofton|Queen\s+Anne\s+Estates|Fairwood|Woodmore|Mitchellville|Edgewater|Annapolis)\b/i)?.[0]
+    assert(!excludedLocation, `${label}: remove the excluded location ${excludedLocation} from public content or metadata`)
+  }
   const htmlTags = tags(html, 'html')
   const titles = titleValues(html)
   const descriptions = metaValues(html, 'name', 'description')
@@ -1026,16 +1032,20 @@ const verifyHtml = (
       assert(links.some((url) => url.href === guideCanonical),
         `${label}: missing the crawlable youth athletic development guide link in main content`)
       if (canonical === fitAndFlipCanonical) {
-        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility', '#youth-performance-assessment', '#balance-during-a-growth-spurt']) {
+        for (const hash of ['#movement-progression', '#sports-season', '#strength-training-readiness', '#progress', '#speed-vs-agility', '#soccer-speed-and-agility', '#youth-performance-assessment', '#balance-during-a-growth-spurt', '#youth-plyometrics']) {
           assert(links.some((url) => url.href === `${guideCanonical}${hash}`),
             `${label}: missing the link to the parent guide at ${hash}`)
         }
+        const conditioning = content.match(/<article\b[^>]*\sid=["']conditioning["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+        assert(anchorUrls(conditioning).some(url => url.href === `${guideCanonical}#sports-season`),
+          `${label}: the conditioning section must link to the in-season training guidance`)
       }
     } else {
       const examples = content.match(/<section\b[^>]*\sid=["']movement-examples["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const speedAgility = content.match(/<section\b[^>]*\sid=["']speed-vs-agility["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const progression = content.match(/<section\b[^>]*\sid=["']movement-progression["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const sportsSeason = content.match(/<section\b[^>]*\sid=["']sports-season["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const plyometrics = content.match(/<section\b[^>]*\sid=["']youth-plyometrics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const readiness = content.match(/<section\b[^>]*\sid=["']strength-training-readiness["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const progress = content.match(/<section\b[^>]*\sid=["']progress["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const outline = content.match(/<nav\b[^>]*\baria-label=["']In this guide["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
@@ -1055,10 +1065,15 @@ const verifyHtml = (
         `${label}: missing the crawlable youth soccer example, sources, or Cyclones schedule link`)
       assert(tags(progression, 'ol').length === 1 && tags(progression, 'li').length === 4,
         `${label}: expected the four coaching stages in an ordered list`)
-      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress', '#youth-performance-assessment', '#balance-during-a-growth-spurt']) {
+      for (const hash of ['#movement-progression', '#strength-training-readiness', '#progress', '#youth-performance-assessment', '#balance-during-a-growth-spurt', '#youth-plyometrics']) {
         assert(tags(outline, 'a').some((tag) => attribute(tag, 'href') === hash),
           `${label}: missing the link to ${hash} in the guide outline`)
       }
+      const plyometricsLinks = anchorUrls(plyometrics)
+      assert(plyometricsLinks.some(url => url.href === `${fitAndFlipCanonical}#explosiveness`) &&
+        plyometricsLinks.some(url => url.href === `${fitAndFlipCanonical}#training-fit`) &&
+        plyometricsLinks.some(url => url.hostname === 'www.nsca.com' && url.pathname.endsWith('position_stand_youth_resistance_training---2009.pdf')),
+        `${label}: the plyometrics guide must include its source and crawlable program links`)
       const growth = progression.match(/<div\b[^>]*\sid=["']balance-during-a-growth-spurt["'][^>]*>[\s\S]*?<\/div>/i)?.[0] ?? ''
       assert(/smaller hop/.test(growth) &&
         anchorUrls(growth).some(url => url.href === 'https://www.healthychildren.org/english/healthy-living/sports/pages/is-your-child-ready-for-sports.aspx'),
@@ -1253,7 +1268,10 @@ const verifyHtml = (
       ['rhythmic', [`${HUB_ORIGIN}/contact?topic=rhythmic-gymnastics#inquiry`]],
       ['acro', [`${HUB_ORIGIN}/contact?topic=acrobatic-gymnastics#inquiry`]],
       ['aerobic', [`${HUB_ORIGIN}/contact?topic=aerobic-gymnastics#inquiry`]],
-      ['trampoline-tumbling', [`${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`]],
+      ['trampoline-tumbling', [
+        `${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`,
+        `${tumblingGuideCanonical}#nearby-trampoline-gymnastics`, `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`,
+      ]],
     ]
     for (const [id, targets] of disciplineLinks) {
       const topic = disciplines.match(new RegExp(`<article\\b[^>]*\\sid=["']${id}["'][^>]*>[\\s\\S]*?<\\/article>`, 'i'))?.[0] ?? ''
@@ -1331,6 +1349,19 @@ const verifyHtml = (
     ]) {
       assert(nearbyTumblingLinks.some(url => url.href === provider),
         `${label}: missing the dedicated tumbling provider link to ${provider}`)
+    }
+    const nearbyTrampoline = content.match(/<section\b[^>]*\sid=["']nearby-trampoline-gymnastics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+    const nearbyTrampolineLinks = anchorUrls(nearbyTrampoline)
+    assert(tags(content, 'a').some(tag => attribute(tag, 'href') === '#nearby-trampoline-gymnastics'),
+      `${label}: missing the jump link to the coached trampoline comparison`)
+    for (const destination of [
+      'https://www.docksidersgymnastics.com/special-programs',
+      'https://www.pgparks.com/your-guide',
+      'https://www.trainforgreatnessmd.com/services',
+      `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`,
+    ]) {
+      assert(nearbyTrampolineLinks.some(url => url.href === destination),
+        `${label}: the coached trampoline comparison is missing ${destination}`)
     }
     const boysGymnastics = content.match(/<section\b[^>]*\sid=["']boys-gymnastics["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     const boysGymnasticsLinks = anchorUrls(boysGymnastics)
@@ -1644,8 +1675,9 @@ for (const set of expectedSets) {
       verifyHtml(`live ${canonical}`, await response.text(), canonical)
     }
 
-    await Promise.all(normalizedConsentPaths.map(async (path) => {
-      const consentDestination = new URL(path, set.origin)
+    const consentMappings = [...normalizedConsentPaths.map(path => [path, path]), ...legacyNormalizedConsentPaths]
+    await Promise.all(consentMappings.map(async ([path, destination]) => {
+      const consentDestination = new URL(destination, set.origin)
       consentDestination.searchParams.append('utm_source', 'seo_release_check')
       consentDestination.searchParams.append('tag', 'one')
       consentDestination.searchParams.append('tag', 'two')
@@ -1660,14 +1692,14 @@ for (const set of expectedSets) {
       const consentLocation = consentRedirect.headers.get('location')
       const consentTarget = consentLocation ? new URL(consentLocation, consentSource) : null
       assert(consentRedirect.status === 308 && consentTarget?.href === consentDestination.href,
-        path + ': legacy consent redirect must remove vcid and keep campaign and repeated parameters in order without adding a fragment')
+        path + ': one permanent redirect must remove vcid, retain other parameters, and use only the mapped fragment')
       assert(/\bprivate\b/.test(consentRedirect.headers.get('cache-control') ?? '') && /\bno-store\b/.test(consentRedirect.headers.get('cache-control') ?? '') &&
         (consentRedirect.headers.get('set-cookie') ?? '').startsWith('_vortex_cid=' + consentId + ';') &&
         !/\bnoindex\b/i.test(consentRedirect.headers.get('x-robots-tag') ?? ''),
         path + ': the indexable redirect must preserve the necessary consent cookie and forbid shared caching')
       const normalizedConsentPage = await fetch(consentDestination, { redirect: 'manual' })
       assert(normalizedConsentPage.ok && !/\bnoindex\b/i.test(normalizedConsentPage.headers.get('x-robots-tag') ?? '') &&
-        linkValues(await normalizedConsentPage.text(), 'canonical').includes(canonicalFor(set.origin, path)),
+        linkValues(await normalizedConsentPage.text(), 'canonical').includes(canonicalFor(set.origin, consentDestination.pathname)),
         path + ': the clean consent destination must stay indexable and self-canonical')
     }))
 
@@ -1792,11 +1824,11 @@ if (live) {
     await verifyLiveRedirect(new URL(origin), new URL(HUB_ORIGIN))
   }
 
-  const verifyTrackedRedirect = async (path, target, query = {}) => {
+  const verifyTrackedRedirect = async (path, target, query = {}, origins = [HUB_ORIGIN, ...aliasOrigins]) => {
     const destination = new URL(target, HUB_ORIGIN)
     for (const [key, value] of Object.entries(query)) destination.searchParams.set(key, value)
     destination.searchParams.set('utm_source', 'seo-release-check')
-    for (const origin of [HUB_ORIGIN, ...aliasOrigins]) {
+    for (const origin of origins) {
       const source = new URL(path, origin)
       source.search = destination.search
       await verifyLiveRedirect(source, destination)
@@ -1821,7 +1853,7 @@ if (live) {
 
   await verifyTrackedRedirect('/trampoline-tumbling', legacyLandingRedirects['/trampoline-tumbling'], {
     [consentQueryParam]: 'c_consent_release_check',
-  })
+  }, aliasOrigins)
 
   const bookingQuery = { form: '42', offeringId: '3', slotGroupId: '5', timeSlotId: '6' }
   for (const path of ['/schedule', '/scheduling']) {
@@ -2001,13 +2033,20 @@ assert(headers.some(rule => rule.source === '/:path((?!(?:' + normalizedConsentS
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam)),
   'vercel.json: legacy consent query URLs outside the normalized paths must have a noindex header on the canonical host')
 const consentHandler = 'api/legacy-public-consent.ts'
-const consentRewrite = vercelConfig.routes?.find(rule => rule.src === '^/(' + normalizedConsentSlugs + ')$' &&
-  rule.dest === '/' + consentHandler && !rule.check &&
+const findConsentRewrite = (slugs) => vercelConfig.routes?.find(rule => rule.src === '^/(' + slugs + ')$' &&
+  rule.dest === '/' + consentHandler && !rule.check && rule.methods?.join(' ') === 'GET HEAD' &&
+  rule.has?.some(condition => condition.type === 'host' &&
+    condition.value === '(?:vortexathletics\\.com|vortex-[a-z0-9-]+-3lisports\\.vercel\\.app)') &&
   rule.has?.some(condition => condition.type === 'query' && condition.key === consentQueryParam) &&
   rule.missing?.some(condition => condition.type === 'query' && condition.key === 'sport'))
-assert(vercelConfig.builds?.some(build => build.src === consentHandler && build.use === '@vercel/node') &&
-  consentRewrite,
+const currentConsentRewrite = findConsentRewrite(normalizedConsentSlugs)
+const retiredConsentRewrite = findConsentRewrite(legacyNormalizedConsentPaths.map(([path]) => path.slice(1)).join('|'))
+assert(vercelConfig.builds?.some(build => build.src === consentHandler && build.use === '@vercel/node' &&
+  build.config?.includeFiles?.includes('src/config/publicLandingRedirects.json')) &&
+  currentConsentRewrite,
   'vercel.json: normalized consent requests must reach the Node handler before the static pages')
+assert(retiredConsentRewrite,
+  'vercel.json: the consent handler must intercept each retired path whose destination already normalizes consent')
 for (const [source, path] of Object.entries(legacyLandingRedirects)) {
   const destination = new URL(path, HUB_ORIGIN)
   assert(
@@ -2089,8 +2128,8 @@ assert(
   ),
   'vercel.json: generic robots fallback routing is missing',
 )
-assert(vercelConfig.routes?.length === 1 && consentRewrite,
-  'vercel.json: only the scoped consent rewrite belongs before static routing')
+assert(vercelConfig.routes?.length === 2 && currentConsentRewrite && retiredConsentRewrite,
+  'vercel.json: only the scoped consent rewrites belong before static routing')
 const cacheHeaderValues = headers.flatMap((rule) =>
   (rule.headers ?? [])
     .filter((header) => header.key?.toLowerCase() === 'cache-control')

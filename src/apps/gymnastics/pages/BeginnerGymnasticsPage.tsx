@@ -98,8 +98,7 @@ const BeginnerGymnasticsPage = () => {
             <h2 className="mt-4 text-3xl font-display font-bold text-black md:text-4xl">Beginner gymnastics near Bowie families</h2>
             <p className="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-gray-700">
               Train at 4961 Tesla Dr Suite E in Bowie, Maryland. Vortex welcomes beginner gymnasts
-              from Bowie, Crofton, Mitchellville, Upper Marlboro, Glenn Dale, Lanham, and throughout
-              Prince George&apos;s and Anne Arundel counties. Explore our
+              from across Prince George&apos;s and Anne Arundel counties. Explore our
               {' '}<Link className="font-semibold text-vortex-red underline" to="/artistic-gymnastics-early">preschool gymnastics</Link>,
               {' '}<Link className="font-semibold text-vortex-red underline" to="/artistic-gymnastics-6-12">ages 6–12 pathway</Link>,
               {' '}or <Link className="font-semibold text-vortex-red underline" to="/trampoline-tumbling">trampoline and tumbling classes</Link>.

@@ -1,4 +1,6 @@
+import { readFileSync } from 'node:fs'
 import type { IncomingMessage, ServerResponse } from 'node:http'
+import { join } from 'node:path'
 import {
   CONSENT_COOKIE_MAX_AGE,
   CONSENT_ID_COOKIE_NAME,
@@ -6,6 +8,9 @@ import {
 } from '../src/config/analyticsPolicy.js'
 
 const publicPaths = new Set(['/gymnastics', '/fit-and-flip', '/read-board', '/drop-in', '/contact', '/support'])
+const legacyRedirects: Record<string, string> = JSON.parse(
+  readFileSync(join(process.cwd(), 'src/config/publicLandingRedirects.json'), 'utf8'),
+)
 
 export default function legacyPublicConsent(request: IncomingMessage, response: ServerResponse) {
   if (request.method !== 'GET' && request.method !== 'HEAD') {
@@ -16,8 +21,10 @@ export default function legacyPublicConsent(request: IncomingMessage, response: 
   }
 
   const url = new URL(request.url ?? '/', 'https://vortexathletics.com')
+  const legacyDestination = legacyRedirects[url.pathname]
+  const destination = legacyDestination ? new URL(legacyDestination, url) : url
   const consentIds = url.searchParams.getAll(CONSENT_ID_QUERY_PARAM)
-  if (!publicPaths.has(url.pathname) || !consentIds.length || url.searchParams.has('sport')) {
+  if (!publicPaths.has(destination.pathname) || !consentIds.length || url.searchParams.has('sport')) {
     response.statusCode = 404
     response.end()
     return
@@ -31,8 +38,8 @@ export default function legacyPublicConsent(request: IncomingMessage, response: 
     response.setHeader('Set-Cookie', cookie + '; Path=/; Max-Age=' + CONSENT_COOKIE_MAX_AGE + '; SameSite=Lax; Secure')
   }
 
-  // A fragment-free Location lets the browser carry the original section anchor.
-  response.setHeader('Location', url.pathname + url.search)
+  // An explicit legacy section takes precedence. Otherwise the browser inherits its fragment.
+  response.setHeader('Location', destination.pathname + url.search + (legacyDestination ? destination.hash : ''))
   response.setHeader('Cache-Control', 'private, no-store')
   response.statusCode = 308
   response.end()

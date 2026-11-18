@@ -14,6 +14,7 @@ const sections = [
   { id: 'youth-sports', label: 'How it fits with youth sports' },
   { id: 'sports-season', label: 'Training around practices and games' },
   { id: 'movement-examples', label: 'Eight qualities of athleticism' },
+  { id: 'youth-plyometrics', label: 'How coaches introduce plyometrics' },
   { id: 'speed-vs-agility', label: 'Speed, direction changes, and reacting' },
   { id: 'movement-progression', label: 'How coaches progress a movement' },
   { id: 'balance-during-a-growth-spurt', label: 'Balance during a growth spurt' },
@@ -166,6 +167,27 @@ export default function AthleticDevelopmentGuide() {
             <li><strong>Body control.</strong> Manage where the body is in space. A child might learn to hold a tucked shape through a roll and finish in a stable position.</li>
           </ul>
           <p>See how Vortex teaches <Link to="/fit-and-flip#strength">youth strength training in Fit &amp; Flip</Link>.</p>
+        </section>
+
+        <section id="youth-plyometrics">
+          <h2>How coaches introduce youth plyometrics</h2>
+          <p>
+            Plyometrics help athletes produce force quickly. In a rebound hop, for example, the muscles absorb
+            force as the feet touch down and quickly produce force for the next takeoff. A coach can change how
+            demanding the drill is by changing the height, speed, or number of contacts.
+          </p>
+          <p>
+            Vortex’s coaching library includes a jump-and-hold progression. An athlete starts by landing and holding
+            their balance. Once they can repeat that landing, the coach may introduce one small rebound and ask for
+            a steady finish. If the athlete loses balance, the coach can go back to the simpler landing.
+          </p>
+          <p>
+            If you’re choosing a class, ask what the coach wants to see before moving your child to faster or
+            more demanding jumps, and how they adjust when landings change as your child tires.{' '}
+            <a href="https://www.nsca.com/globalassets/about/position-statements/position_stand_youth_resistance_training---2009.pdf">Read the NSCA’s guidance on youth training</a>.
+            {' '}<Link to="/fit-and-flip#explosiveness">See how Fit &amp; Flip teaches jumps and landings</Link>{' '}
+            or <Link to="/fit-and-flip#training-fit">find a first class for ages 8–15</Link>.
+          </p>
         </section>
 
         <section id="speed-vs-agility">

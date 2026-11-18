@@ -80,9 +80,8 @@ const HomeschoolGymnasticsPage = () => {
               Flexible-schedule gymnastics for local families
             </h2>
             <p className="mt-5 text-lg leading-relaxed text-gray-300">
-              Our Bowie facility welcomes homeschool and flexible-schedule families from Crofton,
-              Mitchellville, Upper Marlboro, Glenn Dale, Lanham, and nearby Prince George&apos;s and
-              Anne Arundel County communities.
+              Our Bowie facility welcomes homeschool and flexible-schedule families from across
+              Prince George&apos;s and Anne Arundel counties.
             </p>
             <p className="mt-4 leading-relaxed text-gray-300">
               Daytime offerings can change by session. Check current availability online or ask the

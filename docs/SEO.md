@@ -163,8 +163,11 @@ the app restores any section anchor and keeps the rest of the query string.
 Legacy query-based `vcid` links to youth gymnastics, Fit & Flip, Class Board,
 drop-ins, contact, and customer support redirect to the same page without that
 parameter. The response keeps existing booking and campaign parameters and
-lets the browser carry the section anchor. A valid ID goes into the same
-necessary consent cookie the browser already uses. Other legacy consent links
+lets the browser carry the section anchor. Retired paths on the primary host
+that lead to those pages also normalize consent in the same redirect. When a
+retired path maps to a specific section, the redirect uses that section. A
+valid ID goes into the same necessary consent cookie the browser already uses.
+Other legacy consent links
 still load with `X-Robots-Tag: noindex` so the browser can apply consent. The
 live check verifies that ordinary booking and campaign URLs remain indexable.
 
