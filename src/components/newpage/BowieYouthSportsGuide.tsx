@@ -54,6 +54,7 @@ export default function BowieYouthSportsGuide() {
             <li><a href="#high-school-sports-training">High school sports training</a></li>
             <li><a href="#youth-team-training">Youth team training</a></li>
             <li><a href="#fitness-without-a-team">Fitness without joining a team</a></li>
+            <li><a href="#parkour-and-ninja">Parkour, ninja classes, and obstacle courses</a></li>
             <li><a href="#teen-fitness-rooms">Fitness rooms for teens</a></li>
             <li><a href="#homeschool-pe">Homeschool gymnastics and PE</a></li>
             <li><a href="#before-signup">What to check before registering</a></li>
@@ -370,6 +371,32 @@ export default function BowieYouthSportsGuide() {
               for ages 1–6, and children ages 7–10 can also participate. Individual sessions can feature dance, yoga,
               tumbling, or other movement activities.{' '}
               <a href="https://www.cityofbowie.org/278/Programs-at-the-Gym">Check Bowie’s upcoming movement sessions</a>
+            </li>
+          </ul>
+          <h3 id="parkour-and-ninja" className="athletic-guide-subheading scroll-mt-24">
+            Parkour, ninja classes, and obstacle courses near Bowie
+          </h3>
+          <ul>
+            <li>
+              <strong>Beginner parkour and Little Ninja.</strong> The county lists Little Ninja for ages 3–5 and
+              beginner parkour for ages 7–10 at Fairland Sports Complex. Parkour introduces vaulting, jumping,
+              rolling, and climbing. Look for the next session in the{' '}
+              <a href="https://www.pgparks.com/your-guide">county’s seasonal activity guide</a>.
+            </li>
+            <li>
+              <strong>Coached obstacle skills.</strong> MGA Gymnastics lists one-hour Ninja Squad classes that work
+              on handholds, balance across blocks, and the warped wall. Ask which class fits your child’s age.{' '}
+              <a href="https://www.mga-gymnastics.com/ninja.html">See MGA’s Ninja Squad classes</a>.
+            </li>
+            <li>
+              <strong>Obstacle-course play in Bowie.</strong> Sky Zone Bowie lists a Ninja Warrior Course as a
+              park attraction. Check the attraction rules and ticket options before your visit.{' '}
+              <a href="https://www.skyzone.com/bowie/attractions/ninja-warrior-course/">See Sky Zone’s Ninja Warrior Course</a>.
+            </li>
+            <li>
+              <strong>Coached strength, jumping, and tumbling in Bowie.</strong> Fit &amp; Flip Cyclones groups
+              athletes by ages 8–11 and 12–15.{' '}
+              <Link to="/fit-and-flip#fit-flip-schedule">See weekly Fit &amp; Flip class times</Link>.
             </li>
           </ul>
           <h3 id="teen-fitness-rooms" className="athletic-guide-subheading scroll-mt-24">

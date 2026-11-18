@@ -44,7 +44,7 @@ export const HUB_ROUTES: HubRouteSeo[] = [
   })),
   {
     path: '/ninja',
-    title: 'Kids Ninja Classes in Bowie, MD | Vortex',
+    title: 'Vortex Ninja Program Status | Vortex Athletics',
     description:
       'Vortex Ninja classes in Bowie, MD are temporarily on hold. Explore current youth athletic training, gymnastics, and Fit & Flip programs.',
     robots: 'noindex, follow',

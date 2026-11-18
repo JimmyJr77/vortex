@@ -464,6 +464,15 @@ const verifyHtml = (
 
   const pageUrl = new URL(canonical)
   const pagePath = pageUrl.pathname
+  if (!shouldIndex && canonical === `${HUB_ORIGIN}/ninja`) {
+    const holdContent = html.match(/<main\b[^>]*\sid=["']ninja-on-hold["'][^>]*>[\s\S]*?<\/main>/i)?.[0] ?? ''
+    const holdLinks = anchorUrls(holdContent)
+    assert(h1s.length === 1 && h1s[0] === 'Vortex Ninja is temporarily on hold' &&
+      holdLinks.some(url => url.href === `${HUB_ORIGIN}/fit-and-flip#fit-flip-schedule`) &&
+      holdLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#parkour-and-ninja`) &&
+      !holdLinks.some(url => url.pathname === '/enroll' || url.pathname === '/read-board'),
+      `${label}: the held Ninja page must show its status and link to available alternatives`)
+  }
   if (shouldIndex && pageUrl.origin === HUB_ORIGIN) {
     const viewport = tags(html, 'meta').find(tag => attribute(tag, 'name') === 'viewport')
     const preloads = tags(html, 'link').filter(tag => attribute(tag, 'rel') === 'preload')
@@ -1243,6 +1252,12 @@ const verifyHtml = (
       fitnessLinks.some(url => url.href === 'https://www.pgparks.com/facilities/south-bowie-community-center') &&
       fitnessLinks.some(url => url.href === 'https://www.cityofbowie.org/278/Programs-at-the-Gym'),
       `${label}: missing the local comparison of coached youth gymnastics, open gym, and movement sessions`)
+    assert(/\sid=["']parkour-and-ninja["']/.test(fitness) &&
+      tags(content, 'a').some(tag => attribute(tag, 'href') === '#parkour-and-ninja') &&
+      fitnessLinks.some(url => url.href === 'https://www.pgparks.com/your-guide') &&
+      fitnessLinks.some(url => url.href === 'https://www.mga-gymnastics.com/ninja.html') &&
+      fitnessLinks.some(url => url.href === 'https://www.skyzone.com/bowie/attractions/ninja-warrior-course/'),
+      `${label}: missing parkour and obstacle-course choices or the provider links`)
     assert(/\sid=["']teen-fitness-rooms["']/.test(fitness) &&
       /13–17/.test(fitness) && /13–15/.test(fitness) && /valid fitness pass/.test(fitness) &&
       fitnessLinks.some(url => url.href === `${fitAndFlipCanonical}#fit-flip-schedule`) &&
@@ -1695,6 +1710,14 @@ for (const set of expectedSets) {
       assert(contentType.includes('text/html'), `${canonical}: expected HTML, received ${contentType}`)
       assert(!/\bnoindex\b/i.test(response.headers.get('x-robots-tag') ?? ''), `${canonical}: HTTP headers contain noindex`)
       verifyHtml(`live ${canonical}`, await response.text(), canonical)
+    }
+
+    for (const path of set.noindexPaths) {
+      const canonical = canonicalFor(set.origin, path)
+      const response = await fetch(canonical, { redirect: 'manual' })
+      assert(response.status === 200 && /\bnoindex\b/i.test(response.headers.get('x-robots-tag') ?? ''),
+        `${canonical}: expected a public page with an HTTP noindex directive`)
+      if (response.ok) verifyHtml(`live ${canonical}`, await response.text(), canonical, { shouldIndex: false })
     }
 
     const consentMappings = [...normalizedConsentPaths.map(path => [path, path]), ...legacyNormalizedConsentPaths]

@@ -6,6 +6,7 @@ import {
   Mountain,
 } from 'lucide-react'
 import { getSiteEnrollHref } from '../utils/enrollSite'
+import { NINJA_HOLD_TITLE, NINJA_PROGRAM_ON_HOLD } from '../utils/ninjaProgram'
 import HeroPosterBackground from './HeroPosterBackground'
 
 interface NinjaProps {
@@ -14,6 +15,30 @@ interface NinjaProps {
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const Ninja = ({ onSignUpClick: _onSignUpClick }: NinjaProps) => {
+  if (NINJA_PROGRAM_ON_HOLD) {
+    return (
+      <main id="ninja-on-hold" className="pt-below-site-header" aria-labelledby="ninja-status-title">
+        <div className="container-custom py-12 sm:py-16">
+          <div className="max-w-2xl">
+            <h1 id="ninja-status-title" className="font-display text-3xl font-bold text-gray-950 sm:text-5xl">
+              {NINJA_HOLD_TITLE}
+            </h1>
+            <p className="mt-5 text-lg leading-relaxed text-gray-700">
+              Fit &amp; Flip is open to ages 8–15 for coached strength, jumping, and tumbling. For obstacle courses
+              or beginner parkour, check the options in our Bowie youth sports guide.
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-4">
+              <Link to="/fit-and-flip#fit-flip-schedule" className="btn-primary text-center">See Fit &amp; Flip class times</Link>
+              <Link to="/blog/youth-sports-bowie#parkour-and-ninja" className="font-semibold text-vortex-red underline underline-offset-4">
+                Compare parkour and obstacle courses
+              </Link>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
   const rigFeatures = [
     'Monkey Bars & Hanging Grips',
     'Rope Climbs & Swings',
