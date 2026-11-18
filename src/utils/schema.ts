@@ -7,6 +7,7 @@ import {
   NEXTDOOR_LOCATION_URL,
   SOCIAL_PROFILES,
   TEAM_EMAIL,
+  YELP_LOCATION_URL,
 } from '../config/contact'
 import { HOME_FAQS, type Faq } from '../config/faqs'
 import { getHubSeoForPath } from '../config/hubSeo'
@@ -131,7 +132,7 @@ const sportsActivityLocationSchema = ({ includeCatalog = false, includeHours = f
     'Trampoline and tumbling',
   ],
   ...(includeCatalog ? { hasOfferCatalog: localServiceCatalog() } : {}),
-  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL, NEXTDOOR_LOCATION_URL],
+  sameAs: [...SOCIAL_PROFILES, GOOGLE_MAPS_URL, NEXTDOOR_LOCATION_URL, YELP_LOCATION_URL],
   potentialAction: {
     '@type': 'ReserveAction',
     target: `${HUB_ORIGIN}${ENROLL_PATH}`,

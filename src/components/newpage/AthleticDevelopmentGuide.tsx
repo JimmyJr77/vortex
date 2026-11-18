@@ -10,6 +10,7 @@ import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
 
 const sections = [
+  { id: 'when-to-start-athletic-development', label: 'When to start athletic development' },
   { id: 'youth-sports', label: 'How it fits with youth sports' },
   { id: 'sports-season', label: 'Training around practices and games' },
   { id: 'movement-examples', label: 'Eight qualities of athleticism' },
@@ -66,6 +67,42 @@ export default function AthleticDevelopmentGuide() {
             {sections.map(({ id, label }) => <li key={id}><a href={'#' + id}>{label}</a></li>)}
           </ul>
         </nav>
+
+        <section id="when-to-start-athletic-development">
+          <h2>When can children start building athleticism?</h2>
+          <p>
+            Children can build athleticism through play before they join a team or take a class. Hopping, balancing,
+            and playing catch help them get comfortable moving in different ways. The U.S. National Youth Sports
+            Strategy calls the ability and confidence to use those skills across activities{' '}
+            <a href="https://odphp.health.gov/sites/default/files/2019-10/National_Youth_Sports_Strategy.pdf#page=55">physical literacy</a>.
+          </p>
+          <p>
+            When choosing a class, use the age range to find an option and ask what your child would try first.
+            Children develop at different rates, so look for activities that fit their current skills.{' '}
+            <a href="https://www.healthychildren.org/english/healthy-living/sports/pages/is-your-child-ready-for-sports.aspx">Read the American Academy of Pediatrics’ guidance on sports readiness</a>.
+          </p>
+          <ul>
+            <li>
+              <strong>Ages 2–5.</strong> Look for time to explore and short demonstrations your child can copy.{' '}
+              <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#first-sports-ages-2-5`}>Compare first sports classes in Bowie</Link>.
+            </li>
+            <li>
+              <strong>Ages 6–7.</strong> Look for a class that gives your child time to practice one skill at a time.
+              In beginner Tornadoes gymnastics, they can work on rolls and controlled landings.{' '}
+              <Link to="/gymnastics#beginner">See beginner gymnastics</Link>.
+            </li>
+            <li>
+              <strong>Ages 8–15.</strong> A coach can help your child work toward a goal such as landing a jump in
+              balance. Fit &amp; Flip has Cyclones classes for ages 8–11 and 12–15.{' '}
+              <Link to="/fit-and-flip#training-fit">Find a first Fit &amp; Flip class</Link>.
+            </li>
+            <li>
+              <strong>Ages 16–17.</strong> Ask what the coach works on with high school athletes and how the sessions
+              fit around practices and games.{' '}
+              <Link to={`${BOWIE_YOUTH_SPORTS_GUIDE.path}#high-school-sports-training`}>Compare Bowie training for high school athletes</Link>.
+            </li>
+          </ul>
+        </section>
 
         <section id="youth-sports">
           <h2>How athletic development fits alongside youth sports</h2>

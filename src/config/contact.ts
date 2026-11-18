@@ -97,6 +97,7 @@ export const GOOGLE_MAPS_URL =
   'https://www.google.com/maps?cid=15262285316302188709'
 
 export const NEXTDOOR_LOCATION_URL = 'https://nextdoor.com/pages/vortex-athletics-gymnastics-bowie-md/'
+export const YELP_LOCATION_URL = 'https://www.yelp.com/biz/vortex-athletics-and-gymnastics-bowie-3'
 
 const googlePlaceId = 'ChIJZ4XjEwDtt4kRpTDa0qGHztM'
 

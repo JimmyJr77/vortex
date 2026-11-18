@@ -1446,6 +1446,8 @@ const verifyHtml = (
       )
       assert(location?.sameAs?.includes('https://nextdoor.com/pages/vortex-athletics-gymnastics-bowie-md/'),
         `${label}: the local business should reference its verified Nextdoor listing`)
+      assert(location?.sameAs?.includes('https://www.yelp.com/biz/vortex-athletics-and-gymnastics-bowie-3'),
+        `${label}: the local business should reference its claimed Yelp listing`)
       assert(location?.areaServed === 'Bowie, MD', `${label}: the facility must describe where classes are held`)
       if (pagePath === '/') {
         const items = location?.hasOfferCatalog?.itemListElement ?? []

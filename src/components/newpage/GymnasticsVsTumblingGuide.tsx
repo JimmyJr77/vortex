@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { CONTACT_INQUIRY_PATH } from '../../config/contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
+import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
 import GuideBreadcrumb from './GuideBreadcrumb'
 import GuideByline from './GuideByline'
 import './AthleticDevelopmentGuide.css'
@@ -166,6 +167,12 @@ export default function GymnasticsVsTumblingGuide() {
               {' '}<a href="https://www.pgparks.com/your-guide">Check the county’s current guide for tumbling prerequisites</a>
             </li>
           </ul>
+          <p className="mt-4">
+            Looking for a class for yourself?{' '}
+            <Link to={`${RETURNING_TO_GYMNASTICS_GUIDE.path}#nearby-adult-gymnastics`}>
+              Compare adult tumbling, coached gymnastics, and open gym near Bowie
+            </Link>.
+          </p>
         </section>
 
         <section id="accessible-gymnastics">
