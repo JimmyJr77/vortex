@@ -309,13 +309,19 @@ export default function GymnasticsVsTumblingGuide() {
         </section>
 
         <aside className="athletic-guide-next" aria-labelledby="gymnastics-tumbling-next">
-          <h2 id="gymnastics-tumbling-next">Find a class to try</h2>
-          <p>Use your child’s age and goals to choose a program. You’ll see the dates that are currently available.</p>
+          <h2 id="gymnastics-tumbling-next">Try youth gymnastics at Vortex in Bowie</h2>
+          <p>
+            New gymnasts ages 6–17 can look for a Tornadoes trial to practice floor tumbling foundations.
+            If your child already has gymnastics or tumbling experience, a Trial Assessment helps our coaches choose a starting level.
+          </p>
           <div className="athletic-guide-actions">
-            <Link className="np-button" to="/#free-trial" data-analytics-cta="free_trial_section" data-analytics-section="gymnastics_vs_tumbling_guide">
-              Find a free trial <ArrowUpRight size={17} aria-hidden="true" />
+            <Link className="np-button" to="/gymnastics#open-free-trial" data-analytics-cta="free_trial_section" data-analytics-section="gymnastics_vs_tumbling_guide">
+              Find a beginner gymnastics trial <ArrowUpRight size={17} aria-hidden="true" />
             </Link>
-            <Link className="athletic-guide-trial" to="/read-board#classes">Browse current classes</Link>
+            <Link className="athletic-guide-trial" to="/gymnastics#open-free-trial-class-placement" data-analytics-cta="free_trial_section" data-analytics-section="gymnastics_vs_tumbling_guide">
+              Find a Trial Assessment
+            </Link>
+            <Link className="athletic-guide-trial" to="/gymnastics#youth-gymnastics-schedule">See weekly gymnastics class times</Link>
           </div>
         </aside>
       </div>

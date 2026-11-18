@@ -1152,7 +1152,7 @@ const verifyHtml = (
       /Dirt Devils and Twisters/.test(classes) && /Tornadoes, gymnastics Cyclones, and Vortex A4 Elite/.test(classes) &&
       /Typhoons adult gymnastics/.test(classes),
       `${label}: missing crawlable youth fitness age groups or adult gymnastics class information`)
-    for (const path of ['/gymnastics#choose-a-class', '/gymnastics#preschool', '/gymnastics#class-placement',
+    for (const path of ['/gymnastics#choose-a-class', '/gymnastics#preschool', '/gymnastics#class-placement', '/gymnastics#trampoline-tumbling',
       '/fit-and-flip#fit-flip-schedule', '/adult-gymnastics', '/adult-gymnastics#adult-availability']) {
       assert(classLinks.some(url => url.href === `${HUB_ORIGIN}${path}`), `${label}: missing class board program link to ${path}`)
     }
@@ -1386,10 +1386,16 @@ const verifyHtml = (
       tags(lead, 'a').some(tag => attribute(tag, 'href') === '#nearby-tumbling-classes'),
       `${label}: the guide intro must offer direct paths to Vortex instruction and dedicated tumbling classes`)
     const links = anchorUrls(content)
-    for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control', '/read-board#classes',
-      '/#free-trial', `${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#youth-gymnastics-classes`]) {
+    for (const path of ['/gymnastics#beginner', '/gymnastics#class-placement', '/fit-and-flip#body-control',
+      `${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#youth-gymnastics-classes`]) {
       assert(links.some((url) => url.href === canonicalFor(HUB_ORIGIN, path)),
         `${label}: missing the crawlable comparison guide link to ${path}`)
+    }
+    const next = content.match(/<aside\b[^>]*\baria-labelledby=["']gymnastics-tumbling-next["'][^>]*>[\s\S]*?<\/aside>/i)?.[0] ?? ''
+    const nextLinks = anchorUrls(next)
+    for (const path of ['/gymnastics#open-free-trial', '/gymnastics#open-free-trial-class-placement', '/gymnastics#youth-gymnastics-schedule']) {
+      assert(nextLinks.some(url => url.href === canonicalFor(HUB_ORIGIN, path)),
+        `${label}: missing the guide’s direct youth gymnastics link to ${path}`)
     }
     const tumblingSkills = content.match(/<section\b[^>]*\sid=["']where-tumbling-fits["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     assert(anchorUrls(tumblingSkills).some(url => url.href === `${watchUrl}#gymnastics-skills`),

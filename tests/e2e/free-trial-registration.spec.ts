@@ -110,6 +110,20 @@ test('a trial fragment opens the selected program and preserves the campaign URL
   expect(requests).toEqual([])
 })
 
+test('the tumbling guide opens the gymnastics trial finder for both placement paths', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const chooser = page.getByRole('dialog', { name: 'How old is your athlete?' })
+  for (const [label, anchor] of [
+    ['Find a beginner gymnastics trial', 'open-free-trial'],
+    ['Find a Trial Assessment', 'open-free-trial-class-placement'],
+  ]) {
+    await page.goto('/blog/gymnastics-vs-tumbling')
+    await page.getByRole('link', { name: label, exact: true }).click()
+    await expect(page).toHaveURL(`/gymnastics#${anchor}`)
+    await expect(chooser.getByText('Gymnastics', { exact: true })).toBeVisible()
+  }
+})
+
 test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path after an empty result', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const requests: string[] = []

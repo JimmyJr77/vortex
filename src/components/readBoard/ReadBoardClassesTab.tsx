@@ -48,6 +48,7 @@ const ReadBoardClassesTab = () => {
             <Link to="/gymnastics#choose-a-class">Youth gymnastics</Link>
             <p><Link to="/gymnastics#preschool">Dirt Devils and Twisters for ages 2–5</Link></p>
             <p><Link to="/gymnastics#class-placement">Tornadoes, gymnastics Cyclones, and Vortex A4 Elite</Link></p>
+            <p><Link to="/gymnastics#trampoline-tumbling">Tumbling and trampoline skills in youth classes</Link></p>
           </li>
           <li>
             <Link to="/fit-and-flip#fit-flip-schedule">Fit &amp; Flip youth fitness</Link>
