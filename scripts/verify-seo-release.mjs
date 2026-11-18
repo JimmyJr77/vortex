@@ -1853,7 +1853,14 @@ if (live) {
 
   await verifyTrackedRedirect('/trampoline-tumbling', legacyLandingRedirects['/trampoline-tumbling'], {
     [consentQueryParam]: 'c_consent_release_check',
-  }, aliasOrigins)
+  }, [gymnasticsApexOrigin, GYMNASTICS_ORIGIN])
+
+  const wwwConsentSource = new URL('/trampoline-tumbling', athleticsWwwOrigin)
+  wwwConsentSource.searchParams.set(consentQueryParam, 'c_consent_release_check')
+  wwwConsentSource.searchParams.set('utm_source', 'seo-release-check')
+  const wwwConsentDestination = new URL(legacyLandingRedirects['/trampoline-tumbling'], HUB_ORIGIN)
+  wwwConsentDestination.searchParams.set('utm_source', 'seo-release-check')
+  await verifyLiveRedirect(wwwConsentSource, wwwConsentDestination)
 
   const bookingQuery = { form: '42', offeringId: '3', slotGroupId: '5', timeSlotId: '6' }
   for (const path of ['/schedule', '/scheduling']) {
