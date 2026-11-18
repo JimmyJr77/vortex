@@ -300,6 +300,14 @@ export default function PublicProgramPage({ path, initialPricing }: {
                 })}
               </div>
             )}
+            {section.photo && (
+              <figure className="np-program-section-photo">
+                <img src={section.photo.src} srcSet={section.photo.srcSet} alt={section.photo.alt}
+                  width={section.photo.width} height={section.photo.height} loading="lazy" decoding="async"
+                  sizes="auto, (max-width: 620px) calc(100vw - 44px), (max-width: 760px) calc(100vw - 64px), 42rem" />
+                <figcaption>{section.photo.caption}</figcaption>
+              </figure>
+            )}
             {(section.links || section.trialLabel) && (
               <div className="np-program-page-actions">
                 {trial && section.trialLabel && renderSectionTrialLink(section.id, section.trialLabel)}

@@ -354,6 +354,23 @@
   color: var(--np-muted);
 }
 
+.np-program-section-photo {
+  max-width: 42rem;
+  margin-top: 22px;
+}
+
+.np-program-section-photo img {
+  width: 100%;
+  height: auto;
+  border-radius: 0.6rem;
+}
+
+.np-program-section-photo figcaption {
+  margin-top: 8px;
+  color: var(--np-muted);
+  font-size: 0.9rem;
+}
+
 .np-program-questions {
   max-width: 850px;
   margin-top: 18px;

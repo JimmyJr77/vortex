@@ -36,6 +36,7 @@ type ProgramSection = {
   heading: string
   description: string
   topics?: readonly ProgramTopic[]
+  photo?: { src: string; srcSet: string; alt: string; width: number; height: number; caption: string }
   links?: readonly ProgramAction[]
   trialLabel?: string
 }
@@ -199,6 +200,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
         id: 'trampoline-tumbling',
         heading: 'Tumbling and trampoline training in Bowie',
         description: 'At Vortex, developmental gymnastics teaches floor tumbling. Fit & Flip combines trampoline and tumble-track drills with strength and conditioning. For a specific goal such as double mini or power tumbling, ask our team about coaching options.',
+        photo: {
+          ...searchPhotos.homepageGallery.springFloor,
+          alt: 'Red spring floor beside a dark tumbling track',
+          width: 1600,
+          height: 1066,
+          caption: 'The training floor at Vortex’s Bowie gym.',
+        },
         topics: [
           {
             id: 'beginner-floor-tumbling',
@@ -226,6 +234,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           },
         ],
         links: [
+          { href: `${trainingFilm.path}#gymnastics-skills`, label: 'Watch athletes tumble on the track and spring floor', analyticsKey: 'watch_gymnastics_skills' },
           { href: contactInquiryHref('trampoline-tumbling'), label: 'Ask about trampoline and tumbling coaching', analyticsKey: 'inquire_trampoline_gymnastics' },
           { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
           { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-trampoline-gymnastics`, label: 'Compare coached trampoline gymnastics near Bowie', analyticsKey: 'read_trampoline_gymnastics_guide' },

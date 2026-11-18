@@ -87,10 +87,10 @@ function readClassSchedule(classId: number, signal: AbortSignal) {
   return readCatalog<SignupClassCatalog>(`/api/signup/catalog/classes/${classId}/offerings?leadRegistration=1`, signal)
 }
 
-function datesForClass(sessions: DropInSession[], programId: number, classItem: CatalogClass, checkedOn: string) {
+function publishedDropInDatesForClass(sessions: DropInSession[], programId: number, classItem: CatalogClass, checkedOn: string) {
   return sessions.filter(session =>
     session?.programId === programId && session.classId === classItem.id && session.formId === classItem.formId &&
-    !session.excludedFromDropIns && session.isFull === false && validDate(session.date) && session.date > checkedOn &&
+    !session.excludedFromDropIns && validDate(session.date) && session.date > checkedOn &&
     validPrice(session.totalCents) && timeOfDay.test(session.startTime) && timeOfDay.test(session.endTime) &&
     session.endTime > session.startTime,
   )
@@ -117,7 +117,8 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     currentOptions.some(option => option.priceCents === flat)
     ? flat : null
 
-  const sessions = datesForClass(dropIns, program.id, adultClass, checkedOn)
+  const sessions = publishedDropInDatesForClass(dropIns, program.id, adultClass, checkedOn)
+    .filter(session => session.isFull === false)
     .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime))
 
   const first = sessions[0]
@@ -181,7 +182,6 @@ async function loadYouthBooking(program: CatalogProgram | undefined, dropIns: Dr
   if (!program || !Number.isSafeInteger(program.id) || !Array.isArray(program.classes)) return null
   const pricingCostOptions = Array.isArray(program.pricingCostOptions) ? program.pricingCostOptions.filter(Boolean) : []
   const showTuition = !programUsesWeeklyTierPricing({ pricingCostOptions }) && !publicEnrollmentPricingOptions(pricingCostOptions).length
-  const showDropInCapacity = program.displayName === FIT_AND_FLIP_BOOKING_PROGRAM
   const rank = (item: CatalogClass) => skillOrder.indexOf(item.skillLevel?.toLowerCase() ?? '')
   const classes = program.classes.filter(publishedClass).sort((left, right) =>
     (left.ageMin ?? Infinity) - (right.ageMin ?? Infinity) || rank(left) - rank(right) || left.displayName.localeCompare(right.displayName),
@@ -192,11 +192,13 @@ async function loadYouthBooking(program: CatalogProgram | undefined, dropIns: Dr
     const times = weeklyTimes(options)
     const monthlyTuition = showTuition && catalog?.costUnit === 'per_month' ? priceRange(options.map(option => option.priceCents)) : null
     const dropInExcluded = (classItem.excludeFromDropIns ?? program.excludeFromDropIns) === true
-    const dropInDates = dropInExcluded ? [] : datesForClass(dropIns, program.id, classItem, checkedOn)
+    const publishedDropInDates = dropInExcluded ? [] : publishedDropInDatesForClass(dropIns, program.id, classItem, checkedOn)
+    const dropInDates = publishedDropInDates.filter(session => session.isFull === false)
     const dropIn = priceRange(dropInDates.map(session => session.totalCents))
     const utcDays = new Set(dropInDates.map(({ date }) => new Date(date).getUTCDay()))
     const dropInDays = weekdays.filter((_, index) => utcDays.has((index + 1) % weekdays.length))
-    const dropInCapacity = showDropInCapacity ? consistentCapacity(dropInDates) : null
+    // A full session still counts when checking whether the published class has a consistent limit.
+    const dropInCapacity = dropInDates.length ? consistentCapacity(publishedDropInDates) : null
     if (times.length === 0 && monthlyTuition === null && dropIn === null) return null
     return { formId: classItem.formId, name: classItem.displayName, times, monthlyTuition, dropIn, dropInDays, dropInCapacity, dropInExcluded }
   }))

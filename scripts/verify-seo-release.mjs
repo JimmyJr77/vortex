@@ -35,7 +35,7 @@ const live = process.argv.includes('--live')
 const legacyLandingRedirects = JSON.parse(
   readFileSync(join(root, 'src/config/publicLandingRedirects.json'), 'utf8'),
 )
-const { fitAndFlip, fitAndFlipSrcSet, fitAndFlipPreview } = JSON.parse(
+const { fitAndFlip, fitAndFlipSrcSet, fitAndFlipPreview, homepageGallery } = JSON.parse(
   readFileSync(join(root, 'src/config/publicSearchPhotos.json'), 'utf8'),
 )
 const unifiedHosts = new Set([HUB_ORIGIN, GYMNASTICS_ORIGIN]
@@ -1330,12 +1330,17 @@ const verifyHtml = (
     const tumblingSection = html.match(/<section\b[^>]*\sid=["']trampoline-tumbling["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
     assert(/<h2\b[^>]*>Tumbling and trampoline training in Bowie<\/h2>/i.test(tumblingSection),
       `${label}: the old tumbling URL must land on a dedicated section heading`)
+    const floorPhoto = tags(tumblingSection, 'img').find(tag => attribute(tag, 'src') === homepageGallery.springFloor.src)
+    assert(floorPhoto && attribute(floorPhoto, 'loading') === 'lazy' &&
+      attribute(floorPhoto, 'srcset') === homepageGallery.springFloor.srcSet &&
+      attribute(floorPhoto, 'alt') && tags(tumblingSection, 'figcaption').length === 1,
+      `${label}: the tumbling section must show a responsive, captioned photo of the gym`)
     const tumblingLinks = anchorUrls(tumblingSection)
     for (const target of [
       `${canonical}#youth-gymnastics-schedule`, `${canonical}#open-free-trial`, `${canonical}#open-free-trial-class-placement`,
       `${fitAndFlipCanonical}#fit-flip-schedule`, `${fitAndFlipCanonical}#body-control`,
       `${tumblingGuideCanonical}#nearby-tumbling-classes`, `${tumblingGuideCanonical}#nearby-trampoline-gymnastics`,
-      `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`,
+      `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`, `${watchUrl}#gymnastics-skills`,
     ]) {
       assert(tumblingLinks.some(url => url.href === target), `${label}: the tumbling section must link to ${target}`)
     }
