@@ -22,6 +22,7 @@ import { timesheetOptions,listTimesheets,changeTimesheet } from './timesheets.js
 import { weeklyTimesheets,saveWeeklyHours,assignTime } from './weeklyTimesheets.js'
 import { listCrm, loadCrmDetail } from './crm.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
+import { getJobApplication, listJobApplications, setApplicationCacheControl, updateJobApplication } from './jobApplications.js'
 export { registerLegacySchedulingScopeGuards } from './scope.js'
 
 export function permissionMiddleware(pool,permission) {
@@ -101,6 +102,12 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     catch(error){await client.query('ROLLBACK');throw error}finally{client.release()}
   }))
   app.get(`${base}/leads`,allow('members.view'),handler(req=>listLeads(pool,facility(req),req.query)))
+  app.get(`${base}/job-applications`,allow('admin_access.manage'),setApplicationCacheControl,
+    handler(req=>listJobApplications(pool,facility(req),req.query)))
+  app.get(`${base}/job-applications/:id`,allow('admin_access.manage'),setApplicationCacheControl,
+    handler(req=>getJobApplication(pool,facility(req),req.params.id)))
+  app.patch(`${base}/job-applications/:id`,allow('admin_access.manage'),setApplicationCacheControl,
+    handler(req=>updateJobApplication(pool,facility(req),req.params.id,req.body)))
   app.get(`${base}/crm`,allow('members.view'),handler(req=>listCrm(pool,facility(req),req.query)))
   app.get(`${base}/crm/:kind/:id`,allow('members.view'),handler(req=>loadCrmDetail(pool,facility(req),req.params.kind,req.params.id,req.query)))
   app.post(`${base}/leads`,allow('members.edit'),handler(req=>createLead(pool,facility(req),req.body,{userId:req.canonicalAccess.userId})))

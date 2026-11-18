@@ -295,7 +295,7 @@ test.describe('Client-critical smoke flows', () => {
     await expect(visit.getByRole('link', { name: 'See inside the Bowie gym', exact: true }))
       .toHaveAttribute('href', '/contact#inside-the-gym')
     await expect(page.getByRole('link', { name: 'Book a free trial', exact: true })).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('href', '/read-board#schedule')
+    await expect(page.getByRole('link', { name: 'Schedule', exact: true })).toHaveAttribute('href', '/read-board?tab=schedule')
     await page.setViewportSize({ width: 360, height: 740 })
     await page.getByRole('link', { name: 'Explore programs', exact: true }).click()
     await expect(page).toHaveURL('/#starting-classes')
@@ -591,6 +591,21 @@ test.describe('Client-critical smoke flows', () => {
     await expect(classes.getByRole('heading', { name: 'Typhoons (Adult)', exact: true })).toBeVisible()
     await expect(classes.getByRole('link', { name: 'Sign Up', exact: true })).toHaveAttribute('href', '/enroll?form=3')
     await expect(classes.getByText('Unpublished adult class')).toHaveCount(0)
+
+    await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+    await page.getByRole('navigation', { name: 'Mobile navigation' }).getByRole('link', { name: 'Calendar', exact: true }).click()
+    await expect(page).toHaveURL('/read-board?tab=schedule')
+    await expect(scheduleTab).toHaveAttribute('aria-current', 'location')
+    await expect(calendar).toBeVisible()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+
+    await page.setViewportSize({ width: 1280, height: 720 })
+    await page.evaluate(() => window.scrollTo({ top: 300, behavior: 'instant' }))
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0)
+    await page.getByRole('banner').getByRole('link', { name: 'Schedule', exact: true }).click()
+    await expect(page).toHaveURL('/read-board?tab=schedule')
+    await expect(scheduleTab).toHaveAttribute('aria-current', 'location')
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
   })
 
   test('the class board keeps named placement links when the live catalog fails', async ({ page }) => {

@@ -186,7 +186,7 @@
       "permanent": true
     },
     {
-      "source": "/:page(gymnastics|fit-and-flip|adult-gymnastics|read-board|enroll|drop-in|contact|support|store|privacy-policy|terms-of-service|blog|ninja)/index.html",
+      "source": "/:page(gymnastics|fit-and-flip|adult-gymnastics|read-board|enroll|drop-in|contact|jobs|support|store|privacy-policy|terms-of-service|blog|ninja)/index.html",
       "has": [{ "type": "host", "value": "(?:www\\.)?(?:vortexathletics\\.com|vortex-gymnastics\\.com)" }],
       "destination": "https://vortexathletics.com/:page",
       "permanent": true
@@ -469,6 +469,10 @@
     {
       "source": "/contact",
       "destination": "/contact/index.html"
+    },
+    {
+      "source": "/jobs",
+      "destination": "/jobs/index.html"
     },
     {
       "source": "/support",

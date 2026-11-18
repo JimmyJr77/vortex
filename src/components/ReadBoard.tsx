@@ -32,15 +32,21 @@ const TAB_LABELS: { id: TabType; label: string }[] = [
 const ReadBoard = () => {
   const location = useLocation()
   const linkedTab = HASH_TO_TAB[location.hash]
-  const activeTab = linkedTab ?? 'classes'
+  const scheduleRequested = new URLSearchParams(location.search).get('tab') === 'schedule'
+  const activeTab = linkedTab ?? (scheduleRequested ? 'schedule' : 'classes')
+  const openScheduleAtTop = scheduleRequested && !location.hash
 
   useEffect(() => {
-    if (!linkedTab) return
+    if (!linkedTab && !openScheduleAtTop) return
     const frame = requestAnimationFrame(() => {
-      document.getElementById(linkedTab)?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      if (openScheduleAtTop) {
+        window.scrollTo({ top: 0, left: 0, behavior: 'instant' })
+      } else if (linkedTab) {
+        document.getElementById(linkedTab)?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      }
     })
     return () => cancelAnimationFrame(frame)
-  }, [linkedTab, location.key])
+  }, [linkedTab, location.key, openScheduleAtTop])
 
   useEffect(() => {
     if (activeTab === 'schedule') {

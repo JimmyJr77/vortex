@@ -59,6 +59,15 @@ export default function PublicNavigationLinks({ mobile = false, onNavigate }: { 
       {mobile && <ArrowUpRight size={18} aria-hidden="true" />}
     </Link>
     <Link
+      to="/jobs"
+      data-analytics-cta="jobs"
+      data-analytics-section="navigation"
+      onClick={onNavigate}
+    >
+      Jobs
+      {mobile && <ArrowUpRight size={18} aria-hidden="true" />}
+    </Link>
+    <Link
       to={guideIndex.path}
       data-analytics-cta="training_guides"
       data-analytics-section="navigation"

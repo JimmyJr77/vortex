@@ -62,6 +62,7 @@ export const HUB_SITEMAP_ENTRIES = [
     searchPhotos.homepageGallery.trampoline.src, searchPhotos.homepageGallery.strengthEquipment.src,
     ...Object.values(searchPhotos.facilityApparatus).map(photo => photo.src),
   ] },
+  { path: '/jobs', priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-17' },
   { path: '/support', priority: '0.5', changefreq: 'monthly' },
   { path: '/store', priority: '0.5', changefreq: 'weekly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },

@@ -76,6 +76,12 @@ export const HUB_ROUTES: HubRouteSeo[] = [
     ogImageAlt: BUSINESS_FACILITY_PHOTO.alt,
     robots: LARGE_IMAGE_PREVIEW,
   },
+  {
+    path: '/jobs',
+    title: 'Coaching Jobs in Bowie, MD | Vortex Athletics',
+    description:
+      'Apply to coach tumbling, gymnastics, or youth fitness at Vortex Athletics in Bowie, MD. Tell us about your experience training children and your availability.',
+  },
   { path: guideIndex.path, title: guideIndex.title, description: guideIndex.description },
   {
     path: trainingVideo.path,

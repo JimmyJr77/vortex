@@ -1,6 +1,6 @@
 import brandLogo from '../../assets/vortex-athletics-gymnastics-logo.webp'
 import { Fragment, Suspense, useCallback, useEffect, useState } from 'react'
-import { BookOpen, ContactRound, CreditCard, Inbox, RefreshCw, Users, ReceiptText, ChartNoAxesCombined, Home, Menu, X, Clock3, DollarSign } from 'lucide-react'
+import { BookOpen, BriefcaseBusiness, ContactRound, CreditCard, Inbox, RefreshCw, Users, ReceiptText, ChartNoAxesCombined, Home, Menu, X, Clock3, DollarSign } from 'lucide-react'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import type { PortalId } from '../../utils/portalSession'
 import LegacyWorkspaces from './LegacyWorkspaces'
@@ -15,6 +15,7 @@ import type { AccountingWorkspaceState } from './accounting/Accounting'
 const Dashboard = lazyWithRetry(() => import('./EnrollmentDashboard'))
 const Members = lazyWithRetry(() => import('./Members'))
 const Leads = lazyWithRetry(() => import('./Leads'))
+const JobApplications = lazyWithRetry(() => import('./JobApplications'))
 const CRM = lazyWithRetry(() => import('./CRM'))
 const Classes = lazyWithRetry(() => import('./Classes'))
 const Billing = lazyWithRetry(() => import('./BillingWorkspace'))
@@ -22,7 +23,7 @@ const Pricing = lazyWithRetry(() => import('../AdminPricing'))
 const CancellationReview = lazyWithRetry(() => import('../billing/CancellationReviewPanel'))
 const Accounting = lazyWithRetry(() => import('./accounting/Accounting'))
 const Timesheets = lazyWithRetry(() => import('./Timesheets'))
-type Section = LegacySection | 'home' | 'dashboard' | 'accounting' | 'members' | 'classes' | 'leads' | 'crm' | 'billing' | 'timesheets' | 'pricing'
+type Section = LegacySection | 'home' | 'dashboard' | 'accounting' | 'members' | 'classes' | 'leads' | 'jobApplications' | 'crm' | 'billing' | 'timesheets' | 'pricing'
 const descriptions: Record<string, string> = {
   calendar: 'View the facility schedule and event details.',
   floorPlanner: 'Plan classes, locations, and coaches for every day.',
@@ -42,6 +43,7 @@ const descriptions: Record<string, string> = {
   members: 'Manage members, families, and their accounts.',
   classes: 'Manage programs, classes, and schedules.',
   leads: 'Follow up with inquiries and prospective families.',
+  jobApplications: 'Review coaching applicants and update their review status.',
   crm: 'Find people, households, and their class history.',
   billing: 'Review account billing, payments, and enrollments.',
   timesheets: 'Log hours worked and manage coach assignments.',
@@ -54,6 +56,7 @@ const sections = [
   { id: 'members' as const, label: 'Members & accounts', icon: Users, permission: 'members.view' },
   { id: 'classes' as const, label: 'Classes & schedules', icon: BookOpen, permission: 'classes.view' },
   { id: 'leads' as const, label: 'Leads', icon: Inbox, permission: 'members.view' },
+  { id: 'jobApplications' as const, label: 'Job applications', icon: BriefcaseBusiness, permission: 'admin_access.manage' },
   { id: 'crm' as const, label: 'CRM', icon: ContactRound, permission: 'members.view' },
   { id: 'pricing' as const, label: 'Pricing', icon: DollarSign, permission: 'pricing.view' },
   { id: 'billing' as const, label: 'Billing', icon: CreditCard, permission: 'billing.view' },
@@ -62,7 +65,7 @@ const sections = [
 const navigationGroups: { label: string | null; sections: Section[] }[] = [
   { label: null, sections: ['home', 'dashboard'] },
   { label: 'Daily operations', sections: ['calendar', 'classes', 'floorPlanner', 'timesheets'] },
-  { label: 'People & communication', sections: ['members', 'leads', 'crm', 'messaging'] },
+  { label: 'People & communication', sections: ['members', 'leads', 'jobApplications', 'crm', 'messaging'] },
   { label: 'Finance', sections: ['billing', 'accounting'] },
   { label: 'Sales & growth', sections: ['opportunityResearch', 'marketingVisibility', 'pricing', 'store'] },
   { label: 'Content & resources', sections: ['highlightsEvents', 'faqLibrary', 'legal'] },
@@ -185,6 +188,7 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
         {access.data && current?.id === 'accounting' ? <Accounting revision={revision} onBilling={openBilling} workspace={accountingWorkspace} onWorkspaceChange={setAccountingWorkspace} /> : null}
         {access.data && current?.id === 'members' ? <Members access={access.data} revision={revision} selectedId={memberId} selectedFamilyId={familyId} onSelectFamily={setFamilyId} onSelect={setMemberId} onBilling={openBilling} /> : null}
         {access.data && current?.id === 'leads' ? <Leads access={access.data} revision={revision} onOpenMember={openMember} /> : null}
+        {access.data && current?.id === 'jobApplications' ? <JobApplications revision={revision} /> : null}
         {access.data && current?.id === 'crm' ? <CRM access={access.data} revision={revision} onMember={openMember} onFamily={openFamily} /> : null}
         {access.data && current?.id === 'classes' ? <Classes access={access.data} revision={revision} onMember={openMember} /> : null}
         {access.data && current?.id === 'timesheets' ? <Timesheets revision={revision} access={access.data} /> : null}

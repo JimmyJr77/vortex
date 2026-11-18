@@ -108,6 +108,12 @@
     </image:image>
   </url>
   <url>
+    <loc>https://vortexathletics.com/jobs</loc>
+    <lastmod>2026-11-17</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://vortexathletics.com/support</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>

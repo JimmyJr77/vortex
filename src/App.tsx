@@ -52,6 +52,7 @@ const LazyDropInPage = lazyWithRetry(publicPageLoaders.dropIn.load)
 const LazyTrainingWatchPage = lazyWithRetry(publicPageLoaders.trainingWatch.load)
 const publicGuideRoutes = publicGuideLoaders.map(({ path, load }) => ({ path, Component: lazyWithRetry(load) }))
 const LazyContactLocationPage = lazyWithRetry(publicPageLoaders.contact.load)
+const LazyJobsPage = lazyWithRetry(publicPageLoaders.jobs.load)
 const LazySupportPage = lazyWithRetry(publicPageLoaders.support.load)
 const LazyPrivacyPolicyPage = lazyWithRetry(publicPageLoaders.privacyPolicy.load)
 const LazyTermsOfServicePage = lazyWithRetry(publicPageLoaders.termsOfService.load)
@@ -90,6 +91,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
   const SchedulingPage = pageSnapshot?.path === publicPageLoaders.enroll.path ? pageSnapshot.Component : LazySchedulingPage
   const DropInPage = pageSnapshot?.path === publicPageLoaders.dropIn.path ? pageSnapshot.Component : LazyDropInPage
   const ContactLocationPage = pageSnapshot?.path === publicPageLoaders.contact.path ? pageSnapshot.Component : LazyContactLocationPage
+  const JobsPage = pageSnapshot?.path === publicPageLoaders.jobs.path ? pageSnapshot.Component : LazyJobsPage
   const Storefront = pageSnapshot?.path === publicPageLoaders.store.path ? pageSnapshot.Component : LazyStorefront
   const SupportPage = pageSnapshot?.path === publicPageLoaders.support.path ? pageSnapshot.Component : LazySupportPage
   const PrivacyPolicyPage = pageSnapshot?.path === publicPageLoaders.privacyPolicy.path ? pageSnapshot.Component : LazyPrivacyPolicyPage
@@ -130,6 +132,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
     || publicGuideRoutes.some(({ path }) => Boolean(matchPath(path, location.pathname)))
     || Boolean(matchPath(publicPageLoaders.trainingWatch.path, location.pathname))
     || Boolean(matchPath(publicPageLoaders.contact.path, location.pathname))
+    || Boolean(matchPath(publicPageLoaders.jobs.path, location.pathname))
     || isEnrollmentPage
     || ['/read-board', '/drop-in'].some(path => Boolean(matchPath(path, location.pathname)))
   // Clear any inline overlay scroll lock when returning to the public website.
@@ -429,6 +432,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             path={publicPageLoaders.contact.path}
             element={<ContactLocationPage onInquireClick={handleContactClick} />}
           />
+          <Route path={publicPageLoaders.jobs.path} element={<JobsPage />} />
           <Route path="/signup/lead" element={<SignupLeadPage />} />
           <Route
             path="/signup/family"

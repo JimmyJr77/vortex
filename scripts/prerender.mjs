@@ -28,7 +28,7 @@ const rootDir = join(__dirname, '..')
 const distDir = join(rootDir, 'dist')
 // These initial views use Inter. The homepage gallery uses Oswald farther down.
 const displayFontNotNeededAtStart = new Set([
-  '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path, '/contact',
+  '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, PUBLIC_TRAINING_VIDEO.path, '/contact', '/jobs',
 ])
 const publicPagePaths = new Set(HUB_SITEMAP_ENTRIES.map(({ path }) => path))
 let previewPort = 0

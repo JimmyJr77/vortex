@@ -33,6 +33,7 @@ export const publicPageLoaders = {
   enroll: publicPage('/enroll', () => import('../components/SchedulingPage')),
   dropIn: publicPage('/drop-in', () => import('../components/DropInPage')),
   contact: publicPage('/contact', () => import('../components/ContactLocationPage')),
+  jobs: publicPage('/jobs', () => import('../components/newpage/JobsPage')),
   store: publicPage('/store', () => import('../components/store/Storefront'), true),
   support: publicPage('/support', () => import('../components/legal/SupportPage'), true),
   privacyPolicy: publicPage('/privacy-policy', () => import('../components/legal/PrivacyPolicyPage'), true),

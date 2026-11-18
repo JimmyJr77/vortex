@@ -46,14 +46,14 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     <ErrorNotice message={data.error} onRetry={refresh} />
     {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="rounded-xl border border-slate-200 bg-white">
       {data.data.rows.length ? <div className="overflow-x-auto rounded-t-xl">
-        <table className="w-full min-w-[60rem] table-fixed text-sm">
+        <table className="w-full min-w-[76rem] table-fixed text-sm">
           <colgroup>
             <col span={2} className="w-[4.25rem]" />
-            <col className="w-[18%]" />
-            <col className="w-[23%]" />
+            <col className="w-[15%]" />
+            <col className="w-[19%]" />
             <col className="w-28" />
             <col />
-            <col className="w-40" />
+            <col className="w-96" />
           </colgroup>
           <thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>
             <th scope="col" className={`${checkboxCell} !text-[10px]`}>Contacted</th>
@@ -76,7 +76,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
               <td className={`${cell} [overflow-wrap:anywhere]`}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
               <td className={`${cell} [overflow-wrap:anywhere]`}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">Invitation {lead.invitation.status}</p>}</td>
               <td className={`${cell} [overflow-wrap:anywhere]`}><KidDetails children={lead.inquiry?.campers || []} /></td>
-              <td className={cell}><div className="flex flex-wrap items-start gap-1 [&_button]:whitespace-nowrap [&_button]:px-1.5 [&_button]:!text-xs">
+              <td className={cell}><div className="flex items-start gap-1 [&_button]:whitespace-nowrap [&_button]:px-1.5 [&_button]:!text-xs">
                 <button className={button} onClick={() => setNotes(lead)}>Notes</button>
                 {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}
                 {canManage && !lead.archived && (lead.invitation || !lead.matchedMemberId) ? <button className={button} onClick={() => setConvert(lead)}>{lead.invitation ? 'Registration invitation' : 'Convert'}</button> : null}

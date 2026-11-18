@@ -15,6 +15,7 @@ export const HUB_NAV_MENU_ENTRIES: HubNavMenuEntry[] = [
   { kind: 'item', label: guideIndex.label, to: guideIndex.path },
   { kind: 'item', label: 'Drop-In Classes', to: '/drop-in', indented: true },
   { kind: 'item', label: 'Contact & Location', to: '/contact' },
+  { kind: 'item', label: 'Jobs', to: '/jobs' },
   { kind: 'item', label: 'Store', to: '/store' },
   { kind: 'specialPages' },
   { kind: 'divider' },

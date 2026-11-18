@@ -26,7 +26,7 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false, ho
   const scheduleLink = (mobile: boolean) => (
     <Link
       className={mobile ? undefined : 'np-nav-schedule'}
-      to="/read-board#schedule"
+      to="/read-board?tab=schedule"
       aria-label={mobile ? undefined : 'Schedule'}
       title={mobile ? undefined : 'Schedule'}
       data-analytics-cta="schedule"

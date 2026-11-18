@@ -533,11 +533,11 @@ const verifyHtml = (
   const pageIds = new Set([...html.matchAll(/\sid=["']([^"']+)["']/g)].map((match) => match[1]))
   const usesLegacyHeader = HUB_LEGACY_CHROME_PATHS.includes(pagePath)
   if (shouldIndex && (usesLegacyHeader || [
-    '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in', '/contact',
+    '/', ...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, ...HUB_ARTICLE_PATHS, '/read-board', '/enroll', '/drop-in', '/contact', '/jobs',
   ].includes(pagePath))) {
     const navigation = html.match(/<nav\b[^>]*\baria-label=["']Main navigation["'][^>]*>[\s\S]*?<\/nav>/i)?.[0] ?? ''
     const links = anchorUrls(navigation)
-    const expectedPaths = [...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH]
+    const expectedPaths = [...HUB_PROGRAM_PATHS, HUB_GUIDE_INDEX_PATH, '/jobs']
     if (!usesLegacyHeader) expectedPaths.push('/#programs', '/contact')
     for (const path of expectedPaths) {
       assert(links.filter((url) => url.href === canonicalFor(HUB_ORIGIN, path)).length === 1,
