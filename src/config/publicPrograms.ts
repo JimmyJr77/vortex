@@ -278,12 +278,13 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'trampoline-tumbling',
             heading: 'Trampoline gymnastics and tumbling',
-            description: 'Trampoline gymnastics teaches athletes to control jumps and landings. Double mini adds a running approach and a dismount onto a mat. Power tumbling uses a spring runway to connect skills. Developmental gymnastics teaches beginner tumbling, and Fit & Flip uses trampoline and tumble-track drills alongside strength work for ages 8–15. Tell us your child’s age and experience if you want us to check options for a specific event or evaluation.',
+            description: 'For beginner floor tumbling, Tornadoes teaches rolls, cartwheels, and round-offs in a developmental gymnastics class for ages 6 and up. Fit & Flip uses trampoline and tumble-track drills alongside strength work for ages 8–15. If your child wants to work on a specific event such as competitive trampoline, double mini, or power tumbling, share their age and experience so we can check coaching and evaluation options.',
             links: [
+              { href: '/gymnastics#youth-gymnastics-schedule', label: 'Check Tornadoes class times and prices', analyticsKey: 'read_youth_gymnastics_schedule' },
               { href: '/fit-and-flip#body-control', label: 'See trampoline and tumbling in Fit & Flip', analyticsKey: 'read_fit_flip_body_control' },
+              { href: contactInquiryHref('trampoline-tumbling'), label: 'Ask about trampoline and tumbling coaching', analyticsKey: 'inquire_trampoline_gymnastics' },
               { ...TUMBLING_GUIDE_ACTION, href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-tumbling-classes`, label: 'Compare tumbling classes near Bowie' },
               { href: `${GYMNASTICS_VS_TUMBLING_GUIDE.path}#nearby-trampoline-gymnastics`, label: 'Compare coached trampoline gymnastics near Bowie', analyticsKey: 'read_trampoline_gymnastics_guide' },
-              { href: contactInquiryHref('trampoline-tumbling'), label: 'Ask about trampoline gymnastics options', analyticsKey: 'inquire_trampoline_gymnastics' },
             ],
           },
         ],
@@ -369,7 +370,10 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
             id: 'body-control',
             heading: 'Body control and tumbling',
             description: 'Coaches use trampolines and tumble tracks to teach athletes how to hold a body shape and land steadily. Beginners can start with those skills and work toward connected tumbling as their control improves.',
-            link: TUMBLING_GUIDE_ACTION,
+            links: [
+              { href: '/fit-and-flip#fit-flip-schedule', label: 'Check Fit & Flip class times and prices', analyticsKey: 'read_fit_flip_schedule' },
+              TUMBLING_GUIDE_ACTION,
+            ],
           },
         ],
       },

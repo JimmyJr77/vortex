@@ -805,6 +805,9 @@ const verifyHtml = (
         `${label}: first-time families must have crawlable links to ask about class access and compare adaptive options`)
     }
     if (pagePath === '/fit-and-flip') {
+      const bodyControl = mainHtml.match(/<article\b[^>]*\sid=["']body-control["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
+      assert(anchorUrls(bodyControl).some(url => url.href === `${canonical}#fit-flip-schedule`),
+        `${label}: the body control and tumbling topic must link to the current Fit & Flip schedule`)
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#compare-athletic-training`),
         `${label}: Fit & Flip must link to the Bowie youth athletic training comparison`)
       assert(mainLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#youth-team-training`),
@@ -1275,7 +1278,7 @@ const verifyHtml = (
       ['acro', [`${HUB_ORIGIN}/contact?topic=acrobatic-gymnastics#inquiry`]],
       ['aerobic', [`${HUB_ORIGIN}/contact?topic=aerobic-gymnastics#inquiry`]],
       ['trampoline-tumbling', [
-        `${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`,
+        `${canonical}#youth-gymnastics-schedule`, `${fitAndFlipCanonical}#body-control`, `${tumblingGuideCanonical}#nearby-tumbling-classes`,
         `${tumblingGuideCanonical}#nearby-trampoline-gymnastics`, `${HUB_ORIGIN}/contact?topic=trampoline-tumbling#inquiry`,
       ]],
     ]
