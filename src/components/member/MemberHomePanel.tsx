@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import type { ComponentType } from 'react'
 import type { MemberTab } from '../MemberDashboard'
+import { GOOGLE_REVIEW_URL } from '../../config/contact'
 import {
   MEMBER_PORTAL_HOME_CARD_COPY,
   MEMBER_PORTAL_TAB_OPTIONS,
@@ -83,6 +84,12 @@ export default function MemberHomePanel({
           )
         })}
       </div>
+      <p className="text-sm text-gray-600">
+        Have you or your child taken a class at Vortex?{' '}
+        <a href={GOOGLE_REVIEW_URL} target="_blank" rel="noreferrer" className="font-semibold text-vortex-red underline underline-offset-2">
+          Share your experience on Google
+        </a>.
+      </p>
     </div>
   )
 }
