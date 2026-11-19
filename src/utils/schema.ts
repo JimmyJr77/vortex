@@ -23,6 +23,7 @@ import { YOUTH_TRAINING_FAQS } from '../config/youthTrainingFaqs'
 import { GYMNASTICS_ORIGIN } from '../config/gymnasticsSeo'
 import { ENROLL_PATH } from '../config/enrollSites'
 import { PUBLIC_PROGRAMS } from '../config/publicPrograms'
+import { NINJA_PROGRAM_ON_HOLD } from './ninjaProgram'
 import { buildCanonical, HUB_ORIGIN, SITE_NAME } from './seo'
 
 /** Any JSON-LD object (loosely typed; serialized into a <script> tag). */
@@ -303,7 +304,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
   }
 
   const breadcrumbName: Record<string, string> = {
-    '/ninja': 'Kids Ninja Classes',
+    '/ninja': NINJA_PROGRAM_ON_HOLD ? 'Ninja Program Status' : 'Kids Ninja Classes',
     '/vortex-athletics': 'Vortex Athletics',
     '/summer-athletic-training': 'Summer Athletic Training',
     '/value': 'Why Vortex',
@@ -363,7 +364,7 @@ export const getHubSchema = (pathname: string): JsonLd[] => {
       },
     })
   }
-  if (pathname === '/ninja') {
+  if (pathname === '/ninja' && !NINJA_PROGRAM_ON_HOLD) {
     schema.push(
       courseSchema({
         name: 'Kids Ninja Classes',

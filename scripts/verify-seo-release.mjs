@@ -473,6 +473,12 @@ const verifyHtml = (
       holdLinks.some(url => url.href === `${HUB_ORIGIN}${BOWIE_YOUTH_SPORTS_GUIDE_PATH}#parkour-and-ninja`) &&
       !holdLinks.some(url => url.pathname === '/enroll' || url.pathname === '/read-board'),
       `${label}: the held Ninja page must show its status and link to available alternatives`)
+    const heldSchemaTypes = jsonLd.flatMap(raw => {
+      const type = JSON.parse(raw)['@type']
+      return Array.isArray(type) ? type : [type]
+    })
+    assert(!heldSchemaTypes.includes('Course'),
+      `${label}: the held Ninja page must not advertise an active course in structured data`)
   }
   if (shouldIndex && pageUrl.origin === HUB_ORIGIN) {
     const viewport = tags(html, 'meta').find(tag => attribute(tag, 'name') === 'viewport')
