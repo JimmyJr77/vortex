@@ -3,7 +3,6 @@ import { expect, test } from '@playwright/test'
 test('gymnastics discipline links carry an editable topic into the public inquiry', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const topics = [
-    { hash: 'rhythmic', topic: 'rhythmic-gymnastics', link: 'Ask about rhythmic gymnastics coaching', message: 'I’d like to ask about rhythmic gymnastics coaching.' },
     { hash: 'acro', topic: 'acrobatic-gymnastics', link: 'Ask about partner and group acro', message: 'I’d like to ask about partner and group acro.' },
     { hash: 'aerobic', topic: 'aerobic-gymnastics', link: 'Ask about aerobic gymnastics routines', message: 'I’d like to ask about aerobic gymnastics routines.' },
   ]

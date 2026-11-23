@@ -322,8 +322,8 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
           {
             id: 'rhythmic',
             heading: 'Rhythmic gymnastics',
-            description: 'Rhythmic routines combine dance and balance with hand apparatus such as a hoop or ribbon. Tell us which apparatus your child wants to use and what experience they have so we can check coaching and evaluation options.',
-            link: { href: contactInquiryHref('rhythmic-gymnastics'), label: 'Ask about rhythmic gymnastics coaching', analyticsKey: 'inquire_rhythmic_gymnastics' },
+            description: 'Vortex introduces rhythmic gymnastics elements within coached gymnastics classes. Choose a class by your child’s age and gymnastics or tumbling experience.',
+            link: { href: '/gymnastics#choose-a-class', label: 'Find a starting gymnastics class', analyticsKey: 'read_gymnastics_placement' },
           },
           {
             id: 'acro',

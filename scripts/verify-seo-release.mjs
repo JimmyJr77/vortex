@@ -1330,7 +1330,7 @@ const verifyHtml = (
       `${label}: youth gymnastics must link adult readers to the Typhoons trial path`)
     const disciplineLinks = [
       ['artistic', [`${canonical}#choose-a-class`, `${tumblingGuideCanonical}#boys-gymnastics`]],
-      ['rhythmic', [`${HUB_ORIGIN}/contact?topic=rhythmic-gymnastics#inquiry`]],
+      ['rhythmic', [`${canonical}#choose-a-class`]],
       ['acro', [`${HUB_ORIGIN}/contact?topic=acrobatic-gymnastics#inquiry`]],
       ['aerobic', [`${HUB_ORIGIN}/contact?topic=aerobic-gymnastics#inquiry`]],
     ]
