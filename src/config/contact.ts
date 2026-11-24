@@ -41,7 +41,7 @@ export const JACKRABBIT_CLASS_REGISTRATION_URL =
 export const BUSINESS_NAP = {
   // Match the public Google Business Profile exactly so search engines can
   // reconcile the website, map listing, and citations as one local entity.
-  name: 'Vortex Athletics and Gymnastics',
+  name: 'Vortex Athletics & Gymnastics',
   streetAddress: '4961 Tesla Dr Suite E',
   addressLocality: 'Bowie',
   addressRegion: 'MD',
@@ -71,7 +71,7 @@ export const BUSINESS_FACILITY_PHOTO = {
   srcSet: '/gym-DSC02636-768.webp 768w, /gym-DSC02636-1080.webp 1080w, /gym-DSC02636-1600.webp 1600w',
   width: 1600,
   height: 1066,
-  alt: 'Gymnastics equipment inside Vortex Athletics and Gymnastics in Bowie, Maryland',
+  alt: `Gymnastics equipment inside ${BUSINESS_NAP.name} in Bowie, Maryland`,
 } as const
 
 export const INSIDE_THE_GYM_ID = 'inside-the-gym'

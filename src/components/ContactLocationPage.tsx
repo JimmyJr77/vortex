@@ -135,7 +135,7 @@ export default function ContactLocationPage({ onInquireClick }: ContactLocationP
     <section className="np-contact-section np-contact-hero">
       <div className="np-container">
         <p className="np-eyebrow">Visit Vortex</p>
-        <h1>Contact Vortex Athletics in Bowie, MD</h1>
+        <h1>Contact {BUSINESS_NAP.name} in Bowie, MD</h1>
         <p className="np-contact-intro">
           Questions about <Link to="/gymnastics">youth gymnastics</Link>,{' '}
           <Link to="/fit-and-flip">Fit &amp; Flip youth fitness classes</Link>, or{' '}

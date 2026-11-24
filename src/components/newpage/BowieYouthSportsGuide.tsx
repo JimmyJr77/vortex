@@ -3,6 +3,7 @@ import { ArrowUpRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
 import { ATHLETIC_DEVELOPMENT_GUIDE } from '../../config/athleticDevelopmentGuide'
 import { BOWIE_YOUTH_SPORTS_GUIDE } from '../../config/bowieYouthSportsGuide'
+import { BUSINESS_NAP } from '../../config/contact'
 import { GYMNASTICS_VS_TUMBLING_GUIDE } from '../../config/gymnasticsVsTumblingGuide'
 import { PRESCHOOL_GYMNASTICS_GUIDE } from '../../config/preschoolGymnasticsGuide'
 import { DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
@@ -139,7 +140,7 @@ export default function BowieYouthSportsGuide() {
           </p>
           <ul>
             <li>
-              <strong>Vortex Athletics and Gymnastics in Bowie.</strong> We offer caregiver classes for ages 2–3 and
+              <strong>{BUSINESS_NAP.name} in Bowie.</strong> We offer caregiver classes for ages 2–3 and
               preschool gymnastics for ages 4–5. Beginners ages 6–17 can look for a Tornadoes trial. Gymnasts in
               that age range who’ve taken classes before can look for a Trial Assessment to find a starting level.{' '}
               <Link to="/gymnastics">Compare Vortex gymnastics classes by age and level</Link> ·{' '}

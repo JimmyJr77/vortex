@@ -113,7 +113,7 @@ export const HUB_PRERENDER_PATHS = [
 ]
 
 export const DEFAULT_OG_IMAGE = `${HUB_ORIGIN}/vortex-athletics-og.jpg`
-export const SITE_NAME = 'Vortex Athletics'
+export const SITE_NAME = 'Vortex Athletics & Gymnastics'
 
 /** Retired domain retained only to verify redirects to the unified website. */
 export const GYMNASTICS_ORIGIN = 'https://www.vortex-gymnastics.com'

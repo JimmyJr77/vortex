@@ -1,7 +1,7 @@
 import { useRef, useState, type MouseEventHandler } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, CalendarDays, Menu, X } from 'lucide-react'
-import { SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
+import { BUSINESS_NAP, SOCIAL_PROFILES, TEAM_EMAIL, TEAM_PHONE, TEAM_PHONE_E164 } from '../../config/contact'
 import { TRIAL_NAVIGATION_ANCHOR } from '../../config/publicCatalog'
 import { useSiteHeaderHeight } from '../../hooks/useSiteHeaderHeight'
 import PublicBrandImage from './PublicBrandImage'
@@ -9,7 +9,7 @@ import PublicNavigationLinks from './PublicNavigationLinks'
 import './PublicSiteChrome.css'
 
 function PublicBrand({ footer = false }: { footer?: boolean }) {
-  return <Link className="np-brand" to="/" aria-label="Vortex Athletics, home"><PublicBrandImage footer={footer} /></Link>
+  return <Link className="np-brand" to="/" aria-label={`${BUSINESS_NAP.name}, home`}><PublicBrandImage footer={footer} /></Link>
 }
 
 export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false, homeTrial }: {
@@ -50,7 +50,7 @@ export function PublicSiteHeader({ isLoggedIn, onLogin, adultProgram = false, ho
       menuToggleRef.current?.focus({ preventScroll: true })
     }}>
       <div className="np-container np-nav">
-        {homeTrial ? <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><PublicBrandImage /></a> : <PublicBrand />}
+        {homeTrial ? <a className="np-brand" href="#top" aria-label={`${BUSINESS_NAP.name}, back to top`}><PublicBrandImage /></a> : <PublicBrand />}
         <nav className="np-desktop-nav" aria-label="Main navigation">
           <PublicNavigationLinks />
         </nav>
@@ -95,6 +95,6 @@ export function PublicSiteFooter() {
       <div><span className="np-footer-label">STAY CONNECTED</span><a href={SOCIAL_PROFILES[0]} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={14} /></a><a href={SOCIAL_PROFILES[2]} target="_blank" rel="noreferrer">YouTube <ArrowUpRight size={14} /></a></div>
       <Link className="np-back-top" to="/">Back to home <ArrowUpRight size={17} /></Link>
     </div>
-    <div className="np-footer-bottom"><span>© {new Date().getFullYear()} Vortex Athletics and Gymnastics</span><div><Link to="/privacy-policy">Privacy</Link><Link to="/terms-of-service">Terms</Link></div></div>
+    <div className="np-footer-bottom"><span>© {new Date().getFullYear()} {BUSINESS_NAP.name}</span><div><Link to="/privacy-policy">Privacy</Link><Link to="/terms-of-service">Terms</Link></div></div>
   </footer>
 }

@@ -1,6 +1,6 @@
 /** Canonical hub origin. Production redirects the www host to this apex host. */
 export const HUB_ORIGIN = 'https://vortexathletics.com'
-export const SITE_NAME = 'Vortex Athletics'
+export const SITE_NAME = 'Vortex Athletics & Gymnastics'
 /** Header wordmark on vortexathletics.com and sport stub sites (not gymnastics). */
 export const HUB_HEADER_LOGO = '/vortex-athletics-logo.webp'
 export const DEFAULT_OG_IMAGE = `${HUB_ORIGIN}/vortex-athletics-og.jpg`

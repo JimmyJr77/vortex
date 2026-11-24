@@ -52,7 +52,7 @@ internal links, GBP links, Search Console submissions, or citations.
 
 ## Local entity source of truth
 
-- Name: **Vortex Athletics and Gymnastics**
+- Name: **Vortex Athletics & Gymnastics**
 - Address: **4961 Tesla Dr Suite E, Bowie, MD 20715**
 - Phone: **+1 (443) 422-4794**
 - Google Maps CID: `https://www.google.com/maps?cid=15262285316302188709`
@@ -254,7 +254,7 @@ for HTTP 301 on sample pages.
 
 ### Google Business Profile
 
-1. Keep the public name exactly **Vortex Athletics and Gymnastics**; do not add
+1. Keep the public name exactly **Vortex Athletics & Gymnastics**; do not add
    search keywords to the name unless they are part of real-world signage and
    branding.
 2. Keep **Gymnastics center** as the primary category while gymnastics remains

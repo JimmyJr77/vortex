@@ -149,7 +149,7 @@ const goals = [
 const faqs = HOME_FAQS.map(({ question, answer }) => [question, answer] as const)
 
 function Brand({ footer = false }: { footer?: boolean }) {
-  return <a className="np-brand" href="#top" aria-label="Vortex Athletics, back to top"><PublicBrandImage footer={footer} /></a>
+  return <a className="np-brand" href="#top" aria-label={`${BUSINESS_NAP.name}, back to top`}><PublicBrandImage footer={footer} /></a>
 }
 
 function TrainingVideo({ paused, onPlaybackChange, onAutoplayBlocked, poster, full = false }: {
@@ -513,7 +513,7 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
           <a className="np-back-top" href="#top">Back to top <ArrowUpRight size={17} /></a>
         </div>
         <div className="np-footer-bottom">
-          <span>© {new Date().getFullYear()} Vortex Athletics and Gymnastics</span>
+          <span>© {new Date().getFullYear()} {BUSINESS_NAP.name}</span>
           <div>
             <Link to="/privacy-policy">Privacy</Link>
             <Link to="/terms-of-service">Terms</Link>

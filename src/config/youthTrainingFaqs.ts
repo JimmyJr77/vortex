@@ -1,4 +1,5 @@
 import type { Faq } from './faqs'
+import { BUSINESS_NAP } from './contact'
 
 /**
  * Youth-performance questions rendered on /vortex-athletics and mirrored in
@@ -28,7 +29,7 @@ export const YOUTH_TRAINING_FAQS: Faq[] = [
   {
     question: 'Where is Vortex youth athletic training located?',
     answer:
-      'Training takes place at Vortex Athletics and Gymnastics, 4961 Tesla Dr Suite E, Bowie, MD 20715, near Routes 50 and 3.',
+      `Training takes place at ${BUSINESS_NAP.name}, 4961 Tesla Dr Suite E, Bowie, MD 20715, near Routes 50 and 3.`,
   },
   {
     question: 'How can I find a youth training class?',

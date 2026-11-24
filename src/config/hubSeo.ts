@@ -69,9 +69,9 @@ export const HUB_ROUTES: HubRouteSeo[] = [
   },
   {
     path: '/contact',
-    title: 'Contact Vortex Athletics | Bowie, MD Gym & Training',
+    title: `Contact ${BUSINESS_NAP.name} | Bowie, MD`,
     description:
-      `Get directions to Vortex Athletics at ${BUSINESS_NAP.streetAddress} in Bowie, MD. See gym photos, check hours, and ask about your first class.`,
+      `Get directions to ${BUSINESS_NAP.name} at ${BUSINESS_NAP.streetAddress} in Bowie, MD. See gym photos, check hours, and ask about your first class.`,
     ogImage: `${HUB_ORIGIN}${BUSINESS_FACILITY_PHOTO.src}`,
     ogImageAlt: BUSINESS_FACILITY_PHOTO.alt,
     robots: LARGE_IMAGE_PREVIEW,
@@ -100,27 +100,27 @@ export const HUB_ROUTES: HubRouteSeo[] = [
   }),
   {
     path: '/support',
-    title: 'Customer Support | Vortex Athletics',
+    title: `Customer Support | ${BUSINESS_NAP.name}`,
     description:
-      `Contact Vortex Athletics in Bowie, MD for enrollment, billing, and program support. Email ${TEAM_EMAIL} or call ${TEAM_PHONE}.`,
+      `Contact ${BUSINESS_NAP.name} in Bowie, MD for enrollment, billing, and program support. Email ${TEAM_EMAIL} or call ${TEAM_PHONE}.`,
   },
   {
     path: '/store',
-    title: 'Vortex Athletics Store | Training Gear in Bowie, MD',
+    title: `${BUSINESS_NAP.name} Store | Bowie, MD`,
     description:
-      'Shop training gear and essentials for Vortex athletes. Order online and pick up at Vortex Athletics and Gymnastics in Bowie, MD.',
+      `Shop training gear and essentials for Vortex athletes. Order online and pick up at ${BUSINESS_NAP.name} in Bowie, MD.`,
   },
   {
     path: '/privacy-policy',
-    title: 'Privacy Policy | Vortex Athletics',
+    title: `Privacy Policy | ${BUSINESS_NAP.name}`,
     description:
-      'How Vortex Athletics collects, uses, discloses, and protects personal information for enrollment, billing, and member services.',
+      `How ${BUSINESS_NAP.name} collects, uses, discloses, and protects personal information for enrollment, billing, and member services.`,
   },
   {
     path: '/terms-of-service',
-    title: 'Terms of Service | Vortex Athletics',
+    title: `Terms of Service | ${BUSINESS_NAP.name}`,
     description:
-      'Terms governing use of Vortex Athletics websites, enrollment, billing, and program participation in Bowie, MD.',
+      `Terms governing use of ${BUSINESS_NAP.name} websites, enrollment, billing, and program participation in Bowie, MD.`,
   },
 ]
 
@@ -130,7 +130,7 @@ export const getHubSeoForPath = (pathname: string): SeoMeta => {
   const route = routeMap.get(pathname)
   if (!route) {
     return {
-      title: `Vortex Athletics | Bowie, MD`,
+      title: `${BUSINESS_NAP.name} | Bowie, MD`,
       description: HUB_HOME_SEO.description,
       canonical: buildCanonical(HUB_ORIGIN, pathname),
       robots: 'noindex, follow',

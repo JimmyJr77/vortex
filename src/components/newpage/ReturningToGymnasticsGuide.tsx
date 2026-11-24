@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { ArrowUpRight } from 'lucide-react'
 import { Link, useLocation } from 'react-router-dom'
-import { BUSINESS_FACILITY_PHOTO, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from '../../config/contact'
+import { BUSINESS_FACILITY_PHOTO, BUSINESS_NAP, CONTACT_INQUIRY_PATH, GYMNASTICS_EQUIPMENT_PATH } from '../../config/contact'
 import { RETURNING_TO_GYMNASTICS_GUIDE } from '../../config/returningToGymnasticsGuide'
 import { ADULT_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import GuideBreadcrumb from './GuideBreadcrumb'
@@ -76,7 +76,7 @@ export default function ReturningToGymnasticsGuide() {
           </p>
           <ul>
             <li>
-              <strong>Vortex Athletics in Bowie.</strong> Typhoons is a 90-minute coached class for ages 18 and up
+              <strong>{BUSINESS_NAP.name} in Bowie.</strong> Typhoons is a 90-minute coached class for ages 18 and up
               that combines conditioning, mobility, and introductory acrobatics. Beginners and returning gymnasts
               can reserve one class or enroll weekly.{' '}
               <Link to={ADULT_DROP_IN_HREF}>See Typhoons drop-in dates</Link>

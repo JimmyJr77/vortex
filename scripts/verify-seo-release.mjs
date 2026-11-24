@@ -1578,7 +1578,7 @@ const verifyHtml = (
       assert(location?.url === locationUrl && location.mainEntityOfPage === locationUrl,
         `${label}: SportsActivityLocation must identify the shared Bowie location`)
       assert(
-        location?.name === 'Vortex Athletics and Gymnastics',
+        location?.name === 'Vortex Athletics & Gymnastics',
         `${label}: local business name does not match the Google Business Profile`,
       )
       assert(
