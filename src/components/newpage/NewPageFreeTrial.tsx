@@ -260,17 +260,17 @@ export default function NewPageFreeTrial({
               ? 'The Cyclones trial groups cover ages 8–11 and 12–15. Our team can help find an option for your athlete.'
               : `There aren’t any published ${programName} trial dates for this age in the current schedule. Contact us and we’ll help you find their starting point.`}
           </p>
-          {availability && program === 'fit-flip' && (age === 6 || age === 7) && (
+          {availability && program === 'fit-flip' && age !== null && age >= 6 && age <= 17 && (age < 8 || age > 15) && (
             <p>
-              Ages 6–7 can try Tornadoes, a beginner gymnastics class that teaches rolls, cartwheels, and controlled landings.{' '}
+              Gymnastics classes for ages 6–17 teach floor-tumbling skills. Beginners can look for Tornadoes; athletes with gymnastics or tumbling experience start with a Trial Assessment.{' '}
               <Link
                 className="font-semibold underline underline-offset-4"
-                to="/gymnastics#first-visit"
+                to="/gymnastics#choose-a-class"
                 onClick={onDone}
-                data-analytics-cta="read_first_visit"
+                data-analytics-cta="read_gymnastics_placement"
                 data-analytics-section="trial"
               >
-                Find a beginner gymnastics trial
+                Find a gymnastics starting class
               </Link>.
             </p>
           )}

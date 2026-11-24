@@ -70,9 +70,9 @@ const programs = {
     name: 'Fit & Flip', eyebrow: 'ATHLETIC DEVELOPMENT. WITH AN EDGE.',
     image: searchPhotos.fitAndFlip, alt: 'A Vortex athlete developing aerial body control on a trampoline',
     summary: 'Get stronger. Become more explosive. Learn to own your movement—on the floor, in the air, and in your sport.',
-    detail: 'Athletic development built around the Triad of Athleticism: Strength, Explosiveness, and Body Control. Purposeful strength and power training meets gymnastics-inspired tumbling and movement for athletes across sports.',
+    detail: 'Athletic development for ages 8–15, built around the Triad of Athleticism: Strength, Explosiveness, and Body Control. Purposeful strength and power training meets gymnastics-inspired tumbling and movement for athletes across sports.',
     points: ['Strength and explosiveness to support more powerful movement and tumbling.', 'Gymnastics-inspired body control, coordination, aerial awareness, and landing mechanics.', 'For cheer, acro, dance, gymnasts seeking extra physical development, and athletes in every sport.'],
-    audience: 'For cheer, acro, dance, gymnasts, and all-sport athletes.',
+    audience: 'For ages 8–15: cheer, acro, dance, gymnasts, and all-sport athletes.',
     tags: ['Strength & explosiveness', 'Tumbling & body control'], page: '/fit-and-flip', linkText: 'Explore Fit & Flip youth training',
     href: PUBLIC_PROGRAMS['/fit-and-flip'].primaryAction.href,
   },
@@ -140,10 +140,10 @@ const triad = [
 ] as const
 
 const goals = [
-  { title: 'Learn and progress in gymnastics', subtitle: 'Foundations, skills, developmental or team training', program: 'gymnastics' as Program, text: 'Start with Gymnastics. Build a broad technical foundation and the physical qualities to keep progressing. Developmental and team athletes share the same commitment to meaningful growth.' },
-  { title: 'Build stronger, more powerful tumbling', subtitle: 'Cheer, acro, dance, and tumbling athletes', program: 'fit-flip' as Program, text: 'Start with Fit & Flip. Develop the strength and explosiveness behind your tumbling, alongside the body control to connect and refine your movement.' },
-  { title: 'Become a better all-around athlete', subtitle: 'Football, soccer, basketball, and every sport', program: 'fit-flip' as Program, text: 'Start with Fit & Flip. Strength, explosiveness, and gymnastics-inspired body control come together to build a more capable athlete for your sport.' },
-  { title: 'Add strength and power to my gymnastics', subtitle: 'Extra physical development for current gymnasts', program: 'fit-flip' as Program, text: 'Add Fit & Flip alongside gymnastics. Give strength, explosiveness, and body control dedicated attention to support your gymnastics development.' },
+  { title: 'Learn gymnastics and floor-tumbling skills', subtitle: 'Beginner foundations or placement for experienced gymnasts', program: 'gymnastics' as Program, text: 'Start with Gymnastics and choose by age and experience. Ages 2–5 have caregiver or preschool pathways. For ages 6–17, new gymnasts can look for Tornadoes; those with gymnastics or tumbling experience start with a Trial Assessment.' },
+  { title: 'Build stronger, more powerful tumbling', subtitle: 'Fit & Flip for cheer, acro, dance, and tumbling athletes ages 8–15', program: 'fit-flip' as Program, text: 'For ages 8–15, Fit & Flip develops strength, explosiveness, and body control to support tumbling. To learn floor-tumbling skills or find a gymnastics level, start with Gymnastics.' },
+  { title: 'Become a better all-around athlete', subtitle: 'Athletic development for ages 8–15 across sports', program: 'fit-flip' as Program, text: 'For ages 8–15, start with Fit & Flip. Strength, explosiveness, and gymnastics-inspired body control come together to build a more capable athlete for your sport.' },
+  { title: 'Add strength and power to my gymnastics', subtitle: 'Extra physical development for gymnasts ages 8–15', program: 'fit-flip' as Program, text: 'Gymnasts ages 8–15 can add Fit & Flip alongside gymnastics. Give strength, explosiveness, and body control dedicated attention to support your gymnastics development.' },
 ] as const
 
 const faqs = HOME_FAQS.map(({ question, answer }) => [question, answer] as const)

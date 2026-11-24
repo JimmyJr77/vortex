@@ -49,7 +49,7 @@ const guidePhotos = {
 // Use the date of the last known substantive update to each page's content or
 // metadata. Omit lastmod when that date cannot be confirmed.
 export const HUB_SITEMAP_ENTRIES = [
-  { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-18',
+  { path: '/', priority: '1.0', changefreq: 'weekly', lastmod: '2026-11-23',
     images: [searchPhotos.fitAndFlip, HOME_PREFERRED_PHOTO.src, ...HOME_ROTATING_SITEMAP_PHOTOS] },
   ...HUB_PROGRAM_ENTRIES.map((entry) => ({ ...entry, priority: '0.8', changefreq: 'monthly' })),
   { path: PUBLIC_TRAINING_VIDEO.path, priority: '0.6', changefreq: 'monthly', lastmod: '2026-11-17',

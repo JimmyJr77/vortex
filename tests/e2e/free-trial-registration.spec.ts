@@ -124,7 +124,7 @@ test('the tumbling guide opens the gymnastics trial finder for both placement pa
   }
 })
 
-test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path after an empty result', async ({ page }) => {
+test('the Fit & Flip trial finder gives younger and older youth a gymnastics path after an empty result', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   const requests: string[] = []
   await page.route('**/api/public/free-trials?*', route => {
@@ -136,7 +136,7 @@ test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path af
     } })
   })
 
-  for (const age of [5, 6, 7, 8, 16]) {
+  for (const age of [5, 6, 7, 8, 15, 16, 17]) {
     await page.goto('/fit-and-flip')
     await page.locator('.np-program-hero').getByRole('link', { name: 'Find a free Fit & Flip trial' }).click()
     const dialog = page.getByRole('dialog')
@@ -144,16 +144,16 @@ test('the Fit & Flip trial finder gives ages 6–7 a beginner gymnastics path af
     await dialog.getByRole('button', { name: 'Find available classes' }).click()
     const availability = page.getByRole('dialog', { name: 'Pick a day to try it.' })
     await expect(availability.getByRole('heading', { name: 'No trial dates available right now.' })).toBeVisible()
-    const gymnastics = availability.getByRole('link', { name: 'Find a beginner gymnastics trial' })
-    if (age === 6 || age === 7) {
+    const gymnastics = availability.getByRole('link', { name: 'Find a gymnastics starting class' })
+    if ([6, 7, 16, 17].includes(age)) {
       await gymnastics.click()
-      await expect(page).toHaveURL('/gymnastics#first-visit')
+      await expect(page).toHaveURL('/gymnastics#choose-a-class')
       await expect(availability).toHaveCount(0)
     } else {
       await expect(gymnastics).toHaveCount(0)
     }
   }
-  expect(requests).toEqual([5, 6, 7, 8, 16].map(age => `program=fit-flip&age=${age}`))
+  expect(requests).toEqual([5, 6, 7, 8, 15, 16, 17].map(age => `program=fit-flip&age=${age}`))
 })
 
 test('a full gymnastics trial day offers open dates or an inquiry when every date is full', async ({ page }) => {

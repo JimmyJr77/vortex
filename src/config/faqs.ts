@@ -7,7 +7,7 @@ export interface Faq {
 export const HOME_FAQS: Faq[] = [
   {
     question: "What is the difference between Gymnastics and Fit & Flip?",
-    answer: "Gymnastics is the traditional pathway for learning and progressing in gymnastics skills, with foundations across its disciplines. Fit & Flip is our athletic development program: strength, explosiveness, and gymnastics-inspired tumbling and body control. Both develop capable athletes; the starting point is your athlete’s goal.",
+    answer: "Gymnastics is the pathway for learning and progressing in gymnastics skills, including floor tumbling. Fit & Flip is our athletic development program for ages 8–15: strength, explosiveness, and gymnastics-inspired tumbling and body control. Choose by your athlete’s age, experience, and goal.",
   },
   {
     question: "Does my child have to compete to train seriously?",
@@ -15,14 +15,14 @@ export const HOME_FAQS: Faq[] = [
   },
   {
     question: "Is Fit & Flip only for gymnasts?",
-    answer: "No. Fit & Flip serves cheerleaders, acro athletes, dancers, gymnasts, and athletes from field, court, and other sports. Body control connects the strength and explosiveness work, helping athletes become more capable movers overall.",
+    answer: "No. Fit & Flip serves athletes ages 8–15 from cheer, acro, dance, gymnastics, and field, court, and other sports. Body control connects the strength and explosiveness work, helping athletes become more capable movers overall.",
   },
   {
     question: "Can an athlete do both programs?",
-    answer: "Yes. Gymnasts who want an additional emphasis on strength and explosiveness can use Fit & Flip to complement their gymnastics training. Talk with our team about an appropriate starting point and schedule.",
+    answer: "Yes. Gymnasts ages 8–15 who want an additional emphasis on strength and explosiveness can use Fit & Flip to complement their gymnastics training. Talk with our team about an appropriate starting point and schedule.",
   },
   {
     question: "Where should a beginner start?",
-    answer: "Choose Gymnastics if the goal is to learn gymnastics. Choose Fit & Flip if the goal is athletic development or stronger tumbling for another sport. You do not need to arrive as an elite athlete—we build from your current ability. Our team can help with placement.",
+    answer: "To learn gymnastics and floor-tumbling skills, start with Gymnastics. Ages 2–5 have caregiver or preschool classes. For ages 6–17, new gymnasts can look for Tornadoes; those with prior gymnastics or tumbling experience start with a Trial Assessment. Fit & Flip welcomes ages 8–15 for athletic development, strength, and body control, including athletes who tumble for another sport.",
   },
 ]
