@@ -23,7 +23,7 @@ async function setup(page: import('@playwright/test').Page, permissions: string[
 test('new admin exposes migrated workspaces and grouped tabs', async ({ page }) => {
   await setup(page, [], true)
   const navigation = page.getByRole('navigation', { name: 'Admin sections' })
-  for (const name of ['Calendar', 'Floor Planner', 'Messages', 'Store', 'Pages & Popups', 'Opportunities', 'Marketing & Visibility', 'Database & Analysis', 'FAQ library', 'Legal', 'Preferences', 'Staff Access', 'Settings']) {
+  for (const name of ['Enrollments', 'Calendar', 'Floor Planner', 'Messages', 'Store', 'Pages & Popups', 'Opportunities', 'Marketing & Visibility', 'Database & Analysis', 'FAQ library', 'Legal', 'Preferences', 'Staff Access', 'Settings']) {
     await expect(navigation.getByRole('button', { name, exact: true })).toBeVisible()
     await expect(page.getByRole('button', { name: `Open ${name}`, exact: true })).toBeAttached()
   }

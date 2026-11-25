@@ -10,6 +10,7 @@ async function mockNavigationApi(page: Page) {
     let data: unknown = []
     if (path === '/api/admin/access/me') data = { isMasterAdmin: true, permissions: [], roles: ['ADMIN'], user: { id: 1 } }
     if (path === '/api/admin/notifications') data = { notifications: [], unreadCount: 0 }
+    if (path === '/api/admin/payroll/dashboard') data = { settings: null, employees: [], documents: [], historicalPayments: [], shifts: [], timeEntries: [], payPeriods: [], payrollRuns: [], payrollRunEmployees: [], complianceTasks: [], sourceReviews: [], invitations: [], adjustments: [], leaveBalances: [], accountingMapping: null, alerts: [], exportLogs: [], summary: { activeEmployees: 0, openCriticalTasks: 0, openClocks: 0, setupScore: 0, historicalGrossCents: 0, unreconciledPayments: 0, sourcesDueForReview: 0 }, aiEnabled: false }
     if (path === '/api/admin/accounting/options') data = { members: [], classes: [] }
     if (path === '/api/admin/accounting/lines') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0, timezone: 'America/New_York', summary: { billedCents: 0, paidCents: 0, creditAppliedCents: 0, openCents: 0, creditCents: 0, openCount: 0 } }
     return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ success: true, data }) })
@@ -26,8 +27,8 @@ test('staff return through My portal on desktop/mobile and switch admin inside t
     localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, name: 'Admin', isMaster: true }))
   })
   await page.goto('/')
-  const legacyNav = page.getByRole('navigation', { name: 'Legacy Admin sections' })
-  await expect(legacyNav.getByRole('button')).toHaveText(['Home', 'Dashboard', 'Payroll', 'Leads', 'Accounts', 'Enrollments', 'Class Setup'])
+  const developmentNav = page.getByRole('navigation', { name: 'In Development sections' })
+  await expect(developmentNav.getByRole('button')).toHaveText(['Payroll'])
   await page.getByRole('button', { name: 'Return to website home' }).click()
   await page.getByRole('button', { name: 'Necessary only', exact: true }).click()
   await expect(page.getByRole('combobox', { name: 'Open a portal' })).toHaveCount(0)
@@ -38,7 +39,7 @@ test('staff return through My portal on desktop/mobile and switch admin inside t
   await expect(page.getByRole('heading', { name: 'Admin', exact: true })).toBeVisible()
   await expect.poll(() => page.evaluate(() => localStorage.getItem('vortex_admin_portal'))).toBe('new-admin')
   await page.getByRole('button', { name: 'Switch portal account' }).click()
-  await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
+  await page.getByRole('option', { name: 'In Development', exact: true }).click()
   await expect(page.getByRole('navigation', { name: 'Admin sections', exact: true })).toHaveCount(0)
   await page.getByRole('button', { name: 'Return to website home' }).click()
   for (const width of [1100, 390]) {

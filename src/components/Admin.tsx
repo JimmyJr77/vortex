@@ -1,29 +1,12 @@
 import brandLogo from '../assets/vortex-athletics-gymnastics-logo.webp'
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { lazy, Suspense, useEffect, useState } from 'react'
+import { Landmark, Menu, X } from 'lucide-react'
 import { adminApiRequest, clearAdminSession, getAdminToken } from '../utils/api'
-import AdminInquiries from './AdminInquiries'
-import AdminMembers from './AdminMembers'
-import AdminClasses from './AdminClasses'
-import AdminScheduling from './AdminScheduling'
-import AdminSignups from './AdminSignups'
-import AdminMultiClassPasses from './AdminMultiClassPasses'
-import AdminBillingOverview from './AdminBillingOverview'
-import BillingAnomaliesPanel from './admin/BillingAnomaliesPanel'
+import type { PortalId } from '../utils/portalSession'
+import { NOTIFICATION_NAV_EVENT, type NotificationNavigateDetail } from '../utils/notificationNavigation'
 import StaffLegalPolicies from './legal/StaffLegalPolicies'
-import AdminEventSignups from './AdminEventSignups'
-import AdminHomePanel from './admin/AdminHomePanel'
-import AdminDashboard from './admin/AdminDashboard'
-import HorizontalScrollContainer from './HorizontalScrollContainer'
 import PortalNavButtons from './PortalNavButtons'
 import NotificationBell from './NotificationBell'
-import {
-  NOTIFICATION_NAV_EVENT,
-  type NotificationNavigateDetail,
-} from '../utils/notificationNavigation'
-import { Home, Users, Inbox, BookOpen, ClipboardList, Menu, X, LayoutDashboard, Landmark } from 'lucide-react'
-import type { SchedulingNavigationIntent } from '../utils/schedulingNavigation'
-import type { PortalId } from '../utils/portalSession'
 
 const AdminPayroll = lazy(() => import('./payroll/AdminPayroll'))
 
@@ -33,152 +16,44 @@ interface AdminProps {
   onSwitchPortal?: (portal: PortalId) => void
 }
 
-
-type TabType = 'floorPlanner' | 'dashboard' | 'users' | 'payroll' | 'opportunities' | 'analytics' | 'marketing' | 'competitors' | 'membership' | 'billingOverview' | 'classSetupOverview' | 'classes' | 'coaches' | 'classesEvents' | 'events' | 'admins' | 'specialPages' | 'highlights' | 'scheduling' | 'calendar' | 'pricing' | 'customerBilling' | 'billingAnomalies' | 'store' | 'signups' | 'multiClassPasses' | 'eventSignups' | 'dbQueries' | 'schools' | 'access' | 'billing' | 'stripePayments' | 'waivers' | 'insurance' | 'staffLegal' | 'email' | 'messages' | 'faqs' | 'preferences'
-
-export type GroupId = 'floorPlanner' | 'home' | 'dashboard' | 'payroll' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
-
 interface AccessContext {
   permissions: string[]
-  roles: string[]
   isMasterAdmin: boolean
-  userId?: number | null
 }
-
-
-const tabDefinitions: Array<{ id: TabType; label: string; permission?: string; masterAdminOnly?: boolean }> = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'payroll', label: 'Payroll', permission: 'payroll.view' },
-  { id: 'membership', label: 'Members', permission: 'members.view' },
-  { id: 'billingOverview', label: 'Billing Overview', permission: 'billing.view' },
-  { id: 'users', label: 'Inquiries', permission: 'members.view' },
-  { id: 'classes', label: 'Program & Class Creation', permission: 'classes.view' },
-  { id: 'scheduling', label: 'Class & Event Scheduling', permission: 'scheduling.view' },
-  { id: 'classesEvents', label: 'All Classes/Events', permission: 'classes.view' },
-  { id: 'billingAnomalies', label: 'Billing Anomalies', permission: 'billing.view' },
-  { id: 'signups', label: 'Enrollments', permission: 'scheduling.view' },
-  { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' },
-  { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' },
-]
-
-const tabLabel = (id: TabType): string => tabDefinitions.find((t) => t.id === id)?.label ?? id
-
-interface GroupDef {
-  id: GroupId
-  label: string
-  icon: typeof Home
-  sections: TabType[]
-}
-
-const GROUPS: GroupDef[] = [
-  { id: 'home', label: 'Home', icon: Home, sections: [] },
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, sections: ['dashboard'] },
-  { id: 'payroll', label: 'Payroll', icon: Landmark, sections: ['payroll'] },
-  { id: 'leads', label: 'Leads', icon: Inbox, sections: ['users'] },
-  { id: 'accounts', label: 'Accounts', icon: Users, sections: ['membership', 'billingOverview', 'billingAnomalies'] },
-  { id: 'registrations', label: 'Enrollments', icon: ClipboardList, sections: ['signups', 'multiClassPasses', 'eventSignups'] },
-  { id: 'classSetup', label: 'Class Setup', icon: BookOpen, sections: ['classesEvents', 'classes', 'scheduling'] },
-]
-
-const groupForSection = (tab: TabType): GroupId =>
-  GROUPS.find((g) => g.sections.includes(tab))?.id ?? 'home'
-
 
 export default function Admin({ onLogout, availablePortals = ['admin'], onSwitchPortal }: AdminProps) {
-  const [activeTab, setActiveTab] = useState<TabType>(()=>new URLSearchParams(window.location.search).get('payrollQuickbooks')==='connected'?'payroll':'users')
-  const [activeGroup, setActiveGroup] = useState<GroupId>(()=>new URLSearchParams(window.location.search).get('payrollQuickbooks')==='connected'?'payroll':'home')
   const [navOpen, setNavOpen] = useState(false)
-  const [adminInfo, setAdminInfo] = useState<{ email: string; name: string; id?: number; firstName?: string; lastName?: string; phone?: string; username?: string; isMaster?: boolean } | null>(null)
-  const [schedulingIntent, setSchedulingIntent] = useState<SchedulingNavigationIntent | null>(null)
-  const [schedulingNavKey, setSchedulingNavKey] = useState(0)
   const [accessContext, setAccessContext] = useState<AccessContext | null>(null)
   const [accessLoading, setAccessLoading] = useState(true)
+  const [accessError, setAccessError] = useState('')
 
   useEffect(() => {
     if (!getAdminToken()) {
       clearAdminSession()
       onLogout()
-      return
-    }
-
-    // Get admin info from localStorage (set during login)
-    const storedAdmin = localStorage.getItem('vortex-admin-info')
-    if (storedAdmin) {
-      try {
-        setAdminInfo(JSON.parse(storedAdmin))
-      } catch {
-        // If parsing fails, use default admin info
-        const defaultAdmin = { email: 'admin@vortexathletics.com', name: 'Admin' }
-        setAdminInfo(defaultAdmin)
-        localStorage.setItem('vortex-admin-info', JSON.stringify(defaultAdmin))
-      }
-    } else {
-      // If no admin info stored, use default (shouldn't happen if login worked)
-      const defaultAdmin = { email: 'admin@vortexathletics.com', name: 'Admin' }
-      setAdminInfo(defaultAdmin)
-      localStorage.setItem('vortex-admin-info', JSON.stringify(defaultAdmin))
     }
   }, [onLogout])
 
   useEffect(() => {
+    let active = true
     const loadAccessContext = async () => {
       try {
         const response = await adminApiRequest('/api/admin/access/me')
-        if (!response.ok) return
         const data = await response.json()
-        if (data.success) {
-          setAccessContext({
-            permissions: data.data?.permissions ?? [],
-            roles: data.data?.roles ?? [],
-            isMasterAdmin: Boolean(data.data?.isMasterAdmin),
-            userId: data.data?.user?.id ?? null,
-          })
-        }
+        if (!response.ok || !data.success) throw new Error(data.message || 'Unable to check payroll access.')
+        if (active) setAccessContext({
+          permissions: data.data?.permissions ?? [],
+          isMasterAdmin: Boolean(data.data?.isMasterAdmin),
+        })
       } catch (error) {
-        console.warn('Unable to load admin access context:', error)
+        if (active) setAccessError(error instanceof Error ? error.message : 'Unable to check payroll access.')
       } finally {
-        setAccessLoading(false)
+        if (active) setAccessLoading(false)
       }
     }
     void loadAccessContext()
+    return () => { active = false }
   }, [])
-
-  const visibleTabs = useMemo(
-    () =>
-      tabDefinitions.filter((tab) => {
-        if (tab.masterAdminOnly && !accessContext?.isMasterAdmin) return false
-        if (!tab.permission) return true
-        if (!accessContext) return false
-        return accessContext.isMasterAdmin || accessContext.permissions.includes(tab.permission)
-      }),
-    [accessContext],
-  )
-
-  const visibleSectionIds = useMemo(() => new Set(visibleTabs.map((t) => t.id)), [visibleTabs])
-
-  const visibleGroups = useMemo(
-    () => GROUPS.filter((g) => g.id === 'home' || g.sections.some((s) => visibleSectionIds.has(s))),
-    [visibleSectionIds],
-  )
-
-  const visibleSectionsForGroup = useCallback(
-    (groupId: GroupId): TabType[] => {
-      const group = GROUPS.find((g) => g.id === groupId)
-      if (!group) return []
-      return group.sections.filter((s) => visibleSectionIds.has(s))
-    },
-    [visibleSectionIds],
-  )
-
-  const goToSection = useCallback((tab: TabType) => {
-    setActiveTab(tab)
-    setActiveGroup(groupForSection(tab))
-  }, [])
-
-  const openAdminBilling = useCallback((familyId?: number, memberId: number | null = null) => {
-    sessionStorage.setItem('vortex_admin_handoff', JSON.stringify({ section: 'billing', familyId, memberId }))
-    onSwitchPortal?.('new-admin')
-  }, [onSwitchPortal])
 
   useEffect(() => {
     if (accessLoading) return
@@ -186,224 +61,54 @@ export default function Admin({ onLogout, availablePortals = ['admin'], onSwitch
     const familyId = Number(params.get('adminBillingFamilyId'))
     const memberId = Number(params.get('adminBillingMemberId'))
     if (Number.isSafeInteger(familyId) && familyId > 0) {
-      openAdminBilling(familyId, Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null)
+      sessionStorage.setItem('vortex_admin_handoff', JSON.stringify({ section: 'billing', familyId, memberId: Number.isSafeInteger(memberId) && memberId > 0 ? memberId : null }))
+      onSwitchPortal?.('new-admin')
     }
-  }, [accessLoading, openAdminBilling])
-
-  const openGroup = useCallback(
-    (groupId: GroupId) => {
-      setActiveGroup(groupId)
-      if (groupId !== 'home') {
-        const sections = visibleSectionsForGroup(groupId)
-        if (sections.length > 0) setActiveTab(sections[0])
-      }
-      setNavOpen(false)
-    },
-    [visibleSectionsForGroup],
-  )
+  }, [accessLoading, onSwitchPortal])
 
   useEffect(() => {
-    const onNavigateNotification = (evt: globalThis.Event) => {
-      const detail = (evt as CustomEvent<NotificationNavigateDetail>).detail
-      if (!detail || detail.portal !== 'admin') return
-      if (detail.section === 'messages' || detail.section === 'billing') {
-        sessionStorage.setItem('vortex_admin_handoff', JSON.stringify({ notification: detail }))
-        onSwitchPortal?.('new-admin')
-        return
-      }
-      if (detail.group) openGroup(detail.group as GroupId)
-      if (detail.section) goToSection(detail.section as TabType)
+    const onNavigateNotification = (event: Event) => {
+      const detail = (event as CustomEvent<NotificationNavigateDetail>).detail
+      if (detail?.portal !== 'admin' || (detail.section !== 'messages' && detail.section !== 'billing')) return
+      sessionStorage.setItem('vortex_admin_handoff', JSON.stringify({ notification: detail }))
+      onSwitchPortal?.('new-admin')
     }
     window.addEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
     return () => window.removeEventListener(NOTIFICATION_NAV_EVENT, onNavigateNotification)
-  }, [goToSection, openGroup, onSwitchPortal])
+  }, [onSwitchPortal])
 
-  useEffect(() => {
-    if (accessLoading || activeGroup === 'home') return
-    const sections = visibleSectionsForGroup(activeGroup)
-    if (sections.length === 0) {
-      setActiveGroup('home')
-    } else if (!sections.includes(activeTab)) {
-      setActiveTab(sections[0])
-    }
-  }, [accessLoading, activeGroup, activeTab, visibleSectionsForGroup])
-
-  const renderSection = () => {
-    switch (activeTab) {
-      case 'dashboard':
-        return <AdminDashboard onOpenCustomerBilling={() => openAdminBilling()} onOpenEnrollments={() => goToSection('signups')} />
-      case 'payroll':
-        return <Suspense fallback={<div className="py-16 text-center text-sm font-semibold text-slate-500">Loading payroll…</div>}><AdminPayroll /></Suspense>
-      case 'billingOverview':
-        return (
-          <AdminBillingOverview
-            onOpenFamily={(familyId, memberId) => {
-              openAdminBilling(familyId, memberId)
-            }}
-          />
-        )
-      case 'billingAnomalies':
-        return <BillingAnomaliesPanel onOpenAccount={(familyId) => {
-          openAdminBilling(familyId)
-        }} />
-      case 'scheduling':
-        return (
-          <AdminScheduling
-            key={`scheduling-${schedulingNavKey}`}
-            navigationIntent={schedulingIntent}
-            onNavigationIntentConsumed={() => setSchedulingIntent(null)}
-          />
-        )
-      case 'signups':
-        return <AdminSignups />
-      case 'multiClassPasses':
-        return <AdminMultiClassPasses />
-      case 'eventSignups':
-        return <AdminEventSignups />
-      case 'classes':
-        return (
-          <AdminClasses
-            onOpenScheduling={(intent) => {
-              setSchedulingIntent(intent)
-              setSchedulingNavKey((key) => key + 1)
-              goToSection('scheduling')
-            }}
-          />
-        )
-      case 'classesEvents':
-        return <AdminClasses spreadsheetOnly />
-      case 'membership':
-        return (
-          <AdminMembers
-            canCreateAccounts={Boolean(
-              accessContext?.isMasterAdmin
-              || (
-                accessContext?.permissions.includes('members.edit')
-                && accessContext?.permissions.includes('scheduling.manage')
-              )
-            )}
-            canViewBilling={Boolean(
-              accessContext?.isMasterAdmin || accessContext?.permissions.includes('billing.view')
-            )}
-            canEditMembers={Boolean(
-              accessContext?.isMasterAdmin || accessContext?.permissions.includes('members.edit')
-            )}
-            canManageRecords={Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('accounts.lifecycle'))}
-            canManageClasses={Boolean(
-              accessContext?.isMasterAdmin || accessContext?.permissions.includes('classes.manage')
-            )}
-          />
-        )
-      default:
-        return <AdminInquiries />
-    }
-  }
-
-  const groupSections = activeGroup === 'home' ? [] : visibleSectionsForGroup(activeGroup)
-  const messagingFullscreen = false
+  const canViewPayroll = Boolean(accessContext?.isMasterAdmin || accessContext?.permissions.includes('payroll.view'))
 
   return (
     <div className="portal-shell portal-admin">
       <StaffLegalPolicies portal="admin" />
-      <header className={`portal-header shrink-0 ${messagingFullscreen ? 'hidden' : ''}`}>
+      <header className="portal-header shrink-0">
         <div className="container-admin portal-header-inner">
           <div className="portal-header-identity">
-            <button type="button" className="portal-menu-toggle lg:hidden" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="legacy-admin-navigation" onClick={() => setNavOpen((o) => !o)}>
+            <button type="button" className="portal-menu-toggle lg:hidden" aria-label={navOpen ? 'Close navigation menu' : 'Open navigation menu'} aria-expanded={navOpen} aria-controls="in-development-navigation" onClick={() => setNavOpen(open => !open)}>
               {navOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
             <img className="portal-brand" src={brandLogo} width="1086" height="171" alt="Vortex Athletics & Gymnastics" />
-            <div className="portal-header-heading"><h1 className="portal-title">Legacy admin</h1></div>
+            <div className="portal-header-heading"><h1 className="portal-title">In Development</h1></div>
           </div>
-          <PortalNavButtons
-            activePortal="admin"
-            availablePortals={availablePortals}
-            onSwitchPortal={onSwitchPortal}
-            onLogout={onLogout}
-            notifications={<NotificationBell apiPrefix="admin" />}
-          />
+          <PortalNavButtons activePortal="admin" availablePortals={availablePortals} onSwitchPortal={onSwitchPortal} onLogout={onLogout} notifications={<NotificationBell apiPrefix="admin" />} />
         </div>
       </header>
 
-      {/* Workspace: sidebar groups + main content */}
-      <div className={`${messagingFullscreen ? 'flex flex-col flex-1 min-h-0 h-full max-h-full overflow-hidden p-0' : 'container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden'}`}>
-        <nav id="legacy-admin-navigation" aria-label="Legacy Admin sections" className={messagingFullscreen ? 'hidden' : `portal-sidebar min-h-0 overflow-y-auto ${navOpen ? 'block' : 'hidden lg:block'}`}>
-          <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2">
-            {visibleGroups.map((group) => {
-              const Icon = group.icon
-              const active = activeGroup === group.id
-              return (
-                <button
-                  key={group.id}
-                  type="button"
-                  onClick={() => openGroup(group.id)}
-                  aria-current={active ? 'page' : undefined}
-                  className="portal-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors"
-                >
-                  <Icon className="w-4 h-4" /> {group.label}
-                </button>
-              )
-            })}
-          </div>
+      <div className="container-admin pt-6 pb-6 grid gap-6 lg:grid-cols-[220px_1fr] flex-1 min-h-0 overflow-hidden">
+        <nav id="in-development-navigation" aria-label="In Development sections" className={`portal-sidebar min-h-0 overflow-y-auto ${navOpen ? 'block' : 'hidden lg:block'}`}>
+          {canViewPayroll ? <div className="portal-nav-card bg-white border border-gray-200 rounded-xl p-2">
+            <button type="button" onClick={() => setNavOpen(false)} aria-current="page" className="portal-tab w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors">
+              <Landmark className="w-4 h-4" aria-hidden="true" /> Payroll
+            </button>
+          </div> : null}
         </nav>
 
-        <main className={`portal-main min-w-0 flex-col min-h-0 flex-1 overscroll-y-none ${navOpen ? 'hidden lg:flex' : 'flex'} ${activeGroup === 'messaging' || activeGroup === 'faqLibrary' ? 'overflow-hidden' : 'overflow-y-auto'}`}>
-          <div className="flex flex-col flex-1 min-h-0 h-full">
-          {accessLoading ? (
-            <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">
-              Loading admin access...
-            </div>
-          ) : activeGroup === 'home' ? (
-            <AdminHomePanel
-              groups={visibleGroups.filter((g) => g.id !== 'home').map((g) => ({ id: g.id, label: g.label, icon: g.icon }))}
-              onNavigate={openGroup}
-              adminName={adminInfo?.firstName}
-            />
-          ) : (
-            <div className={`${activeTab === 'messages' || activeTab === 'faqs' ? `flex flex-col flex-1 min-h-0 h-full ${messagingFullscreen ? 'gap-0' : 'gap-4'}` : 'space-y-4'}`}>
-              {groupSections.length > 1 && !messagingFullscreen && (
-                <HorizontalScrollContainer
-                  className="border-b border-gray-200"
-                  fadeFromClassName="from-gray-50"
-                >
-                  <div className="flex w-max space-x-1">
-                    {groupSections.map((sectionId) => (
-                      <button
-                        key={sectionId}
-                        onClick={() => goToSection(sectionId)}
-                        className={`flex-shrink-0 whitespace-nowrap px-5 py-3 font-semibold text-sm transition-all duration-300 relative ${
-                          activeTab === sectionId
-                            ? 'text-gray-900'
-                            : 'text-gray-500 hover:text-gray-700'
-                        }`}
-                      >
-                        {tabLabel(sectionId)}
-                        {activeTab === sectionId && (
-                          <motion.div
-                            className="absolute bottom-0 left-0 right-0 h-0.5 bg-vortex-red"
-                            layoutId="activeAdminSubTab"
-                            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                          />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                </HorizontalScrollContainer>
-              )}
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -12 }}
-                  transition={{ duration: 0.2 }}
-                  className={`min-w-0 ${activeTab === 'messages' || activeTab === 'faqs' ? 'flex flex-col flex-1 min-h-0 h-full' : ''}`}
-                >
-                  {renderSection()}
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          )}
-          </div>
+        <main className={`portal-main min-w-0 flex-col min-h-0 flex-1 overscroll-y-none overflow-y-auto ${navOpen ? 'hidden lg:flex' : 'flex'}`}>
+          {accessLoading ? <div className="rounded-xl bg-white p-8 text-center text-gray-600 shadow-sm">Checking payroll access…</div>
+            : accessError ? <p role="alert" className="rounded-xl bg-white p-8 text-red-700 shadow-sm">{accessError}</p>
+              : canViewPayroll ? <Suspense fallback={<div className="py-16 text-center text-sm font-semibold text-slate-500">Loading payroll…</div>}><AdminPayroll /></Suspense>
+                : <p role="status" className="rounded-xl bg-white p-8 text-gray-600 shadow-sm">Your staff account does not have access to Payroll.</p>}
         </main>
       </div>
     </div>

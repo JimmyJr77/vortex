@@ -7,7 +7,7 @@ export const HEADER_ACTION_BTN =
   'portal-header-action inline-flex items-center justify-center gap-2 h-9 px-3 md:px-4 rounded-lg font-semibold transition-colors text-sm shrink-0'
 
 const PORTAL_LABELS: Record<'admin' | 'new-admin' | 'coach' | 'member', string> = {
-  admin: 'Legacy Admin',
+  admin: 'In Development',
   'new-admin': 'Admin',
   coach: 'Coach',
   member: 'Member',

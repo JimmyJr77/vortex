@@ -14,6 +14,7 @@ import { allowed, request, useRead, useSearch, type Access, type Page } from './
 
 const checkboxCell = 'whitespace-nowrap px-0.5 py-3 text-center align-top'
 const cell = 'px-2.5 py-3 text-left align-top'
+const inquiryDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
 const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '' }
 export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
@@ -22,6 +23,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   const [keywords, setKeywords] = useState('')
   const keywordSearch = useSearch(keywords)
   const [filters, setFilters] = useState<LeadFilterValues>(emptyFilters)
+  const [includeMembers, setIncludeMembers] = useState(false)
   const [page, setPage] = useState(1)
   const [version, setVersion] = useState(0)
   const [adding, setAdding] = useState(false)
@@ -33,7 +35,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   const canManage = allowed(access, 'members.edit')
   const invalidAge = (filters.ageMin !== '' && filters.ageMax !== '' && Number(filters.ageMin) > Number(filters.ageMax))
     || [filters.ageMin, filters.ageMax].some(value => value !== '' && (!Number.isInteger(Number(value)) || Number(value) < 0 || Number(value) > 120))
-  const data = useRead<Page<Lead>>(invalidAge ? null : `/api/admin/new-admin/leads?${new URLSearchParams({ search, archived: 'false', keywords: keywordSearch, ...filters, page: String(page), pageSize: '25' })}`, revision + version)
+  const data = useRead<Page<Lead>>(invalidAge ? null : `/api/admin/new-admin/leads?${new URLSearchParams({ search, archived: 'false', keywords: keywordSearch, ...filters, includeMembers: String(includeMembers), page: String(page), pageSize: '25' })}`, revision + version)
   const refresh = () => setVersion(value => value + 1)
   const flag = async (lead: Lead, body: { contacted?: boolean; followUp?: boolean }) => {
     setSaving(lead.id); setSaveError(null)
@@ -42,20 +44,24 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     finally { setSaving(null) }
   }
   return <section>
-    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Leads</h2><p className="mt-1 text-sm text-slate-500">Follow up on inquiries from prospective families and current members.</p></div>{canManage ? <button className={primary} onClick={() => setAdding(true)}><Plus className="h-4 w-4" />Add lead</button> : null}</div>
-    <LeadFilters value={filters} onChange={patch => { setFilters(current => ({ ...current, ...patch })); setPage(1) }} search={query} onSearch={value => { setQuery(value); setPage(1) }} keywords={keywords} onKeywords={value => { setKeywords(value); setPage(1) }} onReset={() => { setFilters(emptyFilters); setQuery(''); setKeywords(''); setPage(1) }} />
+    <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Leads</h2><p className="mt-1 text-sm text-slate-500">Follow up on inquiries from prospective families.</p></div><div className="flex flex-wrap items-center gap-2">
+      <button type="button" className={button} aria-pressed={includeMembers} onClick={() => { setIncludeMembers(value => !value); setPage(1) }}>{includeMembers ? 'Hide active and converted members' : 'Show active and converted members'}</button>
+      {canManage ? <button className={primary} onClick={() => setAdding(true)}><Plus className="h-4 w-4" />Add lead</button> : null}
+    </div></div>
+    <LeadFilters value={filters} onChange={patch => { setFilters(current => ({ ...current, ...patch })); setPage(1) }} search={query} onSearch={value => { setQuery(value); setPage(1) }} keywords={keywords} onKeywords={value => { setKeywords(value); setPage(1) }} onReset={() => { setFilters(emptyFilters); setQuery(''); setKeywords(''); setIncludeMembers(false); setPage(1) }} />
     <ErrorNotice message={invalidAge ? 'Enter whole child ages from 0 to 120, with minimum age no greater than maximum age.' : null} />
     <ErrorNotice message={saveError} />
     <ErrorNotice message={data.error} onRetry={refresh} />
     {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="rounded-xl border border-slate-200 bg-white">
       {data.data.rows.length ? <div className="overflow-x-auto rounded-t-xl">
-        <table className="w-full min-w-[88rem] table-fixed text-sm">
+        <table className="w-full min-w-[100rem] table-fixed text-sm">
           <colgroup>
             <col span={2} className="w-[4.25rem]" />
             <col className="w-[15%]" />
             <col className="w-[19%]" />
             <col className="w-28" />
             <col />
+            <col className="w-32" />
             <col className="w-64" />
             <col className="w-96" />
           </colgroup>
@@ -66,11 +72,13 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
             <th scope="col" className={cell}>Contact</th>
             <th scope="col" className={cell}>Status</th>
             <th scope="col" className={cell}>Kid details</th>
+            <th scope="col" className={cell}>Date of inquiry</th>
             <th scope="col" className={cell}>Free Trials</th>
             <th scope="col" className={cell}>Actions</th>
           </tr></thead>
           <tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => {
             const name = leadDisplayName(lead)
+            const inquiryDate = lead.createdAt ? new Date(lead.createdAt) : null
             const trials = lead.freeTrials || []
             const children = [...(lead.inquiry?.campers || [])]
             for (const booking of trials) {
@@ -87,6 +95,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
               <td rowSpan={childRows.length} className={`${cell} [overflow-wrap:anywhere]`}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
               <td rowSpan={childRows.length} className={`${cell} [overflow-wrap:anywhere]`}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">{lead.invitation.purpose === 'trial' ? 'Trial invitation' : 'Invitation'} {lead.invitation.status}</p>}</td></>}
               <td className={`${cell} [overflow-wrap:anywhere]`}><KidDetails children={child ? [child] : []} /></td>
+              {index === 0 && <td rowSpan={childRows.length} className={`${cell} whitespace-nowrap`}>{inquiryDate && !Number.isNaN(inquiryDate.getTime()) ? <time dateTime={lead.createdAt}>{inquiryDateFormatter.format(inquiryDate)}</time> : '—'}</td>}
               <td className={`${cell} [overflow-wrap:anywhere]`}>
                 {trials.some(booking => child?.memberId === booking.memberId || booking.childIndex === index) ? <ul className="space-y-2" aria-label={`Free trials for ${child ? [child.firstName, child.lastName].filter(Boolean).join(' ') || `Child ${index + 1}` : name}`}>
                   {trials.filter(booking => child?.memberId === booking.memberId || booking.childIndex === index).map(booking => <li key={booking.id}>

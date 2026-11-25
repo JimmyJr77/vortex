@@ -1,6 +1,7 @@
-import { CalendarDays, LayoutDashboard, MessageSquare, ShoppingBag, Sparkles, Target, Megaphone, Database, CircleHelp, FileText, Bell, Settings, ShieldCheck } from 'lucide-react'
+import { ClipboardList, CalendarDays, LayoutDashboard, MessageSquare, ShoppingBag, Sparkles, Target, Megaphone, Database, CircleHelp, FileText, Bell, Settings, ShieldCheck } from 'lucide-react'
 
 export const legacySections = [
+  { id: 'registrations', label: 'Enrollments', icon: ClipboardList, tabs: [{ id: 'signups', label: 'Enrollments', permission: 'scheduling.view' }, { id: 'multiClassPasses', label: 'Multi-Class Passes', permission: 'scheduling.view' }, { id: 'eventSignups', label: 'Signups', permission: 'scheduling.view' }] },
   { id: 'calendar', label: 'Calendar', icon: CalendarDays, tabs: [{ id: 'calendar', label: 'Calendar', permission: 'scheduling.view' }] },
   { id: 'floorPlanner', label: 'Floor Planner', icon: LayoutDashboard, tabs: [{ id: 'floorPlanner', label: 'Floor Planner', permission: 'scheduling.view' }] },
   { id: 'messaging', label: 'Messages', icon: MessageSquare, tabs: [{ id: 'messages', label: 'Messages', permission: null }] },

@@ -5,6 +5,9 @@ import { adminApiRequest } from '../../utils/api'
 import { allowed, useRead, type Access } from './api'
 import { ErrorNotice, Loading } from './shared'
 
+const Enrollments = lazyWithRetry(() => import('../AdminSignups'))
+const MultiClassPasses = lazyWithRetry(() => import('../AdminMultiClassPasses'))
+const EventSignups = lazyWithRetry(() => import('../AdminEventSignups'))
 const Calendar = lazyWithRetry(() => import('../scheduling/AdminCalendar'))
 const FloorPlanner = lazyWithRetry(() => import('../floorPlanner/FloorPlanner'))
 const Messages = lazyWithRetry(() => import('../admin/AdminMessagesPanel'))
@@ -58,6 +61,9 @@ export default function LegacyWorkspaces({ section, access, threadId, onThreadOp
   if (!current) return null
   const panel = () => {
     switch (current.id) {
+      case 'signups': return <Enrollments />
+      case 'multiClassPasses': return <MultiClassPasses />
+      case 'eventSignups': return <EventSignups />
       case 'calendar': return <Calendar canManage={allowed(access, 'scheduling.manage')} />
       case 'floorPlanner': return <FloorPlanner canManage={allowed(access, 'scheduling.manage')} userId={access.user?.id ?? null} />
       case 'messages': return <Messages initialThreadId={threadId} onInitialThreadOpened={onThreadOpened} maximized={maximized} onMaximizedChange={onMaximizedChange} />

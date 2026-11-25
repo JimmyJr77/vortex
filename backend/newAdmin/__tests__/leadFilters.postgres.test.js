@@ -32,9 +32,18 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
         first_contacted_at timestamptz,admin_notes text,message text,athlete_age int,interests text,interests_array text[],
         interest text,class_types text[],child_ages int[],campers jsonb,submitter_role text,inquiry_source text,submitted_by_name text);
       CREATE TABLE account_invite(id bigint,registration_id bigint,invite_type text,suggested_username text,expires_at timestamptz,used_at timestamptz,delivery_status text,pending_payload jsonb);
-      CREATE TABLE program(id bigint PRIMARY KEY,facility_id bigint,display_name text,name text);
+      CREATE TABLE program(id bigint PRIMARY KEY,facility_id bigint,display_name text,name text,is_trial_assessment boolean DEFAULT FALSE);
       CREATE TABLE scheduling_form(id bigint PRIMARY KEY,program_id bigint,title text);
       CREATE TABLE drop_in_registration(id bigint PRIMARY KEY,member_id bigint,benefit_type text,form_id bigint,class_date date,status text);
+      CREATE TABLE account_enrollment_current(record_member_id bigint,record_facility_id bigint,form_id bigint,
+        historical_only boolean DEFAULT FALSE,archived_at timestamptz,orphaned_at timestamptz,status text,
+        enrollment_start_date date,cancel_effective_date date,pause_effective_date date,record_program_end date);
+      CREATE TABLE additional_fee(id bigint PRIMARY KEY,trigger_type text,apply_basis text,name text);
+      CREATE TABLE additional_fee_redemption(fee_id bigint,member_id bigint,billing_charge_id bigint,period_key text,
+        amount_cents int,satisfied_at timestamptz,ended_at timestamptz);
+      CREATE TABLE billing_charge(id bigint PRIMARY KEY,member_id bigint,source_type text,source_id text,metadata jsonb,
+        collection_status text,related_charge_id bigint,amount_cents int,created_at timestamptz,service_period_start date);
+      CREATE FUNCTION account_source_date(value text) RETURNS date LANGUAGE sql IMMUTABLE AS 'SELECT value::date';
       CREATE TABLE note(id bigint PRIMARY KEY,subject_type text,subject_id bigint,note_type text DEFAULT 'staff_note',body text,
         author_name text,created_at timestamptz DEFAULT now(),source text,is_deleted boolean DEFAULT FALSE);
       INSERT INTO facility VALUES(1,'America/New_York'),(2,'America/New_York');
@@ -125,11 +134,11 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       await assert.rejects(leadNotes(db,2,2),error=>error.statusCode===404)
     })
     await t.test('invalid filter values fail before querying', async () => {
-      for(const query of [{contacted:'yes'},{converted:'nope'},{ageMin:'-1'},{ageMax:'3.5'},{ageMin:'15',ageMax:'4'},{gender:'invalid'}]) {
+      for(const query of [{contacted:'yes'},{converted:'nope'},{includeMembers:'yes'},{ageMin:'-1'},{ageMax:'3.5'},{ageMin:'15',ageMax:'4'},{gender:'invalid'}]) {
         await assert.rejects(listLeads(db,1,query),error=>error.statusCode===400)
       }
     })
-    await t.test('matching active members by normalized email leaves inquiries in the follow-up queue without creating links', async () => {
+    await t.test('matching nonarchived members without paid activity leaves inquiries in the follow-up queue without creating links', async () => {
       await db.query(`
         UPDATE member SET email='  ALEX@Example.test ' WHERE id=1;
         UPDATE member SET email='sam@example.test' WHERE id=4;
@@ -147,6 +156,51 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.deepEqual((await leadNotes(db,1,1)).map(note=>note.body).sort(),
         ['Call Tuesday','Gymnastics trial request','Original inquiry note'])
     })
+    await t.test('member visibility follows paid activity and conversion while retaining unconverted and trial-only prospects', async () => {
+      await db.query('SAVEPOINT member_visibility')
+      try {
+        await db.query(`
+          INSERT INTO member(id,facility_id,email) SELECT id,1,'visibility-'||id||'@example.test' FROM generate_series(10,24) id;
+          UPDATE member SET is_active=FALSE WHERE id=18;
+          UPDATE member SET facility_id=2 WHERE id=22;
+          INSERT INTO registrations(id,facility_id,first_name,last_name,email,contacted,follow_up)
+            SELECT id,1,'Visibility',id::text,'visibility-'||id||'@example.test',FALSE,TRUE FROM generate_series(10,24) id;
+          UPDATE registrations SET lead_status='converted' WHERE id=17;
+          UPDATE registrations SET converted_member_id=18 WHERE id=18;
+          UPDATE registrations SET inquiry_source='free_trial',member_id=id WHERE id IN (19,20,23);
+          UPDATE registrations SET email='different-contact@example.test',campers='[{"memberId":21}]' WHERE id=21;
+          INSERT INTO program(id,facility_id,display_name,name,is_trial_assessment) VALUES(10,1,'Assessment','Assessment',TRUE);
+          INSERT INTO scheduling_form VALUES(10,10,'Assessment');
+          INSERT INTO account_enrollment_current(record_member_id,record_facility_id,status,enrollment_start_date,form_id) VALUES
+            (10,1,'confirmed',CURRENT_DATE-1,NULL),(15,1,'confirmed',CURRENT_DATE+1,NULL),
+            (16,1,'confirmed',CURRENT_DATE-1,NULL),(20,1,'confirmed',CURRENT_DATE-1,NULL),
+            (21,1,'confirmed',CURRENT_DATE-1,NULL),(22,2,'confirmed',CURRENT_DATE-1,NULL),
+            (23,1,'confirmed',CURRENT_DATE-1,10);
+          UPDATE account_enrollment_current SET pause_effective_date=CURRENT_DATE WHERE record_member_id=16;
+          INSERT INTO additional_fee VALUES(10,'once_per_year','per_year','Annual membership');
+          INSERT INTO additional_fee_redemption(fee_id,member_id,period_key,amount_cents,satisfied_at) VALUES
+            (10,12,(CURRENT_DATE+365)::text,8500,now()-INTERVAL '1 day'),
+            (10,24,(CURRENT_DATE-1)::text,8500,now()-INTERVAL '1 year');
+          INSERT INTO drop_in_registration VALUES
+            (10,13,'paid',NULL,CURRENT_DATE-1,'attended'),(11,14,'free_trial',NULL,CURRENT_DATE-1,'attended');
+        `)
+        const query = { search:'visibility', followUp:'true' }
+        assert.deepEqual(await ids(query),[11,14,15,16,19,22,23,24])
+        assert.deepEqual(await ids({...query,includeMembers:'false'}),[11,14,15,16,19,22,23,24])
+        assert.deepEqual(await ids({...query,includeMembers:'true'}),[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24])
+        assert.deepEqual(await ids({...query,converted:'true'}),[17,18])
+        assert.deepEqual(await ids({...query,status:'converted'}),[17,18])
+        assert.deepEqual(await ids({...query,includeMembers:'true',converted:'false'}),[10,11,12,13,14,15,16,19,20,21,22,23,24])
+        const page = await listLeads(db,1,{...query,pageSize:3,page:2})
+        assert.equal(page.total,8)
+        assert.equal(page.totalPages,3)
+        assert.deepEqual(page.rows.map(row=>row.id),[19,16,15])
+        const shown = await listLeads(db,1,{...query,includeMembers:'true',pageSize:100})
+        assert.equal(shown.total,15)
+        assert.ok(shown.rows.every(row=>row.createdAt instanceof Date && !Number.isNaN(row.createdAt.getTime())))
+        assert.deepEqual((await db.query('SELECT id FROM registrations WHERE id BETWEEN 10 AND 24 AND archived IS TRUE')).rows,[])
+      } finally { await db.query('ROLLBACK TO SAVEPOINT member_visibility') }
+    })
     await t.test('initial inquiry notes use the entering staff snapshot for both fallback and previously saved notes', async () => {
       const publicNote = (await leadNotes(db,1,1)).find(note => note.source === 'inquiry_message')
       assert.equal(publicNote.authorName,'Alex Inquiry')
@@ -163,7 +217,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     })
     await t.test('trial accounts stay leads and display only exact child/facility free trial bookings', async () => {
       await db.query(`
-        INSERT INTO program VALUES(1,1,'Cyclones','Cyclones'),(2,2,'Foreign class','Foreign class');
+        INSERT INTO program(id,facility_id,display_name,name) VALUES(1,1,'Cyclones','Cyclones'),(2,2,'Foreign class','Foreign class');
         INSERT INTO scheduling_form VALUES(1,1,'Cyclones'),(2,2,'Foreign class');
         UPDATE member SET first_name='Listed',last_name='Child' WHERE id=2;
         UPDATE registrations SET member_id=1,inquiry_source='free_trial',lead_status='qualified',

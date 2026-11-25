@@ -323,6 +323,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
     localStorage.setItem('vortex_admin', 'true')
     localStorage.setItem('adminToken', 'e2e-admin-token')
     localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, name: 'Billing Admin', email: 'billing@example.com', isMaster: true }))
+    localStorage.setItem('vortex_admin_portal', 'new-admin')
   })
 
   await page.context().route('**/api/**', async (route) => {
@@ -706,9 +707,6 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
   })
 
   await page.goto('/', { waitUntil: 'domcontentloaded' })
-  await expect(page.getByRole('heading', { name: 'Legacy admin', exact: true })).toBeVisible({ timeout: 30_000 })
-  await page.getByRole('button', { name: 'Switch portal account' }).click()
-  await page.getByRole('option', { name: 'Admin', exact: true }).click()
   await page.getByRole('navigation', { name: 'Admin sections', exact: true }).getByRole('button', { name: 'Billing', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible({ timeout: 30_000 })
 }
@@ -810,11 +808,17 @@ test.describe('Account Billing & Enrollments administration', () => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     await openCustomerBilling(page, captured)
 
-    await page.getByRole('button', { name: 'Switch portal account' }).click()
-    await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
-    await page.getByRole('navigation', { name: 'Legacy Admin sections' }).getByRole('button', { name: 'Accounts', exact: true }).click()
-    await page.getByRole('button', { name: 'Members', exact: true }).click()
-    await expect(page.getByRole('heading', { name: 'Members (1)', exact: true })).toBeVisible()
+    await page.route('**/api/admin/scheduling/enrollments/class-summaries', route => route.fulfill({ json: { success: true, data: { rows: [{
+      rowKey: 'monday-foundations', formId: 1, slotGroupId: 2, timeSlotId: 3,
+      sportName: 'Gymnastics', programName: 'Artistic Foundations', className: 'Monday Foundations',
+      programId: 4, skillLevel: null, offeringLabel: null, offeringDates: null,
+      schedule: 'Mondays · 4:00 PM–5:00 PM', formActive: true, enrollmentCount: 1, maxParticipants: 10, statusLabel: 'Active',
+    }] } } }))
+    await page.route('**/api/admin/scheduling/forms/1/slot-enrollments*', route => route.fulfill({ json: { success: true, data: { rows: [{
+      id: 501, member_id: 11, member_first_name: 'Jordan', member_last_name: 'Rivera', family_id: 42, enrollment_start_date: '2026-08-03',
+    }] } } }))
+    await page.getByRole('navigation', { name: 'Admin sections', exact: true }).getByRole('button', { name: 'Enrollments', exact: true }).click()
+    await page.getByRole('row', { name: /Monday Foundations/ }).click()
     const billingWindow = page.waitForEvent('popup')
     await page.getByRole('button', { name: "Open Jordan Rivera's Account Billing & Enrollments" }).click()
     const popup = await billingWindow
@@ -823,27 +827,6 @@ test.describe('Account Billing & Enrollments administration', () => {
     await expect(popup.getByRole('heading', { name: 'Account Billing & Enrollments', exact: true })).toBeVisible()
     await expect(popup.getByText('Family #42 · Billing account #7')).toBeVisible()
     await expect(popup.getByRole('button', { name: 'Jordan Rivera', exact: true })).toHaveClass(/border-vortex-red/)
-  })
-
-  test('shows streamlined member details with waiver completion in status and access', async ({ page }) => {
-    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
-    await openCustomerBilling(page, captured)
-
-    await page.getByRole('button', { name: 'Switch portal account' }).click()
-    await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
-    await page.getByRole('navigation', { name: 'Legacy Admin sections' }).getByRole('button', { name: 'Accounts', exact: true }).click()
-    await page.getByRole('button', { name: 'Members', exact: true }).click()
-    const memberRow = page.getByRole('row', { name: /Jordan Rivera.*Rivera Household/ })
-    await memberRow.click()
-
-    await expect(page.getByRole('button', { name: 'Member Details', exact: true })).toHaveAttribute('class', /border-vortex-red/)
-    await expect(page.getByText('Family information', { exact: true })).toBeVisible()
-    await expect(page.getByText('Contact & profile', { exact: true })).toBeVisible()
-    const statusRoles = page.getByText('Status & access', { exact: true }).locator('..')
-    await expect(statusRoles.getByText('Waiver', { exact: true })).toBeVisible()
-    await expect(statusRoles.getByText(/August 18, 2026/)).toBeVisible()
-    await expect(page.getByText('Linked children', { exact: true })).toHaveCount(0)
-    await expect(page.getByText('Family members (2)', { exact: true })).toBeVisible()
   })
 
   test('opens an exact family ID directly at the household level', async ({ page }) => {
@@ -1350,38 +1333,6 @@ test('custom charge history supports description and amount edits, deletion, and
   expect(changes[1].finalAmountCents).toBe(0)
   await expect(page.getByRole('button', { name: 'Payment request unavailable because Corrected tuition is paid' })).toBeDisabled()
   await page.screenshot({ path: 'artifacts/custom-charge-history.png', fullPage: true })
-})
-
-test('dashboard stacks current owed revenue above collected and shows two future months', async ({ page }) => {
-  const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
-  await openCustomerBilling(page, captured)
-  const errors: string[] = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  await page.route('**/api/admin/dashboard', (route) => route.fulfill({ json: { success: true, data: {
-    permissions: { canViewEnrollment: true, canViewBilling: true, canViewWaivers: true }, generatedAt: '2026-09-29T12:00:00Z', enrollment: null, mediaReleaseOptOuts: null,
-    billing: { revenueByMonth: [
-      { key: '2026-04', label: 'Apr', amountCents: 300000 }, { key: '2026-05', label: 'May', amountCents: 350000 },
-      { key: '2026-06', label: 'Jun', amountCents: 400000 }, { key: '2026-07', label: 'Jul', amountCents: 450000 },
-      { key: '2026-08', label: 'Aug', amountCents: 500000 }, { key: '2026-09', label: 'Sep', amountCents: 600000 },
-    ], revenueForecast: [
-      { key: '2026-09', label: 'Sep', owedCents: 150000, expectedCents: 750000 },
-      { key: '2026-10', label: 'Oct', owedCents: 0, expectedCents: 800000 },
-      { key: '2026-11', label: 'Nov', owedCents: 0, expectedCents: 850000 },
-    ], scheduledMonthlyTuitionCents: 800000, dropInsThisMonth: 0, dropInRevenueCents: 0, activeAnnualMemberships: 12, withoutCard: [], withoutMonthlyBilling: [] },
-  } } }))
-  await page.getByRole('button', { name: 'Switch portal account' }).click()
-  await page.getByRole('option', { name: 'Legacy Admin', exact: true }).click()
-  await page.getByRole('navigation', { name: 'Legacy Admin sections' }).getByRole('button', { name: 'Dashboard', exact: true }).click()
-  await expect(page.getByRole('heading', { name: 'Collected & expected revenue' })).toBeVisible()
-  const september = page.getByLabel('Sep: $6,000.00 collected, $7,500.00 total', { exact: true })
-  await expect(september).toBeVisible()
-  const collectedHeight = await september.locator('.bg-vortex-red').evaluate((element) => element.getBoundingClientRect().height)
-  const totalHeight = await september.locator('.bg-red-200').evaluate((element) => element.getBoundingClientRect().height)
-  expect(collectedHeight / totalHeight).toBeCloseTo(0.8, 1)
-  await expect(page.getByLabel('Oct: $0.00 collected, $8,000.00 projected', { exact: true })).toBeVisible()
-  await expect(page.getByLabel('Nov: $0.00 collected, $8,500.00 projected', { exact: true })).toBeVisible()
-  expect(errors).toEqual([])
-  await page.screenshot({ path: 'artifacts/revenue-dashboard.png', fullPage: true })
 })
 
 for (const entryPoint of ['enrollments', 'history'] as const) {

@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react'
-import type { GroupId } from '../Admin'
+type GroupId = 'floorPlanner' | 'home' | 'dashboard' | 'payroll' | 'opportunityResearch' | 'messaging' | 'faqLibrary' | 'accounts' | 'store' | 'leads' | 'classSetup' | 'registrations' | 'calendar' | 'pricingBilling' | 'legal' | 'highlightsEvents' | 'marketingVisibility' | 'dataAnalysis' | 'preferences' | 'settings'
 
 interface GroupCard {
   id: GroupId

@@ -12,6 +12,7 @@ for (const initialPortal of ['new-admin', 'admin']) test(`${initialPortal} route
     const path=new URL(route.request().url()).pathname
     let data: unknown=[]
     if(path==='/api/admin/access/me') data={isMasterAdmin:true,permissions:[]}
+    if(path==='/api/admin/payroll/dashboard') data={settings:null,employees:[],documents:[],historicalPayments:[],shifts:[],timeEntries:[],payPeriods:[],payrollRuns:[],payrollRunEmployees:[],complianceTasks:[],sourceReviews:[],invitations:[],adjustments:[],leaveBalances:[],accountingMapping:null,alerts:[],exportLogs:[],summary:{activeEmployees:0,openCriticalTasks:0,openClocks:0,setupScore:0,historicalGrossCents:0,unreconciledPayments:0,sourcesDueForReview:0},aiEnabled:false}
     if(path==='/api/admin/notifications/1/read') read=true
     if(path==='/api/admin/notifications') data={notifications:[{id:1,kind:'system',title:'Staff announcement',body:'Schedule updated',created_at:'2026-11-12T12:00:00Z',read_at:read?'2026-11-12T13:00:00Z':null}],unreadCount:read?0:1}
     if(path==='/api/admin/billing/cancellation-requests') data=[{id:5,signup_id:12,member_name:'Alex Athlete',class_name:'Tumbling',request_reason:'Schedule change',recommended_effective_date:'2026-12-01',created_at:'2026-11-12T12:00:00Z'}]

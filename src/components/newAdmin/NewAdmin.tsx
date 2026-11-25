@@ -25,6 +25,7 @@ const Accounting = lazyWithRetry(() => import('./accounting/Accounting'))
 const Timesheets = lazyWithRetry(() => import('./Timesheets'))
 type Section = LegacySection | 'home' | 'dashboard' | 'accounting' | 'members' | 'classes' | 'leads' | 'jobApplications' | 'crm' | 'billing' | 'timesheets' | 'pricing'
 const descriptions: Record<string, string> = {
+  registrations: 'Review enrollments, multi-class passes, and event signups.',
   calendar: 'View the facility schedule and event details.',
   floorPlanner: 'Plan classes, locations, and coaches for every day.',
   messaging: 'Staff messaging with athletes, coaches, and admins.',
@@ -64,7 +65,7 @@ const sections = [
 ]
 const navigationGroups: { label: string | null; sections: Section[] }[] = [
   { label: null, sections: ['home', 'dashboard'] },
-  { label: 'Daily operations', sections: ['calendar', 'classes', 'floorPlanner', 'timesheets'] },
+  { label: 'Daily operations', sections: ['registrations', 'calendar', 'classes', 'floorPlanner', 'timesheets'] },
   { label: 'People & communication', sections: ['members', 'leads', 'jobApplications', 'crm', 'messaging'] },
   { label: 'Finance', sections: ['billing', 'accounting'] },
   { label: 'Sales & growth', sections: ['opportunityResearch', 'marketingVisibility', 'pricing', 'store'] },
@@ -122,12 +123,25 @@ export default function NewAdmin({ onLogout, availablePortals = ['admin', 'new-a
       }
     }
     if (access.data) {
+      const url = new URL(window.location.href)
+      const billingFamilyId = Number(url.searchParams.get('adminBillingFamilyId'))
+      const billingMemberId = Number(url.searchParams.get('adminBillingMemberId'))
+      if (Number.isSafeInteger(billingFamilyId) && billingFamilyId > 0 && allowed(access.data, 'billing.view')) {
+        setSection('billing')
+        setBillingTarget({ familyId: billingFamilyId, memberId: Number.isSafeInteger(billingMemberId) && billingMemberId > 0 ? billingMemberId : null })
+        url.searchParams.delete('adminBillingFamilyId')
+        url.searchParams.delete('adminBillingMemberId')
+        window.history.replaceState(window.history.state, '', url)
+      }
       const pending = sessionStorage.getItem('vortex_admin_handoff')
       if (pending) {
         sessionStorage.removeItem('vortex_admin_handoff')
         try {
           const handoff = JSON.parse(pending)
           if (handoff.notification) onNotification(new CustomEvent(NOTIFICATION_NAV_EVENT, { detail: handoff.notification }))
+          else if (handoff.section === 'registrations' && allowed(access.data, 'scheduling.view')) {
+            setSection('registrations')
+          }
           else if (handoff.section === 'billing' && allowed(access.data, 'billing.view')) {
             setSection('billing')
             if (Number.isSafeInteger(handoff.familyId) && handoff.familyId > 0) {

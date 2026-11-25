@@ -33,7 +33,7 @@ export async function listLeads(db, facilityId, query = {}) {
         'purpose',CASE WHEN ai.pending_payload->>'purpose'='trial' THEN 'trial' ELSE 'registration' END,
         'status',CASE WHEN ai.used_at IS NOT NULL THEN 'completed' WHEN ai.expires_at<=now() THEN 'expired' ELSE ai.delivery_status END)
         FROM account_invite ai WHERE ai.registration_id=r.id AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
-      FROM registrations r ${inquiryAcquisitionJoin} ${join} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')} ${leadFreeTrialsJoin}
+      FROM registrations r ${inquiryAcquisitionJoin} ${join} ${leadFreeTrialsJoin}
       WHERE ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
     db.query(`SELECT COUNT(*)::int AS total FROM registrations r ${join} WHERE ${where}`, values),
   ])

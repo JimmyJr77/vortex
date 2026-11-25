@@ -4,6 +4,7 @@ import { hasActiveAnnualMembershipSql } from '../scheduling/annualMembership.js'
 import { id, inputError, pagination, pageResult, searchValue } from './common.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { inquiryAcquisition, inquiryAcquisitionJoin } from './leadInquiry.js'
+import { currentEnrollmentSql } from './memberActivity.js'
 
 const SORT_COLUMNS = Object.freeze({
   id: 'id', name: 'lower(name)', firstName: 'lower(first_name)', lastName: 'lower(last_name)',
@@ -46,11 +47,7 @@ const householdLinks = `SELECT fm.member_id, f.id AS family_id, fm.is_active
 
 // Only current enrollments count toward active status. A future start or a
 // held invitation may be listed in class history but does not count as active.
-const currentClass = `NOT s.historical_only AND s.archived_at IS NULL AND s.orphaned_at IS NULL
-  AND s.status = 'confirmed' AND s.enrollment_start_date <= ctx.today
-  AND (s.cancel_effective_date IS NULL OR s.cancel_effective_date > ctx.today)
-  AND (s.pause_effective_date IS NULL OR s.pause_effective_date > ctx.today)
-  AND (s.record_program_end IS NULL OR s.record_program_end >= ctx.today)`
+const currentClass = currentEnrollmentSql('ctx.today')
 
 const pastClass = `s.status <> 'pending_setup' AND (s.historical_only
   OR s.status IN ('cancelled', 'completed') OR s.archived_at IS NOT NULL OR s.orphaned_at IS NOT NULL
