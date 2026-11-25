@@ -34,7 +34,12 @@ interface TimeDraft {
 }
 const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const inputClass = 'block w-full min-h-12 rounded-lg border border-gray-300 bg-white px-3 py-2 text-base text-gray-900'
-const blank = (today: string): TimeDraft => ({ scheduleMode: 'day', dayOfWeek: '6', specificDate: '', startTime: '12:00', endTime: '13:00', maxParticipants: '8', activeStart: today, activeEnd: '' })
+const blank = (today: string): TimeDraft => ({ scheduleMode: 'day', dayOfWeek: '4', specificDate: '', startTime: '16:00', endTime: '16:30', maxParticipants: '1', activeStart: today, activeEnd: '' })
+const evaluationEndTime = (startTime: string) => {
+  const [hour, minute] = startTime.split(':').map(Number)
+  const end = hour * 60 + minute + 30
+  return `${String(Math.floor(end / 60) % 24).padStart(2, '0')}:${String(end % 60).padStart(2, '0')}`
+}
 const displayTime = (value: string) => {
   const [hour, minute] = value.split(':').map(Number)
   return `${hour % 12 || 12}:${String(minute).padStart(2, '0')} ${hour >= 12 ? 'PM' : 'AM'}`
@@ -63,7 +68,7 @@ export default function TrialAssessmentSchedulePanel() {
   const edit = (schedule: AssessmentTime) => {
     setEditingId(schedule.slotGroupId)
     setDraft({ scheduleMode: schedule.scheduleMode, dayOfWeek: String(schedule.dayOfWeek ?? 6), specificDate: schedule.specificDate ?? '',
-      startTime: schedule.startTime, endTime: schedule.endTime, maxParticipants: String(schedule.maxParticipants),
+      startTime: schedule.startTime, endTime: evaluationEndTime(schedule.startTime), maxParticipants: '1',
       activeStart: schedule.activeStart ?? selected.today, activeEnd: schedule.activeEnd ?? '' })
     setError(''); setSuccess('')
   }
@@ -83,11 +88,12 @@ export default function TrialAssessmentSchedulePanel() {
     } catch (failure) { setError(failure instanceof Error ? failure.message : 'Unable to save assessment time.') }
     finally { setSaving(false) }
   }
-  const change = (field: keyof TimeDraft, value: string) => setDraft(current => current ? { ...current, [field]: value } : current)
+  const change = (field: keyof TimeDraft, value: string) => setDraft(current => current ? { ...current, [field]: value,
+    ...(field === 'startTime' && value ? { endTime: evaluationEndTime(value) } : {}) } : current)
 
   return <section className="space-y-5 pb-8">
     <div className="flex flex-wrap items-start justify-between gap-3">
-      <div><h2 className="text-2xl font-bold text-gray-900">Trial Assessment times</h2><p className="mt-1 max-w-2xl text-sm text-gray-600">Manage the free assessment schedule for experienced gymnasts. Each day and time is offered separately in the website’s free trial signup.</p></div>
+      <div><h2 className="text-2xl font-bold text-gray-900">Private gymnastics evaluation times</h2><p className="mt-1 max-w-2xl text-sm text-gray-600">Each free evaluation is a 30-minute, 1:1 appointment for an athlete who reports previous gymnastics experience. Each time is offered separately in the website’s free trial signup.</p></div>
       <button type="button" disabled={loading || saving} onClick={() => void load()} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-gray-300 px-3 py-2 text-sm font-semibold disabled:opacity-50"><RefreshCw size={16} /> Refresh</button>
     </div>
     {error && <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error}</div>}
@@ -98,7 +104,7 @@ export default function TrialAssessmentSchedulePanel() {
       <div className="grid gap-3 sm:grid-cols-2">
         {selected.schedules.map(schedule => <article key={schedule.timeSlotId} className="rounded-xl border border-gray-200 bg-white p-5">
           <div className="flex items-start justify-between gap-3"><div><h3 className="flex items-center gap-2 font-semibold text-gray-900"><CalendarDays size={18} />{schedule.scheduleMode === 'date' && schedule.specificDate ? displayDate(schedule.specificDate) : days[schedule.dayOfWeek ?? 0]}</h3><p className="mt-2 text-lg font-semibold">{displayTime(schedule.startTime)}–{displayTime(schedule.endTime)}</p></div><button type="button" disabled={saving} onClick={() => edit(schedule)} className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-gray-200 px-3 py-2 text-sm font-semibold"><Pencil size={15} /> Edit</button></div>
-          <p className="mt-2 text-sm text-gray-600">Capacity: {schedule.maxParticipants} athletes</p>
+          <p className="mt-2 text-sm text-gray-600">Capacity: {schedule.maxParticipants} {schedule.maxParticipants === 1 ? 'athlete' : 'athletes'}</p>
           <p className="mt-1 text-xs text-gray-500">{schedule.datesTbd ? 'Dates to be announced' : `${schedule.activeStart ? `From ${displayDate(schedule.activeStart)}` : 'Open start date'}${schedule.activeEnd ? ` · Through ${displayDate(schedule.activeEnd)}` : ' · No end date'}`}</p>
         </article>)}
         {selected.schedules.length === 0 && <p className="rounded-xl border border-gray-200 bg-white p-5 text-sm text-gray-600">No assessment times are published. Add a time to make it available for free trials.</p>}
@@ -109,9 +115,9 @@ export default function TrialAssessmentSchedulePanel() {
         <fieldset disabled={saving} className="grid min-w-0 gap-4 sm:grid-cols-2">
           <label className="space-y-1 text-sm font-semibold">Schedule<select className={inputClass} value={draft.scheduleMode} onChange={event => change('scheduleMode', event.target.value)}><option value="day">Every week</option><option value="date">One date</option></select></label>
           {draft.scheduleMode === 'day' ? <label className="space-y-1 text-sm font-semibold">Day<select className={inputClass} value={draft.dayOfWeek} onChange={event => change('dayOfWeek', event.target.value)}>{days.map((day, index) => <option key={day} value={index}>{day}</option>)}</select></label> : <label className="space-y-1 text-sm font-semibold">Assessment date<input className={inputClass} type="date" required min={selected.today} value={draft.specificDate} onChange={event => change('specificDate', event.target.value)} /></label>}
-          <label className="space-y-1 text-sm font-semibold">Start time<input className={inputClass} type="time" required value={draft.startTime} onChange={event => change('startTime', event.target.value)} /></label>
-          <label className="space-y-1 text-sm font-semibold">End time<input className={inputClass} type="time" required value={draft.endTime} onChange={event => change('endTime', event.target.value)} /></label>
-          <label className="space-y-1 text-sm font-semibold">Capacity<input className={inputClass} type="number" inputMode="numeric" min="1" max="1000" step="1" required value={draft.maxParticipants} onChange={event => change('maxParticipants', event.target.value)} /></label>
+          <label className="space-y-1 text-sm font-semibold">Start time<input className={inputClass} type="time" required max="23:29" value={draft.startTime} onChange={event => change('startTime', event.target.value)} /></label>
+          <label className="space-y-1 text-sm font-semibold">End time (30 minutes later)<input className={inputClass} type="time" readOnly value={draft.endTime} /></label>
+          <label className="space-y-1 text-sm font-semibold">Capacity<input className={inputClass} type="number" readOnly min="1" max="1" value={draft.maxParticipants} /><span className="block text-xs font-normal text-gray-500">One athlete per private evaluation.</span></label>
           <label className="space-y-1 text-sm font-semibold">Available from<input className={inputClass} type="date" required value={draft.activeStart} onChange={event => change('activeStart', event.target.value)} /></label>
           <label className="space-y-1 text-sm font-semibold">Available through (optional)<input className={inputClass} type="date" min={draft.activeStart || undefined} value={draft.activeEnd} onChange={event => change('activeEnd', event.target.value)} /><span className="block text-xs font-normal text-gray-500">Leave blank to continue offering this time.</span></label>
         </fieldset>

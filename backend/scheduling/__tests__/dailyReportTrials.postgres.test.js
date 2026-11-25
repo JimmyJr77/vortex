@@ -64,6 +64,10 @@ test('PostgreSQL trial report uses registration bounds and explicit booking type
       assert.equal(trial.scheduleLabel, `${classDate} · 16:00–17:00`)
     }
     assert.deepEqual(await snapshot(), before)
+    await db.query('UPDATE program SET is_trial_assessment=TRUE WHERE id=$1', [cls.id])
+    const evaluation = (await loadDailyReportTrials(db, { since, through })).find(trial => trial.id === Number(first.id))
+    assert.equal(evaluation.isTrialAssessment, true, 'reports identify an assessment from class metadata')
+    assert.equal(evaluation.benefitType, 'free_trial', 'evaluation booking storage keeps the zero-price benefit')
 
     // Keep inactive A in the recurrence context so active B cannot incorrectly
     // appear every week when the SQL query loads the timetable.

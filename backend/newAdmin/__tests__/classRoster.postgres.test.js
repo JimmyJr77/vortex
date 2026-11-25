@@ -4,7 +4,7 @@ import crypto from 'node:crypto'
 import pg from 'pg'
 import { classRoster } from '../classRoster.js'
 import { createScopedMember } from '../leads.js'
-import { listClasses } from '../reads.js'
+import { classDetail, listClasses } from '../reads.js'
 
 const url=process.env.NEW_ADMIN_TEST_DATABASE_URL
 if(url && (!['localhost','127.0.0.1'].includes(new URL(url).hostname) || !new URL(url).pathname.startsWith('/vortex_new_admin_dev'))) throw new Error('Isolated local test database required')
@@ -79,5 +79,32 @@ test('class catalog counts enrollments once per schedule while the roster suppor
     const hiddenSlot=hidden.otherScheduleGroups.flatMap(group => group.slots).find(time => time.id === Number(slot))
     assert.equal(hiddenSlot?.allowDropIns,false)
     assert.equal(hiddenSlot?.allowFreeTrials,true)
+
+    async function bookingAvailability() {
+      const {groups}=await classDetail(db,facility,klass)
+      const detailSlots=groups.flatMap(group=>group.slots)
+      const {rows:[catalog]}=await listClasses(db,facility)
+      const catalogSlots=[...catalog.scheduleGroups,...catalog.otherScheduleGroups].flatMap(group=>group.slots)
+      const state=slots=>slots.map(({id,allowDropIns,allowFreeTrials,isTrialAssessment})=>({id,allowDropIns,allowFreeTrials,isTrialAssessment})).sort((a,b)=>a.id-b.id)
+      assert.deepEqual(state(detailSlots),state(catalogSlots),'class details and catalog resolve the same booking settings')
+      return new Map(detailSlots.map(time=>[time.id,time]))
+    }
+    await db.query('UPDATE programs SET exclude_from_drop_ins=TRUE WHERE id=$1',[program])
+    let availability=await bookingAvailability()
+    assert.equal(availability.get(Number(slot)).allowDropIns,false)
+    assert.equal(availability.get(Number(slot)).allowFreeTrials,true,'explicit free trials remain available when drop-ins are blocked')
+    assert.equal(availability.get(Number(otherSlot)).allowDropIns,false,'schedule inherits the program drop-in policy')
+    assert.equal(availability.get(Number(otherSlot)).allowFreeTrials,false,'unset free trials inherit the effective drop-in policy')
+    await db.query('UPDATE program SET exclude_from_drop_ins=FALSE WHERE id=$1',[klass])
+    availability=await bookingAvailability()
+    assert.equal(availability.get(Number(otherSlot)).allowDropIns,true,'class policy overrides the parent program')
+    assert.equal(availability.get(Number(otherSlot)).allowFreeTrials,true)
+    assert.equal(availability.get(Number(slot)).allowDropIns,false,'schedule override takes precedence over class policy')
+    await db.query('UPDATE scheduling_time_slot SET allow_free_trials=FALSE WHERE id=$1',[otherSlot])
+    await db.query('UPDATE program SET is_trial_assessment=TRUE WHERE id=$1',[klass])
+    availability=await bookingAvailability()
+    assert.equal(availability.get(Number(otherSlot)).allowDropIns,true)
+    assert.equal(availability.get(Number(otherSlot)).allowFreeTrials,false,'free trials can be blocked independently of drop-ins')
+    assert.ok([...availability.values()].every(time=>time.isTrialAssessment===true),'assessment marker is present for every schedule time')
   } finally {await db.query('ROLLBACK');db.release();await pool.end()}
 })

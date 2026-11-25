@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Page } from '@playwright/test'
 
 test('class managers can set availability by schedule, edit classes, and manage programs from Admin', async ({ page }) => {
   await page.addInitScript(() => {
@@ -109,4 +109,137 @@ test('class managers can set availability by schedule, edit classes, and manage 
   await expect(creator).toBeHidden()
   await page.getByRole('button', { name: 'Create class', exact: true }).click()
   await page.getByRole('combobox').filter({ has: page.locator('option[value="3"]') }).selectOption({ label: 'Parkour' })
+})
+
+type AvailabilityChange = { scope: 'class'; timeSlotId: number; allowFreeTrials: boolean; allowDropIns?: boolean }
+
+async function openClassSchedules(page: Page, { canManage = true, archived = false, rejectSaves = 0, isTrialAssessment = false } = {}) {
+  const writes: AvailabilityChange[] = []
+  const slots = [
+    { id: 101, dayOfWeek: 1, weekLetter: null, specificDate: null, startTime: '16:00:00', endTime: '17:00:00', isActive: true, allowDropIns: true, allowFreeTrials: true, isTrialAssessment },
+    { id: 102, dayOfWeek: 3, weekLetter: null, specificDate: null, startTime: '18:00:00', endTime: '19:00:00', isActive: true, allowDropIns: true, allowFreeTrials: true, isTrialAssessment },
+  ]
+  const groups = [{ id: 10, capacity: 10, enrolledCount: 4, reservedCount: 1, waitlistCount: 2, activeStart: null, activeEnd: null, slots }]
+  const klass = {
+    id: 1, formId: 5, programsId: 2, name: 'Tumbling', programName: 'Gymnastics', isActive: true, archived,
+    capacity: 10, enrolledCount: 4, reservedCount: 1, waitlistCount: 2, scheduleGroups: groups,
+    details: { displayName: 'Tumbling', isActive: true },
+  }
+  const emptyPage = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
+  await page.addInitScript(() => {
+    localStorage.setItem('vortex_admin', 'true')
+    localStorage.setItem('adminToken', 'class-detail-availability-fixture')
+    localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, name: 'Class manager' }))
+    localStorage.setItem('vortex_admin_portal', 'new-admin')
+  })
+  await page.route('**/api/**', async route => {
+    const req = route.request()
+    const path = new URL(req.url()).pathname
+    let data: unknown = []
+    if (path === '/api/admin/access/me') data = {
+      isMasterAdmin: false, permissions: ['classes.view', 'members.view', ...(canManage ? ['classes.manage'] : [])], roles: ['ADMIN'], user: { id: 1 },
+    }
+    if (path === '/api/admin/new-admin/classes') data = { ...emptyPage, rows: [klass], total: 1, totalPages: 1 }
+    if (path === '/api/admin/new-admin/classes/1') data = { class: klass, groups, roster: emptyPage }
+    if (path === '/api/admin/new-admin/classes/1/roster') data = emptyPage
+    if (path === '/api/admin/new-admin/classes/1/drop-ins' && req.method() === 'PATCH') {
+      const change = req.postDataJSON() as AvailabilityChange
+      writes.push(change)
+      if (rejectSaves > 0) {
+        rejectSaves -= 1
+        await route.fulfill({ status: 409, json: { success: false, message: 'Unable to save availability. Please retry.' } })
+        return
+      }
+      const slot = slots.find(time => time.id === change.timeSlotId)
+      expect(slot).toBeDefined()
+      if (slot) {
+        if (change.allowDropIns != null) slot.allowDropIns = change.allowDropIns
+        slot.allowFreeTrials = change.allowFreeTrials
+      }
+    }
+    await route.fulfill({ json: { success: true, data } })
+  })
+  await page.goto('/')
+  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Classes & schedules', exact: true }).click()
+  await page.getByRole('button', { name: 'Tumbling', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Schedules & capacity', exact: true })).toBeVisible()
+  return { writes }
+}
+
+function detailAvailability(page: Page, day: 'Mon' | 'Wed') {
+  return page.getByRole('button', {
+    name: `Edit drop-ins and free trials for Tumbling · ${day} · ${day === 'Mon' ? '4:00 PM–5:00 PM' : '6:00 PM–7:00 PM'}`, exact: true,
+  })
+}
+
+test('class details save drop-ins and free trials independently for the selected schedule time', async ({ page }) => {
+  const { writes } = await openClassSchedules(page)
+  await expect(page.getByRole('button', { name: 'Edit schedules', exact: true })).toHaveCount(0)
+  const monday = page.getByRole('button', { name: 'Monday · 4:00 PM–5:00 PM', exact: true })
+  await monday.click()
+  await detailAvailability(page, 'Mon').click()
+  const dialog = page.getByRole('dialog', { name: 'Booking availability' })
+  await dialog.getByRole('checkbox', { name: 'Allow drop-ins', exact: true }).uncheck()
+  await dialog.getByRole('button', { name: 'Save availability', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Drop-ins: Blocked · Free trials: Allowed')
+  await expect(monday).toHaveAttribute('aria-pressed', 'true')
+  await expect(detailAvailability(page, 'Wed')).toHaveText('Drop-ins: Allowed · Free trials: Allowed')
+  expect(writes).toEqual([{ scope: 'class', timeSlotId: 101, allowDropIns: false, allowFreeTrials: true }])
+
+  await detailAvailability(page, 'Mon').click()
+  await expect(dialog.getByRole('checkbox', { name: 'Allow drop-ins', exact: true })).not.toBeChecked()
+  await expect(dialog.getByRole('checkbox', { name: 'Allow free trials', exact: true })).toBeChecked()
+  await dialog.getByRole('checkbox', { name: 'Allow free trials', exact: true }).uncheck()
+  await dialog.getByRole('button', { name: 'Save availability', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Drop-ins: Blocked · Free trials: Blocked')
+  expect(writes[1]).toEqual({ scope: 'class', timeSlotId: 101, allowFreeTrials: false })
+  await expect(detailAvailability(page, 'Wed')).toHaveText('Drop-ins: Allowed · Free trials: Allowed')
+
+  await page.getByRole('button', { name: 'All classes', exact: true }).click()
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Drop-ins: Blocked · Free trials: Blocked')
+  await page.getByRole('button', { name: 'Tumbling', exact: true }).click()
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Drop-ins: Blocked · Free trials: Blocked')
+  await expect(detailAvailability(page, 'Wed')).toHaveText('Drop-ins: Allowed · Free trials: Allowed')
+})
+
+test('failed availability changes in class details retain the choices for retry', async ({ page }) => {
+  const { writes } = await openClassSchedules(page, { rejectSaves: 1 })
+  await detailAvailability(page, 'Wed').click()
+  const dialog = page.getByRole('dialog', { name: 'Booking availability' })
+  await dialog.getByRole('checkbox', { name: 'Allow drop-ins', exact: true }).uncheck()
+  await dialog.getByRole('checkbox', { name: 'Allow free trials', exact: true }).uncheck()
+  await dialog.getByRole('button', { name: 'Save availability', exact: true }).click()
+  await expect(dialog.getByText('Unable to save availability. Please retry.', { exact: true })).toBeVisible()
+  await expect(dialog.getByRole('checkbox', { name: 'Allow drop-ins', exact: true })).not.toBeChecked()
+  await expect(dialog.getByRole('checkbox', { name: 'Allow free trials', exact: true })).not.toBeChecked()
+  await expect(detailAvailability(page, 'Wed')).toHaveText('Drop-ins: Allowed · Free trials: Allowed')
+  await dialog.getByRole('button', { name: 'Save availability', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(detailAvailability(page, 'Wed')).toHaveText('Drop-ins: Blocked · Free trials: Blocked')
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Drop-ins: Allowed · Free trials: Allowed')
+  expect(writes).toEqual(Array.from({ length: 2 }, () => ({ scope: 'class', timeSlotId: 102, allowDropIns: false, allowFreeTrials: false })))
+})
+
+for (const scenario of [{ name: 'view-only access', canManage: false, archived: false }, { name: 'an archived class', canManage: true, archived: true }]) {
+  test(`class details show availability without edit controls for ${scenario.name}`, async ({ page }) => {
+    const { writes } = await openClassSchedules(page, scenario)
+    await expect(page.getByText('Drop-ins: Allowed · Free trials: Allowed', { exact: true })).toHaveCount(2)
+    await expect(page.getByRole('button', { name: /^Edit drop-ins and free trials/ })).toHaveCount(0)
+    expect(writes).toEqual([])
+  })
+}
+
+test('trial assessment schedules only offer the free-trial availability setting', async ({ page }) => {
+  const { writes } = await openClassSchedules(page, { isTrialAssessment: true })
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Free trials: Allowed')
+  await detailAvailability(page, 'Mon').click()
+  const dialog = page.getByRole('dialog', { name: 'Booking availability' })
+  await expect(dialog.getByRole('checkbox', { name: 'Allow drop-ins', exact: true })).toHaveCount(0)
+  await dialog.getByRole('checkbox', { name: 'Allow free trials', exact: true }).uncheck()
+  await dialog.getByRole('button', { name: 'Save availability', exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await expect(detailAvailability(page, 'Mon')).toHaveText('Free trials: Blocked')
+  expect(writes).toEqual([{ scope: 'class', timeSlotId: 101, allowFreeTrials: false }])
 })

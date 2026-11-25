@@ -63,6 +63,7 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
   const selectedMember = members.find(member => member.id === memberId)
   const children = members.filter(member => member.ageGroup === 'youth' && member.canSignWaiver)
   const dateLabel = formatDateForDisplay(selection.classDate, { weekday: 'long', month: 'long', day: 'numeric' })
+  const isEvaluation = selection.program === 'gymnastics' && selection.gymnasticsTrack === 'experienced' && selection.experience === 'experienced'
 
   useEffect(() => {
     if (error) errorRef.current?.focus()
@@ -212,7 +213,7 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
       }
       if (!res.ok || !data.success) throw new Error(data.message || 'Unable to confirm your free trial.')
       if (data.data?.status !== 'confirmed' || data.data?.benefitType !== 'free_trial' || data.data?.totalCents !== 0) {
-        throw new Error('We could not verify this free trial. Please contact Vortex before attending.')
+        throw new Error(`We could not verify this ${isEvaluation ? 'evaluation' : 'free trial'}. Please contact Vortex before attending.`)
       }
       trackBookingConfirmation('trial_confirmed', sourcePath, data.data.id, { program_slug: selection.program })
       complete()
@@ -226,26 +227,27 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
 
   return <div className="np-trial-registration">
     {!confirmed && <button type="button" className="np-trial-text-button" onClick={onBack} disabled={loading}>
-      <ArrowLeft aria-hidden="true" size={16} /> Change class
+      <ArrowLeft aria-hidden="true" size={16} /> {isEvaluation ? 'Change evaluation time' : 'Change class'}
     </button>}
     <div className="np-trial-booking-summary">
       <div>
-        <span className="np-trial-eyebrow">{confirmed ? 'Your confirmed class' : 'Your free trial'}</span>
+        <span className="np-trial-eyebrow">{isEvaluation ? confirmed ? 'Your confirmed evaluation' : 'Your free private evaluation' : confirmed ? 'Your confirmed class' : 'Your free trial'}</span>
         <h3>{selection.className}</h3>
         <p>{dateLabel}</p>
         <p>{clockTime(selection.startTime)}–{clockTime(selection.endTime)}</p>
+        {isEvaluation && <p>30 minutes · 1:1 with a coach</p>}
       </div>
       <strong>$0<span>No payment required</span></strong>
     </div>
 
     {confirmed ? <div className="np-trial-confirmed" role="status">
       <span className="np-trial-confirmed-icon"><Check aria-hidden="true" size={28} /></span>
-      <h3 ref={successRef} tabIndex={-1}>You’re in. Let’s get moving.</h3>
-      <p>Your child’s free trial is confirmed{selectedMember ? ` for ${selectedMember.first_name}` : ''}. Registration and waivers are complete, and nothing is due.</p>
+      <h3 ref={successRef} tabIndex={-1}>{isEvaluation ? 'Their private evaluation is booked.' : 'You’re in. Let’s get moving.'}</h3>
+      <p>Your child’s {isEvaluation ? 'free private evaluation' : 'free trial'} is confirmed{selectedMember ? ` for ${selectedMember.first_name}` : ''}. Registration and waivers are complete, and nothing is due.</p>
       <p>We look forward to seeing you on {dateLabel} at {clockTime(selection.startTime)}.</p>
       <a href="/?login=1" className="np-trial-text-button">Visit the member portal</a>
     </div> : <>
-      <p className="np-trial-registration-intro">A parent or legal guardian must register the athlete and sign the waivers. One free trial per athlete, for life.</p>
+      <p className="np-trial-registration-intro">A parent or legal guardian must register the athlete and sign the waivers. {isEvaluation ? 'This free evaluation is a private 30-minute session with a coach to recommend the right class.' : 'One free trial per athlete, for life.'}</p>
       {error && <div ref={errorRef} tabIndex={-1} className="np-trial-registration-error" role="alert">{error}</div>}
 
       {!token ? <>
@@ -263,7 +265,7 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
         </form>}
       </> : loadingFamily ? <p className="np-trial-registration-loading" role="status"><Loader2 className="animate-spin" size={20} aria-hidden="true" /> Loading your family and waivers…</p> : <>
         <div className="np-trial-family-heading">
-          <h3>Who’s coming to class?</h3>
+          <h3>{isEvaluation ? 'Who’s coming for an evaluation?' : 'Who’s coming to class?'}</h3>
           <button type="button" className="np-trial-text-button" disabled={loading} onClick={() => { setToken(null); setView('login'); setMemberId(null); setError(null); setCheckedTemplateIds([]); setAgreeAll(false); setPottyTrainedConfirmed(false); setSignatureName(''); setComments('') }}>Use another account</button>
         </div>
         {error && <button type="button" className="np-trial-text-button" disabled={loading} onClick={() => setLoadAttempt(attempt => attempt + 1)}>Reload family and waivers</button>}
@@ -294,7 +296,7 @@ export default function NewPageTrialRegistration({ selection, sourcePath = '/', 
           <WaiverSigningBlock waivers={waivers} checkedTemplateIds={checkedTemplateIds}
             onToggleTemplate={(id, checked) => setCheckedTemplateIds(current => checked ? [...current, id] : current.filter(item => item !== id))}
             agreeAll={agreeAll} onAgreeAllChange={setAgreeAll} signatureName={signatureName} onSignatureNameChange={setSignatureName} comments={comments} onCommentsChange={setComments} readOnly={loading} />
-          <button type="button" className="np-trial-primary-button" disabled={loading || waivers.length === 0} onClick={() => void confirmMemberTrial()}>{loading && <Loader2 className="animate-spin" size={18} aria-hidden="true" />} Confirm free trial · $0</button>
+          <button type="button" className="np-trial-primary-button" disabled={loading || waivers.length === 0} onClick={() => void confirmMemberTrial()}>{loading && <Loader2 className="animate-spin" size={18} aria-hidden="true" />} {isEvaluation ? 'Confirm free evaluation · $0' : 'Confirm free trial · $0'}</button>
         </div>}
       </>}
     </>}

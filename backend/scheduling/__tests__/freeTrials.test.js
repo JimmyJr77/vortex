@@ -22,19 +22,28 @@ function bookingClient(overrides = {}) {
     previous: [], counts: { monthly: 4, drop_ins: 1 }, entitlement: { lifetime_trial_granted: 1 }, enrolled: [], upcoming: true,
     ...overrides,
   }
-  return { calls, async query(sql, params) {
+  return { calls, fixture, async query(sql, params) {
     calls.push({ sql, params })
     if (sql.includes('FROM member WHERE')) return { rows: fixture.member ? [fixture.member] : [] }
     if (sql.includes('SELECT lifetime_trial_granted')) return { rows: [fixture.entitlement] }
     if (sql.includes('FROM scheduling_slot_group sg')) return { rows: fixture.slot ? [fixture.slot] : [] }
     if (sql.includes('FROM waiver_template template')) return { rows: fixture.requiredWaivers }
     if (sql.includes('SELECT id, slot_group_id')) return { rows: fixture.previous }
+    if (sql.includes('AS overlapping_assessment_id')) return { rows: fixture.overlap || [] }
     if (sql.includes('SELECT id FROM scheduling_signup')) return { rows: fixture.enrolled }
     if (sql.includes('AS monthly')) return { rows: [fixture.counts] }
     if (sql.includes('AS is_upcoming')) return { rows: [{ is_upcoming: fixture.upcoming }] }
     if (sql.includes('INSERT INTO drop_in_registration')) return { rows: [{ id: 90 }] }
     return { rows: [] }
   } }
+}
+
+const experiencedSelection = { ...selection, program: 'gymnastics', gymnasticsTrack: 'experienced', experience: 'experienced' }
+function privateEvaluationClient(overrides = {}) {
+  const client = bookingClient({ counts: { monthly: 0, drop_ins: 0 }, ...overrides })
+  Object.assign(client.fixture.slot, { class_name: 'Private Gymnastics Evaluation', program_name: 'Development Gymnastics',
+    age_min: 2, age_max: 17, is_trial_assessment: true, start_time: '16:00:00', end_time: '16:30:00', max_participants: 1 })
+  return client
 }
 
 test('the actual date of birth determines the 8–11 and 12–15 bands on the class date', () => {
@@ -73,8 +82,26 @@ test('gymnastics routes age and experience to configured class types, including 
   assert.equal(matchesFreeTrialClass(placement, 'gymnastics', 9, { gymnasticsTrack: 'experienced', experience: 'experienced' }), true)
   assert.equal(matchesFreeTrialClass({ ...placement, startTime: '13:00' }, 'gymnastics', 9, { gymnasticsTrack: 'experienced', experience: 'experienced' }), true)
   assert.equal(matchesFreeTrialClass({ ...placement, date: '2027-01-17' }, 'gymnastics', 6, { gymnasticsTrack: 'experienced', experience: 'experienced' }), true)
+  assert.equal(matchesFreeTrialClass({ ...placement, ageMin: 2 }, 'gymnastics', 4, { gymnasticsTrack: 'experienced', experience: 'experienced' }), true)
+  assert.equal(matchesFreeTrialClass(placement, 'gymnastics', 9, { gymnasticsTrack: 'experienced' }), false,'age never implies gymnastics experience')
+  assert.equal(matchesFreeTrialClass(preschool, 'gymnastics', 4, { gymnasticsTrack: 'preschool', experience: 'experienced' }), false)
   assert.throws(() => validateTrialSelection({ ...selection, program: 'gymnastics', gymnasticsTrack: 'mommy-me' }), /potty trained/)
   assert.throws(() => validateTrialSelection({ ...selection, program: 'gymnastics', gymnasticsTrack: 'beginner', experience: 'experienced' }), /experience/)
+  assert.throws(() => validateTrialSelection({ ...selection, program: 'gymnastics', gymnasticsTrack: 'preschool', experience: 'experienced' }), /private evaluation/)
+})
+
+test('experienced gymnastics catalog offers only private half-hour evaluations with one place', () => {
+  const base = { programName: 'Development Gymnastics', className: 'Private Gymnastics Evaluation', ageMin: 2, ageMax: 17,
+    classId: 1, slotGroupId: 1, date: '2027-01-12', startTime: '16:00', endTime: '16:30', maxParticipants: 1, isTrialAssessment: true }
+  const catalog = { classes: [base], sessions: [base,
+    { ...base, slotGroupId: 2, endTime: '17:00' }, { ...base, slotGroupId: 3, maxParticipants: 8 },
+    { ...base, slotGroupId: 4, isTrialAssessment: false, className: 'Tornadoes' },
+  ] }
+  const criteria = { program: 'gymnastics', age: 4, gymnasticsTrack: 'experienced', experience: 'experienced', now: new Date('2027-01-01T12:00:00Z') }
+  const available = filterFreeTrialCatalog(catalog, criteria)
+  assert.deepEqual(available.sessions.map(row => row.slotGroupId), [1])
+  assert.equal(available.sessions[0].totalCents, 0)
+  assert.deepEqual(filterFreeTrialCatalog(catalog, { ...criteria, experience: 'none' }).sessions, [])
 })
 
 test('catalog retains real counts, filters the cohort and omits already-started facility-local classes across UTC midnight', () => {
@@ -139,6 +166,42 @@ test('a repeated successful booking is idempotent even if its reserved seat fill
   const client = bookingClient({ previous: [{ id: 90, slot_group_id: 17, class_date: selection.classDate, status: 'confirmed', amount_cents: 0 }], counts: { monthly: 9, drop_ins: 1 } })
   assert.equal((await bookMemberFreeTrial(client, selection, context)).id, 90)
   assert.equal(client.calls.some(({ sql }) => sql.includes('INSERT INTO drop_in_registration')), false)
+})
+
+test('a private evaluation is free, marked as an assessment, and locks all overlapping assessment groups before the selected group', async () => {
+  const client = privateEvaluationClient()
+  const result = await bookMemberFreeTrial(client, experiencedSelection, context)
+  assert.equal(result.totalCents, 0)
+  assert.equal(result.isTrialAssessment, true)
+  const lockIndex = client.calls.findIndex(({ params }) => params?.[0] === 'private-trial-assessment:1:2027-01-12')
+  const groupIndex = client.calls.findIndex(({ sql }) => sql.includes('FOR UPDATE OF sg'))
+  assert.ok(lockIndex >= 0 && lockIndex < groupIndex)
+  const overlap = client.calls.find(({ sql }) => sql.includes('AS overlapping_assessment_id'))
+  assert.deepEqual(overlap.params, [1, selection.classDate, 17, '16:00:00', '16:30:00'])
+  assert.match(overlap.sql, /time\.start_time<\$5::time AND time\.end_time>\$4::time/)
+})
+
+test('private evaluations reject full places, overlapping bookings, group capacity, and non-half-hour schedules', async () => {
+  for (const scenario of [
+    { overrides: { counts: { monthly: 0, drop_ins: 1 } }, message: /filled up/ },
+    { overrides: { overlap: [{ overlapping_assessment_id: 99 }] }, message: /already been booked/ },
+    { slot: { max_participants: 2 }, message: /30-minute evaluation for one athlete/ },
+    { slot: { end_time: '17:00:00' }, message: /30-minute evaluation for one athlete/ },
+  ]) {
+    const client = privateEvaluationClient(scenario.overrides)
+    Object.assign(client.fixture.slot, scenario.slot)
+    await assert.rejects(bookMemberFreeTrial(client, experiencedSelection, context), scenario.message)
+    assert.equal(client.calls.some(({ sql }) => sql.includes('INSERT INTO drop_in_registration')), false)
+  }
+})
+
+test('experienced athletes cannot submit a regular gymnastics trial, and inexperienced athletes cannot reserve evaluations', async () => {
+  const regular = bookingClient()
+  Object.assign(regular.fixture.slot, { class_name: 'Tornadoes', program_name: 'Development Gymnastics', age_min: 6, age_max: 17 })
+  await assert.rejects(bookMemberFreeTrial(regular, experiencedSelection, context), /age on the trial date/)
+  const assessment = privateEvaluationClient()
+  await assert.rejects(bookMemberFreeTrial(assessment, { ...experiencedSelection, gymnasticsTrack: 'beginner', experience: 'none' }, context), /age on the trial date/)
+  assert.equal(assessment.calls.some(({ sql }) => sql.includes('INSERT INTO drop_in_registration')), false)
 })
 
 test('family trial signup refuses an attached paid enrollment or pending drop-in before creating accounts', async () => {

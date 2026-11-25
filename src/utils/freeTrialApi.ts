@@ -14,6 +14,7 @@ export interface FreeTrialSession extends DropInSession {
   enrolledCount: number
   timeZone?: string
   facilityId?: number
+  isTrialAssessment?: boolean
 }
 
 export interface FreeTrialAvailability {

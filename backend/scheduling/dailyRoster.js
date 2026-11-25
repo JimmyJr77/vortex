@@ -316,6 +316,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
         billingType: 'one_time',
         amountCents: Number(dropIn.amount_cents || 0),
         benefitType: dropIn.benefit_type || null,
+        isTrialAssessment: event.isTrialAssessment === true,
       }))
     const athletes = mergeDailyEnrollmentAthletes(schedulingAthletes, dropInAthletes)
 
@@ -326,6 +327,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
       timeSlotId: event.timeSlotId,
       programName: event.programName,
       className: event.className,
+      isTrialAssessment: event.isTrialAssessment === true,
       offeringLabel: event.offeringLabel,
       startTime: event.startTime,
       endTime: event.endTime,
@@ -408,28 +410,51 @@ function reportSections(roster, textLines) {
   const month = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', month: 'long', year: 'numeric' })
     .format(new Date(`${roster.date}T12:00:00Z`))
   const scheduledTrials = new Map()
+  const scheduledEvaluations = new Map()
   roster.classes.forEach((item, classIndex) => item.athletes.forEach((athlete, athleteIndex) => {
     if (athlete.source !== 'drop_in' || athlete.benefitType !== 'free_trial') return
     // A booking belongs to a group/date and may cover more than one occurrence.
     // Count that booking once in the summary while retaining each roster entry.
     const key = athlete.signupId ?? `${classIndex}:${athleteIndex}`
-    if (!scheduledTrials.has(key)) scheduledTrials.set(key, {
-      heading: `${athlete.name} (Free Trial) — ${item.className}`,
+    const isEvaluation = athlete.isTrialAssessment === true || item.isTrialAssessment === true
+    const scheduled = isEvaluation ? scheduledEvaluations : scheduledTrials
+    if (!scheduled.has(key)) scheduled.set(key, {
+      heading: `${athlete.name} (${isEvaluation ? 'Free 1:1 Evaluation' : 'Free Trial'}) — ${item.className}`,
       times: new Set(),
       programName: item.programName,
+      email: athlete.email,
+      phone: athlete.phone,
     })
-    if (item.timeLabel) scheduledTrials.get(key).times.add(item.timeLabel)
+    if (item.timeLabel) scheduled.get(key).times.add(item.timeLabel)
   }))
+  const evaluationDetails = '30-minute private evaluation · Experienced gymnastics placement'
+  const contactDetails = ({ email, phone }) => [email || 'Email not recorded', phone || 'Phone not recorded'].join(' · ')
   return [
+    section(`Free 1:1 evaluations scheduled for ${roster.dateLabel}`, [...scheduledEvaluations.values()].map((evaluation) => ({
+      heading: evaluation.heading,
+      details: [
+        [evaluation.programName, [...evaluation.times].join('; ')].filter(Boolean).join(' · '),
+        evaluationDetails,
+        contactDetails(evaluation),
+      ],
+    })), 'No free 1:1 evaluations scheduled for this date.'),
+    section('Evaluation bookings in the last 24 hours', trials.filter(trial => trial.isTrialAssessment).map((evaluation) => ({
+      heading: `${evaluation.name} (Free 1:1 Evaluation) — ${evaluation.className}`,
+      details: [
+        [evaluation.programName, evaluation.scheduleLabel || evaluation.classDate].filter(Boolean).join(' · '),
+        evaluationDetails,
+        contactDetails(evaluation),
+      ],
+    })), 'No new evaluation bookings recorded.'),
     section(`Free trials scheduled for ${roster.dateLabel}`, [...scheduledTrials.values()].map((trial) => ({
       heading: trial.heading,
       details: [[trial.programName, [...trial.times].join('; ')].filter(Boolean).join(' · ')],
     })), 'No free trials scheduled for this date.'),
-    section('Free-trial bookings in the last 24 hours', trials.map((trial) => ({
+    section('Free-trial bookings in the last 24 hours', trials.filter(trial => !trial.isTrialAssessment).map((trial) => ({
       heading: `${trial.name} (Free Trial) — ${trial.className}`,
       details: [
         [trial.programName, trial.scheduleLabel || trial.classDate].filter(Boolean).join(' · '),
-        [trial.email || 'Email not recorded', trial.phone || 'Phone not recorded'].join(' · '),
+        contactDetails(trial),
       ],
     })), 'No new free-trial bookings recorded.'),
     section('Inquiries in the last 24 hours', inquiries.map((inquiry) => ({
@@ -472,6 +497,7 @@ const SINGLE_DAY_BENEFIT_LABELS = {
 
 function rosterAthleteName(athlete) {
   if (athlete.source === 'drop_in') {
+    if (athlete.benefitType === 'free_trial' && athlete.isTrialAssessment) return `${athlete.name} (Free 1:1 Evaluation)`
     if (athlete.benefitType === 'free_trial') return `${athlete.name} (Free Trial)`
     const benefit = SINGLE_DAY_BENEFIT_LABELS[athlete.benefitType]
     return `${athlete.name} (Drop-in${benefit ? ` · ${benefit}` : ''})`
@@ -510,18 +536,21 @@ export function renderDailyRosterEmail(roster, { includeNewRegistrations = true 
       .join(' · ')
     textLines.push(heading, `${item.athleteCount} enrolled`)
     const scheduled = item.athletes.filter((athlete) => athlete.source !== 'drop_in')
-    const singleDay = item.athletes.filter((athlete) => athlete.source === 'drop_in')
+    const singleDay = item.athletes.filter((athlete) => athlete.source === 'drop_in').map(athlete => ({
+      ...athlete, isTrialAssessment: athlete.isTrialAssessment === true || item.isTrialAssessment === true,
+    }))
     if (scheduled.length) scheduled.forEach((athlete, index) => textLines.push(`${index + 1}. ${rosterAthleteName(athlete)}`))
     else textLines.push(singleDay.length ? 'No recurring or class enrollments' : 'No enrolled athletes')
     const singleDayNames = singleDay.map(rosterAthleteName)
-    if (singleDayNames.length) textLines.push(`Drop-ins, free trials and make-ups (${singleDayNames.length})`, ...singleDayNames.map((name) => `• ${name}`))
+    const singleDayTitle = item.isTrialAssessment ? 'Free 1:1 evaluations' : 'Drop-ins, free trials and make-ups'
+    if (singleDayNames.length) textLines.push(`${singleDayTitle} (${singleDayNames.length})`, ...singleDayNames.map((name) => `• ${name}`))
     textLines.push('')
 
     const athletesHtml = scheduled.length
       ? `<ol style="margin:10px 0 0;padding-left:22px">${scheduled.map((athlete) => `<li style="padding:2px 0">${escapeHtml(rosterAthleteName(athlete))}</li>`).join('')}</ol>`
       : `<p style="margin:10px 0 0;color:#6b7280">${singleDay.length ? 'No recurring or class enrollments' : 'No enrolled athletes'}</p>`
     const singleDayHtml = singleDayNames.length
-      ? `<div style="background:#eff6ff;border-left:3px solid #2563eb;padding:8px 12px;margin-top:12px"><strong>Drop-ins, free trials and make-ups (${singleDayNames.length})</strong><ul style="margin:4px 0 0;padding-left:18px">${singleDayNames.map((name) => `<li>${escapeHtml(name)}</li>`).join('')}</ul></div>`
+      ? `<div style="background:#eff6ff;border-left:3px solid #2563eb;padding:8px 12px;margin-top:12px"><strong>${singleDayTitle} (${singleDayNames.length})</strong><ul style="margin:4px 0 0;padding-left:18px">${singleDayNames.map((name) => `<li>${escapeHtml(name)}</li>`).join('')}</ul></div>`
       : ''
     return `<section style="border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:0 0 14px">
       <h2 style="font-size:17px;margin:0;color:#111827">${escapeHtml(heading)}</h2>

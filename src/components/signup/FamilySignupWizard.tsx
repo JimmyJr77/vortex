@@ -313,6 +313,7 @@ export default function FamilySignupWizard({
   const isMinorStart = mode === 'minor-start'
   const isWaiversMemberships = mode === 'waivers-memberships'
   const isFreeTrial = mode === 'public' && Boolean(freeTrial)
+  const isEvaluation = isFreeTrial && freeTrial?.program === 'gymnastics' && freeTrial.gymnasticsTrack === 'experienced' && freeTrial.experience === 'experienced'
 
   const [step, setStep] = useState(isAdmin ? 0 : 1)
   const [accountLoaded, setAccountLoaded] = useState(!isAdminEdit)
@@ -1408,7 +1409,7 @@ export default function FamilySignupWizard({
         const booking = data.data?.completedDropIn
         if (booking?.status !== 'confirmed' || booking?.benefitType !== 'free_trial' || booking?.totalCents !== 0) {
           trackEvent('trial_confirm_error', trialSourcePath, { properties: { program_slug: freeTrial?.program } })
-          setSuccessMessage('Your account was created, but we could not confirm the free trial. Please contact Vortex before attending.')
+          setSuccessMessage(`Your account was created, but we could not confirm the ${isEvaluation ? 'evaluation' : 'free trial'}. Please contact Vortex before attending.`)
           setSuccessDestination('/?login=1')
           return
         }
@@ -1417,7 +1418,7 @@ export default function FamilySignupWizard({
           emailOrUsername: primaryAdult.username, password: primaryAdult.password,
         }).catch(() => null)
         if (login) persistMemberSession(login.token, login.member)
-        setSuccessMessage('Your free trial is confirmed. No payment is due.')
+        setSuccessMessage(`Your ${isEvaluation ? 'free private evaluation' : 'free trial'} is confirmed. No payment is due.`)
         setSuccessDestination('/?login=1')
         onComplete?.(data.data)
         return
@@ -1787,7 +1788,7 @@ export default function FamilySignupWizard({
               ? 'Youth signup — invite a parent'
               : isAdmin
                 ? 'Create Vortex account'
-                : dropInSignup ? 'Register for your drop-in' : isFreeTrial ? 'Register for your free trial' : 'Join Vortex Athletics'}
+                : dropInSignup ? 'Register for your drop-in' : isEvaluation ? 'Register for your free private evaluation' : isFreeTrial ? 'Register for your free trial' : 'Join Vortex Athletics'}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
           Step {step} of {maxStep} —{' '}
@@ -2009,7 +2010,7 @@ export default function FamilySignupWizard({
             className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : dropInSignup ? 'Create account & review payment' : isFreeTrial ? 'Confirm free trial · $0' : 'Create account') : 'Continue'}
+            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : dropInSignup ? 'Create account & review payment' : isEvaluation ? 'Confirm free evaluation · $0' : isFreeTrial ? 'Confirm free trial · $0' : 'Create account') : 'Continue'}
             {step < maxStep && <ChevronRight className="w-4 h-4" />}
           </button>
         </div>

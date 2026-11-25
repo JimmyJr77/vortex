@@ -198,3 +198,44 @@ test('trial summary counts a group booking once across multiple same-day class t
   }
   assert.equal(text.split('One Trial (Free Trial)').length, 4, 'one summary entry and two scheduled occurrences')
 })
+
+test('daily report distinguishes private evaluations from free trials in dated bookings, activity and roster', () => {
+  const { text, html } = renderDailyRosterEmail({
+    date: '2026-11-19', dateLabel: 'Thursday, November 19, 2026', classCount: 2, athleteCount: 2,
+    report: {
+      inquiries: [], enrollees: [], adds: [], drops: [], unpaid: [],
+      trials: [
+        { name: 'Future <Evaluation>', className: 'Gymnastics Evaluation', programName: 'Gymnastics', isTrialAssessment: true,
+          classDate: '2026-11-20', scheduleLabel: '2026-11-20 · 19:30–20:00', email: 'parent@example.test', phone: '202-555-0123' },
+        { name: 'Future Trial', className: 'Tornadoes', classDate: '2026-11-20' },
+      ],
+    },
+    classes: [
+      { startTime: '16:00', timeLabel: '4:00 PM–4:30 PM', className: 'Gymnastics Evaluation', programName: 'Gymnastics',
+        isTrialAssessment: true, athleteCount: 1,
+        athletes: [{ signupId: 1, name: 'Experienced <Athlete>', source: 'drop_in', benefitType: 'free_trial', email: 'today@example.test', phone: '202-555-0199' }] },
+      { startTime: '17:30', timeLabel: '5:30 PM–6:30 PM', className: 'Tornadoes', athleteCount: 1,
+        athletes: [{ signupId: 2, name: 'Beginner Athlete', source: 'drop_in', benefitType: 'free_trial' }] },
+    ],
+  })
+  for (const output of [text, html]) {
+    assert.match(output, /Free 1:1 evaluations scheduled for Thursday, November 19, 2026 \(1\)/)
+    assert.match(output, /Evaluation bookings in the last 24 hours \(1\)/)
+    assert.match(output, /30-minute private evaluation · Experienced gymnastics placement/)
+    assert.match(output, /4:00 PM–4:30 PM/)
+    assert.match(output, /2026-11-20 · 19:30–20:00/)
+    assert.match(output, /today@example\.test · 202-555-0199/)
+    assert.match(output, /parent@example\.test · 202-555-0123/)
+    assert.match(output, /Free trials scheduled for Thursday, November 19, 2026 \(1\)/)
+    assert.match(output, /Free-trial bookings in the last 24 hours \(1\)/)
+    assert.match(output, /Beginner Athlete \(Free Trial\)/)
+    assert.match(output, /Future Trial \(Free Trial\)/)
+    assert.match(output, /Free 1:1 evaluations \(1\)/)
+    assert.doesNotMatch(output, /Evaluation[^\n<]*\(Free Trial\)|Athlete[^\n<]*\(Free Trial\) — Gymnastics Evaluation/)
+  }
+  assert.equal(text.split('Experienced <Athlete> (Free 1:1 Evaluation)').length, 3, 'one daily summary and one roster entry')
+  assert.equal(text.split('Future <Evaluation> (Free 1:1 Evaluation)').length, 2, 'future evaluation appears only in recent activity')
+  assert.match(html, /Experienced &lt;Athlete&gt; \(Free 1:1 Evaluation\)/)
+  assert.match(html, /Future &lt;Evaluation&gt; \(Free 1:1 Evaluation\)/)
+  assert.doesNotMatch(html, /<Athlete>|<Evaluation>/)
+})

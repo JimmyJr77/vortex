@@ -11,7 +11,7 @@ export async function loadDailyReportTrials(pool, { since, through }) {
             d.class_date::text AS class_date, d.created_at AS registered_at, d.status,
             COALESCE(NULLIF(BTRIM(m.first_name), ''), NULLIF(BTRIM(d.first_name), ''), '') AS first_name,
             COALESCE(NULLIF(BTRIM(m.last_name), ''), NULLIF(BTRIM(d.last_name), ''), '') AS last_name,
-            d.email, d.phone,
+            d.email, d.phone, p.is_trial_assessment,
             COALESCE(NULLIF(BTRIM(p.display_name), ''), NULLIF(BTRIM(p.name), ''),
                      NULLIF(BTRIM(sf.title), ''), 'Class') AS class_name,
             COALESCE(NULLIF(BTRIM(pr.display_name), ''), NULLIF(BTRIM(pr.name), '')) AS program_name
@@ -82,6 +82,7 @@ export async function loadDailyReportTrials(pool, { since, through }) {
       registeredAt: row.registered_at,
       status: row.status,
       benefitType: 'free_trial',
+      isTrialAssessment: row.is_trial_assessment === true,
     }
   })
 }

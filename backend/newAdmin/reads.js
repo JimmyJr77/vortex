@@ -103,14 +103,19 @@ export async function classDetail(db,facilityId,classId,query={}) {
     db.query(`SELECT g.id,g.max_participants,g.active_start,g.active_end,g.offering_id,g.is_active,COUNT(*) OVER()::int AS group_total,
       ${scheduleCountsSql('g.id')}
       FROM scheduling_slot_group g WHERE g.form_id=$1 ORDER BY g.id LIMIT 100`,[item.formId]),
-    db.query(`SELECT ts.id,ts.slot_group_id,ts.day_of_week,ts.week_letter,ts.specific_date,ts.start_time,ts.end_time,ts.schedule_mode,ts.is_active,COUNT(*) OVER()::int AS slot_total
+    db.query(`SELECT ts.id,ts.slot_group_id,ts.day_of_week,ts.week_letter,ts.specific_date,ts.start_time,ts.end_time,ts.schedule_mode,ts.is_active,COUNT(*) OVER()::int AS slot_total,
+      p.is_trial_assessment,
+      NOT COALESCE(ts.exclude_from_drop_ins,p.exclude_from_drop_ins,booking_program.exclude_from_drop_ins,FALSE) AS allow_drop_ins,
+      COALESCE(ts.allow_free_trials,NOT COALESCE(ts.exclude_from_drop_ins,p.exclude_from_drop_ins,booking_program.exclude_from_drop_ins,FALSE)) AS allow_free_trials
       FROM scheduling_time_slot ts JOIN scheduling_slot_group g ON g.id=ts.slot_group_id
+      JOIN scheduling_form f ON f.id=g.form_id JOIN program p ON p.id=f.program_id
+      LEFT JOIN programs booking_program ON booking_program.id=COALESCE(f.programs_id,p.programs_id) AND booking_program.facility_id=p.facility_id
       WHERE g.form_id=$1 ORDER BY g.id,ts.day_of_week,ts.start_time,ts.id LIMIT 1000`,[item.formId]),
     classRosterForForm(db,facilityId,item.formId,query),
   ])
   return {class:item,scheduleTruncated:Number(groups.rows[0]?.group_total||0)>groups.rows.length||Number(slots.rows[0]?.slot_total||0)>slots.rows.length,
     groups:groups.rows.map(g=>({id:Number(g.id),isActive:g.is_active,capacity:Number(g.max_participants),enrolledCount:Number(g.signup_count),waitlistCount:Number(g.waitlist_count),reservedCount:Number(g.reserved_count || 0),activeStart:date(g.active_start),activeEnd:date(g.active_end),offeringId:g.offering_id==null?null:Number(g.offering_id),
-    slots:slots.rows.filter(s=>Number(s.slot_group_id)===Number(g.id)).map(s=>({id:Number(s.id),dayOfWeek:s.day_of_week,weekLetter:s.week_letter,specificDate:date(s.specific_date),startTime:s.start_time,endTime:s.end_time,scheduleMode:s.schedule_mode,isActive:s.is_active}))})),
+    slots:slots.rows.filter(s=>Number(s.slot_group_id)===Number(g.id)).map(s=>({id:Number(s.id),dayOfWeek:s.day_of_week,weekLetter:s.week_letter,specificDate:date(s.specific_date),startTime:s.start_time,endTime:s.end_time,scheduleMode:s.schedule_mode,isActive:s.is_active,allowDropIns:s.allow_drop_ins,allowFreeTrials:s.allow_free_trials,isTrialAssessment:s.is_trial_assessment}))})),
     roster}
 }
 

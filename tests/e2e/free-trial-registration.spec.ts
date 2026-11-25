@@ -179,6 +179,7 @@ test('a full gymnastics trial day offers open dates or an inquiry when every dat
   const dialog = page.locator('dialog.np-dialog-trial[open]')
   await dialog.getByLabel('Your child’s age').fill('2')
   await dialog.getByRole('button', { name: 'Find available classes' }).click()
+  await dialog.getByRole('button', { name: /^New to gymnastics/ }).click()
   await dialog.getByRole('button', { name: /^Yes, potty trained/ }).click()
   const openTrial = dialog.getByRole('button', { name: /Dirt Devils.*2 spots available/ })
   await expect(openTrial).toBeEnabled()
@@ -303,3 +304,107 @@ test('Mommy & Me also requires the existing guardian to reconfirm potty training
     memberId: 102, program: 'gymnastics', gymnasticsTrack: 'mommy-me', pottyTrained: true,
   })
 })
+
+async function mockGymnasticsPlacement(page: Page) {
+  const queries: URLSearchParams[] = []
+  const evaluationTimes = [
+    ['2027-01-14', '16:00:00', '16:30:00'], ['2027-01-14', '16:30:00', '17:00:00'], ['2027-01-14', '17:00:00', '17:30:00'],
+    ['2027-01-12', '19:30:00', '20:00:00'], ['2027-01-13', '19:30:00', '20:00:00'], ['2027-01-14', '19:30:00', '20:00:00'], ['2027-01-15', '19:30:00', '20:00:00'],
+  ]
+  await page.route('**/api/public/free-trials?*', async route => {
+    const query = new URL(route.request().url()).searchParams
+    queries.push(query)
+    const age = Number(query.get('age'))
+    const track = query.get('gymnasticsTrack')
+    const sessions = track === 'experienced' ? evaluationTimes.map(([date, startTime, endTime], index) => ({
+      classId: 104, className: 'Trial Assessment', slotGroupId: 200 + index, date, startTime, endTime,
+      isTrialAssessment: true, maxParticipants: 1, enrolledCount: index === 0 ? 1 : 0,
+      spotsRemaining: index === 0 ? 0 : 1, isFull: index === 0, facilityId: 1, timeZone: 'America/New_York',
+    })) : track ? [{
+      classId: 105, className: age <= 3 ? 'Mommy & Me' : age <= 5 ? 'Preschool' : 'Tornadoes',
+      slotGroupId: 300, date: '2027-01-14', startTime: '16:00:00', endTime: '17:00:00',
+      enrolledCount: 3, spotsRemaining: 5, isFull: false, facilityId: 1,
+    }] : []
+    await route.fulfill({ json: { success: true, data: {
+      program: 'gymnastics', age, ageBand: null, classes: [], sessions,
+      gymnasticsRouting: { track: age <= 3 ? 'mommy-me' : age <= 5 ? 'preschool' : 'school-age' },
+    } } })
+  })
+  return queries
+}
+
+async function choosePrivateEvaluation(page: Page) {
+  await page.goto('/gymnastics#open-free-trial')
+  const dialog = page.locator('dialog.np-dialog-trial[open]')
+  await dialog.getByLabel('Your child’s age').fill('10')
+  await dialog.getByRole('button', { name: 'Find available classes' }).click()
+  await expect(dialog.getByRole('heading', { name: 'Have they tried gymnastics?' })).toBeVisible()
+  await dialog.getByRole('button', { name: /^Has gymnastics experience/ }).click()
+  await expect(dialog.getByRole('heading', { name: 'Choose your private evaluation.' })).toBeVisible()
+  await expect(dialog.getByText(/free private 30-minute evaluation, 1:1 with a coach/)).toBeVisible()
+  await expect(dialog.locator('.np-trial-session')).toHaveCount(7)
+  await expect(dialog.locator('.np-trial-session').filter({ hasText: '4:00 PM–4:30 PM' })).toBeDisabled()
+  await dialog.getByRole('button', { name: 'Thursday', exact: true }).click()
+  await dialog.locator('.np-trial-session').filter({ hasText: '4:30 PM–5:00 PM' }).click()
+  await expect(dialog.getByText('1 athlete · 1:1 with a coach', { exact: true })).toBeVisible()
+  await dialog.getByRole('button', { name: 'Book our free evaluation' }).click()
+  return dialog
+}
+
+test('experienced gymnasts can book a free private 30-minute evaluation after new-family waivers', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  const submitted = await mockTrialApi(page)
+  const queries = await mockGymnasticsPlacement(page)
+  await choosePrivateEvaluation(page)
+  await expect(page.getByRole('heading', { name: 'Register for your free private evaluation' })).toBeVisible()
+  await completeGuardianAndChild(page)
+  await signTestWaivers(page)
+  await page.getByRole('button', { name: 'Confirm free evaluation · $0' }).click()
+  await expect(page.getByRole('heading', { name: 'Their private evaluation is booked.' })).toBeVisible()
+  expect(queries.map(query => query.get('gymnasticsTrack'))).toEqual([null, 'experienced'])
+  expect(submitted.find(item => item.path === '/api/signup/family')?.body.freeTrial).toEqual({
+    program: 'gymnastics', age: 10, slotGroupId: 201, classDate: '2027-01-14', memberIndex: 1,
+    gymnasticsTrack: 'experienced', experience: 'experienced',
+  })
+  expect(submitted.filter(item => /billing|checkout|stripe/.test(item.path))).toEqual([])
+  expect(await page.locator('body').evaluate(body => body.scrollWidth <= window.innerWidth)).toBe(true)
+})
+
+test('existing guardians book the same evaluation with their child and current waivers', async ({ page }) => {
+  const submitted = await mockTrialApi(page)
+  await mockGymnasticsPlacement(page)
+  await page.addInitScript(() => localStorage.setItem('vortex_member_token', 'test-parent-token'))
+  await choosePrivateEvaluation(page)
+  await page.getByRole('radio', { name: /Test Child/ }).check()
+  await signTestWaivers(page)
+  await page.getByRole('button', { name: 'Confirm free evaluation · $0' }).click()
+  await expect(page.getByRole('heading', { name: 'Their private evaluation is booked.' })).toBeVisible()
+  expect(submitted.find(item => item.path === '/api/members/free-trials/register')?.body).toMatchObject({
+    memberId: 102, program: 'gymnastics', slotGroupId: 201, classDate: '2027-01-14',
+    gymnasticsTrack: 'experienced', experience: 'experienced',
+  })
+  expect(submitted.filter(item => /billing|checkout|stripe/.test(item.path))).toEqual([])
+})
+
+for (const age of [3, 5]) {
+  test(`gymnasts age ${age} answer the experience question before choosing a trial or evaluation`, async ({ page }) => {
+    await mockTrialApi(page)
+    const queries = await mockGymnasticsPlacement(page)
+    await page.goto('/gymnastics#open-free-trial')
+    const dialog = page.locator('dialog.np-dialog-trial[open]')
+    await dialog.getByLabel('Your child’s age').fill(String(age))
+    await dialog.getByRole('button', { name: 'Find available classes' }).click()
+    await expect(dialog.getByRole('heading', { name: 'Have they tried gymnastics?' })).toBeVisible()
+    const start = queries.length
+    await dialog.getByRole('button', { name: /^New to gymnastics/ }).click()
+    if (age === 3) await dialog.getByRole('button', { name: /^Yes, potty trained/ }).click()
+    await expect(dialog.getByRole('heading', { name: 'Pick a day to try it.' })).toBeVisible()
+    await expect(dialog.locator('.np-trial-session').filter({ hasText: age === 3 ? 'Mommy & Me' : 'Preschool' })).toBeEnabled()
+    expect(queries.slice(start).map(query => [query.get('gymnasticsTrack'), query.get('experience')])).toEqual([[age === 3 ? 'mommy-me' : 'preschool', 'none']])
+    await dialog.getByRole('button', { name: /Change your answers/ }).click()
+    await dialog.getByRole('button', { name: /^Has gymnastics experience/ }).click()
+    await expect(dialog.getByRole('heading', { name: 'Choose your private evaluation.' })).toBeVisible()
+    await expect(dialog.locator('.np-trial-session')).toHaveCount(7)
+    expect(queries.at(-1)?.get('experience')).toBe('experienced')
+  })
+}

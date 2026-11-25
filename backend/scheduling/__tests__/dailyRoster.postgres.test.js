@@ -38,11 +38,15 @@ test('daily roster marks the first actual class day and includes only confirmed 
           (form_id,slot_group_id,schedule_mode,day_of_week,start_time,end_time,max_participants,active_start,dates_tbd,is_active)
           VALUES($1,$2,'day',$3,'16:00','17:00',100,'2029-12-01',FALSE,TRUE) RETURNING id`, [formId, groupId, day])).id))
       }
-      return { formId, groupId, slotIds }
+      return { classId, formId, groupId, slotIds }
     }
     const main = await addClass('Monday class')
     const newClass = await addClass('Different Monday class')
     const multiDay = await addClass('Monday Wednesday class', [1, 3])
+    const evaluation = await addClass('Private evaluation')
+    await db.query('UPDATE program SET is_trial_assessment=TRUE WHERE id=$1', [evaluation.classId])
+    await db.query('UPDATE scheduling_slot_group SET max_participants=1 WHERE id=$1', [evaluation.groupId])
+    await db.query("UPDATE scheduling_time_slot SET start_time='19:30',end_time='20:00',max_participants=1 WHERE id=ANY($1::bigint[])", [evaluation.slotIds])
     const member = async name => Number((await one(`INSERT INTO member
       (facility_id,first_name,last_name,date_of_birth,is_active,created_at)
       VALUES($1,$2,'Roster','2019-01-01',TRUE,'2020-01-01') RETURNING id`, [facilityId, name])).id)
@@ -51,11 +55,11 @@ test('daily roster marks the first actual class day and includes only confirmed 
         (form_id,slot_group_id,time_slot_id,member_id,first_name,last_name,email,status,enrollment_start_date,archived_at,cancel_effective_date)
         VALUES($1,$2,$3,$4,'Submitted','Roster',$5,$6,$7,CASE WHEN $8::boolean THEN now() END,$9) RETURNING id`,
       [klass.formId, klass.groupId, slotId, memberId, `roster-${memberId}-${suffix}@example.test`, status, start, archived, cancelDate])).id)
-    const dropIn = async (name, { status = 'confirmed', date = '2030-01-07', benefit = 'free_trial', memberId = null } = {}) =>
+    const dropIn = async (name, { status = 'confirmed', date = '2030-01-07', benefit = 'free_trial', memberId = null, klass = main } = {}) =>
       Number((await one(`INSERT INTO drop_in_registration
         (form_id,slot_group_id,member_id,class_date,first_name,last_name,email,status,benefit_type,amount_cents)
         VALUES($1,$2,$3,$4,$5,'Roster',$6,$7,$8,$9) RETURNING id`,
-      [main.formId, main.groupId, memberId, date, name, `${name}-${suffix}@example.test`, status, benefit, benefit === 'paid' ? 2500 : 0])).id)
+      [klass.formId, klass.groupId, memberId, date, name, `${name}-${suffix}@example.test`, status, benefit, benefit === 'paid' ? 2500 : 0])).id)
 
     const first = await member('Firstday')
     const established = await member('Established')
@@ -75,6 +79,7 @@ test('daily roster marks the first actual class day and includes only confirmed 
     const paid = await dropIn('Paidvisit', { benefit: 'paid' })
     const credit = await dropIn('Creditvisit', { benefit: 'annual_credit' })
     const duplicateDropIn = await dropIn('Duplicate', { memberId: duplicate, benefit: 'admin_credit' })
+    const evaluationBooking = await dropIn('Experienced', { klass: evaluation })
     for (const [name, options] of [
       ['Pendingaccount', { status: 'account_required' }], ['Pendingpayment', { status: 'payment_pending' }],
       ['Cancelledtrial', { status: 'cancelled' }], ['Futuretrial', { date: '2030-01-14' }],
@@ -94,10 +99,16 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.equal(classFor(monday, main).athletes.filter(row => row.memberId === duplicate).length, 1)
     assert.equal(athlete(monday, main, duplicate)?.source, 'drop_in', 'the specific attendance booking wins over recurring enrollment')
     assert.equal(classFor(monday, main).athleteCount, 7)
+    assert.equal(classFor(monday, evaluation).isTrialAssessment, true)
+    assert.equal(classFor(monday, evaluation).timeLabel, '7:30 PM–8:00 PM')
+    assert.equal(classFor(monday, evaluation).athletes[0].signupId, evaluationBooking)
+    assert.equal(classFor(monday, evaluation).athletes[0].isTrialAssessment, true)
     const rendered = renderDailyRosterEmail(monday, { includeNewRegistrations: false })
     assert.match(rendered.text, /Firstday Roster \(New\)/)
     assert.match(rendered.text, /Confirmedtrial Roster \(Free Trial\)/)
     assert.match(rendered.text, /Attendedtrial Roster \(Free Trial\)/)
+    assert.match(rendered.text, /Experienced Roster \(Free 1:1 Evaluation\)/)
+    assert.doesNotMatch(rendered.text, /Experienced Roster \(Free Trial\)/)
     assert.doesNotMatch(rendered.text, /Pendingaccount|Pendingpayment|Cancelledtrial|Futuretrial|Archived Roster|Cancelled Roster|Effectivecancel Roster|Futurestart Roster/)
 
     const wednesday = await rosterFor('2030-01-09')

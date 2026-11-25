@@ -17,12 +17,14 @@ const Scheduling = lazyWithRetry(() => import('./ScheduleEditor'))
 const ClassModal = lazyWithRetry(() => import('../programs/ClassEventModal'))
 interface ClassRow { monthlyPriceCents?: number | null; costAmountCents?: number; costUnit?: string; scheduleGroups?: ClassScheduleGroup[]; otherScheduleGroups?: ClassScheduleGroup[]; id: number; formId: number | null; programsId: number | null; name: string; programName: string | null; isActive: boolean; archived: boolean; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; details: ClassEventFormData }
 interface ScheduleTime { id: number; dayOfWeek: number; weekLetter: string | null; specificDate: string | null; startTime: string; endTime: string }
-interface ClassScheduleTime extends ScheduleTime {
-  activeStart: string | null
-  activeEnd: string | null
+interface BookingAvailability {
   allowDropIns: boolean
   allowFreeTrials: boolean
   isTrialAssessment?: boolean
+}
+interface ClassScheduleTime extends ScheduleTime, BookingAvailability {
+  activeStart: string | null
+  activeEnd: string | null
 }
 interface ClassScheduleGroup {
   id: number
@@ -31,7 +33,7 @@ interface ClassScheduleGroup {
   waitlistCount: number
   slots: ClassScheduleTime[]
 }
-interface Slot extends ScheduleTime { scheduleMode: string; isActive: boolean }
+interface Slot extends ScheduleTime, BookingAvailability { scheduleMode: string; isActive: boolean }
 interface Group { id: number; capacity: number; enrolledCount: number; waitlistCount: number; reservedCount?: number; activeStart: string | null; activeEnd: string | null; slots: Slot[] }
 
 interface Detail { class: ClassRow; groups: Group[]; roster: Page<RosterRow>; scheduleTruncated?: boolean }
@@ -46,7 +48,7 @@ const classColumns = [
 const ClassMaster = lazyWithRetry(() => import('../classSetup/AdminClassSetupOverview'))
 type ClassesProps = { access: Access; revision: number; onMember: (id: number) => void }
 type ArchiveVisibility = { showArchived: boolean; onToggleArchived: () => void }
-type ScheduleBooking = { classId: number; className: string; slot: ClassScheduleTime }
+type ScheduleBooking = { classId: number; className: string; slot: ScheduleTime & BookingAvailability }
 
 function scheduleTimeLabel(slot: ScheduleTime) {
   const day = slot.specificDate || ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][slot.dayOfWeek]
@@ -176,15 +178,7 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
                           <p className="whitespace-nowrap">{scheduleTimeLabel(slot)}
                             {slot.activeStart || slot.activeEnd ? <span className="text-xs text-slate-500"> · {slot.activeStart || 'Open start'} – {slot.activeEnd || 'Ongoing'}</span> : null}
                           </p>
-                          {typeof slot.allowFreeTrials === 'boolean' && (
-                            canManage && !row.archived ? (
-                              <button type="button" className="text-left text-xs font-semibold text-slate-700 underline underline-offset-2 hover:text-red-700"
-                                aria-label={`Edit drop-ins and free trials for ${row.name} · ${scheduleTimeLabel(slot)}`}
-                                onClick={() => setBooking({ classId: row.id, className: row.name, slot })}>
-                                <ScheduleBookingStatus slot={slot} />
-                              </button>
-                            ) : <p className="text-xs text-slate-500"><ScheduleBookingStatus slot={slot} /></p>
-                          )}
+                          <ScheduleBookingControl booking={{ classId: row.id, className: row.name, slot }} canEdit={canManage && !row.archived} onEdit={setBooking} />
                         </div>) : 'No available schedules'}
                       </td>
                       <td className={`${cell} tabular-nums`}>{schedule?.enrolledCount ?? '—'}</td>
@@ -213,7 +207,17 @@ function ClassesList({ access, revision, onMember, showArchived, onToggleArchive
   </section>
 }
 
-function ScheduleBookingStatus({ slot }: { slot: ClassScheduleTime }) {
+function ScheduleBookingControl({ booking, canEdit, onEdit }: { booking: ScheduleBooking; canEdit: boolean; onEdit: (booking: ScheduleBooking) => void }) {
+  const { className, slot } = booking
+  if (typeof slot.allowFreeTrials !== 'boolean') return null
+  return canEdit ? <button type="button" className="text-left text-xs font-semibold text-slate-700 underline underline-offset-2 hover:text-red-700"
+    aria-label={`Edit drop-ins and free trials for ${className} · ${scheduleTimeLabel(slot)}`}
+    onClick={() => onEdit(booking)}>
+    <ScheduleBookingStatus slot={slot} />
+  </button> : <p className="text-xs text-slate-500"><ScheduleBookingStatus slot={slot} /></p>
+}
+
+function ScheduleBookingStatus({ slot }: { slot: BookingAvailability }) {
   return <>{slot.isTrialAssessment ? '' : `Drop-ins: ${slot.allowDropIns ? 'Allowed' : 'Blocked'} · `}Free trials: {slot.allowFreeTrials ? 'Allowed' : 'Blocked'}</>
 }
 
@@ -265,6 +269,7 @@ function ClassDetail({ id, access, revision, onBack, onMember, onChanged, onEdit
   const [selection, setSelection] = useState<ScheduleSelection | null>(null)
   const selectSchedule = (next: ScheduleSelection) => setSelection(current => current?.groupId === next.groupId && current.slotId === next.slotId ? null : next)
   const [schedule, setSchedule] = useState(false)
+  const [booking, setBooking] = useState<ScheduleBooking | null>(null)
   const [action, setAction] = useState<RosterRow | null>(null)
   const [archiving, setArchiving] = useState(false)
   const [archiveError, setArchiveError] = useState<string | null>(null)
@@ -289,15 +294,19 @@ function ClassDetail({ id, access, revision, onBack, onMember, onChanged, onEdit
         <div className="mt-2 space-y-2">{group.slots.map(slot => {
           const label = `${slot.specificDate?.slice(0, 10) || ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][slot.dayOfWeek]}${slot.weekLetter ? ` · Week ${slot.weekLetter}` : ''} · ${formatTime(slot.startTime)}–${formatTime(slot.endTime)}${!slot.isActive ? ' · Inactive' : ''}`
           const selected = selection?.groupId === group.id && selection.slotId === slot.id
-          return <button type="button" key={slot.id} aria-pressed={selected} onClick={() => selectSchedule({ groupId: group.id, slotId: slot.id, label: `Schedule #${group.id} · ${label}` })} className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition-colors ${selected ? 'border-vortex-red bg-vortex-red text-white' : 'border-slate-200 bg-white hover:border-vortex-red'}`}>{label}</button>
+          return <div key={slot.id} className="space-y-1">
+            <button type="button" aria-pressed={selected} onClick={() => selectSchedule({ groupId: group.id, slotId: slot.id, label: `Schedule #${group.id} · ${label}` })} className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition-colors ${selected ? 'border-vortex-red bg-vortex-red text-white' : 'border-slate-200 bg-white hover:border-vortex-red'}`}>{label}</button>
+            <ScheduleBookingControl booking={{ classId: id, className: detail.class.name, slot }} canEdit={allowed(access, 'classes.manage') && !detail.class.archived} onEdit={setBooking} />
+          </div>
         })}</div>
         <p className="my-3 text-sm text-slate-600">{group.enrolledCount} enrolled · {group.reservedCount || 0} reserved · {Math.max(0, group.capacity - group.enrolledCount - (group.reservedCount || 0))} open · {group.waitlistCount} waiting</p>
-        {allowed(access, 'scheduling.manage') ? <Capacity group={group} onChanged={onChanged} /> : <p className="text-sm">Capacity: {group.capacity}</p>}
+        {allowed(access, 'scheduling.manage') && !group.slots.some(slot => slot.isTrialAssessment) ? <Capacity group={group} onChanged={onChanged} /> : <p className="text-sm">Capacity: {group.capacity}{group.slots.some(slot => slot.isTrialAssessment) ? ' · Private evaluation' : ''}</p>}
       </div>)}</div> : <Empty>No schedules have been created for this class.</Empty>}
     </section>
     <ClassRoster classId={id} selection={selection} revision={revision} access={access} onMember={onMember} onManage={setAction} />
     {schedule ? <Dialog title={`Schedules · ${detail.class.name}`} onClose={() => { setSchedule(false); onChanged() }}><Suspense fallback={<Loading />}><Scheduling classId={id} formId={detail.class.formId} /></Suspense></Dialog> : null}
     {action ? <EnrollmentActions memberId={action.memberId!} enrollmentId={action.id} onClose={() => setAction(null)} onChanged={() => { setAction(null); onChanged() }} /> : null}
+    {booking && <ScheduleBookingDialog booking={booking} onClose={() => setBooking(null)} onSaved={() => { setBooking(null); onChanged() }} />}
   </> : null}</div>
 }
 

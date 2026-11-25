@@ -1,6 +1,7 @@
 import { prepareDatedEnrollmentAction, processDueEnrollmentActions } from './datedEnrollmentActions.js'
 import { scheduleCapacity, scheduleCountsSql, scheduleSignupCountSql } from './scheduleCapacity.js'
 import { resolveAdminSignupResponses } from './adminSignupContact.js'
+import { saveAssessmentTime } from './trialAssessmentSchedule.js'
 import { recordBillingActivity } from '../billing/billingActivity.js'
 import { createEnrollmentPriceAdjustment } from '../billing/customerBillingAdjustments.js'
 import { requireAdminFacilityScope } from '../billing/adminFacilityScope.js'
@@ -5043,6 +5044,33 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
 
     async updateSlotGroupMax(req, res) {
       try {
+        const assessment = (await pool.query(`SELECT sf.id AS form_id,p.facility_id,p.is_trial_assessment
+          FROM scheduling_slot_group sg JOIN scheduling_form sf ON sf.id=sg.form_id
+          JOIN program p ON p.id=sf.program_id WHERE sg.id=$1`, [req.params.id])).rows[0]
+        if (assessment?.is_trial_assessment) {
+          if (req.body.scheduleMode) return res.status(400).json({ success: false, message: 'Edit each private evaluation time in the assessment schedule.' })
+          const client = await pool.connect()
+          try {
+            await client.query('BEGIN')
+            const current = (await client.query(`SELECT ts.*,CASE WHEN sg.inherits_offering_dates THEN offering.start_date ELSE COALESCE(sg.active_start,sf.start_date) END AS effective_start,
+              CASE WHEN sg.inherits_offering_dates THEN offering.end_date ELSE COALESCE(sg.active_end,sf.end_date) END AS effective_end
+              FROM scheduling_slot_group sg JOIN scheduling_form sf ON sf.id=sg.form_id
+              JOIN scheduling_time_slot ts ON ts.slot_group_id=sg.id AND ts.is_active=TRUE
+              LEFT JOIN scheduling_offering offering ON offering.id=sg.offering_id
+              WHERE sg.id=$1 ORDER BY ts.id`, [req.params.id])).rows[0]
+            if (!current) throw Object.assign(new Error('Assessment time not found.'), { statusCode: 404 })
+            const result = await saveAssessmentTime(client, { facilityId: assessment.facility_id, formId: assessment.form_id,
+              slotGroupId: req.params.id, body: { scheduleMode: current.schedule_mode, dayOfWeek: current.day_of_week,
+                specificDate: formatDateOnly(current.specific_date), startTime: String(current.start_time).slice(0,5), endTime: String(current.end_time).slice(0,5),
+                maxParticipants: req.body.maxParticipants, activeStart: formatDateOnly(current.effective_start), activeEnd: formatDateOnly(current.effective_end) } })
+            await client.query('COMMIT')
+            return res.json({ success: true, data: result })
+          } catch (error) {
+            await client.query('ROLLBACK')
+            if (error.statusCode) return res.status(error.statusCode).json({ success: false, message: error.message })
+            throw error
+          } finally { client.release() }
+        }
         if (req.body.scheduleMode) {
           const group = (await pool.query('SELECT form_id FROM scheduling_slot_group WHERE id=$1', [req.params.id])).rows[0]
           if (!group) return res.status(404).json({ success: false, message: 'Schedule not found' })

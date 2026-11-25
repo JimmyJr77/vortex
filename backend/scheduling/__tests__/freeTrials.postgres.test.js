@@ -46,10 +46,10 @@ async function addClass(db, { facilityId, programId, name, min, max, date, asses
     VALUES ($1,$2,$3,TRUE,(clock_timestamp() AT TIME ZONE 'America/New_York')::date,TRUE,18000,18000,'per_month','{}'::jsonb) RETURNING id`, [classId, programId, name])).rows[0].id)
   const groupId = Number((await db.query(`INSERT INTO scheduling_slot_group
     (form_id,schedule_mode,max_participants,active_start,inherits_offering_dates,dates_tbd,is_active)
-    VALUES ($1,'date',8,(clock_timestamp() AT TIME ZONE 'America/New_York')::date,FALSE,FALSE,TRUE) RETURNING id`, [formId])).rows[0].id)
+    VALUES ($1,'date',$2,(clock_timestamp() AT TIME ZONE 'America/New_York')::date,FALSE,FALSE,TRUE) RETURNING id`, [formId, assessment ? 1 : 8])).rows[0].id)
   const slotId = Number((await db.query(`INSERT INTO scheduling_time_slot
     (form_id,slot_group_id,schedule_mode,specific_date,start_time,end_time,max_participants,active_start,dates_tbd,is_active)
-    VALUES ($1,$2,'date',$3,'12:00','13:00',8,(clock_timestamp() AT TIME ZONE 'America/New_York')::date,FALSE,TRUE) RETURNING id`, [formId, groupId, date])).rows[0].id)
+    VALUES ($1,$2,'date',$3,'12:00',CASE WHEN $4::integer=1 THEN '12:30'::time ELSE '13:00'::time END,$4,(clock_timestamp() AT TIME ZONE 'America/New_York')::date,FALSE,TRUE) RETURNING id`, [formId, groupId, date, assessment ? 1 : 8])).rows[0].id)
   return { classId, formId, groupId, slotId }
 }
 
@@ -111,10 +111,13 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
     const assessmentSelection = { program: 'gymnastics', gymnasticsTrack: 'experienced', experience: 'experienced', slotGroupId: assessment.groupId, classDate: date, waivers }
     await assert.rejects(processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId: result.memberIds[2] }, auth), /already used/)
     await assert.rejects(processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId: result.payerMemberId }, auth), /child/)
-    for (const memberId of result.memberIds.slice(3)) {
-      const booking = await processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId }, auth)
-      assert.equal(booking.totalCents, 0)
-    }
+    const evaluationBooking = await processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId: result.memberIds[3] }, auth)
+    assert.equal(evaluationBooking.totalCents, 0)
+    assert.equal(evaluationBooking.isTrialAssessment, true)
+    await assert.rejects(processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId: result.memberIds[4] }, auth), /filled up/)
+    const overlapping = await saveAssessmentTime(db, { facilityId, formId: assessment.formId,
+      body: { scheduleMode: 'date', specificDate: date, startTime: '12:15', endTime: '12:45', maxParticipants: 1, activeStart: today, activeEnd: null } })
+    await assert.rejects(processExistingFamilyFreeTrial(db, { ...assessmentSelection, slotGroupId: overlapping.slotGroupId, memberId: result.memberIds[4] }, auth), /already been booked/)
     const acceptances = (await db.query('SELECT count(*)::int count FROM member_waiver_acceptance WHERE member_id=$1', [result.memberIds[1]])).rows[0].count
     assert.equal(acceptances, acceptedTemplateIds.length)
     const attendance = (await getCatalog({ program: 'fit-flip', age: '13' })).sessions.find(row => row.slotGroupId === older.groupId)
@@ -149,13 +152,13 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
       assert.equal((await db.query(`SELECT count(*)::int count FROM ${table} WHERE member_id=ANY($1::bigint[])`, [result.memberIds])).rows[0].count, 0, `Unexpected ${table} write`)
     }
 
-    const body = { scheduleMode: 'date', specificDate: date, startTime: '12:00', endTime: '13:00', maxParticipants: 8, activeStart: today, activeEnd: null }
+    const body = { scheduleMode: 'date', specificDate: date, startTime: '12:00', endTime: '12:30', maxParticipants: 1, activeStart: today, activeEnd: null }
     await assert.rejects(saveAssessmentTime(db, { facilityId, formId: younger.formId, body }), /not found/)
-    await assert.rejects(saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: assessment.groupId, body: { ...body, startTime: '14:00', endTime: '15:00' } }), /already booked/)
-    await assert.rejects(saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: assessment.groupId, body: { ...body, maxParticipants: 1 } }), /Capacity cannot be lower than 2/)
+    await assert.rejects(saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: assessment.groupId, body: { ...body, startTime: '14:00', endTime: '14:30' } }), /already booked/)
+    await assert.rejects(saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: assessment.groupId, body: { ...body, maxParticipants: 2 } }), /exactly one athlete/)
     await db.query('INSERT INTO scheduling_day_cancellation (facility_id, occurrence_date) VALUES ($1,$2)', [facilityId, date])
-    const added = await saveAssessmentTime(db, { facilityId, formId: assessment.formId, body: { ...body, startTime: '14:00', endTime: '15:00' } })
-    await saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: added.slotGroupId, body: { ...body, startTime: '15:00', endTime: '16:00' } })
+    const added = await saveAssessmentTime(db, { facilityId, formId: assessment.formId, body: { ...body, startTime: '14:00', endTime: '14:30' } })
+    await saveAssessmentTime(db, { facilityId, formId: assessment.formId, slotGroupId: added.slotGroupId, body: { ...body, startTime: '15:00', endTime: '15:30' } })
     const staffSchedules = await listAssessmentSchedules(db, facilityId)
     assert.equal(staffSchedules.find(form => form.id === assessment.formId).schedules.find(row => row.slotGroupId === added.slotGroupId).startTime, '15:00')
     const experiencedTrial = { program: 'gymnastics', age: '9', gymnasticsTrack: 'experienced', experience: 'experienced' }
@@ -163,7 +166,7 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
     assert.equal(closedSchedules.sessions.some(row => row.classId === assessment.classId && row.date === date), false)
     const { rows: [existingReservations] } = await db.query(`SELECT count(*)::int AS count FROM drop_in_registration
       WHERE slot_group_id=$1 AND class_date=$2 AND status='confirmed'`, [assessment.groupId, date])
-    assert.equal(existingReservations.count, 2)
+    assert.equal(existingReservations.count, 1)
     await db.query('DELETE FROM scheduling_day_cancellation WHERE facility_id=$1 AND occurrence_date=$2', [facilityId, date])
     const publicSchedules = await getCatalog(experiencedTrial)
     assert.equal(publicSchedules.sessions.find(row => row.slotGroupId === added.slotGroupId).startTime, '15:00')

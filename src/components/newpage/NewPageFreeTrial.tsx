@@ -65,6 +65,7 @@ export default function NewPageFreeTrial({
   const programName = PROGRAMS.find(option => option.id === program)?.name ?? ''
   const activeStep = step === 'program' ? 0 : step === 'age' || step === 'qualification' ? 1 : step === 'registration' ? 3 : 2
   const gymnasticsRouting = availability?.gymnasticsRouting
+  const isEvaluation = program === 'gymnastics' && gymnasticsAnswers.gymnasticsTrack === 'experienced' && gymnasticsAnswers.experience === 'experienced'
 
   useEffect(() => {
     if (previousStep.current !== step) {
@@ -86,11 +87,8 @@ export default function NewPageFreeTrial({
       setAvailability(data)
       setLoadedAt(new Date())
       if (program === 'gymnastics' && !gymnasticsAnswers.gymnasticsTrack) {
-        if (data.gymnasticsRouting?.track === 'preschool') setGymnasticsAnswers({ gymnasticsTrack: 'preschool' })
-        else {
-          setStep('qualification')
-          return
-        }
+        setStep('qualification')
+        return
       } else {
         const outcome = data.sessions.some(session => !session.isFull) ? 'available' : 'empty'
         trackEvent('trial_availability', sourcePath, { properties: { program_slug: program, outcome } })
@@ -166,7 +164,10 @@ export default function NewPageFreeTrial({
     setError('')
     if (step === 'age') setStep('program')
     if (step === 'qualification') setStep('age')
-    if (step === 'classes') setStep(program === 'gymnastics' && gymnasticsRouting?.track !== 'preschool' ? 'qualification' : 'age')
+    if (step === 'classes') {
+      if (program === 'gymnastics') setGymnasticsAnswers({})
+      setStep(program === 'gymnastics' ? 'qualification' : 'age')
+    }
     if (step === 'review' || step === 'registration') setStep('classes')
   }
 
@@ -180,17 +181,24 @@ export default function NewPageFreeTrial({
     setStep('classes')
   }
 
+  function chooseGymnasticsExperience(experienced: boolean) {
+    if (experienced) chooseGymnasticsPath({ gymnasticsTrack: 'experienced', experience: 'experienced' })
+    else if (gymnasticsRouting?.track === 'preschool') chooseGymnasticsPath({ gymnasticsTrack: 'preschool', experience: 'none' })
+    else if (gymnasticsRouting?.track === 'school-age') chooseGymnasticsPath({ gymnasticsTrack: 'beginner', experience: 'none' })
+    else setGymnasticsAnswers({ experience: 'none' })
+  }
+
   const title = step === 'program' ? 'Find their first class.'
     : step === 'age' ? 'How old is your athlete?'
-    : step === 'qualification' ? gymnasticsRouting?.track === 'mommy-me' ? 'Is your child potty trained?' : gymnasticsRouting?.track === 'school-age' ? 'Where are they starting?' : 'Let’s find their starting point.'
-    : step === 'classes' ? 'Pick a day to try it.'
-    : step === 'review' ? 'Ready to give it a try?'
-    : confirmed ? 'Their first day is booked.' : 'Make it their first day.'
+    : step === 'qualification' ? !gymnasticsAnswers.experience ? 'Have they tried gymnastics?' : gymnasticsRouting?.track === 'mommy-me' ? 'Is your child potty trained?' : 'Let’s find their starting point.'
+    : step === 'classes' ? isEvaluation ? 'Choose your private evaluation.' : 'Pick a day to try it.'
+    : step === 'review' ? isEvaluation ? 'Ready to book their evaluation?' : 'Ready to give it a try?'
+    : confirmed ? isEvaluation ? 'Their evaluation is booked.' : 'Their first day is booked.' : isEvaluation ? 'Reserve their evaluation.' : 'Make it their first day.'
 
   return <div className="np-trial-flow">
-    <div className="np-trial-topline"><p className="np-eyebrow">THEIR FIRST CLASS. ON US.</p><span className="np-trial-price-badge">$0 trial</span></div>
+    <div className="np-trial-topline"><p className="np-eyebrow">{isEvaluation ? 'FIND THEIR LEVEL. ON US.' : 'THEIR FIRST CLASS. ON US.'}</p><span className="np-trial-price-badge">{isEvaluation ? '$0 evaluation' : '$0 trial'}</span></div>
     <ol className="np-trial-steps" aria-label="Free trial signup progress">{STEP_LABELS.map((label, index) =>
-      <li key={label} aria-current={index === activeStep ? 'step' : undefined} className={index <= activeStep ? 'is-active' : ''}><span>{index < activeStep ? <Check size={12} /> : index + 1}</span>{label}</li>,
+      <li key={label} aria-current={index === activeStep ? 'step' : undefined} className={index <= activeStep ? 'is-active' : ''}><span>{index < activeStep ? <Check size={12} /> : index + 1}</span>{isEvaluation && index === 2 ? 'Evaluation' : label}</li>,
     )}</ol>
     {step !== 'program' && step !== 'registration' && <button className="np-trial-back" onClick={back}><ArrowLeft size={16} />{step === 'age' ? 'Change program' : step === 'qualification' ? 'Change age' : step === 'classes' ? 'Change your answers' : 'Choose another class'}</button>}
     <h2 ref={headingRef} tabIndex={-1} id="np-trial-title">{title}</h2>
@@ -232,37 +240,37 @@ export default function NewPageFreeTrial({
 
     {step === 'qualification' && <>
       <p className="np-trial-intro"><strong>Gymnastics</strong> · Age {age}</p>
-      {gymnasticsRouting?.track === 'mommy-me' ? <>
+      {!gymnasticsAnswers.experience ? <>
+        <p className="np-trial-review-help">Has your child trained in gymnastics before? We offer a private evaluation only to athletes who already have gymnastics experience.</p>
+        <div className="np-trial-answer-options">
+          <button onClick={() => chooseGymnasticsExperience(false)}><strong>New to gymnastics</strong><span>Find an age-appropriate free trial class.</span><ArrowRight size={19} /></button>
+          <button onClick={() => chooseGymnasticsExperience(true)}><strong>Has gymnastics experience</strong><span>Book a free private 30-minute evaluation, 1:1 with a coach, to find the right class.</span><ArrowRight size={19} /></button>
+        </div>
+      </> : gymnasticsRouting?.track === 'mommy-me' ? <>
         <p className="np-trial-review-help">Mommy & Me athletes must be potty trained to join a trial class.</p>
         <div className="np-trial-answer-options">
-          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'mommy-me', pottyTrained: true })}><strong>Yes, potty trained</strong><span>See available Mommy & Me classes.</span><ArrowRight size={19} /></button>
+          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'mommy-me', pottyTrained: true, experience: 'none' })}><strong>Yes, potty trained</strong><span>See available Mommy & Me classes.</span><ArrowRight size={19} /></button>
           <button aria-pressed={pottyNotReady} onClick={() => setPottyNotReady(true)}><strong>Not yet</strong><span>Talk with our team about the next step.</span><ArrowRight size={19} /></button>
         </div>
         {pottyNotReady && <div className="np-trial-empty" role="status"><h3>A little more time to get ready.</h3><p>Potty training is required before booking Mommy & Me. We’d be happy to help you plan their first class when they’re ready.</p><a className="np-button" href={`tel:${TEAM_PHONE_E164}`}>Call {TEAM_PHONE} <ArrowUpRight size={17} /></a></div>}
-      </> : gymnasticsRouting?.track === 'school-age' ? <>
-        <p className="np-trial-review-help">Has your child trained in gymnastics or tumbling? Include tumbling they learned in cheer.</p>
-        <div className="np-trial-answer-options">
-          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'beginner', experience: 'none' })}><strong>New to gymnastics and tumbling</strong><span>Try a Tornadoes class and build the foundations.</span><ArrowRight size={19} /></button>
-          <button onClick={() => chooseGymnasticsPath({ gymnasticsTrack: 'experienced', experience: 'experienced' })}><strong>Has gymnastics or tumbling experience</strong><span>Choose a Trial Assessment to find the right class, or call for placement.</span><ArrowRight size={19} /></button>
-        </div>
       </> : <div className="np-trial-empty"><h3>Let’s choose the right class together.</h3><p>{gymnasticsRouting?.reason || 'Our team can help find the right gymnastics starting point for this age.'}</p><a className="np-button" href={`tel:${TEAM_PHONE_E164}`}>Call for placement <ArrowUpRight size={17} /></a><span>{TEAM_PHONE}</span></div>}
     </>}
 
     {step === 'classes' && <>
       <div className="np-trial-results-heading"><p className="np-trial-intro"><strong>{programName}</strong> · Age {age}{availability?.ageBand && <> · Ages {availability.ageBand.min}–{availability.ageBand.max} group</>}</p><button className="np-trial-refresh" aria-label="Refresh class availability" disabled={loading} onClick={() => setRefresh(value => value + 1)}><RefreshCw size={17} /></button></div>
-      {gymnasticsAnswers.gymnasticsTrack === 'experienced' && <div className="np-trial-placement-note"><p>Experienced athletes start with a Trial Assessment so our coaches can find the right class. Choose from the current assessment schedule below, or call to arrange a trial.</p><a href={`tel:${TEAM_PHONE_E164}`}>Call for placement · {TEAM_PHONE}<ArrowUpRight size={16} /></a></div>}
+      {isEvaluation && <div className="np-trial-placement-note"><p>We offer experienced gymnasts a free private 30-minute evaluation, 1:1 with a coach, to assess their skills and recommend the right class. Choose an available evaluation time below. Each time is reserved for one athlete.</p><a href={`tel:${TEAM_PHONE_E164}`}>Questions about placement? Call {TEAM_PHONE}<ArrowUpRight size={16} /></a></div>}
       {loading ? <div className="np-trial-loading" role="status"><LoaderCircle size={27} /><p>Finding their next opportunity…</p></div> : error ? <div className="np-trial-empty"><p className="np-trial-error" role="alert">{error}</p><button className="np-button" onClick={() => setRefresh(value => value + 1)}>Try again <RefreshCw size={16} /></button></div> : sessions.length === 0 ? (
         <div className="np-trial-empty">
           <CalendarDays size={30} />
-          <h3>No trial dates available right now.</h3>
+          <h3>{isEvaluation ? 'No evaluation times available right now.' : 'No trial dates available right now.'}</h3>
           <p>
-            {program === 'fit-flip' && age !== null && (age < 8 || age > 15)
+            {isEvaluation ? 'There are no published private evaluation openings for this age right now. Contact us to arrange a placement evaluation.' : program === 'fit-flip' && age !== null && (age < 8 || age > 15)
               ? 'The Cyclones trial groups cover ages 8–11 and 12–15. Our team can help find an option for your athlete.'
               : `There aren’t any published ${programName} trial dates for this age in the current schedule. Contact us and we’ll help you find their starting point.`}
           </p>
           {availability && program === 'fit-flip' && age !== null && age >= 6 && age <= 17 && (age < 8 || age > 15) && (
             <p>
-              Gymnastics classes for ages 6–17 teach floor-tumbling skills. Beginners can look for Tornadoes; athletes with gymnastics or tumbling experience start with a Trial Assessment.{' '}
+              Gymnastics classes for ages 6–17 teach floor-tumbling skills. Beginners can look for Tornadoes; athletes with gymnastics experience can book a free private evaluation.{' '}
               <Link
                 className="font-semibold underline underline-offset-4"
                 to="/gymnastics#choose-a-class"
@@ -275,7 +283,7 @@ export default function NewPageFreeTrial({
             </p>
           )}
           <a className="np-button" href={`mailto:${TEAM_EMAIL}?subject=${encodeURIComponent(`${programName} free trial for age ${age}`)}`}>
-            Ask about a trial <ArrowUpRight size={17} />
+            {isEvaluation ? 'Ask about an evaluation' : 'Ask about a trial'} <ArrowUpRight size={17} />
           </a>
           <a className="np-trial-phone" href={`tel:${TEAM_PHONE_E164}`}>{TEAM_PHONE}</a>
         </div>
@@ -286,22 +294,22 @@ export default function NewPageFreeTrial({
         {!hasOpenFilteredTrials && (
           <div className="np-trial-empty">
             <p role="status">{hasOpenTrials
-              ? 'No trial spots are open with these filters. Other dates have openings.'
-              : 'All published trial dates are full. Ask our team about the next trial, or refresh to check for new openings.'}</p>
+              ? isEvaluation ? 'No evaluation times are open with these filters. Other dates have openings.' : 'No trial spots are open with these filters. Other dates have openings.'
+              : isEvaluation ? 'All published evaluation times are booked. Ask our team about the next opening, or refresh to check availability.' : 'All published trial dates are full. Ask our team about the next trial, or refresh to check for new openings.'}</p>
             {hasOpenTrials ? (
-              <button type="button" className="np-button" onClick={clearTrialFilters}>Show all trial dates <ArrowUpRight size={17} /></button>
+              <button type="button" className="np-button" onClick={clearTrialFilters}>{isEvaluation ? 'Show all evaluation times' : 'Show all trial dates'} <ArrowUpRight size={17} /></button>
             ) : (
               <Link className="np-button" to={CONTACT_INQUIRY_PATH} onClick={onDone}
                 data-analytics-cta="ask_about_trial" data-analytics-section="trial">
-                Ask about another trial date <ArrowUpRight size={17} />
+                {isEvaluation ? 'Ask about another evaluation time' : 'Ask about another trial date'} <ArrowUpRight size={17} />
               </Link>
             )}
           </div>
         )}
         <div className="np-trial-sessions">{filteredSessions.slice(0, visibleCount).map(session => <button key={`${session.slotGroupId}:${session.date}:${session.startTime}`} className="np-trial-session" disabled={session.isFull} onClick={() => { trackEvent('trial_class_select', sourcePath, { properties: { program_slug: program } }); setSelected(session); setStep('review') }}>
           <span className="np-trial-session-date"><span>{WEEKDAYS[weekdayFor(session.date)]}</span><strong>{formatTrialDate(session.date)}</strong></span>
-          <span className="np-trial-session-body"><strong>{session.className}</strong><span><Clock3 size={14} />{formatTrialTime(session.startTime)}–{formatTrialTime(session.endTime)}</span><span><Users size={14} />{session.enrolledCount} {session.enrolledCount === 1 ? 'athlete' : 'athletes'} enrolled</span></span>
-          <span className={`np-trial-session-places${session.isFull ? ' is-full' : ''}`}>{session.isFull ? 'Class full' : `${session.spotsRemaining} ${session.spotsRemaining === 1 ? 'spot' : 'spots'} available`}{!session.isFull && <ArrowRight size={17} />}</span>
+          <span className="np-trial-session-body"><strong>{session.className}</strong><span><Clock3 size={14} />{formatTrialTime(session.startTime)}–{formatTrialTime(session.endTime)}</span><span><Users size={14} />{isEvaluation ? 'Private · 1:1 with a coach' : `${session.enrolledCount} ${session.enrolledCount === 1 ? 'athlete' : 'athletes'} enrolled`}</span></span>
+          <span className={`np-trial-session-places${session.isFull ? ' is-full' : ''}`}>{session.isFull ? isEvaluation ? 'Booked' : 'Class full' : `${session.spotsRemaining} ${session.spotsRemaining === 1 ? 'spot' : 'spots'} available`}{!session.isFull && <ArrowRight size={17} />}</span>
         </button>)}</div>
         {filteredSessions.length > visibleCount && <button className="np-trial-more" onClick={() => setVisibleCount(count => count + 8)}>Show more dates <ChevronDown size={17} /></button>}
         <p className="np-trial-footnote">Places are confirmed after registration and waivers are complete. Pending reservations may also use available places.</p>
@@ -309,10 +317,10 @@ export default function NewPageFreeTrial({
     </>}
 
     {step === 'review' && selected && <>
-      <p className="np-trial-intro">Try the training. Meet the coaches. Find their next level.</p>
-      <div className="np-trial-review-card"><p className="np-eyebrow">YOUR FIRST CLASS</p><h3>{selected.className}</h3><p><CalendarDays size={18} />{formatTrialDate(selected.date, true)}</p><p><Clock3 size={18} />{formatTrialTime(selected.startTime)}–{formatTrialTime(selected.endTime)} Eastern</p><p><Users size={18} />{selected.enrolledCount} {selected.enrolledCount === 1 ? 'athlete currently enrolled' : 'athletes currently enrolled'}</p><div className="np-trial-review-total"><span>One-time free trial<strong>No payment or card required.</strong></span><strong>$0</strong></div></div>
+      <p className="np-trial-intro">{isEvaluation ? 'A private 30-minute evaluation with a coach to assess their skills and recommend the right class.' : 'Try the training. Meet the coaches. Find their next level.'}</p>
+      <div className="np-trial-review-card"><p className="np-eyebrow">{isEvaluation ? 'YOUR PRIVATE EVALUATION' : 'YOUR FIRST CLASS'}</p><h3>{selected.className}</h3><p><CalendarDays size={18} />{formatTrialDate(selected.date, true)}</p><p><Clock3 size={18} />{formatTrialTime(selected.startTime)}–{formatTrialTime(selected.endTime)} Eastern</p><p><Users size={18} />{isEvaluation ? '1 athlete · 1:1 with a coach' : `${selected.enrolledCount} ${selected.enrolledCount === 1 ? 'athlete currently enrolled' : 'athletes currently enrolled'}`}</p><div className="np-trial-review-total"><span>{isEvaluation ? 'Free private evaluation' : 'One-time free trial'}<strong>No payment or card required.</strong></span><strong>$0</strong></div></div>
       <p className="np-trial-review-help">Would you like to sign up? Next, a parent or legal guardian will create or sign in to a family account, add the athlete’s details, and complete the required waivers.</p>
-      <button className="np-button np-trial-continue" onClick={() => { trackEvent('trial_registration_start', sourcePath, { properties: { program_slug: program } }); setStep('registration') }}>Yes, use our free trial <ArrowRight size={18} /></button>
+      <button className="np-button np-trial-continue" onClick={() => { trackEvent('trial_registration_start', sourcePath, { properties: { program_slug: program } }); setStep('registration') }}>{isEvaluation ? 'Book our free evaluation' : 'Yes, use our free trial'} <ArrowRight size={18} /></button>
       <p className="np-trial-footnote">Available once per athlete. We’ll check eligibility and availability before confirming. This does not enroll your child in a paid recurring program.</p>
     </>}
 

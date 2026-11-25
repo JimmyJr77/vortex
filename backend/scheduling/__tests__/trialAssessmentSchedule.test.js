@@ -2,9 +2,10 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import jwt from 'jsonwebtoken'
 import { assessmentTimeFromAdminBatch, createAssessmentStaffAuth, saveAssessmentTime, validateAssessmentTime, registerAssessmentAdminScheduleGuards } from '../trialAssessmentSchedule.js'
+import { createSchedulingHandlers } from '../handlers.js'
 
 const secret = 'local-unit-test-secret-do-not-use-in-production'
-const body = { scheduleMode: 'day', dayOfWeek: 6, startTime: '12:00', endTime: '13:00', maxParticipants: 8, activeStart: '2026-11-16', activeEnd: null }
+const body = { scheduleMode: 'day', dayOfWeek: 6, startTime: '12:00', endTime: '12:30', maxParticipants: 1, activeStart: '2026-11-16', activeEnd: null }
 function response() { return { code: 200, body: null, status(code) { this.code=code;return this }, json(body) { this.body=body;return this } } }
 const user = { user_id: 7, facility_id: 1, is_active: true, staff_access_active: true, can_access_coach_portal: true, can_access_admin_portal: false }
 
@@ -24,11 +25,11 @@ test('coach schedule access uses current canonical staff access, denying members
 
 test('assessment input rejects invalid times, capacities, calendar dates, and days', () => {
   assert.equal(validateAssessmentTime(body).dayOfWeek,6)
-  for (const patch of [{startTime:'24:00'},{endTime:'11:59'},{maxParticipants:0},{maxParticipants:1.5},{dayOfWeek:8},{activeStart:'2027-02-30'},{scheduleMode:'date',specificDate:null},{scheduleMode:'date',specificDate:'2026-11-15'}]) assert.throws(()=>validateAssessmentTime({...body,...patch}))
+  for (const patch of [{startTime:'24:00'},{endTime:'11:59'},{endTime:'13:00'},{endTime:'12:15'},{maxParticipants:0},{maxParticipants:2},{maxParticipants:1.5},{dayOfWeek:8},{activeStart:'2027-02-30'},{scheduleMode:'date',specificDate:null},{scheduleMode:'date',specificDate:'2026-11-15'}]) assert.throws(()=>validateAssessmentTime({...body,...patch}))
 })
 
 test('admin assessment builder rejects multi-time groups and date ranges', () => {
-  const batch={scheduleMode:'day',activeDatesMode:'custom',activeStart:body.activeStart,maxParticipants:8,daySchedule:{weeks:[{weekLetter:'A',days:[{dayOfWeek:6,times:[{startTime:'12:00',endTime:'13:00'}]}]}]}}
+  const batch={scheduleMode:'day',activeDatesMode:'custom',activeStart:body.activeStart,maxParticipants:1,daySchedule:{weeks:[{weekLetter:'A',days:[{dayOfWeek:6,times:[{startTime:'12:00',endTime:'12:30'}]}]}]}}
   assert.deepEqual(validateAssessmentTime(assessmentTimeFromAdminBatch(batch)),{...body,specificDate:null})
   batch.daySchedule.weeks[0].days[0].times.push({startTime:'14:00',endTime:'15:00'})
   assert.throws(()=>assessmentTimeFromAdminBatch(batch),/separate schedule/)
@@ -39,8 +40,8 @@ function fixture({assessment=true,bookings=[],slots=1}={}) {
   const writes=[]
   return {writes,async query(sql,params) {
     if(sql.includes('SELECT sf.id, sf.title')) return {rows:[{id:153,is_trial_assessment:assessment,today:'2026-11-16'}]}
-    if(sql.includes('SELECT sg.*')) return {rows:[{id:295,form_id:153,max_participants:8,effective_start:'2026-11-16',effective_end:null,offering_id:139}]}
-    if(sql.includes('SELECT * FROM scheduling_time_slot')) return {rows:Array.from({length:slots},()=>({id:500,schedule_mode:'day',day_of_week:6,specific_date:null,start_time:'12:00:00',end_time:'13:00:00'}))}
+    if(sql.includes('SELECT sg.*')) return {rows:[{id:295,form_id:153,max_participants:1,effective_start:'2026-11-16',effective_end:null,offering_id:139}]}
+    if(sql.includes('SELECT * FROM scheduling_time_slot')) return {rows:Array.from({length:slots},()=>({id:500,schedule_mode:'day',day_of_week:6,specific_date:null,start_time:'12:00:00',end_time:'12:30:00'}))}
     if(sql.includes('SELECT class_date')) return {rows:bookings}
     if(sql.includes('pending_registration_holds')) return {rows:[{count:0}]}
     if(sql.startsWith('UPDATE')||sql.startsWith('INSERT')) writes.push({sql,params})
@@ -54,23 +55,84 @@ test('a non-assessment class is rejected before schedule writes',async()=>{
   assert.equal(db.writes.length,0)
 })
 
-test('booked assessments cannot be moved or reduced below attendance; a safe capacity increase succeeds',async()=>{
-  for(const patch of [{startTime:'13:00',endTime:'14:00'},{dayOfWeek:5},{activeEnd:'2027-01-01'},{maxParticipants:2}]) {
-    const db=fixture({bookings:[{date:'2026-11-21',count:3}]})
-    await assert.rejects(saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body:{...body,...patch}}),/already booked|Capacity/)
+test('booked private evaluations cannot move or accept a second athlete; unchanged settings remain editable',async()=>{
+  for(const patch of [{startTime:'13:00',endTime:'13:30'},{dayOfWeek:5},{activeEnd:'2027-01-01'},{maxParticipants:2}]) {
+    const db=fixture({bookings:[{date:'2026-11-21',count:1}]})
+    await assert.rejects(saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body:{...body,...patch}}),/already booked|exactly one athlete/)
     assert.equal(db.writes.length,0)
   }
-  const db=fixture({bookings:[{date:'2026-11-21',count:3}]})
-  const result=await saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body:{...body,maxParticipants:10}})
-  assert.equal(result.maxParticipants,10)
+  const db=fixture({bookings:[{date:'2026-11-21',count:1}]})
+  const result=await saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body})
+  assert.equal(result.maxParticipants,1)
   assert.equal(db.writes.filter(({sql})=>sql.startsWith('UPDATE')).length,3)
+})
+
+test('legacy group assessments retain all reservations until their excess bookings are resolved',async()=>{
+  const db=fixture({bookings:[{date:'2026-11-21',count:3}]})
+  await assert.rejects(saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body}),/Capacity cannot be lower than 3/)
+  assert.equal(db.writes.length,0)
+})
+
+test('the class detail capacity endpoint cannot increase private evaluation capacity or replace its schedule with a batch',async()=>{
+  const client=fixture()
+  const originalQuery=client.query.bind(client)
+  client.query=async(sql,params)=>sql.includes('SELECT ts.*') ? {rows:[{schedule_mode:'day',day_of_week:6,
+    specific_date:null,start_time:'12:00:00',end_time:'12:30:00',effective_start:body.activeStart,effective_end:null}]} : originalQuery(sql,params)
+  client.release=()=>{}
+  const pool={query:async()=>({rows:[{form_id:153,facility_id:1,is_trial_assessment:true}]}),connect:async()=>client}
+  const handler=createSchedulingHandlers(pool).updateSlotGroupMax
+  for(const payload of [{maxParticipants:2},{scheduleMode:'day',maxParticipants:1}]) {
+    const res=response()
+    await handler({params:{id:295},body:payload},res)
+    assert.equal(res.code,400)
+    assert.equal(client.writes.length,0)
+  }
+})
+
+test('ordinary class capacity still updates its group and times after the assessment policy lookup',async()=>{
+  const group={id:295,form_id:153,max_participants:8,is_active:true,signup_count:0,reserved_count:0,waitlist_count:0}
+  const slot={id:500,slot_group_id:295,form_id:153,schedule_mode:'day',day_of_week:4,start_time:'16:00:00',end_time:'17:30:00',max_participants:8,is_active:true}
+  const writes=[]
+  let checkedAssessment=false,released=false
+  const query=async(sql,params)=>{
+    if(sql.includes('p.is_trial_assessment')) {
+      checkedAssessment=true
+      return {rows:[{form_id:153,facility_id:1,is_trial_assessment:false}]}
+    }
+    if(['BEGIN','COMMIT','ROLLBACK'].includes(sql)) return {rows:[]}
+    if(sql.startsWith('SELECT * FROM scheduling_slot_group')) return {rows:[{...group}]}
+    if(sql.startsWith('UPDATE scheduling_slot_group')) {
+      writes.push({sql,params});group.max_participants=params[0];return {rows:[]}
+    }
+    if(sql.startsWith('UPDATE scheduling_time_slot')) {
+      writes.push({sql,params});slot.max_participants=params[0];return {rows:[]}
+    }
+    if(sql.includes('AS c')) return {rows:[{c:0}]}
+    if(sql.includes('AS available')) return {rows:[{available:group.max_participants}]}
+    if(sql.includes('SELECT id FROM scheduling_signup') && sql.includes("status = 'waitlisted'")) return {rows:[]}
+    if(sql.startsWith('SELECT * FROM scheduling_form')) return {rows:[{id:153}]}
+    if(sql.startsWith('SELECT * FROM scheduling_time_slot')) return {rows:[slot]}
+    if(sql.startsWith('SELECT sg.*')) return {rows:[group]}
+    assert.fail(`Unexpected capacity query: ${sql}`)
+  }
+  const pool={query,connect:async()=>({query,release(){released=true}})}
+  const res=response()
+  await createSchedulingHandlers(pool).updateSlotGroupMax({params:{id:295},body:{maxParticipants:12}},res)
+  assert.equal(res.code,200)
+  assert.equal(checkedAssessment,true)
+  assert.equal(released,true)
+  assert.equal(writes.length,2)
+  assert.ok(writes.every(write=>write.params[0]===12))
+  assert.equal(res.body.data.maxParticipants,12)
+  assert.equal(res.body.data.occurrences[0].maxParticipants,12)
+  assert.equal(res.body.data.spotsRemaining,12)
 })
 
 test('unbooked time edits update existing canonical group and time slot; ambiguous legacy groups are rejected',async()=>{
   const db=fixture()
-  await saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body:{...body,dayOfWeek:2,startTime:'16:00',endTime:'17:00'}})
+  await saveAssessmentTime(db,{facilityId:1,formId:153,slotGroupId:295,body:{...body,dayOfWeek:2,startTime:'16:00',endTime:'16:30'}})
   const update=db.writes.find(({sql})=>sql.startsWith('UPDATE scheduling_time_slot'))
-  assert.deepEqual(update.params.slice(0,6),[500,'day',2,null,'16:00','17:00'])
+  assert.deepEqual(update.params.slice(0,6),[500,'day',2,null,'16:00','16:30'])
   const ambiguous=fixture({slots:2})
   await assert.rejects(saveAssessmentTime(ambiguous,{facilityId:1,formId:153,slotGroupId:295,body}),/one time/)
   assert.equal(ambiguous.writes.length,0)

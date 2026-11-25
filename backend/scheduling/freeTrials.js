@@ -5,6 +5,7 @@ import { calculateDropInPrice } from '../shared/dropInPricing.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 import { lockSchedulingDay } from './dayCancellation.js'
+import { isPrivateAssessmentTime } from './trialAssessmentPolicy.js'
 
 const DEFAULT_TIME_ZONE = 'America/New_York'
 const TRIAL_PROGRAMS = new Set(['gymnastics', 'fit-flip'])
@@ -32,6 +33,9 @@ export function validateTrialSelection(value, { requireMemberIndex = false } = {
   const qualification = {}
   if (value.program === 'gymnastics') {
     if (!GYMNASTICS_TRACKS.has(value.gymnasticsTrack)) throw trialError('Choose the appropriate gymnastics trial pathway.')
+    if (value.experience === 'experienced' && value.gymnasticsTrack !== 'experienced') {
+      throw trialError('Athletes with gymnastics experience must choose a private evaluation.')
+    }
     qualification.gymnasticsTrack = value.gymnasticsTrack
     if (value.gymnasticsTrack === 'mommy-me') {
       if (value.pottyTrained !== true) throw trialError('Mommy & Me trial participants must be potty trained.')
@@ -84,12 +88,13 @@ export function matchesFreeTrialClass(row, program, age, qualification = {}) {
   }
   if (fitFlip || !/gymnastics/i.test(`${row.programName ?? ''} ${row.sportName ?? ''}`)) return false
   const track = qualification.gymnasticsTrack
+  if (qualification.experience === 'experienced' && track !== 'experienced') return false
   if (track === 'mommy-me') return age >= 2 && age <= 3 && qualification.pottyTrained === true && /mommy\s*(?:&|and)\s*me/i.test(row.className ?? '')
   if (track === 'preschool') return age >= 4 && age <= 5 && /pre[ -]?school/i.test(row.className ?? '')
   if (track === 'beginner') return age >= 6 && qualification.experience === 'none' && /\btornado(?:e)?s?\b/i.test(row.className ?? '')
   if (track === 'experienced') {
     // Assessment times come from the scheduler so staff changes are reflected immediately.
-    return age >= 6 && qualification.experience === 'experienced' && row.isTrialAssessment === true
+    return qualification.experience === 'experienced' && row.isTrialAssessment === true
   }
   return false
 }
@@ -112,6 +117,7 @@ export function filterFreeTrialCatalog(catalog, { program, age, now = new Date()
   const uniqueOccurrences = [...occurrences.values()].flatMap(times => times.size === 1 ? [...times.values()] : [])
   const sessions = uniqueOccurrences.filter(row => {
     if (!matchesFreeTrialClass(row, program, age, qualification)) return false
+    if (row.isTrialAssessment && !isPrivateAssessmentTime(row)) return false
     const current = localDateAndTime(now, row.timeZone || DEFAULT_TIME_ZONE)
     return row.date > current.date || (row.date === current.date && row.startTime > current.time)
   }).map(row => ({ ...row, benefitType: 'free_trial', totalCents: 0 }))
@@ -172,6 +178,13 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
 
   // Use a fresh snapshot after any concurrent cancellation or eligibility edit.
   await lockSchedulingDay(client, facilityId, selection.classDate, { shared: true })
+  if (selection.program === 'gymnastics' && selection.gymnasticsTrack === 'experienced') {
+    // Separate/duplicate schedule groups must not reserve the same private
+    // evaluation time concurrently. Take this before any group lock.
+    await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1::text, 0))', [
+      `private-trial-assessment:${facilityId}:${selection.classDate}`,
+    ])
+  }
   await client.query(`SELECT sg.id FROM scheduling_slot_group sg
     JOIN scheduling_form sf ON sf.id=sg.form_id
     JOIN program p ON p.id=sf.program_id
@@ -214,6 +227,9 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
   }
   const slot = occurrences[0]
   if (!slot) throw trialError('That class time is no longer available. Please choose another date.', 409)
+  if (slot.is_trial_assessment && !isPrivateAssessmentTime({ startTime: slot.start_time, endTime: slot.end_time, maxParticipants: slot.max_participants })) {
+    throw trialError('That private evaluation time is no longer available. Please choose a 30-minute evaluation for one athlete.', 409)
+  }
   if (!matchesFreeTrialClass({ programName: slot.program_name, className: slot.class_name, sportName: slot.sport_name, ageMin: slot.age_min, ageMax: slot.age_max, isTrialAssessment: slot.is_trial_assessment }, selection.program, age, selection)) {
     throw trialError('The athlete’s age on the trial date does not match this program and class. Please choose an appropriate class.')
   }
@@ -224,8 +240,23 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
       WHERE member_id = $1 AND benefit_type = 'free_trial' AND status <> 'cancelled' ORDER BY id`, [memberId],
   )).rows
   const same = previous.find(row => Number(row.slot_group_id) === selection.slotGroupId && formatDateOnly(row.class_date) === selection.classDate && ['confirmed', 'attended'].includes(row.status))
-  if (same && Number(same.amount_cents) === 0) return { id: Number(same.id), memberId: Number(memberId), status: 'confirmed', benefitType: 'free_trial', totalCents: 0, ...selection, reused: true }
+  if (same && Number(same.amount_cents) === 0) return { id: Number(same.id), memberId: Number(memberId), status: 'confirmed', benefitType: 'free_trial', totalCents: 0, ...selection, ...(slot.is_trial_assessment ? { isTrialAssessment: true } : {}), reused: true }
   if (previous.length || Number(entitlement?.lifetime_trial_granted ?? 0) < 1) throw trialError('This athlete has already used their one-time free trial.', 409)
+
+  if (slot.is_trial_assessment) {
+    const overlap = await client.query(`SELECT booking.id AS overlapping_assessment_id
+      FROM drop_in_registration booking
+      JOIN scheduling_form form ON form.id=booking.form_id
+      JOIN program assessment ON assessment.id=form.program_id
+      JOIN scheduling_time_slot time ON time.slot_group_id=booking.slot_group_id
+      WHERE assessment.facility_id=$1 AND assessment.is_trial_assessment=TRUE
+        AND booking.class_date=$2::date AND booking.slot_group_id<>$3
+        AND booking.status IN ('account_required','payment_pending','confirmed','attended')
+        AND (booking.status<>'account_required' OR booking.expires_at IS NULL OR booking.expires_at>clock_timestamp())
+        AND time.start_time<$5::time AND time.end_time>$4::time LIMIT 1`,
+    [facilityId, selection.classDate, selection.slotGroupId, slot.start_time, slot.end_time])
+    if (overlap.rows.length) throw trialError('That private evaluation time has already been booked. Please choose another time.', 409)
+  }
 
   const alreadyEnrolled = await client.query(
     `SELECT id FROM scheduling_signup WHERE member_id = $1 AND slot_group_id = $2 AND status = 'confirmed'
@@ -272,5 +303,5 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
     [memberId, slot.form_id, selection.slotGroupId, selection.classDate, member.first_name, member.last_name,
       contactEmail, contactPhone, price.baseCents, price.discountPercent],
   )).rows[0]
-  return { id: Number(booking.id), memberId: Number(memberId), status: 'confirmed', benefitType: 'free_trial', totalCents: 0, ...selection }
+  return { id: Number(booking.id), memberId: Number(memberId), status: 'confirmed', benefitType: 'free_trial', totalCents: 0, ...selection, ...(slot.is_trial_assessment ? { isTrialAssessment: true } : {}) }
 }

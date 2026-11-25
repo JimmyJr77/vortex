@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { loadCanonicalAccessContext, resolveCanonicalTokenUserId } from '../platform/accessContext.js'
 import { formatDateOnly } from './slotActiveDates.js'
+import { isPrivateAssessmentTime } from './trialAssessmentPolicy.js'
 
 const fail = (message, statusCode = 400) => Object.assign(new Error(message), { statusCode })
 const positiveId = value => Number.isSafeInteger(Number(value)) && Number(value) > 0 ? Number(value) : null
@@ -23,7 +24,7 @@ export function validateAssessmentTime(body = {}) {
     throw fail('Enter an end time after the start time.')
   }
   const maxParticipants = Number(body.maxParticipants)
-  if (!Number.isInteger(maxParticipants) || maxParticipants < 1 || maxParticipants > 1000) throw fail('Capacity must be a whole number from 1 to 1000.')
+  if (!isPrivateAssessmentTime({ startTime, endTime, maxParticipants })) throw fail('Private evaluations must last 30 minutes and have capacity for exactly one athlete.')
   const dayOfWeek = scheduleMode === 'day' ? Number(body.dayOfWeek) : null
   if (scheduleMode === 'day' && (body.dayOfWeek == null || !Number.isInteger(dayOfWeek) || dayOfWeek < 0 || dayOfWeek > 6)) throw fail('Choose a day of the week.')
   const specificDate = scheduleMode === 'date' ? date(body.specificDate) : null

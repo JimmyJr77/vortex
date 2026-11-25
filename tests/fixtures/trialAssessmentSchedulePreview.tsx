@@ -4,8 +4,8 @@ import TrialAssessmentSchedulePanel from '../../src/components/coach/TrialAssess
 import '../../src/index.css'
 
 let nextId = 2
-const schedules = [{ slotGroupId: 1, timeSlotId: 1, scheduleMode: 'day', dayOfWeek: 6,
-  specificDate: null as string | null, startTime: '12:00', endTime: '13:00', maxParticipants: 8,
+const schedules = [{ slotGroupId: 1, timeSlotId: 1, scheduleMode: 'day', dayOfWeek: 4,
+  specificDate: null as string | null, startTime: '16:00', endTime: '16:30', maxParticipants: 1,
   activeStart: '2026-11-16', activeEnd: null as string | null, datesTbd: false }]
 window.fetch = async (_input, init) => {
   if (init?.method === 'POST' || init?.method === 'PATCH') {

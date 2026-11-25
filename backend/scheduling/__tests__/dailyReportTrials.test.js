@@ -46,11 +46,23 @@ test('trial summary keeps siblings and future reservations, with only the booked
   assert.deepEqual(trials[0], {
     id: 1, memberId: 11, name: 'Sam Lee', email: 'parent@example.test', phone: '202-555-0123',
     className: 'Twisters', programName: 'Gymnastics', classDate: '2026-11-16',
-    scheduleLabel: '2026-11-16 · 16:00–17:00', registeredAt: since, status: 'confirmed', benefitType: 'free_trial',
+    scheduleLabel: '2026-11-16 · 16:00–17:00', registeredAt: since, status: 'confirmed', benefitType: 'free_trial', isTrialAssessment: false,
   })
   assert.equal(trials[1].name, 'Jo Lee')
   assert.equal(trials[1].status, 'attended')
   assert.equal(db.scheduleReads, 1)
+})
+
+test('recent assessment bookings preserve the evaluation marker, private time and guardian contact', async () => {
+  const trials = await loadDailyReportTrials(database([
+    { ...booking, class_name: 'Gymnastics Evaluation', is_trial_assessment: true },
+  ], [{ ...slot, end_time: '16:30:00' }]), { since, through })
+  assert.equal(trials[0].isTrialAssessment, true)
+  assert.equal(trials[0].benefitType, 'free_trial', 'evaluations retain the existing free booking entitlement')
+  assert.equal(trials[0].className, 'Gymnastics Evaluation')
+  assert.equal(trials[0].scheduleLabel, '2026-11-16 · 16:00–16:30')
+  assert.equal(trials[0].email, 'parent@example.test')
+  assert.equal(trials[0].phone, '202-555-0123')
 })
 
 test('trial schedule respects alternating weeks and inherited offering dates', async () => {
