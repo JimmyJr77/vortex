@@ -5,7 +5,7 @@ import { changeLeadLifecycle } from './leadLifecycle.js'
 import { classRoster } from './classRoster.js'
 import { saveClass,saveClassPrice } from './classPricing.js'
 import rateLimit from 'express-rate-limit'
-import { createLeadInvitation, updateLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, leadRegistrationCatalog, invitationSummary } from './leadRegistration.js'
+import { createLeadInvitation, updateLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, bookLeadInvitationTrial, leadRegistrationCatalog, invitationSummary } from './leadRegistration.js'
 import { createCanonicalAdminAuth,canonicalAdminPermission } from '../platform/canonicalAdminAuth.js'
 import { listAccountDirectory } from '../accounts/accountDirectory.js'
 import { createSchedulingHandlers } from '../scheduling/handlers.js'
@@ -121,12 +121,15 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.delete(`${base}/leads/:id/permanent`,allow('accounts.lifecycle'),handler(req=>changeLeadLifecycle(pool,facility(req),req.params.id,'delete')))
   app.get(`${base}/leads/:id/notes`,allow('members.view'),handler(req=>leadNotes(pool,facility(req),req.params.id)))
   app.post(`${base}/leads/:id/convert`,allow('members.edit'),handler(async req=>{
-    if (req.body?.mode === 'invite') {
+    if (req.body?.mode === 'invite' || req.body?.mode === 'trial') {
       if ((req.body.selections || []).some(item=>item.kind==='reserved') && !await canonicalAdminPermission(pool,req.canonicalAccess.userId,'scheduling.manage')) throw inputError('Scheduling permission is required to reserve a class.',403)
       return createLeadInvitation(pool,{facilityId:facility(req),leadId:req.params.id,userId:req.canonicalAccess.userId,body:req.body})
     }
     return convertLead(pool,{facilityId:facility(req),leadId:req.params.id,userId:req.canonicalAccess.userId,body:req.body})
   }))
+  app.post(`${base}/leads/:id/trial`,allow('members.edit'),handler(req=>createLeadInvitation(pool,{
+    facilityId:facility(req),leadId:req.params.id,userId:req.canonicalAccess.userId,body:{...req.body,mode:'trial'},
+  })))
   app.get(`${base}/lead-registration/catalog`,allow('members.edit'),handler(req=>leadRegistrationCatalog(pool,facility(req))))
   app.get(`${base}/lead-registration/:id`,allow('members.edit'),handler(async req=>{
     const row=(await pool.query("SELECT * FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration'",[id(req.params.id),facility(req)])).rows[0]
@@ -141,6 +144,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   const invitationLoginLimit=rateLimit({windowMs:15*60*1000,max:20,standardHeaders:true,legacyHeaders:false,message:{success:false,message:'Too many sign-in attempts. Please try again later.'}})
   app.post('/api/signup/lead/:id/session',invitationLoginLimit,handler(req=>openLeadRegistration(pool,req.params.id,req.body)))
   app.post('/api/signup/lead/:id/complete',invitationLoginLimit,handler(req=>completeLeadRegistration(pool,req.params.id,req.body,{ip:req.ip,userAgent:req.get('user-agent')})))
+  app.post('/api/signup/lead/:id/trial',invitationLoginLimit,handler(req=>bookLeadInvitationTrial(pool,req.params.id,req.body)))
   app.get(`${base}/classes/schedule.pdf`,allow('classes.view'),handler(async (req,res)=>{
     const data=await loadScheduleExport(pool,facility(req))
     const pdf=await scheduleExportPdf(data)

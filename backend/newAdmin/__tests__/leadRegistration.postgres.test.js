@@ -8,7 +8,7 @@ import os from 'node:os'
 import bcrypt from 'bcryptjs'
 import pg from 'pg'
 import { createLead, saveLead, listLeads, convertLead } from '../leads.js'
-import { createLeadInvitation, updateLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, nextLeadUsername } from '../leadRegistration.js'
+import { createLeadInvitation, updateLeadInvitation, deliverLeadInvitation, openLeadRegistration, completeLeadRegistration, bookLeadInvitationTrial, nextLeadUsername } from '../leadRegistration.js'
 import { insertSignupForMember } from '../../scheduling/handlers.js'
 import { sendLeadRegistrationEmail } from '../../email/leadRegistrationEmail.js'
 import { registerFamilySignupRoutes } from '../../platform/familySignup.js'
@@ -204,6 +204,90 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.ok(!Object.hasOwn(session,'temporary_password_hash'))
     })
     const payload=()=>({token:captured.token,session:session.session,primaryAdult:{firstName:'Testparent',lastName:'Invite',dateOfBirth:'1988-01-01',gender:'male',email:lead.email,phone:'2025550101',addressStreet:'100 Test Street',addressCity:'Albany',addressState:'NY',addressZip:'12207',username:invitation.username,password:'ReplacementPassword32!',confirmPassword:'ReplacementPassword32!'},additionalMembers:children.map(child=>({...child,emailSource:'parent',portalAccessRequested:false})),waivers:{signatureName:'Testparent Invite',acceptedTemplateIds:session.waivers.map(item=>Number(item.id)),paymentPolicyAcknowledged:true}})
+    await t.test('trial setup precedes date selection, stays a lead, and books only a waived child without billing', async () => {
+      await db.query('SAVEPOINT trial_invitation')
+      try {
+        const trialDate = (await db.query("SELECT ((clock_timestamp() AT TIME ZONE 'America/New_York')::date + 14)::text AS date")).rows[0].date
+        const trialChild = { firstName: 'Trialchild', lastName: 'Invite', dateOfBirth: `${Number(trialDate.slice(0, 4)) - 10}-01-01`, gender: 'female' }
+        const trialProgram = (await db.query("INSERT INTO programs(facility_id,name,display_name,is_active) VALUES($1,$2,'Fit & Flip',TRUE) RETURNING id", [facilityId, `Trial invite ${nonce}`])).rows[0]
+        const trialClass = (await db.query("INSERT INTO program(facility_id,programs_id,category,name,display_name,age_min,age_max,is_active) VALUES($1,$2,(enum_range(NULL::program_category))[1],$3,'Cyclones (8-11)',8,11,TRUE) RETURNING id", [facilityId, trialProgram.id, `Trial Cyclones ${nonce}`])).rows[0]
+        const trialForm = (await db.query('INSERT INTO scheduling_form(program_id,programs_id,title,is_active,start_date) VALUES($1,$2,$3,TRUE,CURRENT_DATE) RETURNING id', [trialClass.id, trialProgram.id, 'Trial invite class'])).rows[0]
+        const trialGroup = (await db.query("INSERT INTO scheduling_slot_group(form_id,schedule_mode,max_participants,active_start,inherits_offering_dates,dates_tbd,is_active) VALUES($1,'date',8,CURRENT_DATE,FALSE,FALSE,TRUE) RETURNING id", [trialForm.id])).rows[0]
+        await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,schedule_mode,specific_date,start_time,end_time,max_participants,active_start,dates_tbd,is_active,allow_free_trials) VALUES($1,$2,'date',$3,'12:00','13:00',8,CURRENT_DATE,FALSE,TRUE,TRUE)", [trialForm.id, trialGroup.id, trialDate])
+        const prospect = await createLead(pool, facilityId, { firstName: 'Trialparent', lastName: 'Invite', email: `trialinvite-${nonce}@example.test`, inquiry: { campers: [trialChild] } })
+        let trialMail
+        const noEmail = { sendInvitation: () => assert.fail('A rejected trial invitation must not send email') }
+        await assert.rejects(() => createLeadInvitation(pool, { facilityId, leadId: prospect.id, userId: owner.id,
+          body: { mode: 'trial', selections } }, noEmail), /Trial dates are chosen after/)
+        const invited = await createLeadInvitation(pool, { facilityId, leadId: prospect.id, userId: owner.id,
+          body: { mode: 'trial', children: [trialChild] } }, { sendInvitation: async mail => { trialMail = mail; return { sent: true } } })
+        assert.equal(invited.purpose, 'trial')
+        assert.deepEqual(invited.selections, [])
+        const proof = { token: trialMail.token, username: invited.username, password: trialMail.password }
+        const opened = await openLeadRegistration(pool, invited.id, proof)
+        assert.equal(opened.purpose, 'trial')
+        const freeTrial = { program: 'fit-flip', slotGroupId: Number(trialGroup.id), classDate: trialDate, memberIndex: 1 }
+        const bookBody = { token: proof.token, session: opened.session, freeTrial }
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, bookBody), /Complete your family information/)
+        const completion = { ...payload(), token: proof.token, session: opened.session,
+          primaryAdult: { ...payload().primaryAdult, firstName: 'Trialparent', email: prospect.email, username: invited.username },
+          additionalMembers: [{ ...trialChild, emailSource: 'parent', portalAccessRequested: false }], enrollments: [] }
+        await assert.rejects(() => completeLeadRegistration(pool, invited.id, { ...completion, enrollments: [{ memberIndex: 1 }] }), /Choose free trial dates after/)
+        await assert.rejects(() => completeLeadRegistration(pool, invited.id, { ...completion, waivers: { ...completion.waivers, acceptedTemplateIds: [] } }), /required waivers/)
+        const saved = await completeLeadRegistration(pool, invited.id, completion)
+        assert.equal(saved.trialRegistration, true)
+        assert.deepEqual(saved.pendingEnrollments, [])
+        assert.equal(saved.trialChildren[0].memberId, saved.memberIds[1])
+        assert.equal(saved.trialChildren[0].memberIndex, 1)
+        const linked = (await db.query('SELECT member_id,converted_member_id,converted_at,lead_status,inquiry_source,campers FROM registrations WHERE id=$1', [prospect.id])).rows[0]
+        assert.equal(Number(linked.member_id), Number(saved.payerMemberId))
+        assert.equal(linked.converted_member_id, null)
+        assert.equal(linked.converted_at, null)
+        assert.equal(linked.lead_status, 'qualified')
+        assert.equal(linked.inquiry_source, 'free_trial')
+        assert.equal(linked.campers[0].memberId, saved.memberIds[1])
+        assert.equal((await listLeads(pool, facilityId, { search: prospect.email })).rows[0].status, 'qualified')
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, token: 'bad' }), /Invalid registration link/)
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, session: 'bad' }), /sign in/)
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, freeTrial: { ...freeTrial, memberIndex: 0 } }), /Choose a child/)
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, freeTrial: { ...freeTrial, memberIndex: 2 } }), /from this trial invitation/)
+        await db.query('SAVEPOINT trial_family_scope')
+        await db.query('UPDATE member SET family_id=NULL WHERE id=$1', [saved.memberIds[1]])
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, bookBody), /no longer available in this family/)
+        await db.query('ROLLBACK TO SAVEPOINT trial_family_scope')
+        await db.query('RELEASE SAVEPOINT trial_family_scope')
+        await db.query('SAVEPOINT trial_guardian_authority')
+        await db.query('UPDATE parent_guardian_authority SET has_legal_authority=FALSE WHERE parent_member_id=$1 AND child_member_id=$2', [saved.payerMemberId, saved.memberIds[1]])
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, bookBody), /authorized parent or guardian/)
+        await db.query('ROLLBACK TO SAVEPOINT trial_guardian_authority')
+        await db.query('RELEASE SAVEPOINT trial_guardian_authority')
+        await db.query('SAVEPOINT trial_current_waivers')
+        await db.query('DELETE FROM member_waiver_acceptance WHERE member_id=$1', [saved.memberIds[1]])
+        await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, bookBody), /waiver/i)
+        await db.query('ROLLBACK TO SAVEPOINT trial_current_waivers')
+        await db.query('RELEASE SAVEPOINT trial_current_waivers')
+        const booking = await bookLeadInvitationTrial(pool, invited.id, bookBody)
+        assert.equal(booking.status, 'confirmed')
+        assert.equal(booking.memberId, saved.memberIds[1])
+        assert.equal(booking.totalCents, 0)
+        assert.equal(booking.className, 'Cyclones (8-11)')
+        assert.equal(booking.trialBookings.length, 1)
+        assert.equal((await bookLeadInvitationTrial(pool, invited.id, bookBody)).id, booking.id)
+        const reopened = await openLeadRegistration(pool, invited.id, { ...proof, password: completion.primaryAdult.password })
+        assert.equal(reopened.result.trialBookings[0].id, booking.id)
+        assert.equal(reopened.result.trialBookings[0].classDate, trialDate)
+        const listed = (await listLeads(pool, facilityId, { search: prospect.email })).rows[0]
+        assert.equal(listed.status, 'qualified')
+        assert.equal(listed.freeTrials[0].memberId, saved.memberIds[1])
+        assert.equal(listed.freeTrials[0].className, 'Cyclones (8-11)')
+        for (const table of ['billing_charge', 'billing_subscription', 'scheduling_signup']) {
+          assert.equal((await db.query(`SELECT COUNT(*)::int AS count FROM ${table} WHERE member_id=ANY($1::bigint[])`, [saved.memberIds])).rows[0].count, 0)
+        }
+      } finally {
+        await db.query('ROLLBACK TO SAVEPOINT trial_invitation')
+        await db.query('RELEASE SAVEPOINT trial_invitation')
+      }
+    })
     await t.test('families add a class and reassign a reserved class while preserving both held places', async () => {
       await db.query('SAVEPOINT reassign_and_add_class')
       try {
@@ -504,6 +588,8 @@ test('lead invitations reserve shared class places, require new credentials, and
     })
     await t.test('program archiving is blocked until all active classes are closed',async()=>{
       await rejectSql('UPDATE programs SET archived=TRUE WHERE id=$1',[program.id],/active classes/)
+      await rejectSql('UPDATE program SET archived=TRUE,is_active=FALSE WHERE id=$1',[klass.id],/Disenroll active students/)
+      await db.query("UPDATE scheduling_signup SET status='cancelled' WHERE form_id IN (SELECT id FROM scheduling_form WHERE program_id=$1) AND status IN ('confirmed','paused','waitlisted')", [klass.id])
       await db.query('UPDATE program SET archived=TRUE,is_active=FALSE WHERE id=$1',[klass.id])
       await db.query('UPDATE programs SET archived=TRUE WHERE id=$1',[program.id])
       await rejectSql('UPDATE program SET archived=FALSE,is_active=TRUE WHERE id=$1',[klass.id],/Restore the program/)

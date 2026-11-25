@@ -7,17 +7,20 @@ import { loadAccountNotes } from './accountNotes.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
+import { leadFreeTrialsJoin } from './trialLeads.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
+  const convertedMemberId = row.converted_member_id ?? (row.inquiry_source === 'free_trial' ? null : row.member_id)
   return { id: Number(row.id), archived: row.archived === true, firstName: row.first_name, lastName: row.last_name,
-    email: row.email, phone: row.phone, status: (row.converted_member_id || row.member_id) ? 'converted' : row.lead_status || 'new',
+    email: row.email, phone: row.phone, status: convertedMemberId ? 'converted' : row.lead_status || 'new',
     contacted: Boolean(row.contacted), followUp: Boolean(row.follow_up), firstContactedAt: row.first_contacted_at ?? null,
     acquisition: inquiryAcquisition(row),
     inquiry: { athleteAge: row.athlete_age, interests: row.interests_array ?? row.interests, interest: row.interest, classTypes: row.class_types, childAges: row.child_ages, campers: row.campers, submitterRole: row.submitter_role, source: row.inquiry_source, newsletter: row.newsletter_opt_in ?? null, submittedBy: row.submitted_by_name ? { userId: row.submitted_by_user_id == null ? null : Number(row.submitted_by_user_id), name: row.submitted_by_name } : null },
     invitation: row.invitation ?? null,
+    freeTrials: row.free_trials ?? [],
     notes: row.admin_notes || '', message: row.message || '', createdAt: row.created_at,
-    convertedMemberId: (row.converted_member_id ?? row.member_id) == null ? null : Number(row.converted_member_id ?? row.member_id),
+    convertedMemberId: convertedMemberId == null ? null : Number(convertedMemberId),
     matchedMemberId: row.matched_member_id == null ? null : Number(row.matched_member_id) }
 }
 
@@ -25,11 +28,12 @@ export async function listLeads(db, facilityId, query = {}) {
   const paging = pagination(query)
   const { where, values, join } = leadFilters(query, id(facilityId, 'facility'), LEAD_STATUSES)
   const [rows, count] = await Promise.all([
-    db.query(`SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot,
+    db.query(`SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot, trial_history.free_trials,
       (SELECT jsonb_build_object('id',ai.id,'username',ai.suggested_username,'expiresAt',ai.expires_at,
+        'purpose',CASE WHEN ai.pending_payload->>'purpose'='trial' THEN 'trial' ELSE 'registration' END,
         'status',CASE WHEN ai.used_at IS NOT NULL THEN 'completed' WHEN ai.expires_at<=now() THEN 'expired' ELSE ai.delivery_status END)
         FROM account_invite ai WHERE ai.registration_id=r.id AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
-      FROM registrations r ${inquiryAcquisitionJoin} ${join} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
+      FROM registrations r ${inquiryAcquisitionJoin} ${join} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')} ${leadFreeTrialsJoin}
       WHERE ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
     db.query(`SELECT COUNT(*)::int AS total FROM registrations r ${join} WHERE ${where}`, values),
   ])
@@ -108,6 +112,18 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
 export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   const input = leadInput(body, { partial: true, currentPhone })
   const inquiry = input.inquiry
+  if (inquiry?.campers) {
+    // Child IDs are assigned by signup, never by staff-entered contact data.
+    // Preserve those trusted links when the lead form is edited.
+    const previous = (await db.query('SELECT campers FROM registrations WHERE id=$1 AND facility_id=$2', [id(leadId), id(facilityId)])).rows[0]?.campers || []
+    const linked = new Map(previous.filter(child => child.memberId).map(child => [Number(child.memberId), child]))
+    inquiry.campers = inquiry.campers.map((child, index) => {
+      const memberId = Number(body.inquiry.campers[index]?.memberId)
+      if (linked.has(memberId)) return { ...child, memberId }
+      const matches = previous.filter(stored => stored.memberId && ['firstName','lastName','dateOfBirth'].every(key => (stored[key] || '') === (child[key] || '')))
+      return matches.length === 1 ? { ...child, memberId: Number(matches[0].memberId) } : child
+    })
+  }
   delete input.inquiry
   const columns = { firstName:'first_name',lastName:'last_name',email:'email',phone:'phone',notes:'admin_notes',message:'message',status:'lead_status',contacted:'contacted',followUp:'follow_up' }
   const values = [id(leadId), id(facilityId)]
@@ -121,7 +137,7 @@ export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   if (!updates.length) throw inputError('No supported changes were supplied.')
   if (input.status && input.contacted === undefined) updates.push(`contacted = ('${input.status}' <> 'new')`)
   if (input.contacted === true || (input.status && input.status !== 'new')) updates.push('first_contacted_at = COALESCE(first_contacted_at, now())')
-  if (input.contacted !== undefined && !input.status) updates.push(`lead_status = CASE WHEN COALESCE(converted_member_id,member_id) IS NOT NULL THEN 'converted' WHEN lead_status IN ('new','contacted') OR lead_status IS NULL THEN '${input.contacted ? 'contacted' : 'new'}' ELSE lead_status END`)
+  if (input.contacted !== undefined && !input.status) updates.push(`lead_status = CASE WHEN COALESCE(converted_member_id,CASE WHEN inquiry_source IS DISTINCT FROM 'free_trial' THEN member_id END) IS NOT NULL THEN 'converted' WHEN lead_status IN ('new','contacted') OR lead_status IS NULL THEN '${input.contacted ? 'contacted' : 'new'}' ELSE lead_status END`)
   const subscribeParameter = values.push(inquiry?.newsletter === true)
   const result = await db.query(`WITH saved AS (UPDATE registrations SET ${updates.join(',')},updated_at=now()
     WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE RETURNING *),

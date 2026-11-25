@@ -224,6 +224,7 @@ export interface LeadEnrollmentSelection {
 }
 
 export interface LeadRegistrationSetup {
+  purpose?: 'trial' | 'registration'
   inviteId: number
   token: string
   session: string
@@ -311,7 +312,8 @@ export default function FamilySignupWizard({
   const isAdmin = mode === 'admin'
   const isAdminEdit = mode === 'admin-edit'
   const isMinorStart = mode === 'minor-start'
-  const isWaiversMemberships = mode === 'waivers-memberships'
+  const isTrialInvitation = leadRegistration?.purpose === 'trial'
+  const isWaiversMemberships = mode === 'waivers-memberships' || isTrialInvitation
   const isFreeTrial = mode === 'public' && Boolean(freeTrial)
   const isEvaluation = isFreeTrial && freeTrial?.program === 'gymnastics' && freeTrial.gymnasticsTrack === 'experienced' && freeTrial.experience === 'experienced'
 
@@ -415,7 +417,7 @@ export default function FamilySignupWizard({
     if (leadRegistration) setWaivers(leadRegistration.waivers)
     try {
       const [programsRes, waiversRes] = await Promise.all([
-        isFreeTrial ? Promise.resolve(null) : fetch(`${apiUrl}/api/signup/catalog/programs`),
+        isFreeTrial || isTrialInvitation ? Promise.resolve(null) : fetch(`${apiUrl}/api/signup/catalog/programs`),
         leadRegistration ? Promise.resolve(null) : fetch(`${apiUrl}/api/signup/waivers`),
       ])
       const programsData = programsRes ? await programsRes.json() : { data: [] }
@@ -431,7 +433,7 @@ export default function FamilySignupWizard({
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load programs or waivers.')
     }
-  }, [apiUrl, leadRegistration, isFreeTrial])
+  }, [apiUrl, leadRegistration, isFreeTrial, isTrialInvitation])
 
   useEffect(() => {
     void loadCatalogAndWaivers()
@@ -1241,7 +1243,7 @@ export default function FamilySignupWizard({
         addressState: primaryAdult.addressState,
         addressZip: primaryAdult.addressZip,
       })),
-      enrollments: isFreeTrial ? [] : buildEnrollmentSubmitRows(),
+      enrollments: isFreeTrial || isTrialInvitation ? [] : buildEnrollmentSubmitRows(),
       ...(isFreeTrial && freeTrial ? { freeTrial: {
         slotGroupId: freeTrial.slotGroupId, classDate: freeTrial.classDate,
         program: freeTrial.program, age: freeTrial.age, memberIndex: 1,
@@ -1788,7 +1790,7 @@ export default function FamilySignupWizard({
               ? 'Youth signup — invite a parent'
               : isAdmin
                 ? 'Create Vortex account'
-                : dropInSignup ? 'Register for your drop-in' : isEvaluation ? 'Register for your free private evaluation' : isFreeTrial ? 'Register for your free trial' : 'Join Vortex Athletics'}
+                : dropInSignup ? 'Register for your drop-in' : isEvaluation ? 'Register for your free private evaluation' : isFreeTrial || isTrialInvitation ? 'Register for your free trial' : 'Join Vortex Athletics'}
         </h2>
         <p className="text-sm text-gray-600 mt-1">
           Step {step} of {maxStep} —{' '}
@@ -1802,6 +1804,7 @@ export default function FamilySignupWizard({
 
       {dropInSignup && <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">Complete your account details and required waivers, then review your drop-in and optional yearly membership. Payment comes last.</p>}
 
+      {isTrialInvitation && <p className="rounded-lg bg-gray-50 p-3 text-sm text-gray-700">Complete your family information and waivers first. You can choose a specific free trial class and date after submitting this form.</p>}
       {leadRegistration && step === 1 && <p className="rounded-lg bg-blue-50 p-3 text-sm">Choose a new password to replace the temporary password. You may also change the suggested username.</p>}
       {error && <div id="signup-error" ref={errorRef} role="alert" tabIndex={-1} className="scroll-mt-32 rounded-lg bg-red-50 text-red-700 px-4 py-3 text-sm">{error}
         {invalidField && <button type="button" className="ml-2 underline font-semibold" onClick={() => {
@@ -2010,7 +2013,7 @@ export default function FamilySignupWizard({
             className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-vortex-red text-white text-sm font-semibold disabled:opacity-60"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : dropInSignup ? 'Create account & review payment' : isEvaluation ? 'Confirm free evaluation · $0' : isFreeTrial ? 'Confirm free trial · $0' : 'Create account') : 'Continue'}
+            {step >= maxStep ? (isMinorStart ? 'Send invite' : isAdminEdit ? 'Save account' : dropInSignup ? 'Create account & review payment' : isEvaluation ? 'Confirm free evaluation · $0' : isFreeTrial ? 'Confirm free trial · $0' : isTrialInvitation ? 'Save information & choose trial dates' : 'Create account') : 'Continue'}
             {step < maxStep && <ChevronRight className="w-4 h-4" />}
           </button>
         </div>

@@ -1,67 +1,68 @@
 import {expect,test} from '@playwright/test'
 
-test('conversion supports partial child details and optional dates for every link type',async({page})=>{
-  let submitted: Record<string,unknown>|null=null
-  await page.addInitScript(()=>{localStorage.setItem('vortex_admin','true');localStorage.setItem('adminToken','fixture');localStorage.setItem('vortex-admin-info',JSON.stringify({id:1,isMaster:false}));localStorage.setItem('vortex_admin_portal','new-admin')})
-  await page.route('**/api/**',async route=>{
-    const path=new URL(route.request().url()).pathname
-    let data:unknown=[]
-    if(path.endsWith('/new-admin/families')) data={rows:[],total:0,page:1,pageSize:25,totalPages:1}
-    if(path==='/api/admin/access/me') data={isMasterAdmin:false,permissions:['classes.view','classes.manage','members.view','members.edit','scheduling.manage'],roles:['ADMIN'],user:{id:1}}
-    if(path.endsWith('/leads')) data={rows:[{id:7,firstName:'Jordan',lastName:'Rivera',email:'parent@example.test',status:'new',contacted:false,followUp:false,inquiry:{campers:[{firstName:'Casey',lastName:'Rivera',dateOfBirth:'2016-01-01'},{firstName:'Alex',lastName:'Rivera',dateOfBirth:'2018-01-01'}]}}],total:1,page:1,pageSize:25,totalPages:1}
-    if(path.endsWith('/lead-registration/catalog')) data=[
-      {programs_id:1,program_name:'Gymnastics',class_id:2,class_name:'Foundations',form_id:4,slot_id:3,day_of_week:1,start_time:'16:00',end_time:'17:00',max_participants:10,occupied:3},
-      {programs_id:1,program_name:'Gymnastics',class_id:5,class_name:'Intermediate',form_id:6,slot_id:null},
-      {programs_id:7,program_name:'Trampoline',class_id:null,form_id:null,slot_id:null},
-    ]
-    if(path.endsWith('/7/convert')) {submitted=route.request().postDataJSON();data={id:8,status:'sent',username:'jordanr',email:'parent@example.test',expiresAt:'2026-12-01',selections:[{kind:'reserved',label:'Foundations Monday',childName:'Casey'}]}}
-    await route.fulfill({json:{success:true,data}})
+test('staff invite a lead to a trial before the parent chooses a class date', async ({ page }) => {
+  let submitted: Record<string, unknown> | null = null
+  let invitation: Record<string, unknown> | null = null
+  await page.addInitScript(() => { localStorage.setItem('vortex_admin', 'true'); localStorage.setItem('adminToken', 'fixture'); localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, isMaster: false })); localStorage.setItem('vortex_admin_portal', 'new-admin') })
+  await page.route('**/api/**', async route => {
+    const path = new URL(route.request().url()).pathname
+    let data: unknown = []
+    if (path.endsWith('/new-admin/families')) data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 1 }
+    if (path === '/api/admin/access/me') data = { isMasterAdmin: false, permissions: ['members.view', 'members.edit'], roles: ['ADMIN'], user: { id: 1 } }
+    if (path.endsWith('/leads')) data = { rows: [{ id: 7, firstName: 'Jordan', lastName: 'Rivera', email: 'parent@example.test', status: 'new', contacted: false, followUp: false, invitation, inquiry: { campers: [{ firstName: 'Casey', lastName: 'Rivera', dateOfBirth: '2016-01-01' }, { firstName: 'Alex', lastName: 'Rivera', dateOfBirth: '2018-01-01' }] } }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+    if (path.endsWith('/7/trial')) {
+      submitted = route.request().postDataJSON()
+      invitation = { id: 8, purpose: 'trial', status: 'sent', username: 'jordanr', email: 'parent@example.test', expiresAt: '2099-12-01', children: submitted!.children, selections: [] }
+      data = invitation
+    }
+    if (path.endsWith('/lead-registration/8')) data = invitation
+    await route.fulfill({ json: { success: true, data } })
   })
   await page.goto('/')
-  await page.getByRole('button',{name:'Leads',exact:true}).click()
-  await page.getByRole('button',{name:'Convert',exact:true}).click()
-  const dialog=page.getByRole('dialog',{name:'Convert Jordan Rivera'})
+  await page.getByRole('button', { name: 'Leads', exact: true }).click()
+  await expect(page.getByRole('button', { name: 'Convert', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Trial', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Trial · Jordan Rivera' })
+  await expect(dialog).toContainText('sign the required waivers, then choose from available free trial dates')
+  await expect(dialog.getByRole('combobox', { name: 'Class', exact: true })).toHaveCount(0)
   await dialog.getByLabel('Child 1 last name').clear()
   await dialog.getByLabel('Child 1 birthday').clear()
-  await dialog.getByRole('button',{name:'Add class link or reservation'}).click()
-  await dialog.getByRole('combobox',{name:'Link type',exact:true}).selectOption('reserved')
-  await dialog.getByRole('combobox',{name:'Child',exact:true}).selectOption('0')
-  await dialog.getByRole('combobox',{name:'Program',exact:true}).selectOption('1')
-  await dialog.getByRole('combobox',{name:'Class',exact:true}).selectOption('2')
-  await dialog.getByRole('combobox',{name:'Class time',exact:true}).selectOption('3')
-  await dialog.getByLabel('Enrollment start date').first().fill('2026-12-01')
-  await dialog.getByRole('button',{name:'Add class link or reservation'}).click()
-  await dialog.getByRole('combobox',{name:'Child',exact:true}).nth(1).selectOption('1')
-  await dialog.getByRole('combobox',{name:'Program',exact:true}).nth(1).selectOption('1')
-  await dialog.getByLabel('Enrollment start date').nth(1).fill('2026-12-03')
-  await dialog.getByRole('button',{name:'Add class link or reservation'}).click()
-  await dialog.getByRole('combobox',{name:'Link type',exact:true}).nth(2).selectOption('class')
-  await dialog.getByRole('combobox',{name:'Program',exact:true}).nth(2).selectOption('1')
-  await expect(dialog.getByRole('combobox',{name:'Program',exact:true}).nth(2).locator('option')).toHaveText(['Select program','Gymnastics'])
-  await expect(dialog.getByRole('combobox',{name:'Class',exact:true}).nth(1).locator('option')).toHaveText(['Select class','Foundations'])
-  await dialog.getByRole('combobox',{name:'Class',exact:true}).nth(1).selectOption('2')
-  await dialog.getByLabel('Enrollment start date').nth(2).fill('2026-12-04')
-  await dialog.getByRole('button',{name:'Add class link or reservation'}).click()
-  await dialog.getByRole('combobox',{name:'Link type',exact:true}).nth(3).selectOption('reserved')
-  await dialog.getByRole('combobox',{name:'Program',exact:true}).nth(3).selectOption('1')
-  await dialog.getByRole('combobox',{name:'Class',exact:true}).nth(2).selectOption('2')
-  await dialog.getByRole('combobox',{name:'Class time',exact:true}).nth(1).selectOption('3')
-  await expect(dialog.getByLabel('Enrollment start date').nth(3)).toHaveValue('')
   await dialog.getByLabel('Days to finish registration').clear()
-  await dialog.getByLabel('Instructions for the parent').fill('Complete setup, then review both children’s classes.')
-  await dialog.getByRole('button',{name:'Send registration email'}).click()
-  await expect(dialog.getByRole('heading',{name:'Registration email sent'})).toBeVisible()
-  expect(submitted).toMatchObject({
-    mode:'invite',
-    children:[{firstName:'Casey',lastName:'',dateOfBirth:''},{firstName:'Alex'}],
-    selections:[
-      {kind:'reserved',childIndex:0,programsId:1,classEventId:2,timeSlotId:3,enrollmentStartDate:'2026-12-01'},
-      {kind:'program',childIndex:1,programsId:1,enrollmentStartDate:'2026-12-03'},
-      {kind:'class',childIndex:'',programsId:1,classEventId:2,enrollmentStartDate:'2026-12-04'},
-      {kind:'reserved',childIndex:'',programsId:1,classEventId:2,timeSlotId:3,enrollmentStartDate:''},
-    ],
-    holdDays:7,
+  await dialog.getByLabel('Instructions for the parent').fill('Complete setup, then choose your free trial.')
+  await dialog.getByRole('button', { name: 'Send trial invitation', exact: true }).click()
+  await expect(dialog.getByRole('heading', { name: 'Trial invitation sent' })).toBeVisible()
+  expect(submitted).toMatchObject({ mode: 'trial', children: [{ firstName: 'Casey', lastName: '', dateOfBirth: '' }, { firstName: 'Alex' }], selections: [], holdDays: 7 })
+  await dialog.getByRole('button', { name: 'Done', exact: true }).click()
+  await page.getByRole('button', { name: 'Trial', exact: true }).click()
+  await expect(page.getByRole('heading', { name: 'Trial invitation sent' })).toBeVisible()
+})
+
+test('free trial dates and classes stay aligned with each child in Leads', async ({ page }) => {
+  await page.addInitScript(() => { localStorage.setItem('vortex_admin', 'true'); localStorage.setItem('adminToken', 'fixture'); localStorage.setItem('vortex-admin-info', JSON.stringify({ id: 1, isMaster: false })); localStorage.setItem('vortex_admin_portal', 'new-admin') })
+  await page.route('**/api/**', async route => {
+    const path = new URL(route.request().url()).pathname
+    let data: unknown = []
+    if (path === '/api/admin/access/me') data = { isMasterAdmin: false, permissions: ['members.view', 'members.edit'], roles: ['ADMIN'], user: { id: 1 } }
+    if (path.endsWith('/new-admin/families')) data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 1 }
+    if (path.endsWith('/leads')) data = { rows: [{ id: 7, firstName: 'Jordan', lastName: 'Rivera', email: 'parent@example.test', status: 'qualified', contacted: true, followUp: false, inquiry: { campers: [{ memberId: 10, firstName: 'Casey', lastName: 'Rivera' }, { memberId: 11, firstName: 'Alex', lastName: 'Rivera' }] }, freeTrials: [{ id: 1, memberId: 10, childName: 'Casey Rivera', childIndex: 0, date: '2026-11-26', className: 'Gymnastics Foundations', status: 'attended' }, { id: 2, memberId: 11, childName: 'Alex Rivera', childIndex: 1, date: '2026-11-27', className: 'Fit & Flip', status: 'confirmed' }] }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+    await route.fulfill({ json: { success: true, data } })
   })
+  await page.goto('/')
+  await page.getByRole('button', { name: 'Leads', exact: true }).click()
+  await expect(page.getByRole('columnheader', { name: 'Free Trials', exact: true })).toBeVisible()
+  const headers = await page.getByRole('columnheader').allTextContents()
+  expect(headers[headers.indexOf('Kid details') + 1]).toBe('Free Trials')
+  const casey = page.getByRole('row').filter({ hasText: 'Casey Rivera' })
+  await expect(casey).toContainText('Nov 26, 2026')
+  await expect(casey).toContainText('Gymnastics Foundations')
+  await expect(casey).toContainText('Participated')
+  await expect(casey).not.toContainText('Fit & Flip')
+  const alex = page.getByRole('row').filter({ hasText: 'Alex Rivera' })
+  await expect(alex).toContainText('Nov 27, 2026')
+  await expect(alex).toContainText('Fit & Flip')
+  await expect(alex).toContainText('Scheduled')
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
 })
 
 test('staff edit a sent registration invitation, preserve drafts on errors, and retry updated email delivery', async ({ page }) => {

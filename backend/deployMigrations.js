@@ -54,6 +54,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '874_scheduling_day_cancellations.sql',
   '875_business_acquisition.sql',
   '876_job_applications.sql',
+  '877_free_trial_leads.sql',
   '878_vortex_private_gymnastics_evaluations.sql',
   '840_staff_legal_signatures.sql',
 ])

@@ -1,12 +1,18 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import SignupPasswordInput from './SignupPasswordInput'
+import LeadTrialScheduling, { type LeadTrialBooking, type TrialChild } from './LeadTrialScheduling'
 import FamilySignupWizard, { type LeadRegistrationSetup } from './FamilySignupWizard'
 import { getApiUrl } from '../../utils/api'
 import { loginMemberWithCredentials, persistMemberSession, type PortalAccount } from '../../utils/portalSession'
 import { saveFamilyCheckoutSelections, type PendingFamilyEnrollment } from '../../utils/familyEnrollmentCheckout'
 
 type Result = {
+  purpose?: 'trial' | 'registration'
+  trialRegistration?: boolean
+  trialChildren?: TrialChild[]
+  trialBookings?: LeadTrialBooking[]
+  facilityId?: number
   payerMemberId: number
   memberIds?: number[]
   pendingEnrollments: PendingFamilyEnrollment[]
@@ -44,8 +50,10 @@ export default function SignupLeadPage() {
     if (saved.token && saved.member) {
       persistMemberSession(saved.token, saved.member)
       setSignedIn(true)
-      saveFamilyCheckoutSelections(saved.payerMemberId, saved.pendingEnrollments)
-      if (saved.pendingEnrollments.length) window.location.assign(memberPortalReview)
+      if (saved.purpose !== 'trial' && !saved.trialRegistration) {
+        saveFamilyCheckoutSelections(saved.payerMemberId, saved.pendingEnrollments)
+        if (saved.pendingEnrollments.length) window.location.assign(memberPortalReview)
+      }
     }
     setResult(saved)
   }
@@ -85,13 +93,14 @@ export default function SignupLeadPage() {
     window.location.assign(memberPortalReview)
   }
 
+  const trial = info?.purpose === 'trial' || result?.purpose === 'trial' || result?.trialRegistration === true
   const pending = result?.pendingEnrollments ?? []
-  const legacyLinks = result && !result.enrollmentsPrepared ? info?.selections.filter((item) => item.kind !== 'reserved') ?? [] : []
+  const legacyLinks = result && !trial && !result.enrollmentsPrepared ? info?.selections.filter((item) => item.kind !== 'reserved') ?? [] : []
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 pb-12 pt-below-site-header">
       <main className="mx-auto mt-8 max-w-4xl rounded-2xl border bg-white p-6 sm:p-8">
-        <h1 className="mb-3 text-2xl font-bold">Your Vortex registration</h1>
+        <h1 className="mb-3 text-2xl font-bold">{trial ? 'Your Vortex free trial' : 'Your Vortex registration'}</h1>
         {error && <p role="alert" className="mb-4 rounded-lg bg-red-50 p-4 text-red-800">{error}</p>}
         {!info ? (
           <form onSubmit={login} className="max-w-lg space-y-4">
@@ -111,11 +120,14 @@ export default function SignupLeadPage() {
           </form>
         ) : (
           <>
-            {!result && info.selections.some((item) => item.kind === 'reserved') && (
+            {!result && !trial && info.selections.some((item) => item.kind === 'reserved') && (
               <p className="mb-4 text-sm text-slate-600">Reserved class places are held until {new Date(info.expiresAt).toLocaleDateString()}. Complete checkout to confirm enrollment.</p>
             )}
             {info.instructions && <p className="mb-5 whitespace-pre-wrap rounded-lg bg-blue-50 p-4">{info.instructions}</p>}
-            {result ? (
+            {result && trial ? (
+              <LeadTrialScheduling inviteId={inviteId} token={token} session={info.session} facilityId={result.facilityId || 0}
+                children={result.trialChildren || []} bookings={result.trialBookings || []} />
+            ) : result ? (
               <section className="space-y-4">
                 <h2 className="text-xl font-semibold">{pending.length || legacyLinks.length ? 'Next: your classes' : 'Your family account is ready'}</h2>
                 {(pending.length > 0 || legacyLinks.length > 0) && (
@@ -138,7 +150,7 @@ export default function SignupLeadPage() {
                 {pending.length === 0 && legacyLinks.length === 0 && <a className="font-semibold text-vortex-red underline" href="/?enrollment=browse">Go to Member Portal</a>}
               </section>
             ) : setup && (
-              <FamilySignupWizard mode={setup.selections.length > 0 ? 'public' : 'waivers-memberships'} leadRegistration={setup} onComplete={complete} />
+              <FamilySignupWizard mode={!trial && setup.selections.length > 0 ? 'public' : 'waivers-memberships'} leadRegistration={setup} onComplete={complete} />
             )}
           </>
         )}

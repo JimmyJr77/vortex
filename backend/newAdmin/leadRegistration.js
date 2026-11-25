@@ -6,13 +6,25 @@ import { findActiveMemberLoginCandidates, normalizeSignupEmail } from '../auth/m
 import { encryptAccountInviteToken, decryptAccountInviteToken } from '../email/accountInviteTokens.js'
 import { sendLeadRegistrationEmail } from '../email/leadRegistrationEmail.js'
 import { generateTemporaryPassword } from '../scheduling/tempPasswordEmail.js'
-import { processFamilySignup } from '../platform/familySignup.js'
+import { processFamilySignup, resolveSignupWaiverTargetMemberIds } from '../platform/familySignup.js'
 import { normalizeEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
+import { bookMemberFreeTrial, trialAgeOnDate, validateTrialSelection } from '../scheduling/freeTrials.js'
 import { inquiryInput } from './leadInquiry.js'
 import { leadInput, updateLead } from './leads.js'
 import { id, inputError } from './common.js'
 
 const digest = value => crypto.createHash('sha256').update(String(value)).digest('hex')
+const invitationPurpose = invite => invite.pending_payload.purpose === 'trial' ? 'trial' : 'registration'
+
+function invitationSelections(invite, selections) {
+  if (invitationPurpose(invite) === 'trial') {
+    if (selections != null && (!Array.isArray(selections) || selections.length)) {
+      throw inputError('Trial dates are chosen after family information and waivers are completed.')
+    }
+    return []
+  }
+  return selections
+}
 export async function nextLeadUsername(db, firstName, lastName) {
   const clean = text => String(text).normalize('NFKD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '')
   const name = clean(firstName).slice(0, 40) + clean(lastName).slice(0, 1)
@@ -92,7 +104,7 @@ export async function validateLeadSelections(db, facilityId, children, selection
 
 export function invitationSummary(invite) {
   return { id: Number(invite.id), username: invite.suggested_username, email: invite.invitee_email, status: invite.used_at ? 'completed' : new Date(invite.expires_at) <= new Date() ? 'expired' : invite.delivery_status, expiresAt: invite.expires_at, selections: invite.pending_payload.selections, children: invite.pending_payload.children,
-    guardian: invite.pending_payload.guardian, instructions: invite.pending_payload.instructions || '', revision: invite.pending_payload.revision || 0 }
+    purpose: invitationPurpose(invite), guardian: invite.pending_payload.guardian, instructions: invite.pending_payload.instructions || '', revision: invite.pending_payload.revision || 0 }
 }
 
 export async function updateLeadInvitation(pool, { facilityId, inviteId, body, canReserve = false }, dependencies = {}) {
@@ -110,7 +122,7 @@ export async function updateLeadInvitation(pool, { facilityId, inviteId, body, c
     const revision = invite.pending_payload.revision || 0
     if (!Number.isInteger(body.revision) || body.revision !== revision) throw inputError('This invitation changed. Close and reopen it before editing.', 409)
     const children = inquiryInput({ campers: body.children }).campers
-    const selections = await validateLeadSelections(db, facilityId, children, body.selections)
+    const selections = await validateLeadSelections(db, facilityId, children, invitationSelections(invite, body.selections))
     if (!canReserve && [...invite.pending_payload.selections, ...selections].some(item => item.kind === 'reserved')) throw inputError('Scheduling permission is required to change an invitation with reserved classes.', 403)
     const holdDays = Number(body.holdDays)
     if (!Number.isInteger(holdDays) || holdDays < 1 || holdDays > 30) throw inputError('Choose a registration deadline from 1 to 30 days.')
@@ -169,14 +181,16 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     const emailConflict = await client.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=$1 OR LOWER(BTRIM(username))=$1 UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=$1 LIMIT 1', [email])
     if (emailConflict.rows.length) throw inputError('This email already has an account. Link the verified existing member instead of creating another login.', 409)
     const children = inquiryInput({ campers: body.children || lead.campers || [] }).campers
-    const selections = await validateLeadSelections(client, facilityId, children, body.selections || [])
+    const purpose = body.mode === 'trial' ? 'trial' : 'registration'
+    const selections = await validateLeadSelections(client, facilityId, children,
+      invitationSelections({ pending_payload: { purpose } }, body.selections || []))
     const holdDays = Number(body.holdDays ?? 7)
     if (!Number.isInteger(holdDays) || holdDays < 1 || holdDays > 30) throw inputError('Choose a registration deadline from 1 to 30 days.')
     const instructions = String(body.instructions || '').trim()
     if (instructions.length > 4000) throw inputError('Instructions must be at most 4,000 characters.')
     const username = await nextLeadUsername(client, lead.first_name, lead.last_name)
     const password = generateTemporaryPassword(16), token = crypto.randomBytes(32).toString('hex')
-    const payload = { guardian: { firstName: lead.first_name, lastName: lead.last_name, email, phone: lead.phone || '' }, children, selections, instructions, passwordCiphertext: encryptAccountInviteToken(password) }
+    const payload = { purpose, guardian: { firstName: lead.first_name, lastName: lead.last_name, email, phone: lead.phone || '' }, children, selections, instructions, passwordCiphertext: encryptAccountInviteToken(password) }
     invite = (await client.query(`INSERT INTO account_invite(facility_id,registration_id,invite_type,token_hash,token_ciphertext,invitee_email,pending_payload,expires_at,suggested_username,temporary_password_hash,request_key,created_by_user_id)
       VALUES($1,$2,'lead_registration',$3,$4,$5,$6::jsonb,now()+($7::int*interval '1 day'),$8,$9,$10,$11) RETURNING *`, [facilityId, lead.id, digest(token), encryptAccountInviteToken(token), email, JSON.stringify(payload), holdDays, username, await bcrypt.hash(password, 10), String(body.requestKey || crypto.randomUUID()), userId])).rows[0]
     // Stable lock ordering prevents deadlocks for multi-child, multi-class invitations.
@@ -242,6 +256,7 @@ async function loadInvitation(db, inviteId, token, lock = false) {
 }
 
 async function remainingEnrollments(db, result) {
+  if (result?.trialRegistration) return { ...result, trialBookings: await loadInvitationTrialBookings(db, result) }
   if (!result?.pendingEnrollments?.length) return result
   const memberIds = [...new Set(result.pendingEnrollments.map(item => item.memberId))]
   const groups = [...new Set(result.pendingEnrollments.map(item => item.slotGroupId))]
@@ -251,6 +266,23 @@ async function remainingEnrollments(db, result) {
     AND orphaned_at IS NULL AND archived_at IS NULL`, [memberIds, groups])
   const finished = new Set(enrolled.rows.map(row => `${row.member_id}:${row.slot_group_id}`))
   return { ...result, pendingEnrollments: result.pendingEnrollments.filter(item => !finished.has(`${item.memberId}:${item.slotGroupId}`)) }
+}
+
+async function loadInvitationTrialBookings(db, result) {
+  const memberIds = (result.trialChildren || []).map(child => Number(child.memberId))
+  if (!memberIds.length) return []
+  return (await db.query(`SELECT d.id,d.member_id AS "memberId",d.class_date::text AS "classDate",d.status,
+      d.slot_group_id AS "slotGroupId",COALESCE(p.display_name,p.name,sf.title) AS "className",
+      COALESCE(top.display_name,top.name) AS "programName",p.is_trial_assessment AS "isTrialAssessment",
+      (SELECT MIN(ts.start_time)::text FROM scheduling_time_slot ts WHERE ts.slot_group_id=d.slot_group_id
+        AND (ts.specific_date=d.class_date OR (ts.specific_date IS NULL AND ts.day_of_week=EXTRACT(DOW FROM d.class_date)))) AS "startTime",
+      (SELECT MAX(ts.end_time)::text FROM scheduling_time_slot ts WHERE ts.slot_group_id=d.slot_group_id
+        AND (ts.specific_date=d.class_date OR (ts.specific_date IS NULL AND ts.day_of_week=EXTRACT(DOW FROM d.class_date)))) AS "endTime"
+    FROM drop_in_registration d JOIN scheduling_form sf ON sf.id=d.form_id
+    JOIN program p ON p.id=sf.program_id LEFT JOIN programs top ON top.id=COALESCE(sf.programs_id,p.programs_id)
+    WHERE d.member_id=ANY($1::bigint[]) AND d.benefit_type='free_trial' AND p.facility_id=$2
+    ORDER BY d.class_date,d.id`, [memberIds, result.facilityId])).rows.map(row => ({ ...row,
+      id: Number(row.id), memberId: Number(row.memberId), slotGroupId: Number(row.slotGroupId), benefitType: 'free_trial', totalCents: 0 }))
 }
 
 async function findCompletedRegistrationLogin(db, invite, identifier) {
@@ -281,7 +313,7 @@ export async function openLeadRegistration(db, inviteId, body) {
   const waivers = (await db.query(`SELECT id,name,version,body,waiver_type,is_required FROM waiver_template
     WHERE facility_id=$1 AND active_from<=now() AND (active_to IS NULL OR active_to>now()) ORDER BY id`,[invite.facility_id])).rows
   const result = invite.used_at ? await remainingEnrollments(db, invite.pending_payload.result) : undefined
-  return { waivers, session: jwt.sign({ purpose: 'lead_registration', inviteId: Number(invite.id) }, resolveJwtSecret(), { expiresIn: '2h' }), guardian: invite.pending_payload.guardian, children: invite.pending_payload.children, selections: invite.pending_payload.selections, username: invite.suggested_username, instructions: invite.pending_payload.instructions, expiresAt: invite.expires_at, completed: Boolean(invite.used_at), result }
+  return { waivers, purpose: invitationPurpose(invite), facilityId: Number(invite.facility_id), session: jwt.sign({ purpose: 'lead_registration', inviteId: Number(invite.id) }, resolveJwtSecret(), { expiresIn: '2h' }), guardian: invite.pending_payload.guardian, children: invite.pending_payload.children, selections: invite.pending_payload.selections, username: invite.suggested_username, instructions: invite.pending_payload.instructions, expiresAt: invite.expires_at, completed: Boolean(invite.used_at), result }
 }
 
 async function resolveInvitationEnrollments(db, invite, enrollments, additionalMemberCount) {
@@ -399,7 +431,16 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
       if (!genders.has(member?.gender)) throw inputError(`Gender is required for ${index === 0 ? 'the primary account holder' : member.firstName || 'each family member'}.`)
     }
     inquiryInput({ campers: children.map(child => ({ dateOfBirth: child?.dateOfBirth })) })
-    const enrollments = await resolveInvitationEnrollments(db, invite, body.enrollments, children.length)
+    const isTrial = invitationPurpose(invite) === 'trial'
+    if (isTrial && body.enrollments != null && (!Array.isArray(body.enrollments) || body.enrollments.length)) {
+      throw inputError('Choose free trial dates after completing your family information and waivers.')
+    }
+    const enrollments = isTrial ? [] : await resolveInvitationEnrollments(db, invite, body.enrollments, children.length)
+    const signupDate = isTrial ? (await db.query(`SELECT (clock_timestamp() AT TIME ZONE
+      COALESCE(NULLIF(timezone,''),'America/New_York'))::date::text AS date FROM facility WHERE id=$1`, [invite.facility_id])).rows[0]?.date : null
+    const trialChildren = isTrial ? children.map((child, index) => ({ ...child, memberIndex: index + 1 }))
+      .filter(child => { const age = trialAgeOnDate(child.dateOfBirth, signupDate); return age != null && age >= 0 && age < 18 }) : []
+    if (isTrial && !trialChildren.length) throw inputError('Add a child under 18 to choose a free trial.')
     // Enrollment billing is owned exclusively by the existing authenticated checkout.
     const result = await processFamilySignup(db, { primaryAdult, additionalMembers: children, enrollments, waivers: body.waivers, familyName: `${primaryAdult.lastName} Family` }, { facilityId: invite.facility_id, leadInvitationId: invite.id, ipAddress: request.ip, userAgent: request.userAgent })
     // Preserve only holds still selected by the family. Match the actual schedule,
@@ -420,14 +461,64 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
         enrollment.enrollmentStartDate, selection.holdSignupId ?? null, selection.childIndex])
       if (linkedHold.rowCount !== 1) throw inputError('A reserved class could not be linked to its athlete. Contact Vortex to update the invitation.', 409)
     }
-    const completed = { ...result, enrollmentsPrepared: true }
-    await db.query("UPDATE account_invite SET used_at=now(),temporary_password_hash=NULL,pending_payload=(pending_payload-'passwordCiphertext')||jsonb_build_object('result',$2::jsonb) WHERE id=$1", [invite.id, JSON.stringify(completed)])
-    await db.query(`UPDATE registrations SET converted_member_id=$2,converted_at=now(),converted_by_user_id=$3,
-      lead_status='converted',contacted=TRUE,first_contacted_at=COALESCE(first_contacted_at,now()),updated_at=now()
-      WHERE id=$1 AND facility_id=$4`, [invite.registration_id, result.payerMemberId, invite.created_by_user_id, invite.facility_id])
+    const completed = { ...result, enrollmentsPrepared: true, ...(isTrial ? { purpose: 'trial', trialRegistration: true,
+      facilityId: Number(invite.facility_id), trialChildren: trialChildren.map(child => ({ memberIndex: child.memberIndex,
+        memberId: Number(result.memberIds[child.memberIndex]), firstName: child.firstName, lastName: child.lastName, dateOfBirth: child.dateOfBirth })), trialBookings: [] } : {}) }
+    const savedChildren = children.map((child, index) => ({ firstName: child.firstName, lastName: child.lastName,
+      dateOfBirth: child.dateOfBirth, gender: child.gender, memberId: Number(result.memberIds[index + 1]) }))
+    await db.query("UPDATE account_invite SET used_at=now(),temporary_password_hash=NULL,pending_payload=(pending_payload-'passwordCiphertext')||jsonb_build_object('result',$2::jsonb,'children',$3::jsonb) WHERE id=$1", [invite.id, JSON.stringify(completed), JSON.stringify(savedChildren)])
+    if (isTrial) {
+      await db.query(`UPDATE registrations SET member_id=$2,inquiry_source='free_trial',campers=$3::jsonb,
+        lead_status='qualified',contacted=TRUE,first_contacted_at=COALESCE(first_contacted_at,now()),updated_at=now()
+        WHERE id=$1 AND facility_id=$4`, [invite.registration_id, result.payerMemberId, JSON.stringify(savedChildren), invite.facility_id])
+    } else {
+      await db.query(`UPDATE registrations SET converted_member_id=$2,converted_at=now(),converted_by_user_id=$3,
+        lead_status='converted',contacted=TRUE,first_contacted_at=COALESCE(first_contacted_at,now()),updated_at=now()
+        WHERE id=$1 AND facility_id=$4`, [invite.registration_id, result.payerMemberId, invite.created_by_user_id, invite.facility_id])
+    }
     await db.query('COMMIT')
     return completed
   } catch (error) { await db.query('ROLLBACK'); if (!error.statusCode) error.statusCode=400; throw error } finally { db.release() }
+}
+
+/** Invitation credentials authorize only the family just created by this completed trial invitation. */
+export async function bookLeadInvitationTrial(pool, inviteId, body) {
+  let claims
+  try { claims = jwt.verify(String(body.session || ''), resolveJwtSecret()) } catch { throw inputError('Please sign in to your trial invitation again.', 401) }
+  if (claims.purpose !== 'lead_registration' || claims.inviteId !== id(inviteId)) throw inputError('Invalid registration session.', 401)
+  const selection = validateTrialSelection(body.freeTrial, { requireMemberIndex: true })
+  const db = await pool.connect()
+  try {
+    await db.query('BEGIN')
+    const reference = await loadInvitation(db, inviteId, body.token)
+    const lead = (await db.query('SELECT id,archived FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE',
+      [reference.registration_id, reference.facility_id])).rows[0]
+    const invite = await loadInvitation(db, inviteId, body.token, true)
+    if (!lead || lead.archived) throw inputError('This trial invitation is no longer available. Contact Vortex to continue.', 409)
+    const result = invite.pending_payload.result
+    if (invitationPurpose(invite) !== 'trial' || !invite.used_at || !result?.trialRegistration) {
+      throw inputError('Complete your family information and sign the waivers before choosing a free trial.', 409)
+    }
+    const child = result.trialChildren?.find(item => Number(item.memberIndex) === selection.memberIndex)
+    if (!child || Number(result.memberIds?.[selection.memberIndex]) !== Number(child.memberId)) {
+      throw inputError('Choose a child from this trial invitation.', 403)
+    }
+    const authorized = await resolveSignupWaiverTargetMemberIds(db, { facilityId: invite.facility_id,
+      signerMemberId: result.payerMemberId, candidateMemberIds: [child.memberId] })
+    if (!authorized.includes(Number(child.memberId))) throw inputError('Only this child’s authorized parent or guardian may book their free trial.', 403)
+    const payer = (await db.query(`SELECT parent.email,parent.phone FROM member parent
+      JOIN member child ON child.family_id=parent.family_id AND child.facility_id=parent.facility_id
+      WHERE parent.id=$1 AND child.id=$2 AND parent.facility_id=$3 AND parent.is_active=TRUE AND child.is_active=TRUE`,
+      [result.payerMemberId, child.memberId, invite.facility_id])).rows[0]
+    if (!payer) throw inputError('This athlete is no longer available in this family.', 403)
+    const booking = await bookMemberFreeTrial(db, selection, { memberId: child.memberId, facilityId: invite.facility_id,
+      contactEmail: payer.email || invite.invitee_email, contactPhone: payer.phone || null })
+    const bookings = await loadInvitationTrialBookings(db, result)
+    await db.query("UPDATE account_invite SET pending_payload=jsonb_set(pending_payload,'{result,trialBookings}',$2::jsonb) WHERE id=$1",
+      [invite.id, JSON.stringify(bookings)])
+    await db.query('COMMIT')
+    return { ...booking, ...bookings.find(item => item.id === booking.id), trialBookings: bookings }
+  } catch (error) { await db.query('ROLLBACK'); throw error } finally { db.release() }
 }
 
 export async function leadRegistrationCatalog(db, facilityId) {

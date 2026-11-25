@@ -22,7 +22,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
     await db.query(`
       CREATE TABLE facility(id bigint PRIMARY KEY,timezone text);
       CREATE TABLE family(id bigint PRIMARY KEY,facility_id bigint);
-      CREATE TABLE member(id bigint PRIMARY KEY,facility_id bigint,family_id bigint,email text,app_user_id bigint,is_active boolean DEFAULT TRUE);
+      CREATE TABLE member(id bigint PRIMARY KEY,facility_id bigint,family_id bigint,email text,app_user_id bigint,is_active boolean DEFAULT TRUE,first_name text,last_name text);
       CREATE TABLE app_user(id bigint PRIMARY KEY,facility_id bigint,email text,is_active boolean DEFAULT TRUE);
       CREATE TABLE family_member(family_id bigint,member_id bigint,is_active boolean);
       CREATE TABLE account_record_source(family_id bigint,member_id bigint,facility_id bigint,deleted boolean);
@@ -30,8 +30,11 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
         converted_member_id bigint,member_id bigint,lead_status text DEFAULT 'new',contacted boolean,follow_up boolean,
         archived boolean DEFAULT FALSE,created_at timestamptz DEFAULT now(),updated_at timestamptz DEFAULT now(),
         first_contacted_at timestamptz,admin_notes text,message text,athlete_age int,interests text,interests_array text[],
-        interest text,class_types text[],child_ages int[],campers jsonb,submitter_role text,inquiry_source text);
-      CREATE TABLE account_invite(id bigint,registration_id bigint,invite_type text,suggested_username text,expires_at timestamptz,used_at timestamptz,delivery_status text);
+        interest text,class_types text[],child_ages int[],campers jsonb,submitter_role text,inquiry_source text,submitted_by_name text);
+      CREATE TABLE account_invite(id bigint,registration_id bigint,invite_type text,suggested_username text,expires_at timestamptz,used_at timestamptz,delivery_status text,pending_payload jsonb);
+      CREATE TABLE program(id bigint PRIMARY KEY,facility_id bigint,display_name text,name text);
+      CREATE TABLE scheduling_form(id bigint PRIMARY KEY,program_id bigint,title text);
+      CREATE TABLE drop_in_registration(id bigint PRIMARY KEY,member_id bigint,benefit_type text,form_id bigint,class_date date,status text);
       CREATE TABLE note(id bigint PRIMARY KEY,subject_type text,subject_id bigint,note_type text DEFAULT 'staff_note',body text,
         author_name text,created_at timestamptz DEFAULT now(),source text,is_deleted boolean DEFAULT FALSE);
       INSERT INTO facility VALUES(1,'America/New_York'),(2,'America/New_York');
@@ -143,6 +146,40 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.equal(ambiguous.matchedMemberId, null)
       assert.deepEqual((await leadNotes(db,1,1)).map(note=>note.body).sort(),
         ['Call Tuesday','Gymnastics trial request','Original inquiry note'])
+    })
+    await t.test('initial inquiry notes use the entering staff snapshot for both fallback and previously saved notes', async () => {
+      const publicNote = (await leadNotes(db,1,1)).find(note => note.source === 'inquiry_message')
+      assert.equal(publicNote.authorName,'Alex Inquiry')
+      assert.equal(publicNote.noteType,'user_comment')
+      await db.query("UPDATE registrations SET submitted_by_name='Staff Who Entered Lead' WHERE id=1")
+      const fallback = (await leadNotes(db,1,1)).find(note => note.source === 'inquiry_message')
+      assert.equal(fallback.authorName,'Staff Who Entered Lead')
+      assert.equal(fallback.noteType,'staff_note')
+      await db.query(`INSERT INTO note(id,subject_type,subject_id,note_type,body,author_name,source)
+        SELECT 11,'registration',id,'user_comment',message,'Alex Inquiry','inquiry_message' FROM registrations WHERE id=1`)
+      const saved = (await leadNotes(db,1,1)).find(note => note.source === 'inquiry_message')
+      assert.equal(saved.authorName,'Staff Who Entered Lead')
+      assert.equal(saved.noteType,'staff_note')
+    })
+    await t.test('trial accounts stay leads and display only exact child/facility free trial bookings', async () => {
+      await db.query(`
+        INSERT INTO program VALUES(1,1,'Cyclones','Cyclones'),(2,2,'Foreign class','Foreign class');
+        INSERT INTO scheduling_form VALUES(1,1,'Cyclones'),(2,2,'Foreign class');
+        UPDATE member SET first_name='Listed',last_name='Child' WHERE id=2;
+        UPDATE registrations SET member_id=1,inquiry_source='free_trial',lead_status='qualified',
+          campers='[{"memberId":2,"firstName":"Listed"},{"firstName":"No trial"}]' WHERE id=1;
+        INSERT INTO drop_in_registration VALUES(1,2,'free_trial',1,'2027-01-15','confirmed'),
+          (2,2,'paid',1,'2027-01-16','confirmed'),(3,4,'free_trial',2,'2027-01-15','confirmed'),
+          (4,2,'free_trial',2,'2027-01-17','confirmed');
+      `)
+      const trial = (await listLeads(db,1,{search:'alex@example.test'})).rows[0]
+      assert.equal(trial.status,'qualified')
+      assert.equal(trial.convertedMemberId,null)
+      assert.deepEqual(trial.freeTrials,[{ id:1,memberId:2,childName:'Listed Child',childIndex:0,date:'2027-01-15',className:'Cyclones',status:'confirmed' }])
+      assert.deepEqual(await ids({converted:'true',search:'alex@example.test'}),[])
+      await db.query('UPDATE registrations SET converted_member_id=1 WHERE id=1')
+      assert.deepEqual(await ids({search:'alex@example.test'}),[])
+      assert.deepEqual(await ids({converted:'true',search:'alex@example.test'}),[1])
     })
   } finally { await db.query('ROLLBACK'); await db.end() }
 })

@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken'
 import { loadCanonicalAccessContext, resolveCanonicalTokenUserId } from './accessContext.js'
 import { resolveJwtSecret } from '../auth/jwtSecret.js'
 import { bookMemberFreeTrial, validateTrialSelection } from '../scheduling/freeTrials.js'
+import { recordFreeTrialLead } from '../newAdmin/trialLeads.js'
 import { loadDropInDateAvailability } from '../scheduling/dropInOccurrences.js'
 import { lockSchedulingDay } from '../scheduling/dayCancellation.js'
 import { normalizeLoginPhone, normalizeSignupEmail } from '../auth/memberLoginIdentifiers.js'
@@ -1435,6 +1436,10 @@ export async function processFamilySignup(client, payload, options = {}) {
     })
     : await finalizePendingDropIn(client, payload.pendingDropInId, { primaryEmail, createdMembers })
 
+  if (freeTrial) await recordFreeTrialLead(client, {
+    facilityId, payerMemberId: payerMember.id, memberId: memberIdByClientIndex[freeTrial.memberIndex],
+  })
+
   return {
     familyId,
     familyUsername,
@@ -1481,9 +1486,11 @@ export async function processExistingFamilyFreeTrial(client, payload, { signerMe
     paymentPolicyAcknowledged: waivers.paymentPolicyAcknowledged === true,
     ipAddress, userAgent, asOfDate: signupDate,
   })
-  return bookMemberFreeTrial(client, selection, {
+  const booking = await bookMemberFreeTrial(client, selection, {
     memberId, facilityId, contactEmail: signer.email, contactPhone: signer.phone,
   })
+  await recordFreeTrialLead(client, { facilityId, payerMemberId: signerMemberId, memberId })
+  return booking
 }
 
 function tokenFrom(req) {

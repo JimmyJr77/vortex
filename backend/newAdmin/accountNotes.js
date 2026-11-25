@@ -23,8 +23,12 @@ export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberI
         SELECT 1 FROM member linked WHERE linked.id=inquiry.member_id AND linked.facility_id=${facilityId})))
       AND (inquiry.id=${leadId} OR COALESCE(inquiry.converted_member_id,inquiry.member_id) IN (SELECT id FROM account_members))
   )
-  SELECT n.id,n.subject_type,n.subject_id,n.note_type,n.body,n.author_name,n.created_at,n.source
-    FROM note n WHERE n.is_deleted=FALSE AND (
+  SELECT n.id,n.subject_type,n.subject_id,
+    CASE WHEN original.submitted_by_name IS NOT NULL THEN 'staff_note' ELSE n.note_type END AS note_type,n.body,
+    COALESCE(original.submitted_by_name,n.author_name) AS author_name,n.created_at,n.source
+    FROM note n LEFT JOIN inquiries original ON n.subject_type='registration' AND n.subject_id=original.id
+      AND n.source='inquiry_message' AND TRIM(n.body)=TRIM(original.message)
+    WHERE n.is_deleted=FALSE AND (
       (n.subject_type='registration' AND n.subject_id IN (SELECT id FROM inquiries))
       OR (n.subject_type='member' AND n.subject_id IN (SELECT id FROM account_members))
       OR (n.subject_type='family' AND n.subject_id IN (SELECT id FROM account_family)))
@@ -33,8 +37,9 @@ export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberI
     FROM inquiries inquiry WHERE NULLIF(TRIM(inquiry.admin_notes),'') IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM note n WHERE n.subject_type='registration' AND n.subject_id=inquiry.id AND n.is_deleted=FALSE AND TRIM(n.body)=TRIM(inquiry.admin_notes))
   UNION ALL
-  SELECT -inquiry.id::bigint*2-1,'registration',inquiry.id,'user_comment',inquiry.message,
-    concat_ws(' ',inquiry.first_name,inquiry.last_name),inquiry.created_at,'inquiry_message'
+  SELECT -inquiry.id::bigint*2-1,'registration',inquiry.id,
+    CASE WHEN inquiry.submitted_by_name IS NOT NULL THEN 'staff_note' ELSE 'user_comment' END,inquiry.message,
+    COALESCE(inquiry.submitted_by_name,concat_ws(' ',inquiry.first_name,inquiry.last_name)),inquiry.created_at,'inquiry_message'
     FROM inquiries inquiry WHERE NULLIF(TRIM(inquiry.message),'') IS NOT NULL AND NOT EXISTS (
       SELECT 1 FROM note n WHERE n.subject_type='registration' AND n.subject_id=inquiry.id AND n.is_deleted=FALSE AND TRIM(n.body)=TRIM(inquiry.message))`
 }

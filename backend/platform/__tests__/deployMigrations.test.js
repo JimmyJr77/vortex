@@ -149,6 +149,7 @@ test('release deploy includes application content migrations without broadening 
     '874_scheduling_day_cancellations.sql',
     '875_business_acquisition.sql',
     '876_job_applications.sql',
+    '877_free_trial_leads.sql',
     '878_vortex_private_gymnastics_evaluations.sql',
     '840_staff_legal_signatures.sql',
   ])

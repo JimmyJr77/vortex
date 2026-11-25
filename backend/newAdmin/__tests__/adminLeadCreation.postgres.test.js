@@ -97,6 +97,12 @@ test('admin inquiry creation stores trusted staff attribution, optional public f
     const attributed = await updateLead(db, facility.id, lead.id, { message: 'Keep attribution' })
     assert.equal(attributed.inquiry.submittedBy.name, 'Staff Who Entered Lead')
     assert.equal(attributed.inquiry.submittedBy.userId, null)
+    await db.query("UPDATE registrations SET campers='[{\"firstName\":\"Linked\",\"lastName\":\"Child\",\"dateOfBirth\":\"2020-02-20\",\"memberId\":123}]'::jsonb WHERE id=$1", [lead.id])
+    const childEdit = await updateLead(db,facility.id,lead.id,{inquiry:{campers:[{firstName:'Corrected',lastName:'Child',dateOfBirth:'2020-02-20',memberId:123},{firstName:'Spoofed',memberId:999}]}})
+    assert.equal(childEdit.inquiry.campers[0].memberId,123)
+    assert.equal(childEdit.inquiry.campers[1].memberId,undefined)
+    const withoutIds = await updateLead(db,facility.id,lead.id,{inquiry:{campers:[{firstName:'Corrected',lastName:'Child',dateOfBirth:'2020-02-20'}]}})
+    assert.equal(withoutIds.inquiry.campers[0].memberId,123)
   } finally {
     await db.query('ROLLBACK').catch(() => {})
     await db.end()

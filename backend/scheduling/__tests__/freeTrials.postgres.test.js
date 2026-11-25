@@ -102,12 +102,20 @@ test('local PostgreSQL: family trials, current waivers, both cohorts, assessment
     assert.equal(result.completedDropIn.totalCents, 0)
     assert.equal(result.completedDropIn.status, 'confirmed')
     assert.equal(result.completedDropIn.memberId, result.memberIds[1])
+    const trialLead = (await db.query("SELECT id,member_id,converted_member_id,lead_status,campers FROM registrations WHERE facility_id=$1 AND inquiry_source='free_trial'",[facilityId])).rows[0]
+    assert.equal(Number(trialLead.member_id),Number(result.payerMemberId))
+    assert.equal(trialLead.converted_member_id,null)
+    assert.equal(trialLead.lead_status,'qualified')
+    assert.deepEqual(trialLead.campers.map(child => child.memberId),[Number(result.memberIds[1])])
     const auth = { signerMemberId: result.payerMemberId, facilityId }
     const oldSelection = { program: 'fit-flip', slotGroupId: older.groupId, classDate: date, waivers }
     await assert.rejects(processExistingFamilyFreeTrial(db, { ...oldSelection, memberId: result.memberIds[1] }, auth), /age on the trial date/)
     const oldBooking = await processExistingFamilyFreeTrial(db, { ...oldSelection, memberId: result.memberIds[2] }, auth)
     assert.equal(oldBooking.totalCents, 0)
     assert.equal((await processExistingFamilyFreeTrial(db, { ...oldSelection, memberId: result.memberIds[2] }, auth)).id, oldBooking.id)
+    const familyLeads = (await db.query("SELECT campers FROM registrations WHERE facility_id=$1 AND inquiry_source='free_trial'",[facilityId])).rows
+    assert.equal(familyLeads.length,1)
+    assert.deepEqual(familyLeads[0].campers.map(child => child.memberId),result.memberIds.slice(1,3).map(Number))
     const assessmentSelection = { program: 'gymnastics', gymnasticsTrack: 'experienced', experience: 'experienced', slotGroupId: assessment.groupId, classDate: date, waivers }
     await assert.rejects(processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId: result.memberIds[2] }, auth), /already used/)
     await assert.rejects(processExistingFamilyFreeTrial(db, { ...assessmentSelection, memberId: result.payerMemberId }, auth), /child/)

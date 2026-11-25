@@ -13,31 +13,34 @@ export function leadRegistrationLinks(invite, token) {
 
 export async function sendLeadRegistrationEmail({ invite, token, password, send = sendEmail }) {
   const { setup, selections } = leadRegistrationLinks(invite, token)
+  const isTrial = invite.pending_payload.purpose === 'trial'
   const firstName = invite.pending_payload.guardian?.firstName?.trim()
   const greeting = firstName ? `Hi ${firstName},` : 'Hi there,'
   const expires = new Date(invite.expires_at).toLocaleDateString('en-US', { timeZone: 'America/New_York' })
   const intro = 'Open the registration link and sign in with the temporary credentials below. Choose a new password, confirm your family details, and fill in any missing information. You can also change your username.'
-  const next = selections.length
+  const next = isTrial
+    ? 'Submit your family information and sign the required waivers first. You will then see available free trial class dates for each child and can reserve a free trial. No payment is required.'
+    : selections.length
     ? 'Your coach-suggested enrollments will be filled in automatically during registration. After completing setup and the required forms, review your family’s order and pay to confirm enrollment.'
     : 'Follow the instructions above and sign the required forms to finish setting up your family account. No classes have been suggested yet; you can browse classes and enroll from your Member Portal.'
   const deadline = `Complete setup by ${expires}.${selections.some(item => item.reserved) ? ' Reserved spots are held until that date.' : ''}`
   return send({
-    to: invite.invitee_email, subject: 'Complete your Vortex Athletics registration',
-    category: 'parent_account_invitation', templateVersion: 'lead_registration_v1', facilityId: invite.facility_id,
+    to: invite.invitee_email, subject: isTrial ? 'Choose your Vortex Athletics free trial' : 'Complete your Vortex Athletics registration',
+    category: 'parent_account_invitation', templateVersion: isTrial ? 'lead_trial_v1' : 'lead_registration_v1', facilityId: invite.facility_id,
     // Delivery is serialized by the invitation row; each explicit retry is independently audited.
     text: [
       greeting, '', 'Finish your family account', intro,
       `Username: ${invite.suggested_username}`, `Temporary password: ${password}`, `Register: ${setup}`,
-      '', next, '', 'Coach suggested enrollment(s)',
+      '', next, '', ...(isTrial ? [] : ['Coach suggested enrollment(s)']),
       ...selections.map(item => item.label),
       '', deadline, invite.pending_payload.instructions || '', 'Vortex Athletics',
     ].join('\n'),
-    html: `${preheaderHtml('Your account setup and class registration instructions')}
+    html: `${preheaderHtml(isTrial ? 'Complete family information and waivers, then choose a free trial date' : 'Your account setup and class registration instructions')}
       <p>${escapeHtml(greeting)}</p>
       <h2>Finish your family account</h2><p>${escapeHtml(intro)}</p>
       <p><strong>Username:</strong> ${escapeHtml(invite.suggested_username)}<br><strong>Temporary password:</strong> ${escapeHtml(password)}</p>
-      ${emailButtonHtml('Start registration', setup)}
-      <p>${escapeHtml(next)}</p><h2>Coach suggested enrollment(s)</h2>
+      ${emailButtonHtml(isTrial ? 'Start free trial registration' : 'Start registration', setup)}
+      <p>${escapeHtml(next)}</p>${isTrial ? '' : '<h2>Coach suggested enrollment(s)</h2>'}
       ${selections.map(item => `<p><strong>${escapeHtml(item.label)}</strong></p>`).join('')}
       <p>${escapeHtml(deadline)}</p>
       ${invite.pending_payload.instructions ? `<p style="white-space:pre-wrap">${escapeHtml(invite.pending_payload.instructions)}</p>` : ''}`,
