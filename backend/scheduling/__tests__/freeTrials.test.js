@@ -5,7 +5,7 @@ import { processExistingFamilyFreeTrial, processFamilySignup } from '../../platf
 
 const selection = { program: 'fit-flip', slotGroupId: 17, classDate: '2027-01-12' }
 const context = { memberId: 8, facilityId: 1, contactEmail: 'guardian@example.test' }
-const younger = { classId: 41, className: 'Cyclones (8-11)', programName: 'Fit & Flip', sportName: 'Gymnastics', ageMin: 8, ageMax: 11 }
+const younger = { classId: 41, className: 'Tornadoes (8-11)', programName: 'Fit & Flip', sportName: 'Gymnastics', ageMin: 8, ageMax: 11 }
 const older = { ...younger, classId: 42, className: 'Cyclones (12-15)', ageMin: 12, ageMax: 15 }
 
 function bookingClient(overrides = {}) {
@@ -15,7 +15,7 @@ function bookingClient(overrides = {}) {
     slot: { slot_group_id: 17, form_id: 7, max_participants: 10, dates_tbd: false, day_of_week: 2, specific_date: null,
       calendar_slot_id: 117, calendar_group_id: 17, calendar_schedule_mode: 'day', calendar_slot_active: true,
       calendar_group_start: '2027-01-01', calendar_group_end: '2027-01-31',
-      class_name: 'Cyclones (8-11)', program_name: 'Fit & Flip', sport_name: 'Gymnastics', age_min: 8, age_max: 11,
+      class_name: 'Tornadoes (8-11)', program_name: 'Fit & Flip', sport_name: 'Gymnastics', age_min: 8, age_max: 11,
       active_start: '2027-01-01', active_end: '2027-01-31', facility_date: '2027-01-01', booking_end_date: '2027-03-01', has_started: false,
       pricing_form: {}, pricing_program: { pricing_slot_cost_monthly_cents: 18000 } },
     requiredWaivers: [{ id: 1, waiver_type: 'RELEASE_OF_LIABILITY', member_id: 8, signature_name: 'Parent Test' }],
@@ -63,6 +63,29 @@ test('Fit & Flip is distinct from gymnastics despite its Gymnastics sport tag', 
   assert.equal(matchesFreeTrialClass(younger, 'gymnastics', 10), false)
   assert.equal(matchesFreeTrialClass({ ...younger, programName: 'Developmental Gymnastics', className: 'Cyclones', ageMin: 6, ageMax: null }, 'fit-flip', 10), false)
   assert.equal(matchesFreeTrialClass({ ...younger, programName: 'Developmental Gymnastics', className: 'Cyclones', ageMin: 6, ageMax: null }, 'gymnastics', 10, { gymnasticsTrack: 'beginner', experience: 'none' }), false)
+})
+
+test('Fit & Flip trials accept current Tornadoes and legacy Cyclones introductory cohorts without admitting advanced cohorts', async () => {
+  for (const className of ['Tornadoes (8-11)', 'Tornados (8-11)', 'Cyclones (8-11)']) {
+    const cohort = { ...younger, className }
+    assert.equal(matchesFreeTrialClass(cohort, 'fit-flip', 8), true, className)
+    assert.equal(matchesFreeTrialClass(cohort, 'fit-flip', 11), true, className)
+    assert.equal(matchesFreeTrialClass(cohort, 'fit-flip', 7), false, className)
+    assert.equal(matchesFreeTrialClass(cohort, 'fit-flip', 12), false, className)
+  }
+  assert.equal(matchesFreeTrialClass({ ...younger, className: 'Tornadoes (12-15)' }, 'fit-flip', 10), true,
+    'canonical age metadata takes precedence over an outdated name range')
+  const legacy = { ...younger, className: 'Tornadoes (8–11)', ageMin: null, ageMax: null }
+  assert.equal(matchesFreeTrialClass(legacy, 'fit-flip', 10), true)
+  assert.equal(matchesFreeTrialClass(legacy, 'fit-flip', 13), false)
+  for (const className of ['Hurricanes (8-11)', 'Advanced (8-11)', 'Competitive Team (8-11)']) {
+    assert.equal(matchesFreeTrialClass({ ...younger, className }, 'fit-flip', 10), false,
+      'age metadata alone must not admit another cohort')
+    const client = bookingClient()
+    client.fixture.slot.class_name = className
+    await assert.rejects(bookMemberFreeTrial(client, selection, context), /appropriate class/)
+    assert.equal(client.calls.some(({ sql }) => sql.includes('INSERT INTO drop_in_registration')), false)
+  }
 })
 
 test('gymnastics routes age and experience to configured class types, including potty training and editable assessment schedules', () => {

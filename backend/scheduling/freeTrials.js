@@ -81,7 +81,8 @@ export function matchesFreeTrialClass(row, program, age, qualification = {}) {
   if (row.isTrialAssessment === true && (program !== 'gymnastics' || qualification.gymnasticsTrack !== 'experienced')) return false
   if (program === 'fit-flip') {
     const band = fitFlipAgeBand(age)
-    if (!band || !fitFlip || !/\bcyclones?\b/i.test(row.className ?? '')) return false
+    // Both introductory cohort names are used in the staff-managed catalog.
+    if (!band || !fitFlip || !/\b(?:cyclones?|tornado(?:e)?s?)\b/i.test(row.className ?? '')) return false
     // Prefer canonical age metadata; names support older configured classes without both bounds.
     if (min != null && max != null) return min === band.min && max === band.max
     return new RegExp(`\\b${band.min}\\s*[-–—]\\s*${band.max}\\b`).test(row.className ?? '')
