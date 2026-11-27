@@ -12,9 +12,10 @@ test('family signup prepares a future-start class for checkout without confirmin
     assert.match(sql.trim(), /^SELECT/)
     return { rows: [{ class_label: 'Tornadoes', programs_id: '2' }] }
   } }, { memberId: 205, enrollment: selection })
-  assert.equal(queries.length, 1)
-  assert.deepEqual(queries[0].params, [9, 3, 225, 301, 205, null, null, null, []])
-  assert.match(queries[0].sql,/participant\.facility_id=class_scope\.facility_id/)
+  const selectionQuery = queries.find(query => query.sql.includes('SELECT sf.title'))
+  assert.deepEqual(selectionQuery.params, [9, 3, 225, 301, 205, null, null, null, []])
+  assert.match(selectionQuery.sql,/participant\.facility_id=class_scope\.facility_id/)
+  assert.ok(queries.some(query => query.sql.includes('pg_advisory_xact_lock_shared')))
   assert.deepEqual(result, { memberId: 205, classEventId: 3, formId: 9, slotGroupId: 225,
     timeSlotId: 301, enrollmentStartDate: '2026-11-02', classLabel: 'Tornadoes', programsId: 2,
     selectedPricingOptionKey: 'monthly', scheduleLabel: 'Monday' })
@@ -42,17 +43,19 @@ test('submitted program, offering, and facility must match the complete enrollme
   const calls = []
   await assert.rejects(prepareFamilyEnrollmentCheckout({ async query(sql, params) {
     calls.push({ sql, params })
+    if (sql.includes('SELECT p.facility_id')) return { rows: [{ facility_id: 7, today: selection.enrollmentStartDate }] }
     return { rows: [] }
   } }, {
     memberId: 205, facilityId: 7,
     enrollment: { ...selection, programsId: 2, offeringId: 8, offeringIds: [8, 9, 8] },
   }), /no longer available/)
-  assert.deepEqual(calls[0].params, [9, 3, 225, 301, 205, 7, 2, 8, [8, 9]])
-  assert.match(calls[0].sql, /parent_scope.facility_id=class_scope.facility_id/)
-  assert.match(calls[0].sql, /participant.facility_id=\$6/)
-  assert.match(calls[0].sql, /sg.offering_id=\$8/)
-  assert.match(calls[0].sql, /offering.form_id=sf.id/)
-  assert.match(calls[0].sql, /FOR SHARE OF/)
+  const selectionQuery = calls.find(query => query.sql.includes('SELECT sf.title'))
+  assert.deepEqual(selectionQuery.params, [9, 3, 225, 301, 205, 7, 2, 8, [8, 9]])
+  assert.match(selectionQuery.sql, /parent_scope.facility_id=class_scope.facility_id/)
+  assert.match(selectionQuery.sql, /participant.facility_id=\$6/)
+  assert.match(selectionQuery.sql, /sg.offering_id=\$8/)
+  assert.match(selectionQuery.sql, /offering.form_id=sf.id/)
+  assert.match(selectionQuery.sql, /FOR SHARE OF/)
 })
 
 test('malformed optional relations are rejected before database access', async () => {

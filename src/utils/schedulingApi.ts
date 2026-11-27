@@ -793,11 +793,33 @@ interface CalendarOccurrenceStatus {
   date: string
   slotId: number
   cancelled: boolean
+  emailBody?: string
+  notifications?: CalendarCancellationNotifications
+  notificationSummaryUnavailable?: boolean
 }
 
 interface CalendarDayStatus {
   date: string
   cancelled: boolean
+  emailBody?: string
+  notifications?: CalendarCancellationNotifications
+  notificationSummaryUnavailable?: boolean
+}
+
+export interface CalendarCancellationNotifications {
+  sent: number
+  pending: number
+  failed: number
+  recipientCount: number
+  missingContactCount: number
+}
+
+export interface CalendarCancellationPreview {
+  subject: string
+  body: string
+  recipientCount: number
+  missingContactCount: number
+  affectedSessions: { className: string; date: string; startTime: string; endTime: string }[]
 }
 
 export interface SchedulingCalendarTbd {
@@ -2158,6 +2180,18 @@ export async function adminSetCalendarDayStatus(status: CalendarDayStatus): Prom
   const res = await adminApiRequest('/api/admin/scheduling/calendar/day', {
     method: 'PUT',
     body: JSON.stringify(status),
+  })
+  return parseJson(res)
+}
+
+export async function adminPreviewCalendarCancellation(
+  selection: { date: string; slotId?: number },
+  signal?: AbortSignal,
+): Promise<CalendarCancellationPreview> {
+  const res = await adminApiRequest('/api/admin/scheduling/calendar/cancellation-preview', {
+    method: 'POST',
+    body: JSON.stringify(selection),
+    signal,
   })
   return parseJson(res)
 }

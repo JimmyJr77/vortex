@@ -115,11 +115,14 @@ import {
   setSchedulingOccurrenceCancellation,
 } from './calendarQuery.js'
 import { setSchedulingDayCancellation } from './dayCancellation.js'
+import { calendarCancellationSummary, previewCalendarCancellation, queueCalendarCancellation,
+  retireCalendarCancellation, validateCancellationEmailBody, wakeCalendarCancellationNotifier } from './calendarCancellationNotifications.js'
 import { linkMemberToSchoolFromName } from '../schools/handlers.js'
 import { loadGroupDisplayLabels, slotLabelForSignupRow, buildSlotDisplayLabel, buildGroupDisplayLabel } from './slotDisplayLabel.js'
 import { resolveSlotActiveDates } from './slotActiveDates.js'
 import { sortOccurrenceRows, sortSlotGroups } from './slotSort.js'
 import { normalizeEnrollmentStartDate } from './enrollmentStartDate.js'
+import { assertEnrollmentDateAvailable } from './enrollmentDateAvailability.js'
 import { billingDateKey } from '../billing/customerBillingPricing.js'
 import {
   authorizeSignupBatchPayer,
@@ -225,6 +228,10 @@ export async function insertSignupForMember(
     enrollmentStartDate = null,
   },
 ) {
+  await assertEnrollmentDateAvailable(client, {
+    formId, slotGroupId, timeSlotId: firstOccurrenceId,
+    enrollmentStartDate, lock: true,
+  })
   const activeCount = await countActiveSignupsForPricingScope(client, formRow, memberId)
   const { effectiveDbRow } = await loadEffectivePricingForForm(client, formRow)
   const maxSlots =
@@ -3158,6 +3165,18 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
       }
     },
 
+    async previewCalendarCancellation(req, res) {
+      try {
+        const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
+        const { date, slotId = null } = req.body || {}
+        const { recipients: _recipients, ...data } = await previewCalendarCancellation(pool, { facilityId, date, slotId })
+        res.json({ success: true, data })
+      } catch (err) {
+        const status = [400,403,404].includes(err.statusCode) ? err.statusCode : 500
+        res.status(status).json({ success: false, message: status===500 ? 'Failed to prepare cancellation email.' : err.message })
+      }
+    },
+
     async updateCalendarOccurrence(req, res) {
       try {
         const facilityId = requireAdminFacilityScope({ facilityId: req.canonicalAccess?.facilityId })
@@ -3166,11 +3185,20 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
         if (!Number.isSafeInteger(slotId) || slotId <= 0 || !date || date.startsWith('0000-') || typeof cancelled !== 'boolean') {
           return res.status(400).json({ success: false, message: 'A valid slot, class date and cancellation status are required.' })
         }
-        const data = await setSchedulingOccurrenceCancellation(pool, { facilityId, slotId, date, cancelled })
+        const emailBody = cancelled ? validateCancellationEmailBody(req.body?.emailBody) : undefined
+        const scope = { facilityId, slotId, date }
+        const data = await setSchedulingOccurrenceCancellation(pool, { ...scope, cancelled,
+          beforeCancellation: client => queueCalendarCancellation(client, { ...scope, emailBody }),
+          onRestore: client => retireCalendarCancellation(client, scope) })
         if (!data) return res.status(404).json({ success: false, message: 'Class session not found on that date.' })
+        if (cancelled) {
+          try { data.notifications = await calendarCancellationSummary(pool, scope) }
+          catch { data.notificationSummaryUnavailable = true }
+          wakeCalendarCancellationNotifier(pool)
+        }
         res.json({ success: true, data })
       } catch (err) {
-        if (err.statusCode === 403 || err.statusCode === 409) return res.status(err.statusCode).json({ success: false, message: err.message })
+        if ([400,403,404,409].includes(err.statusCode)) return res.status(err.statusCode).json({ success: false, message: err.message })
         console.error('[scheduling] updateCalendarOccurrence:', err)
         res.status(500).json({ success: false, message: 'Failed to update class session.' })
       }
@@ -3184,10 +3212,19 @@ export function createSchedulingHandlers(pool, { sendTemporaryEmail = sendTempor
         if (!date || date.startsWith('0000-') || typeof cancelled !== 'boolean') {
           return res.status(400).json({ success: false, message: 'A valid class date and cancellation status are required.' })
         }
-        const data = await setSchedulingDayCancellation(pool, { facilityId, date, cancelled })
+        const emailBody = cancelled ? validateCancellationEmailBody(req.body?.emailBody) : undefined
+        const scope = { facilityId, date }
+        const data = await setSchedulingDayCancellation(pool, { ...scope, cancelled,
+          beforeCancellation: client => queueCalendarCancellation(client, { ...scope, emailBody }),
+          onRestore: client => retireCalendarCancellation(client, scope) })
+        if (cancelled) {
+          try { data.notifications = await calendarCancellationSummary(pool, scope) }
+          catch { data.notificationSummaryUnavailable = true }
+          wakeCalendarCancellationNotifier(pool)
+        }
         res.json({ success: true, data })
       } catch (err) {
-        if (err.statusCode === 403) return res.status(403).json({ success: false, message: err.message })
+        if ([400,403].includes(err.statusCode)) return res.status(err.statusCode).json({ success: false, message: err.message })
         console.error('[scheduling] updateCalendarDay:', err)
         res.status(500).json({ success: false, message: 'Failed to update classes for this day.' })
       }

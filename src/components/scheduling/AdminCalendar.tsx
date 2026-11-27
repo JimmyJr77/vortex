@@ -15,6 +15,7 @@ import AdminCalendarEventModal from './AdminCalendarEventModal'
 import SchedulingCalendarView from './SchedulingCalendarView'
 import { dateRangeForView } from './calendarDateUtils'
 import { useCalendarNavigation } from './useCalendarNavigation'
+import { cancellationDeliveryMessage } from '../../utils/calendarCancellationMessage'
 
 const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
   const nav = useCalendarNavigation()
@@ -28,6 +29,7 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
   const [error, setError] = useState<string | null>(null)
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null)
   const [selectedDate, setSelectedDate] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
   const calendarRequest = useRef<AbortController | null>(null)
   const selectedEvent = calendar?.events.find(({ id }) => id === selectedEventId)
 
@@ -97,11 +99,12 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
     return () => calendarRequest.current?.abort()
   }, [loadCalendar])
 
-  const setOccurrenceCancelled = async (event: SchedulingCalendarEvent, cancelled: boolean) => {
+  const setOccurrenceCancelled = async (event: SchedulingCalendarEvent, cancelled: boolean, emailBody?: string) => {
     const status = await adminSetCalendarOccurrenceStatus({
       date: event.date,
       slotId: event.timeSlotId,
       cancelled,
+      emailBody,
     })
     setCalendar((current) => current && ({
       ...current,
@@ -111,15 +114,19 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
           : item
       )),
     }))
+    setNotice(cancelled ? cancellationDeliveryMessage(status.notifications, status.notificationSummaryUnavailable) : 'Class session restored.')
+    return status.notifications
   }
 
-  const setDayCancelled = async (date: string, cancelled: boolean) => {
-    await adminSetCalendarDayStatus({ date, cancelled })
+  const setDayCancelled = async (date: string, cancelled: boolean, emailBody?: string) => {
+    const status = await adminSetCalendarDayStatus({ date, cancelled, emailBody })
+    setNotice(cancelled ? cancellationDeliveryMessage(status.notifications, status.notificationSummaryUnavailable) : 'Full day restored.')
     await loadCalendar(false)
   }
 
   return (
     <>
+      {notice ? <p role="status" className="mb-4 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900">{notice}</p> : null}
       <SchedulingCalendarView
         mode="admin"
         calendar={calendar}
@@ -149,7 +156,7 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
         <AdminCalendarDayModal
           date={selectedDate}
           cancelled={calendar?.cancelledDates?.includes(selectedDate) ?? false}
-          onCancellationChange={(cancelled) => setDayCancelled(selectedDate, cancelled)}
+          onCancellationChange={(cancelled, emailBody) => setDayCancelled(selectedDate, cancelled, emailBody)}
           onClose={() => setSelectedDate(null)}
         />
       )}
@@ -157,7 +164,7 @@ const AdminCalendar = ({ canManage }: { canManage: boolean }) => {
         <AdminCalendarEventModal
           event={selectedEvent}
           canManage={canManage}
-          onCancellationChange={(cancelled) => setOccurrenceCancelled(selectedEvent, cancelled)}
+          onCancellationChange={(cancelled, emailBody) => setOccurrenceCancelled(selectedEvent, cancelled, emailBody)}
           onClose={() => setSelectedEventId(null)}
         />
       )}

@@ -140,12 +140,14 @@ export async function recordDelivery({
          CASE WHEN $11 = 'accepted' THEN now() ELSE NULL END
        )
        ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL
-       ${category === 'daily_roster' && status === 'queued' ? `DO UPDATE
+       ${(category === 'daily_roster' || (category === 'schedule_change' && templateVersion === 'calendar-cancellation-v1')) && status === 'queued' ? `DO UPDATE
          SET status = 'queued', provider_reason = NULL, smtp_code = NULL,
              updated_at = now(), attempt_count = email_delivery.attempt_count + 1
          WHERE EXCLUDED.status = 'queued'
-           AND email_delivery.category = 'daily_roster'
-           AND EXCLUDED.category = 'daily_roster'
+           AND email_delivery.category = EXCLUDED.category
+           AND (email_delivery.category = 'daily_roster' OR
+             (email_delivery.category = 'schedule_change' AND email_delivery.template_version = 'calendar-cancellation-v1'
+               AND EXCLUDED.template_version = 'calendar-cancellation-v1'))
            AND email_delivery.status IN ('failed', 'suppressed')` : 'DO NOTHING'}
        RETURNING id`,
       [

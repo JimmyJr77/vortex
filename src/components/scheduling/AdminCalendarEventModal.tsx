@@ -8,13 +8,15 @@ import {
   type ClassSchedulingDetail,
 } from '../../utils/classSchedulingSummary'
 import { formatDateForDisplay } from '../../utils/dateUtils'
-import { slotGroupHasMultipleWeekLetters, type SchedulingCalendarEvent } from '../../utils/schedulingApi'
+import { slotGroupHasMultipleWeekLetters, type CalendarCancellationNotifications, type SchedulingCalendarEvent } from '../../utils/schedulingApi'
 import { formatTime12 } from './calendarDateUtils'
+import CalendarCancellationEmail from './CalendarCancellationEmail'
+import { cancellationDeliveryMessage } from '../../utils/calendarCancellationMessage'
 
 interface Props {
   event: SchedulingCalendarEvent
   canManage: boolean
-  onCancellationChange: (cancelled: boolean) => Promise<void>
+  onCancellationChange: (cancelled: boolean, emailBody?: string) => Promise<CalendarCancellationNotifications | undefined>
   onClose: () => void
 }
 
@@ -47,6 +49,8 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
   const [confirmCancel, setConfirmCancel] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
+  const [emailBody, setEmailBody] = useState<string | null>(null)
+  const [notice, setNotice] = useState<string | null>(null)
 
   useEffect(() => {
     const element = dialog.current
@@ -87,7 +91,8 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
     setSaving(true)
     setSaveError(null)
     try {
-      await onCancellationChange(cancelled)
+      const notifications = await onCancellationChange(cancelled, cancelled ? emailBody || undefined : undefined)
+      setNotice(cancelled ? cancellationDeliveryMessage(notifications) : 'Class session restored.')
       setConfirmCancel(false)
     } catch (e) {
       setSaveError(e instanceof Error ? e.message : 'Unable to update this class session.')
@@ -107,8 +112,8 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
       ref={dialog}
       aria-labelledby={titleId}
       className="portal-dialog m-auto w-[calc(100%_-_2rem)] max-w-4xl max-h-[90vh] overflow-hidden rounded-xl bg-white p-0 shadow-xl backdrop:bg-black/50"
-      onCancel={(e) => { e.preventDefault(); onClose() }}
-      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+      onCancel={(e) => { e.preventDefault(); if (!saving) onClose() }}
+      onClick={(e) => { if (e.target === e.currentTarget && !saving) onClose() }}
     >
       <div className="flex max-h-[90vh] flex-col">
         <div className="portal-dialog-header flex items-start justify-between gap-4 px-6 py-4 border-b border-gray-200">
@@ -121,6 +126,7 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
           </div>
           <button
             type="button"
+            disabled={saving}
             onClick={onClose}
             className="portal-dialog-close p-2 rounded-lg hover:bg-gray-100 text-gray-600"
             aria-label="Close"
@@ -130,6 +136,10 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
         </div>
 
         <div className="portal-dialog-body overflow-y-auto px-6 py-4 space-y-6">
+          {confirmCancel ? <>
+            <p className="text-sm text-gray-700">This session will be cancelled and new bookings will be blocked. Affected parents will receive the message below.</p>
+            <CalendarCancellationEmail date={event.date} slotId={event.timeSlotId} onChange={setEmailBody} disabled={saving} />
+          </> : <>
           <dl>
             <DetailRow label="Program" value={event.programName || '—'} />
             {event.isTrialAssessment && <DetailRow label="Class type" value="Trial assessment" />}
@@ -245,6 +255,7 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
               )}
             </div>
           )}
+          </>}
         </div>
         {canManage && !event.isCancelledByDay && (
           <div className="portal-dialog-footer shrink-0 space-y-3 border-t border-gray-200 px-6 py-4">
@@ -254,6 +265,7 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
               </p>
             )}
             {saveError && <p role="alert" className="text-sm text-red-700">{saveError}</p>}
+            {notice && <p role="status" className="text-sm text-gray-700">{notice}</p>}
             <div className="flex flex-wrap justify-end gap-2">
               {confirmCancel && (
                 <button
@@ -267,11 +279,13 @@ const AdminCalendarEventModal = ({ event, canManage, onCancellationChange, onClo
               )}
               <button
                 type="button"
-                disabled={saving}
+                disabled={saving || (confirmCancel && !emailBody?.trim())}
                 onClick={() => {
                   if (event.isCancelled || confirmCancel) {
                     void saveCancellation(!event.isCancelled)
                   } else {
+                    setEmailBody(null)
+                    setNotice(null)
                     setConfirmCancel(true)
                   }
                 }}

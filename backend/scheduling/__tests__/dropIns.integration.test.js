@@ -211,6 +211,8 @@ test('an unpaid drop-in cannot start checkout after the facility cancels that da
   const date = '2026-07-21'
   const db = { async query(sql) {
     if (sql.includes('pg_advisory_lock') || sql.includes('pg_advisory_unlock')) return { rows: [] }
+    if (['BEGIN','COMMIT','ROLLBACK'].includes(sql)) return { rows: [] }
+    if (sql.includes('SELECT booking.id,booking.slot_group_id')) return { rows: [] }
     if (sql.includes('SELECT charge.*, booking.status')) return { rows: [{
       booking_status: 'payment_pending', id: 67, slot_group_id: 20, class_date: date, upcoming: true,
     }] }
@@ -224,6 +226,41 @@ test('an unpaid drop-in cannot start checkout after the facility cancels that da
     statusCode: 409,
     message: /canceled for that date/,
   })
+})
+
+test('a cancellation during provider lookup blocks both an open payment URL and a new checkout request', async () => {
+  for (const existingSession of [true, false]) {
+    const date = '2026-07-21'
+    let canceled = false, availabilityReads = 0, providerReads = 0
+    const attempt = { id: 71, family_billing_account_id: 4, target_charge_id: 67,
+      stripe_checkout_session_id: 'cs_open_before_cancellation', status: 'pending', attempt_type: 'charge_checkout' }
+    const db = { async query(sql) {
+      if (sql.includes('pg_advisory_lock') || sql.includes('pg_advisory_unlock') || ['BEGIN','COMMIT','ROLLBACK'].includes(sql)) return { rows: [] }
+      if (sql.includes('SELECT charge.*, booking.status')) return { rows: [{
+        booking_status: 'payment_pending', id: 67, slot_group_id: 20, class_date: date, upcoming: true,
+      }] }
+      if (sql.includes('SELECT booking.id,booking.slot_group_id')) return { rows: [] }
+      if (sql.includes('FROM scheduling_slot_group sg')) {
+        availabilityReads++
+        return { rows: [pendingDropInSlot(date, { calendar_day_cancelled_dates: canceled ? [date] : [] })] }
+      }
+      if (sql.includes('SELECT * FROM billing_payment_attempt attempt')) return { rows: [attempt] }
+      if (sql.includes('FROM billing_payment_attempt')) return { rows: existingSession ? [attempt] : [] }
+      assert.fail('A canceled class must not create a new payment request.')
+    } }
+    await assert.rejects(checkoutDropIn(db, { account: { id: 4 }, dropInId: 60 }, {
+      loadStripeClient: async () => {
+        if (!existingSession) canceled = true
+        return { checkout: { sessions: { retrieve: async () => {
+          providerReads++; canceled = true
+          return { id: attempt.stripe_checkout_session_id, status: 'open', payment_status: 'unpaid',
+            url: 'https://checkout.stripe.test/old-open-session' }
+        } } } }
+      },
+    }), { statusCode: 409, message: /canceled for that date/ })
+    assert.equal(providerReads, existingSession ? 1 : 0)
+    assert.equal(availabilityReads, 2, 'availability must be read again after the asynchronous provider boundary')
+  }
 })
 
 test('pending drop-in cannot be confirmed for an adult whose own waivers were not signed', async () => {

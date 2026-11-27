@@ -64,7 +64,7 @@ export function dropInOccurrences(rows, startDate, endDate = startDate) {
   }))
 }
 
-export async function loadDropInDateAvailability(db, slotGroupId, date) {
+export async function loadDropInDateOccurrences(db, slotGroupId, date) {
   const { rows } = await db.query(`
     SELECT ${DROP_IN_CALENDAR_COLUMNS}, sf.id AS form_id,
            ts.day_of_week, ts.specific_date, ts.start_time, ts.end_time, ${DROP_IN_POLICY_COLUMNS}
@@ -75,7 +75,11 @@ export async function loadDropInDateAvailability(db, slotGroupId, date) {
       LEFT JOIN programs top ON top.id = COALESCE(sf.programs_id, p.programs_id)
       LEFT JOIN scheduling_offering offering ON offering.id = sg.offering_id
      WHERE sg.id = $1`, [slotGroupId])
-  const occurrences = dropInOccurrences(rows, date)
+  return dropInOccurrences(rows, date)
+}
+
+export async function loadDropInDateAvailability(db, slotGroupId, date) {
+  const occurrences = await loadDropInDateOccurrences(db, slotGroupId, date)
   const available = occurrences.filter(item => !item.cancelled)
   const allowsDropIn = available.some(item => !item.excludedFromDropIns)
   return {

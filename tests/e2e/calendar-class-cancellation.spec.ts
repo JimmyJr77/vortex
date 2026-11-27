@@ -162,10 +162,11 @@ async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDa
 
   const events = [eventFor(31, date), eventFor(32, date, true), eventFor(31, followingWeek)]
   const cancelledDates = new Set(initiallyCancelledDates)
-  const updates: { date: string; slotId: number; cancelled: boolean }[] = []
-  const dayUpdates: { date: string; cancelled: boolean }[] = []
+  const updates: { date: string; slotId: number; cancelled: boolean; emailBody?: string }[] = []
+  const dayUpdates: { date: string; cancelled: boolean; emailBody?: string }[] = []
   let calendarReads = 0
   let failNextUpdate = false
+  let failNextPreview = false
 
   await page.route('**/api/**', async (route) => {
     const request = route.request()
@@ -208,6 +209,22 @@ async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDa
       }
     }
     if (/^\/api\/admin\/scheduling\/forms\/\d+$/.test(url.pathname)) data = { slotGroups: [] }
+    if (url.pathname === '/api/admin/scheduling/calendar/cancellation-preview') {
+      expect(request.method()).toBe('POST')
+      if (failNextPreview) {
+        return route.fulfill({ status: 400, json: { success: false, message: 'Could not load parent notification. Try again.' } })
+      }
+      const selection = request.postDataJSON() as { date: string; slotId?: number }
+      const sessions = events.filter(event => event.date === selection.date && (!selection.slotId || event.timeSlotId === selection.slotId) && !event.isCancelled)
+      const dateLabel = new Intl.DateTimeFormat('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }).format(new Date(`${selection.date}T12:00:00Z`))
+      data = {
+        subject: `Class cancellation for ${dateLabel}`,
+        body: `Dear Vortex families,\n\nWe are sorry that the following sessions on ${dateLabel} have been canceled:\n${sessions.map(session => `${session.className}: 4:00 PM – 5:00 PM`).join('\n')}\n\nWe will work with you to facilitate a make-up date. Thank you for your understanding.\n\nVortex Athletics`,
+        recipientCount: sessions.length ? 2 : 0,
+        missingContactCount: 0,
+        affectedSessions: sessions.map(session => ({ className: session.className, date: session.date, startTime: session.startTime, endTime: session.endTime })),
+      }
+    }
     if (url.pathname === '/api/admin/scheduling/calendar/occurrence') {
       expect(request.method()).toBe('PUT')
       const update = request.postDataJSON() as typeof updates[number]
@@ -219,7 +236,7 @@ async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDa
       const event = events.find((item) => item.date === update.date && item.timeSlotId === update.slotId)
       expect(event).toBeDefined()
       event!.isCancelled = update.cancelled
-      data = update
+      data = { ...update, ...(update.cancelled ? { notifications: { sent: 1, pending: 1, failed: 0, recipientCount: 2, missingContactCount: 0 } } : {}) }
     }
     if (url.pathname === '/api/admin/scheduling/calendar/day') {
       expect(request.method()).toBe('PUT')
@@ -231,7 +248,7 @@ async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDa
       }
       if (update.cancelled) cancelledDates.add(update.date)
       else cancelledDates.delete(update.date)
-      data = update
+      data = { ...update, ...(update.cancelled ? { notifications: { sent: 2, pending: 0, failed: 0, recipientCount: 2, missingContactCount: 0 } } : {}) }
     }
     await route.fulfill({ json: { success: true, data } })
   })
@@ -242,6 +259,7 @@ async function openCalendar(page: Page, canManage: boolean, initiallyCancelledDa
     dayUpdates,
     calendarReads: () => calendarReads,
     failNextUpdate: () => { failNextUpdate = true },
+    setPreviewFailure: (fail: boolean) => { failNextPreview = fail },
     cancelSeparately: (slotId: number, sessionDate: string) => {
       const event = events.find((item) => item.date === sessionDate && item.timeSlotId === slotId)
       if (!event) throw new Error('No matching fixture event')
@@ -260,12 +278,20 @@ test('calendar cancels and restores an individual regular or trial session by da
   await regular.getByRole('button', { name: 'Keep scheduled' }).click()
   expect(updates).toHaveLength(0)
   await regular.getByRole('button', { name: 'Cancel class', exact: true }).click()
+  const email = regular.getByLabel('Email message to parents')
+  await expect(email).toHaveValue(/Monday, November 16, 2026/)
+  await expect(email).toHaveValue(/Tumbling: 4:00 PM – 5:00 PM/)
+  const editedMessage = `${await email.inputValue()}\nPlease contact our front desk to arrange your make-up.`
+  await email.fill(' ')
+  await expect(regular.getByRole('button', { name: 'Confirm cancellation' })).toBeDisabled()
+  await email.fill(editedMessage)
   failNextUpdate()
   await regular.getByRole('button', { name: 'Confirm cancellation' }).click()
   await expect(regular.getByRole('alert')).toHaveText('Could not update the session. Try again.')
   await regular.getByRole('button', { name: 'Confirm cancellation' }).click()
-  await expect(regular.getByRole('status')).toHaveText('Cancelled')
-  expect(updates.at(-1)).toEqual({ date, slotId: 31, cancelled: true })
+  await expect(regular.getByRole('status').filter({ hasText: /^Cancelled$/ })).toBeVisible()
+  await expect(regular.getByText(/1 pending; delivery will retry automatically/)).toBeVisible()
+  expect(updates.at(-1)).toEqual({ date, slotId: 31, cancelled: true, emailBody: editedMessage })
   await regular.getByRole('button', { name: 'Close', exact: true }).click()
   await expect(firstClass).toHaveAccessibleName(/Cancelled/)
   await expect(laterClass).not.toHaveAccessibleName(/Cancelled/)
@@ -273,7 +299,7 @@ test('calendar cancels and restores an individual regular or trial session by da
   await page.getByRole('button', { name: 'week', exact: true }).click()
   await firstClass.click()
   await regular.getByRole('button', { name: 'Restore class' }).click()
-  await expect(regular.getByRole('status')).toHaveText('Scheduled')
+  await expect(regular.getByRole('status').filter({ hasText: /^Scheduled$/ })).toBeVisible()
   expect(updates.at(-1)).toEqual({ date, slotId: 31, cancelled: false })
   await page.keyboard.press('Escape')
   await expect(regular).toBeHidden()
@@ -287,13 +313,13 @@ test('calendar cancels and restores an individual regular or trial session by da
   await expect(trial.getByText('Trial assessment', { exact: true })).toBeVisible()
   await trial.getByRole('button', { name: 'Cancel class', exact: true }).click()
   await trial.getByRole('button', { name: 'Confirm cancellation' }).click()
-  await expect(trial.getByRole('status')).toHaveText('Cancelled')
-  expect(updates.at(-1)).toEqual({ date, slotId: 32, cancelled: true })
+  await expect(trial.getByRole('status').filter({ hasText: /^Cancelled$/ })).toBeVisible()
+  expect(updates.at(-1)).toMatchObject({ date, slotId: 32, cancelled: true, emailBody: expect.stringContaining('Trial skills assessment: 4:00 PM – 5:00 PM') })
   await trial.getByRole('button', { name: 'Close', exact: true }).click()
   await expect(trialDate).toHaveAccessibleName(/Cancelled/)
   await trialDate.click()
   await trial.getByRole('button', { name: 'Restore class' }).click()
-  await expect(trial.getByRole('status')).toHaveText('Scheduled')
+  await expect(trial.getByRole('status').filter({ hasText: /^Scheduled$/ })).toBeVisible()
   expect(updates.at(-1)).toEqual({ date, slotId: 32, cancelled: false })
 })
 
@@ -308,6 +334,24 @@ test('staff with calendar view access can inspect session status', async ({ page
   expect(updates).toHaveLength(0)
 })
 
+test('email preview failure blocks cancellation and can be retried on mobile', async ({ page }) => {
+  const { updates, setPreviewFailure } = await openCalendar(page, true)
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole('button', { name: /Tumbling, November 16, 2026/ }).click()
+  const dialog = page.getByRole('dialog', { name: activeClassName })
+  setPreviewFailure(true)
+  await dialog.getByRole('button', { name: 'Cancel class', exact: true }).click()
+  await expect(dialog.getByRole('alert')).toContainText('Could not load parent notification. Try again.')
+  await expect(dialog.getByRole('button', { name: 'Confirm cancellation' })).toBeDisabled()
+  expect(updates).toHaveLength(0)
+  setPreviewFailure(false)
+  await dialog.getByRole('button', { name: 'Retry email preview' }).click()
+  await expect(dialog.getByLabel('Email message to parents')).toHaveValue(/make-up date/)
+  expect(await dialog.evaluate(element => element.scrollWidth <= element.clientWidth)).toBe(true)
+  await dialog.getByRole('button', { name: 'Keep scheduled' }).click()
+  expect(updates).toHaveLength(0)
+})
+
 test('full-day cancellation stops regular classes and trials and reloads separate cancellations when restored', async ({ page }) => {
   const { dayUpdates, calendarReads, cancelSeparately, failNextUpdate } = await openCalendar(page, true)
   const firstClass = page.getByRole('button', { name: /Tumbling, November 16, 2026/ })
@@ -319,6 +363,7 @@ test('full-day cancellation stops regular classes and trials and reloads separat
   await closeDate.click()
   let dialog = page.getByRole('dialog', { name: 'Cancel full day' })
   await expect(dialog.getByText('Monday, November 16, 2026', { exact: true })).toBeVisible()
+  await expect(dialog.getByLabel('Email message to parents')).toHaveValue(/Trial skills assessment: 4:00 PM – 5:00 PM/)
   await dialog.getByRole('button', { name: 'Go back', exact: true }).click()
   expect(dayUpdates).toEqual([])
   await expect(trialSession).not.toHaveAccessibleName(/Cancelled/)
@@ -326,6 +371,8 @@ test('full-day cancellation stops regular classes and trials and reloads separat
 
   const readsBeforeCancellation = calendarReads()
   await closeDate.click()
+  const fullDayMessage = 'Dear families,\n\nTumbling on Monday, November 16, 2026, 4:00 PM – 5:00 PM is canceled. We will work with you to arrange a make-up date.\n\nThank you for your understanding,\nVortex Athletics'
+  await dialog.getByLabel('Email message to parents').fill(fullDayMessage)
   failNextUpdate()
   await dialog.getByRole('button', { name: 'Cancel full day', exact: true }).click()
   await expect(dialog.getByRole('alert')).toHaveText('Could not update the day. Try again.')
@@ -350,7 +397,7 @@ test('full-day cancellation stops regular classes and trials and reloads separat
   expect(calendarReads()).toBeGreaterThan(readsBeforeRestore)
   await expect(firstClass).not.toHaveAccessibleName(/Cancelled/)
   await expect(trialSession).toHaveAccessibleName(/Cancelled/)
-  expect(dayUpdates).toEqual([{ date, cancelled: true }, { date, cancelled: true }, { date, cancelled: false }])
+  expect(dayUpdates).toEqual([{ date, cancelled: true, emailBody: fullDayMessage }, { date, cancelled: true, emailBody: fullDayMessage }, { date, cancelled: false }])
 })
 
 test('an empty date can be cancelled in Week and restored in Day view', async ({ page }) => {
@@ -365,5 +412,6 @@ test('an empty date can be cancelled in Week and restored in Day view', async ({
   await expect(page.getByRole('dialog', { name: 'Restore full day' }).getByText('Tuesday, November 17, 2026', { exact: true })).toBeVisible()
   await page.getByRole('dialog', { name: 'Restore full day' }).getByRole('button', { name: 'Restore full day', exact: true }).click()
   await expect(page.getByRole('button', { name: 'Cancel full day', exact: true })).toBeVisible()
-  expect(dayUpdates).toEqual([{ date: '2026-11-17', cancelled: true }, { date: '2026-11-17', cancelled: false }])
+  expect(dayUpdates[0]).toMatchObject({ date: '2026-11-17', cancelled: true, emailBody: expect.stringContaining('Tuesday, November 17, 2026') })
+  expect(dayUpdates[1]).toEqual({ date: '2026-11-17', cancelled: false })
 })

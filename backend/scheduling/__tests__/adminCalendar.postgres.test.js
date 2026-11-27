@@ -23,6 +23,7 @@ test('calendar closes and restores a facility day while retaining separate occur
     await db.query('BEGIN')
     await db.query(await readFile(new URL('../../migrations/872_scheduling_occurrence_cancellations.sql', import.meta.url), 'utf8'))
     await db.query(await readFile(new URL('../../migrations/874_scheduling_day_cancellations.sql', import.meta.url), 'utf8'))
+    await db.query(await readFile(new URL('../../migrations/880_calendar_cancellation_notifications.sql', import.meta.url), 'utf8'))
 
     const first = async (sql, values) => (await db.query(sql, values)).rows[0]
     const suffix = randomUUID()
@@ -107,7 +108,8 @@ test('calendar closes and restores a facility day while retaining separate occur
 
     for (let retry = 0; retry < 2; retry += 1) {
       assert.deepEqual((await update(activeSlotId, startDate, true)).result,
-        { success: true, data: { date: startDate, slotId: activeSlotId, cancelled: true } })
+        { success: true, data: { date: startDate, slotId: activeSlotId, cancelled: true,
+          notifications: { sent: 0, pending: 0, failed: 0, recipientCount: 0, missingContactCount: 0 } } })
     }
     assert.deepEqual(activeSlots(await adminCalendar()), [
       [activeSlotId, startDate, true], [weekBSlotId, '2030-01-14', false], [activeSlotId, '2030-01-21', false],
@@ -136,7 +138,8 @@ test('calendar closes and restores a facility day while retaining separate occur
     assert.equal((await update(trialSlotId, startDate, true)).code, 200)
     for (let retry = 0; retry < 2; retry += 1) {
       assert.deepEqual((await updateDay(startDate, true)).result,
-        { success: true, data: { date: startDate, cancelled: true } })
+        { success: true, data: { date: startDate, cancelled: true,
+          notifications: { sent: 0, pending: 0, failed: 0, recipientCount: 0, missingContactCount: 0 } } })
     }
     const cancelledDay = (await adminCalendar()).result.data
     assert.deepEqual(cancelledDay.cancelledDates, [startDate])

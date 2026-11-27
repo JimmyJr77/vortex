@@ -183,7 +183,7 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
   return result.rows
 }
 
-export async function setSchedulingOccurrenceCancellation(pool, { facilityId, slotId, date, cancelled }) {
+export async function setSchedulingOccurrenceCancellation(pool, { facilityId, slotId, date, cancelled, beforeCancellation, onRestore }) {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
@@ -223,12 +223,14 @@ export async function setSchedulingOccurrenceCancellation(pool, { facilityId, sl
     }
 
     if (cancelled) {
+      if (!occurrence.isIndividuallyCancelled) await beforeCancellation?.(client)
       await client.query(`
         INSERT INTO scheduling_occurrence_cancellation (time_slot_id, occurrence_date)
         VALUES ($1, $2::date)
         ON CONFLICT (time_slot_id, occurrence_date) DO NOTHING
       `, [slotId, date])
     } else {
+      await onRestore?.(client)
       await client.query(`
         DELETE FROM scheduling_occurrence_cancellation
         WHERE time_slot_id = $1 AND occurrence_date = $2::date

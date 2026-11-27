@@ -8,6 +8,7 @@ import { sendLeadRegistrationEmail } from '../email/leadRegistrationEmail.js'
 import { generateTemporaryPassword } from '../scheduling/tempPasswordEmail.js'
 import { processFamilySignup, resolveSignupWaiverTargetMemberIds } from '../platform/familySignup.js'
 import { normalizeEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
+import { assertEnrollmentDateAvailable } from '../scheduling/enrollmentDateAvailability.js'
 import { bookMemberFreeTrial, trialAgeOnDate, validateTrialSelection } from '../scheduling/freeTrials.js'
 import { inquiryInput } from './leadInquiry.js'
 import { leadInput, updateLead } from './leads.js'
@@ -88,6 +89,7 @@ export async function validateLeadSelections(db, facilityId, children, selection
       if (item.kind === 'reserved') {
         const slot = await loadClassTime(db, { formId: klass.form_id, timeSlotId, startDate: start, selectedOfferingOnly: true })
         if (!slot) throw inputError('Class time is unavailable for the selected start date.')
+        await assertEnrollmentDateAvailable(db, { formId: klass.form_id, slotGroupId: slot.slot_group_id, timeSlotId, enrollmentStartDate: start, facilityId, lock: true, lockGroup: false })
         const key = `${childIndex}:${slot.slot_group_id}`
         if (childIndex != null) {
           if (seen.has(key)) throw inputError('This child already has that class time selected.')
@@ -105,6 +107,15 @@ export async function validateLeadSelections(db, facilityId, children, selection
 export function invitationSummary(invite) {
   return { id: Number(invite.id), username: invite.suggested_username, email: invite.invitee_email, status: invite.used_at ? 'completed' : new Date(invite.expires_at) <= new Date() ? 'expired' : invite.delivery_status, expiresAt: invite.expires_at, selections: invite.pending_payload.selections, children: invite.pending_payload.children,
     purpose: invitationPurpose(invite), guardian: invite.pending_payload.guardian, instructions: invite.pending_payload.instructions || '', revision: invite.pending_payload.revision || 0 }
+}
+
+async function recheckReservedDates(db, facilityId, selections) {
+  // Validation holds the day locks; callers acquire all group locks in stable
+  // order before this fresh snapshot so concurrent session edits cannot win.
+  for (const item of selections.filter(item => item.kind === 'reserved')) {
+    await assertEnrollmentDateAvailable(db, { formId: item.schedulingFormId, slotGroupId: item.slotGroupId,
+      timeSlotId: item.timeSlotId, enrollmentStartDate: item.enrollmentStartDate, facilityId })
+  }
 }
 
 export async function updateLeadInvitation(pool, { facilityId, inviteId, body, canReserve = false }, dependencies = {}) {
@@ -138,6 +149,7 @@ export async function updateLeadInvitation(pool, { facilityId, inviteId, body, c
     const holds = (await db.query('SELECT slot_group_id FROM scheduling_signup WHERE account_invite_id=$1 AND status=\'pending_setup\'', [invite.id])).rows
     const groups = [...new Set([...holds.map(row => Number(row.slot_group_id)), ...selections.filter(item => item.kind === 'reserved').map(item => item.slotGroupId)])].sort((a,b) => a-b)
     if (groups.length) await db.query('SELECT id FROM scheduling_slot_group WHERE id=ANY($1::bigint[]) ORDER BY id FOR UPDATE', [groups])
+    await recheckReservedDates(db, facilityId, selections)
     await db.query("UPDATE scheduling_signup SET status='cancelled',reserved_until=NULL WHERE account_invite_id=$1 AND status='pending_setup'", [invite.id])
     // Rotate the link on every edit so an already-open registration cannot submit stale selections.
     const token = crypto.randomBytes(32).toString('hex')
@@ -196,6 +208,7 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     // Stable lock ordering prevents deadlocks for multi-child, multi-class invitations.
     const groups = [...new Set(selections.filter(item => item.kind === 'reserved').map(item => item.slotGroupId))].sort((a,b) => a-b)
     if (groups.length) await client.query('SELECT id FROM scheduling_slot_group WHERE id=ANY($1::bigint[]) ORDER BY id FOR UPDATE', [groups])
+    await recheckReservedDates(client, facilityId, selections)
     for (const item of selections.filter(item => item.kind === 'reserved')) {
       const child = children[item.childIndex]
       const hold = await client.query(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status,enrollment_start_date,account_invite_id,invite_child_index,reserved_until)

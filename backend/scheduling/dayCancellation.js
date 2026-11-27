@@ -17,18 +17,22 @@ export async function listSchedulingDayCancellations(db, facilityId, startDate, 
   return result.rows.map(row => row.occurrence_date)
 }
 
-export async function setSchedulingDayCancellation(pool, { facilityId, date, cancelled }) {
+export async function setSchedulingDayCancellation(pool, { facilityId, date, cancelled, beforeCancellation, onRestore }) {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
     await lockSchedulingDay(client, facilityId, date)
     if (cancelled) {
+      const existing = await client.query(`SELECT 1 FROM scheduling_day_cancellation
+        WHERE facility_id=$1 AND occurrence_date=$2::date`, [facilityId,date])
+      if (!existing.rows.length) await beforeCancellation?.(client)
       await client.query(`
         INSERT INTO scheduling_day_cancellation (facility_id, occurrence_date)
         VALUES ($1, $2::date)
         ON CONFLICT (facility_id, occurrence_date) DO NOTHING
       `, [facilityId, date])
     } else {
+      await onRestore?.(client)
       await client.query(`
         DELETE FROM scheduling_day_cancellation
         WHERE facility_id = $1 AND occurrence_date = $2::date

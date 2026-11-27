@@ -16,6 +16,7 @@ import { monthBounds, todayDateOnly } from '../scheduling/firstMonthProration.js
 import { reconcileUpcomingProvisionalChargesForAccount } from './canonicalRecurringChargePosting.js'
 import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 import { classSwapCapacityDeltas } from '../scheduling/classSwapsRoster.js'
+import { assertEnrollmentDateAvailable } from '../scheduling/enrollmentDateAvailability.js'
 import { enrollmentStatusOnDateSql } from '../scheduling/enrollmentStatusOnDate.js'
 
 function dateOnly(value) {
@@ -407,6 +408,11 @@ async function loadSwapSourceContext(db, { signupId, facilityId = null, forUpdat
 }
 
 async function loadSwapTarget(db, request, { forUpdate = false } = {}) {
+  await assertEnrollmentDateAvailable(db, {
+    formId: request.targetFormId, slotGroupId: request.targetSlotGroupId,
+    timeSlotId: request.targetTimeSlotId, enrollmentStartDate: request.effectiveDate,
+    facilityId: request.facilityId ?? null, lock: forUpdate,
+  })
   const result = await db.query(
     `SELECT form.id AS form_id, form.title AS class_name,
             slot_group.id AS slot_group_id, slot_group.max_participants,

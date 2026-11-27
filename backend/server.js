@@ -125,6 +125,7 @@ import { startDailyRosterScheduler } from './scheduling/dailyRosterScheduler.js'
 import { isIsolatedAdminDevelopment } from './newAdmin/localDevelopment.js'
 import { startMessageThreadAutoArchiveScheduler } from './platform/messageThreadAutoArchiveService.js'
 import { startPaymentFactAuditScheduler } from './billing/paymentFactAuditScheduler.js'
+import { startCalendarCancellationNotifier } from './scheduling/calendarCancellationNotifications.js'
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 import { resolveJwtSecret } from './auth/jwtSecret.js'
@@ -357,6 +358,7 @@ const passwordResetLimiter = rateLimit({
 
 const pool = createRuntimeDatabasePool()
 let paymentFactAuditScheduler = null
+let calendarCancellationNotifier = null
 
 // Job applications use their own request limit and JSON size cap before the generic parser.
 registerPublicJobApplicationRoutes(app, pool)
@@ -11886,6 +11888,7 @@ const startServer = async () => {
         startAccountInviteReminderScheduler(pool)
         startMessageThreadAutoArchiveScheduler(pool)
         paymentFactAuditScheduler = startPaymentFactAuditScheduler(pool)
+        calendarCancellationNotifier = startCalendarCancellationNotifier(pool)
         startPayrollComplianceScheduler(pool)
         startPaymentRecoveryScheduler(pool)
         startW2ProviderEventScheduler(pool)
@@ -12019,6 +12022,7 @@ app.post('/api/admin/run-migration', async (req, res) => {
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down server...')
   paymentFactAuditScheduler?.stop()
+  calendarCancellationNotifier?.stop()
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')
@@ -12031,6 +12035,7 @@ process.on('SIGINT', async () => {
 process.on('SIGTERM', async () => {
   console.log('\n🛑 SIGTERM received, shutting down server...')
   paymentFactAuditScheduler?.stop()
+  calendarCancellationNotifier?.stop()
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')

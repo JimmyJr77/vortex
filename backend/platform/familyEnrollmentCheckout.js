@@ -1,4 +1,5 @@
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
+import { assertEnrollmentDateAvailable } from '../scheduling/enrollmentDateAvailability.js'
 
 // Account creation is not enrollment fulfillment. Public signup only prepares
 // selections; the authenticated enrollment checkout owns pricing and admission.
@@ -20,6 +21,7 @@ export async function prepareFamilyEnrollmentCheckout(db, { memberId, enrollment
     throw new Error('Select valid program and class offerings before continuing.')
   }
   const enrollmentStartDate = requireEnrollmentStartDate(enrollment.enrollmentStartDate)
+  await assertEnrollmentDateAvailable(db, { formId, slotGroupId, timeSlotId, enrollmentStartDate, facilityId, lock: true })
   const result = await db.query(`
     SELECT sf.title AS class_label, class_scope.programs_id
       FROM scheduling_form sf

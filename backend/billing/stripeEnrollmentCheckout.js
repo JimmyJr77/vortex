@@ -48,6 +48,7 @@ import { isValidEmail, resolveMemberContactEmail } from '../email/memberContact.
 import { emitStripePurchaseEvent } from '../analytics/ga4Measurement.js'
 import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 import { requireEnrollmentStartDate } from '../scheduling/enrollmentStartDate.js'
+import { assertEnrollmentDateAvailable } from '../scheduling/enrollmentDateAvailability.js'
 import { billingMigrationCollectionLocked } from './canonicalBillingMigrationState.js'
 import {
   billingStripeSubscriptionCreationAllowed,
@@ -1518,6 +1519,7 @@ export async function normalizeFamilyEnrollmentBatches(pool, { account, memberId
       if (signup.lineType !== 'multi_class_pass') {
         if (![signup.formId,signup.slotGroupId,signup.timeSlotId].every(value => Number.isSafeInteger(Number(value)) && Number(value) > 0)) throw new Error('Select a valid class and time.')
         signup.enrollmentStartDate = requireEnrollmentStartDate(signup.enrollmentStartDate)
+        await assertEnrollmentDateAvailable(pool, signup)
       }
     }
     if (payload.signups.some(signup => signup.lineType !== 'multi_class_pass') && !isValidEmail(payload.responses.email)) {
@@ -1555,6 +1557,7 @@ export async function createEnrollmentCheckoutSession(
   const passSignups = (batchPayload.signups ?? []).filter((s) => s.lineType === 'multi_class_pass')
   for (const signup of slotSignups) {
     signup.enrollmentStartDate = requireEnrollmentStartDate(signup.enrollmentStartDate)
+    await assertEnrollmentDateAvailable(pool, signup)
   }
 
   // Fees, existing enrollments, and once-per-year redemptions are athlete-scoped.

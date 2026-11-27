@@ -423,11 +423,12 @@ test('lead invitations reserve shared class places, require new credentials, and
       await db.query('SAVEPOINT drop_in_checkout')
       try {
         const memberId = result.memberIds[1]
+        const bookingDate = '2030-01-07' // The fixture class meets on Mondays.
         const account = (await db.query('SELECT id FROM family_billing_account WHERE payer_member_id=$1', [result.payerMemberId])).rows[0]
         const booking = (await db.query(`INSERT INTO drop_in_registration
           (member_id,form_id,slot_group_id,class_date,first_name,last_name,email,amount_cents,base_price_cents,status)
           VALUES($1,$2,$3,$4,'Casey','Invite',$5,3500,3500,'payment_pending') RETURNING id`,
-        [memberId, form.id, group.id, enrollmentStartDate, lead.email])).rows[0]
+        [memberId, form.id, group.id, bookingDate, lead.email])).rows[0]
         const charge = (await db.query(`INSERT INTO billing_charge
           (family_billing_account_id,member_id,source_type,source_id,description,amount_cents,charge_type,billing_interval)
           VALUES($1,$2,'drop_in',$3,'Test drop-in',3500,'one_time','one_time') RETURNING id`,
@@ -438,6 +439,14 @@ test('lead invitations reserve shared class places, require new credentials, and
           VALUES($1,$2,3500,'application')`, [payment.id, charge.id])
         assert.deepEqual(await confirmPaidDropIns(db, account.id, booking.id), [])
         await db.query("UPDATE billing_payment SET external_status='succeeded' WHERE id=$1", [payment.id])
+        await db.query('INSERT INTO scheduling_day_cancellation(facility_id,occurrence_date) VALUES($1,$2)', [facilityId,bookingDate])
+        assert.deepEqual(await confirmPaidDropIns(db, account.id, booking.id), [], 'settled money must not reopen a canceled day')
+        assert.equal((await db.query('SELECT status FROM drop_in_registration WHERE id=$1',[booking.id])).rows[0].status,'payment_pending')
+        assert.equal((await db.query('SELECT external_status FROM billing_payment WHERE id=$1',[payment.id])).rows[0].external_status,'succeeded')
+        await db.query('DELETE FROM scheduling_day_cancellation WHERE facility_id=$1 AND occurrence_date=$2',[facilityId,bookingDate])
+        await db.query('INSERT INTO scheduling_occurrence_cancellation(time_slot_id,occurrence_date) VALUES($1,$2)', [slot.id,bookingDate])
+        assert.deepEqual(await confirmPaidDropIns(db, account.id, booking.id), [], 'settled money must not reopen an individually canceled session')
+        await db.query('DELETE FROM scheduling_occurrence_cancellation WHERE time_slot_id=$1 AND occurrence_date=$2',[slot.id,bookingDate])
         assert.deepEqual(await confirmPaidDropIns(db, account.id, booking.id), [Number(booking.id)])
         assert.deepEqual(await confirmPaidDropIns(db, account.id, booking.id), [])
       } finally {
