@@ -99,7 +99,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
             <col className="w-36" />
             <col className="w-72" />
           </colgroup>
-          <thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>
+          <thead className="bg-slate-100 text-xs uppercase text-slate-500 [&_th]:align-bottom"><tr>
             <th scope="col" className={`${checkboxCell} h-24 !align-bottom`}><span className="inline-block rotate-180 whitespace-nowrap [writing-mode:vertical-rl]">Contacted</span></th>
             <th scope="col" className={`${checkboxCell} h-24 !align-bottom`}><span className="inline-block rotate-180 whitespace-nowrap [writing-mode:vertical-rl]">Follow-up</span></th>
             <SortableHeader label="Name" name="last name" sortKey="name" sort={sort} onSort={changeSort} />
