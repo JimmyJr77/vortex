@@ -156,7 +156,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.deepEqual((await leadNotes(db,1,1)).map(note=>note.body).sort(),
         ['Call Tuesday','Gymnastics trial request','Original inquiry note'])
     })
-    await t.test('member visibility follows paid activity and conversion while retaining unconverted and trial-only prospects', async () => {
+    await t.test('member visibility uses membership or recent paid drop-ins independently of enrollment and conversion', async () => {
       await db.query('SAVEPOINT member_visibility')
       try {
         await db.query(`
@@ -185,20 +185,23 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
             (10,13,'paid',NULL,CURRENT_DATE-1,'attended'),(11,14,'free_trial',NULL,CURRENT_DATE-1,'attended');
         `)
         const query = { search:'visibility', followUp:'true' }
-        assert.deepEqual(await ids(query),[11,14,15,16,19,22,23,24])
-        assert.deepEqual(await ids({...query,includeMembers:'false'}),[11,14,15,16,19,22,23,24])
+        assert.deepEqual(await ids(query),[10,11,14,15,16,19,20,21,22,23,24])
+        assert.deepEqual(await ids({...query,includeMembers:'false'}),[10,11,14,15,16,19,20,21,22,23,24])
         assert.deepEqual(await ids({...query,includeMembers:'true'}),[10,11,12,13,14,15,16,17,18,19,20,21,22,23,24])
         assert.deepEqual(await ids({...query,converted:'true'}),[17,18])
         assert.deepEqual(await ids({...query,status:'converted'}),[17,18])
         assert.deepEqual(await ids({...query,includeMembers:'true',converted:'false'}),[10,11,12,13,14,15,16,19,20,21,22,23,24])
         const page = await listLeads(db,1,{...query,pageSize:3,page:2})
-        assert.equal(page.total,8)
-        assert.equal(page.totalPages,3)
-        assert.deepEqual(page.rows.map(row=>row.id),[19,16,15])
+        assert.equal(page.total,11)
+        assert.equal(page.totalPages,4)
+        assert.deepEqual(page.rows.map(row=>row.id),[21,20,19])
         const shown = await listLeads(db,1,{...query,includeMembers:'true',pageSize:100})
         assert.equal(shown.total,15)
         assert.ok(shown.rows.every(row=>row.createdAt instanceof Date && !Number.isNaN(row.createdAt.getTime())))
         assert.deepEqual((await db.query('SELECT id FROM registrations WHERE id BETWEEN 10 AND 24 AND archived IS TRUE')).rows,[])
+        await db.query("UPDATE member SET is_active=FALSE WHERE id=12; UPDATE registrations SET member_id=12,inquiry_source='free_trial' WHERE id=12")
+        assert.deepEqual(await ids({...query,search:'visibility-12'}),[])
+        assert.deepEqual(await ids({...query,search:'visibility-12',includeMembers:'true'}),[12])
       } finally { await db.query('ROLLBACK TO SAVEPOINT member_visibility') }
     })
     await t.test('initial inquiry notes use the entering staff snapshot for both fallback and previously saved notes', async () => {

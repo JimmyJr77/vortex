@@ -190,6 +190,7 @@ export async function initSchedulingTables(pool) {
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_slot_group_form ON scheduling_slot_group(form_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_time_slot_group ON scheduling_time_slot(slot_group_id)`)
   await pool.query(`CREATE INDEX IF NOT EXISTS idx_scheduling_signup_group ON scheduling_signup(slot_group_id)`)
+  await pool.query(await readFile(new URL('../migrations/879_scheduling_class_swaps.sql', import.meta.url), 'utf8'))
 
   const ungrouped = await pool.query(
     'SELECT * FROM scheduling_time_slot WHERE slot_group_id IS NULL ORDER BY id',

@@ -170,6 +170,7 @@ export function buildMemberBillingOverviewDto(overview = {}, { canManagePayments
       householdMonthlyBillingEnabled: account.householdMonthlyBillingEnabled === true,
       isActive: account.isActive !== false,
       accountStatus: account.accountStatus === 'active' ? 'active' : 'inactive',
+      enrolled: account.enrolled === true,
     },
     selectedMemberId: numberOrNull(overview.selectedMemberId),
     members: Array.isArray(overview.members)
@@ -181,6 +182,9 @@ export function buildMemberBillingOverviewDto(overview = {}, { canManagePayments
           email: null,
           phone: null,
           isActive: member.isActive !== false,
+          active: member.active === true,
+          enrolled: member.enrolled === true,
+          hasActiveMembership: member.hasActiveMembership === true,
         }))
       : [],
     summary: {

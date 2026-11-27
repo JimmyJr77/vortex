@@ -5,6 +5,7 @@ import { createAdditionalFeeHandlers } from './additionalFeeHandlers.js'
 import { createFreePassHandlers } from './freePassHandlers.js'
 import { createPromoCodeHandlers } from './promoCodeHandlers.js'
 import { createBenefitSelectionHandlers } from './benefitSelectionHandlers.js'
+import { createClassSwapHandlers } from './classSwaps.js'
 
 const signupLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -21,6 +22,7 @@ export function registerSchedulingRoutes(app, pool) {
   const fp = createFreePassHandlers(pool)
   const pc = createPromoCodeHandlers(pool)
   const bs = createBenefitSelectionHandlers(pool)
+  const swaps = createClassSwapHandlers(pool)
 
   app.get('/api/scheduling/calendar', h.getPublicCalendar)
   app.get('/api/public/scheduling/classes', h.listPublicSchedulingClasses)
@@ -88,6 +90,10 @@ export function registerSchedulingRoutes(app, pool) {
   app.get('/api/admin/scheduling/enrollments/by-member', h.adminEnrollmentsByMember)
   app.get('/api/admin/scheduling/enrollments/class-summaries', h.adminClassRegistrationSummaries)
   app.get('/api/admin/scheduling/daily-roster', h.adminDailyRoster)
+  app.get('/api/admin/scheduling/class-swaps/students', swaps.students)
+  app.get('/api/admin/scheduling/class-swaps/classes', swaps.classes)
+  app.post('/api/admin/scheduling/class-swaps/preview', swaps.preview)
+  app.post('/api/admin/scheduling/class-swaps', swaps.execute)
   app.post('/api/admin/scheduling/daily-roster/email', h.adminEmailDailyRoster)
   app.get('/api/admin/scheduling/forms/:formId/slot-enrollments', h.adminFormSlotEnrollments)
   app.post('/api/admin/scheduling/signups/:id/discount', h.adminSetSignupDiscount)

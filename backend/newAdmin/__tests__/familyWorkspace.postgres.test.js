@@ -140,6 +140,45 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       assert.deepEqual(result.leads.rows.map(row => [row.id,row.linkType]), [[2,'contact_match'],[1,'explicit_conversion']])
       assert.equal(result.history.rows.find(row => row.key === 'inquiry:2').memberId, 1)
     })
+    await t.test('family directories and workspace tags distinguish child activity from current enrollment', async () => {
+      await pool.query(`
+        INSERT INTO family(id,facility_id,family_name) VALUES
+          (40,1,'Status active only'),(50,1,'Status enrolled only'),(60,1,'Status both'),
+          (70,1,'Status neither'),(80,1,'Status adult student'),(90,1,'Status recent drop-in'),(1000,1,'Status former child');
+        INSERT INTO member(id,facility_id,family_id,first_name,last_name,date_of_birth)
+          SELECT id,1,id,'Status',id::text,(CURRENT_DATE - INTERVAL '10 years')::date
+          FROM unnest(ARRAY[40,50,60,70,80,90,1000]) id;
+        UPDATE member SET date_of_birth=(CURRENT_DATE - INTERVAL '30 years')::date WHERE id=80;
+        INSERT INTO family_member(family_id,member_id,is_active)
+          SELECT id,id,id<>1000 FROM unnest(ARRAY[40,50,60,70,80,90,1000]) id;
+        INSERT INTO additional_fee(id,facility_id,name,amount_cents,apply_basis,trigger_type)
+          VALUES(40,1,'Annual membership',8500,'per_year','once_per_year');
+        INSERT INTO additional_fee_redemption(fee_id,member_id,period_key,amount_cents,satisfied_at)
+          SELECT 40,id,(CURRENT_DATE+365)::text,8500,now()-INTERVAL '1 day' FROM unnest(ARRAY[40,60,80,1000]) id;
+        INSERT INTO scheduling_signup(id,form_id,slot_group_id,member_id,status,enrollment_start_date)
+          SELECT id,1,1,id,'confirmed',CURRENT_DATE-1 FROM unnest(ARRAY[50,60,80,1000]) id;
+        INSERT INTO drop_in_registration(id,member_id,form_id,slot_group_id,class_date,first_name,last_name,email,status,benefit_type)
+          VALUES (90,90,1,1,CURRENT_DATE-1,'Status','90','status90@example.test','attended','paid'),
+            (70,70,1,1,CURRENT_DATE-1,'Status','70','status70@example.test','attended','free_trial');
+      `)
+      const query = { search: 'Status', pageSize: 100 }
+      const ids = async filters => (await listFamilies(pool,1,{...query,...filters})).rows.map(row=>row.id).sort((a,b)=>a-b)
+      assert.deepEqual(await ids({active:'true',enrolled:'false'}),[40,90])
+      assert.deepEqual(await ids({active:'false',enrolled:'true'}),[50,80])
+      assert.deepEqual(await ids({active:'true',enrolled:'true'}),[60])
+      assert.deepEqual(await ids({active:'false',enrolled:'false'}),[70,1000])
+      const paged = await listFamilies(pool,1,{...query,active:'true',pageSize:1,page:2})
+      assert.equal(paged.total,3)
+      assert.equal(paged.totalPages,3)
+      const both = await loadFamilyWorkspace(pool,{facilityId:1,familyId:60})
+      assert.deepEqual([both.family.active,both.family.enrolled],[true,true])
+      assert.deepEqual(both.people.map(person=>[person.active,person.enrolled,person.archived]),[[true,true,false]])
+      const adult = await loadFamilyWorkspace(pool,{facilityId:1,familyId:80})
+      assert.deepEqual([adult.family.active,adult.family.enrolled],[false,true])
+      assert.deepEqual([adult.people[0].active,adult.people[0].enrolled],[true,true])
+      await assert.rejects(listFamilies(pool,1,{active:'yes'}),{statusCode:400})
+      await assert.rejects(listFamilies(pool,1,{enrolled:'maybe'}),{statusCode:400})
+    })
   } finally {
     await pool.end()
     await admin.query(`DROP SCHEMA "${schema}" CASCADE`)

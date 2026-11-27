@@ -5,6 +5,7 @@ import { calculateDropInPrice } from '../shared/dropInPricing.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 import { lockSchedulingDay } from './dayCancellation.js'
+import { classSwapCapacityDelta,classSwapAssessmentConflict } from './classSwapsRoster.js'
 import { isPrivateAssessmentTime } from './trialAssessmentPolicy.js'
 
 const DEFAULT_TIME_ZONE = 'America/New_York'
@@ -256,7 +257,7 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
         AND (booking.status<>'account_required' OR booking.expires_at IS NULL OR booking.expires_at>clock_timestamp())
         AND time.start_time<$5::time AND time.end_time>$4::time LIMIT 1`,
     [facilityId, selection.classDate, selection.slotGroupId, slot.start_time, slot.end_time])
-    if (overlap.rows.length) throw trialError('That private evaluation time has already been booked. Please choose another time.', 409)
+    if (overlap.rows.length || await classSwapAssessmentConflict(client,facilityId,selection.classDate,slot.start_time,slot.end_time)) throw trialError('That private evaluation time has already been booked. Please choose another time.', 409)
   }
 
   const alreadyEnrolled = await client.query(
@@ -288,7 +289,8 @@ export async function bookMemberFreeTrial(client, value, { memberId, facilityId,
           AND (booking.status <> 'account_required' OR booking.expires_at IS NULL OR booking.expires_at > now()))::int AS drop_ins`,
     [selection.slotGroupId, selection.classDate],
   )).rows[0]
-  if (Number(counts.monthly) + Number(counts.drop_ins) + Number(counts.registration_holds || 0) >= Number(slot.max_participants)) throw trialError('That class has filled up. Please choose another date.', 409)
+  const swapReservations = await classSwapCapacityDelta(client, selection.slotGroupId, selection.classDate)
+  if (Number(counts.monthly) + Number(counts.drop_ins) + Number(counts.registration_holds || 0) + swapReservations >= Number(slot.max_participants)) throw trialError('That class has filled up. Please choose another date.', 409)
   // Recheck wall-clock time after locks/waivers; transaction-start now() could precede a long lock wait.
   const timing = (await client.query(
     `SELECT ($2::date + $3::time) > (clock_timestamp() AT TIME ZONE COALESCE(NULLIF(timezone, ''), 'America/New_York')) AS is_upcoming

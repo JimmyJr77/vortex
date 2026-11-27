@@ -10,7 +10,7 @@ import { validateRehearsalDatabaseUrl } from '../migrationAudit.js'
 const connectionString = process.env.NEW_ADMIN_TEST_DATABASE_URL
 if (connectionString) validateRehearsalDatabaseUrl(connectionString, { nodeEnv: 'development' })
 
-test('CRM paginates the facility directory and computes activity from enrollments, paid fees and attended drop-ins', { skip: !connectionString }, async t => {
+test('CRM keeps membership/drop-in activity and current enrollment independent for people and families', { skip: !connectionString }, async t => {
   const schema = `crm_${randomBytes(6).toString('hex')}`
   const admin = new pg.Pool({ connectionString })
   await admin.query(`CREATE SCHEMA "${schema}"`)
@@ -89,15 +89,145 @@ test('CRM paginates the facility directory and computes activity from enrollment
     await assert.rejects(loadCrmDetail(pool, 1, 'member', 7), { statusCode: 404 })
   })
 
-  await t.test('person and family activity use independent scoped rules', async () => {
+  await t.test('activity and enrollment filters are independent for people and families', async () => {
     const active = await listCrm(pool, 1, { status: 'active', sortBy: 'age', sortDir: 'desc' })
-    assert.deepEqual(active.rows.map(row => row.id), [4, 3, 2])
+    assert.deepEqual(active.rows.map(row => [row.id,row.enrolled]), [[4,false],[3,false]])
     const inactiveInActiveFamily = await listCrm(pool, 1, { status: 'inactive', familyActive: 'true', source: 'member' })
-    assert.deepEqual(new Set(inactiveInActiveFamily.rows.map(row => row.id)), new Set([1, 5]))
+    assert.deepEqual(new Set(inactiveInActiveFamily.rows.map(row => row.id)), new Set([5]))
+    assert.deepEqual((await listCrm(pool,1,{source:'member',enrolled:'true'})).rows.map(row=>[row.id,row.status,row.familyActive,row.familyEnrolled]),
+      [[2,'inactive',false,true]])
+    assert.deepEqual((await listCrm(pool,1,{source:'member',familyEnrolled:'true',enrolled:'false'})).rows.map(row=>row.id),[1])
+    assert.deepEqual((await listCrm(pool,1,{source:'member',status:'active',enrolled:'true'})).rows,[])
+    const notEnrolled = await listCrm(pool,1,{source:'member',enrolled:'false',sortBy:'enrolled'})
+    assert.equal(notEnrolled.total,6)
+    assert.ok(notEnrolled.rows.every(row=>!row.enrolled))
     const families = await listCrm(pool, 1, { familiesOnly: 'true', hasChildren: 'true', classSearch: 'Gymnastics', participation: 'current' })
     assert.equal(families.total, 1)
-    assert.deepEqual(families.rows.map(row => [row.id, row.email, row.familyActive, row.childCount]), [[1, 'billing@example.test', true, 1]])
+    assert.deepEqual(families.rows.map(row => [row.id, row.email, row.familyActive, row.familyEnrolled, row.enrolled, row.childCount]),
+      [[1, 'billing@example.test', false, true, true, 1]])
+    assert.deepEqual((await listCrm(pool,1,{familiesOnly:'true',familyActive:'true',familyEnrolled:'false'})).rows.map(row=>row.id),[2])
+    assert.deepEqual((await listCrm(pool,1,{familiesOnly:'true',familyActive:'false',familyEnrolled:'true'})).rows.map(row=>row.id),[1])
+    assert.deepEqual((await listCrm(pool,1,{source:'member',sortBy:'enrolled',sortDir:'desc',pageSize:1})).rows.map(row=>row.id),[2])
+    assert.deepEqual((await listCrm(pool,1,{familiesOnly:'true',sortBy:'familyEnrolled',sortDir:'desc'})).rows.map(row=>row.id),[1,2])
     assert.deepEqual((await listCrm(pool, 1, { source: 'member', participation: 'past', classSearch: 'Imported class' })).rows.map(row => row.id), [2])
+    for (const query of [{enrolled:'yes'},{familyEnrolled:'yes'}]) await assert.rejects(listCrm(pool,1,query),{statusCode:400})
+  })
+
+  await t.test('family activity requires a child while family enrollment accepts adult students and preserves record lifecycle separately', async () => {
+    const db = await pool.connect()
+    try {
+      await db.query('BEGIN')
+      await db.query(`
+        INSERT INTO family(id,facility_id,family_name) SELECT id,1,'Matrix family '||id FROM generate_series(10,16) id;
+        INSERT INTO member(id,facility_id,family_id,first_name,last_name,date_of_birth,is_active) VALUES
+          (100,1,10,'Adult','Student',(CURRENT_DATE-INTERVAL '40 years')::date,TRUE),
+          (101,1,10,'Child','Prospect',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (102,1,11,'Child','Both',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (103,1,12,'Archived','Child',(CURRENT_DATE-INTERVAL '10 years')::date,FALSE),
+          (104,1,13,'Free','Trial',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (105,1,13,'Future','Student',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (106,1,13,'Paused','Student',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (107,1,14,'Expired','Membership',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (108,1,14,'Future','Membership',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (109,1,14,'Unpaid','Membership',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (110,1,15,'Recent','Dropin',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (111,1,15,'Cancelled','Dropin',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (112,1,15,'Old','Dropin',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (113,1,16,'Former','Household',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE),
+          (114,1,13,'Future','Dropin',(CURRENT_DATE-INTERVAL '10 years')::date,TRUE);
+        INSERT INTO family_member(family_id,member_id,is_active) SELECT family_id,id,id<>113 FROM member WHERE id BETWEEN 100 AND 114;
+        UPDATE family SET archived=TRUE WHERE id=12;
+        INSERT INTO scheduling_signup(id,form_id,member_id,status,enrollment_start_date) VALUES
+          (100,1,100,'confirmed',CURRENT_DATE-1),(102,1,102,'confirmed',CURRENT_DATE-1),
+          (103,1,103,'confirmed',CURRENT_DATE-1),(105,1,105,'confirmed',CURRENT_DATE+1),
+          (106,1,106,'confirmed',CURRENT_DATE-1),(113,1,113,'confirmed',CURRENT_DATE-1);
+        UPDATE scheduling_signup SET pause_effective_date=CURRENT_DATE WHERE id=106;
+        INSERT INTO additional_fee_redemption(fee_id,member_id,period_key,amount_cents,satisfied_at)
+          SELECT 1,id,(CURRENT_DATE+365)::text,8500,now()-INTERVAL '1 day' FROM member WHERE id IN (100,102,103,113);
+        INSERT INTO additional_fee_redemption(fee_id,member_id,period_key,amount_cents,satisfied_at) VALUES
+          (1,107,(CURRENT_DATE-1)::text,8500,now()-INTERVAL '1 year'),
+          (1,108,(CURRENT_DATE+366)::text,8500,now()+INTERVAL '1 day'),
+          (1,109,(CURRENT_DATE+365)::text,8500,NULL);
+        INSERT INTO drop_in_registration(id,member_id,form_id,slot_group_id,class_date,first_name,last_name,email,status,benefit_type) VALUES
+          (100,104,1,1,CURRENT_DATE-1,'Free','Trial','trial@example.test','attended','free_trial'),
+          (101,110,1,1,CURRENT_DATE-1,'Recent','Dropin','recent@example.test','confirmed','paid'),
+          (102,111,1,1,CURRENT_DATE-1,'Cancelled','Dropin','cancelled@example.test','cancelled','paid'),
+          (103,112,1,1,(CURRENT_DATE-INTERVAL '2 months')::date-1,'Old','Dropin','old@example.test','attended','paid'),
+          (104,114,1,1,CURRENT_DATE+1,'Future','Dropin','future@example.test','confirmed','paid');
+      `)
+      const families = await listCrm(db,1,{familiesOnly:'true',search:'Matrix family',sortBy:'id'})
+      assert.deepEqual(families.rows.map(row=>[row.id,row.status,row.enrolled,row.familyActive,row.familyEnrolled,row.archived]),[
+        [10,'inactive',true,false,true,false],
+        [11,'active',true,true,true,false],
+        [12,'active',true,true,true,true],
+        [13,'inactive',false,false,false,false],
+        [14,'inactive',false,false,false,false],
+        [15,'active',false,true,false,false],
+        [16,'inactive',false,false,false,false],
+      ])
+      const members = await listCrm(db,1,{source:'member',search:'Matrix family',sortBy:'id'})
+      assert.deepEqual(members.rows.map(row=>[row.id,row.status,row.enrolled]),[
+        [100,'active',true],[101,'inactive',false],[102,'active',true],[103,'active',true],
+        [104,'inactive',false],[105,'inactive',false],[106,'inactive',false],[107,'inactive',false],
+        [108,'inactive',false],[109,'inactive',false],[110,'active',false],[111,'inactive',false],
+        [112,'inactive',false],[114,'inactive',false],
+      ])
+      const former = await loadCrmDetail(db,1,'member',113)
+      assert.deepEqual([former.person.status,former.person.enrolled,former.person.familyId,former.person.familyActive,former.person.familyEnrolled],
+        ['active',true,null,false,false])
+      const archived = await loadCrmDetail(db,1,'family',12)
+      assert.deepEqual(archived.people.map(person=>[person.id,person.isActive,person.isEnrolled,person.archived]),[[103,true,true,true]])
+      const both = await loadCrmDetail(db,1,'family',11)
+      assert.deepEqual(both.children.map(child=>[child.id,child.isActive,child.isEnrolled,child.archived]),[[102,true,true,false]])
+      assert.equal((await listCrm(db,2,{source:'member',search:'Matrix family'})).total,0)
+    } finally {
+      await db.query('ROLLBACK')
+      db.release()
+    }
+  })
+
+  await t.test('current enrollment respects effective form, group and offering windows as well as the signup start', async () => {
+    const db = await pool.connect()
+    try {
+      await db.query('BEGIN')
+      await db.query(`
+        INSERT INTO family(id,facility_id,family_name) VALUES(200,1,'Program window family');
+        INSERT INTO member(id,facility_id,family_id,first_name,last_name,date_of_birth)
+          SELECT id,1,200,'Program window',id::text,(CURRENT_DATE-INTERVAL '10 years')::date FROM generate_series(200,208) id;
+        INSERT INTO family_member(family_id,member_id,is_active) SELECT 200,id,TRUE FROM member WHERE id BETWEEN 200 AND 208;
+        INSERT INTO scheduling_form(id,title,start_date) SELECT id,'Program window '||id,CURRENT_DATE-10 FROM generate_series(200,208) id;
+        UPDATE scheduling_form SET start_date=CURRENT_DATE+1 WHERE id IN (200,207);
+        UPDATE scheduling_form SET end_date=CURRENT_DATE WHERE id=204;
+        UPDATE scheduling_form SET end_date=CURRENT_DATE-1 WHERE id=205;
+        INSERT INTO scheduling_slot_group(id,form_id) SELECT id,id FROM generate_series(200,207) id;
+        UPDATE scheduling_slot_group SET active_start=CURRENT_DATE+1 WHERE id=201;
+        INSERT INTO scheduling_offering(id,form_id,start_date,end_date) VALUES
+          (202,202,CURRENT_DATE+1,CURRENT_DATE+30),
+          (203,203,CURRENT_DATE-10,CURRENT_DATE-1),
+          (206,206,CURRENT_DATE-10,CURRENT_DATE-1),
+          (207,207,CURRENT_DATE-10,CURRENT_DATE+10);
+        UPDATE scheduling_slot_group SET offering_id=id,inherits_offering_dates=TRUE WHERE id IN (202,206,207);
+        UPDATE scheduling_slot_group SET offering_id=id,inherits_offering_dates=FALSE,
+          active_start=CURRENT_DATE-2,active_end=CURRENT_DATE+2 WHERE id=203;
+        INSERT INTO scheduling_signup(id,member_id,form_id,slot_group_id,status,enrollment_start_date)
+          SELECT id,id,id,id,'confirmed',CURRENT_DATE-5 FROM generate_series(200,207) id;
+        INSERT INTO jackrabbit_history_record(facility_id,organization_id,record_kind,source_id,family_id,member_id,occurred_on,source_data)
+          VALUES(1,'window-fixture','enrollment','history-only-window',200,208,CURRENT_DATE-5,'{"Class":"History only","Type":"Enrolled"}');
+      `)
+      const directory = await listCrm(db,1,{source:'member',search:'Program window',sortBy:'id'})
+      assert.deepEqual(directory.rows.map(row=>[row.id,row.enrolled]),[
+        [200,false],[201,false],[202,false],[203,true],[204,true],[205,false],[206,false],[207,true],[208,false],
+      ])
+      assert.deepEqual((await listCrm(db,1,{source:'member',search:'Program window',enrolled:'true',sortBy:'id'})).rows.map(row=>row.id),[203,204,207])
+      const future = await loadCrmDetail(db,1,'member',202)
+      assert.equal(future.person.enrolled,false)
+      assert.equal(future.people.find(person=>person.id===202).isEnrolled,false)
+      assert.equal(future.person.familyEnrolled,true)
+      assert.deepEqual((await db.query('SELECT historical_only FROM account_enrollment_current WHERE record_member_id=208')).rows,[{historical_only:true}])
+    } finally {
+      await db.query('ROLLBACK')
+      db.release()
+    }
   })
 
   await t.test('details load children, linked inquiry and class history independently of the directory', async () => {
@@ -108,6 +238,10 @@ test('CRM paginates the facility directory and computes activity from enrollment
     const parent = await loadCrmDetail(pool, 1, 'member', 1)
     assert.equal(parent.inquiries[0].message, 'Original inquiry is retained')
     assert.deepEqual(parent.children.map(child => child.id), [2])
+    assert.deepEqual(parent.children.map(child=>[child.id,child.isActive,child.isEnrolled,child.archived]),[[2,false,true,false]])
+    const annual = await loadCrmDetail(pool,1,'member',3)
+    assert.deepEqual(annual.people.filter(person=>person.id===3).map(person=>[person.isActive,person.isEnrolled,person.archived]),[[true,false,false]])
+    assert.deepEqual(annual.children.find(person=>person.id===4).isActive,true)
     const family = await loadCrmDetail(pool, 1, 'family', 1, { pageSize: 2 })
     const older = await loadCrmDetail(pool, 1, 'family', 1, { pageSize: 2, page: 2 })
     assert.equal(family.classes.total, 3)

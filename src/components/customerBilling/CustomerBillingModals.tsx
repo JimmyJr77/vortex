@@ -161,7 +161,7 @@ export function EnrollmentMemberReassignmentModal({
             <option value="">Choose a family member</option>
             {members.map((member) => (
               <option key={member.id} value={member.id} disabled={member.id === enrollment.memberId}>
-                {member.name}{member.id === enrollment.memberId ? ' (currently assigned)' : member.isActive ? '' : ' (inactive)'}
+                {member.name}{member.id === enrollment.memberId ? ' (currently assigned)' : member.isActive ? '' : ' (archived)'}
               </option>
             ))}
           </select>

@@ -5,12 +5,23 @@ import {
   classSwapPaymentTransferCents,
   classSwapTargetChargeValues,
   classSwapTransferMetadata,
+  allocateClassSwapDiscountTransfer,
   legacyClassSwapAdjustmentCents,
   normalizeCustomerBillingClassSwapInput,
   priceCustomerBillingClassSwapTargetFromOrderPreview,
   validateCustomerBillingClassSwapEffectiveDate,
 } from '../customerBillingEnrollmentSwap.js'
 import { computeAccountDiscountStats } from '../../scheduling/systemDiscounts.js'
+
+test('package discount transfers conserve a fixed cent budget and its remaining window across replacements',()=>{
+  const transfer={transfers:[{id:1,discount_rule_id:77,kind:'legacy_discount',status:'active',effective_from_month:'2026-01-01',effective_through_month:'2026-12-01',
+    discount_rule_snapshot:{id:77,name:'Package discount',type:'manual',amountType:'fixed',amountValue:2001,applyTo:'class',stackable:true}}]}
+  const shares=[0,1].map(index=>allocateClassSwapDiscountTransfer(transfer,index,2,'2026-11-01'))
+  assert.deepEqual(shares.map(share=>share.assignments[0].manualDiscountCents),[1001,1000])
+  assert.equal(new Set(shares.map(share=>share.rules[0].id)).size,2)
+  assert.ok(shares.every(share=>share.transfers[0].effective_through_month==='2026-12-01'))
+  assert.equal(transfer.transfers[0].discount_rule_snapshot.amountValue,2001,'source history remains unchanged')
+})
 
 test('a class move accepts a valid backdated date, target schedule, and audit reason', () => {
   const now = new Date('2026-09-02T15:00:00.000Z')
@@ -29,6 +40,7 @@ test('a class move accepts a valid backdated date, target schedule, and audit re
       effectiveDate: '2026-09-05',
       reason: 'Family requested a Saturday schedule.',
       today: '2026-09-02',
+      targetSelections: [{targetFormId:90,targetSlotGroupId:91,targetTimeSlotId:92}],
     },
   )
   assert.equal(

@@ -24,11 +24,13 @@ const customerBilling = {
       stripeCustomerId: 'cus_123',
       householdMonthlyBillingEnabled: true,
       isActive: true,
+      accountStatus: 'active',
+      enrolled: true,
     },
     selectedMemberId: null,
     members: [
-      { id: 11, firstName: 'Jordan', lastName: 'Rivera', name: 'Jordan Rivera', email: 'jordan@example.com', phone: null, isActive: true },
-      { id: 12, firstName: 'Casey', lastName: 'Rivera', name: 'Casey Rivera', email: 'casey@example.com', phone: null, isActive: true },
+      { id: 11, firstName: 'Jordan', lastName: 'Rivera', name: 'Jordan Rivera', email: 'jordan@example.com', phone: null, isActive: true, active: false, enrolled: true },
+      { id: 12, firstName: 'Casey', lastName: 'Rivera', name: 'Casey Rivera', email: 'casey@example.com', phone: null, isActive: true, active: true, enrolled: false },
     ],
     summary: {
       chargesCents: 12000,
@@ -301,6 +303,21 @@ async function openMemberPortal(
 }
 
 test.describe('Member family billing', () => {
+  test('shows independent family and individual active and enrolled tags', async ({ page }) => {
+    await openMemberPortal(page)
+    await page.getByRole('button', { name: 'Billing', exact: true }).click()
+    await expect(page.getByText('Active family', { exact: true })).toBeVisible()
+    await expect(page.getByText('Enrolled family', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Casey Rivera', exact: true }).click()
+    const child = page.locator('[aria-label="Casey Rivera status"]')
+    await expect(child.getByText('Active', { exact: true })).toBeVisible()
+    await expect(child.getByText('Not enrolled', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Jordan Rivera', exact: true }).click()
+    const adult = page.locator('[aria-label="Jordan Rivera status"]')
+    await expect(adult.getByText('Inactive', { exact: true })).toBeVisible()
+    await expect(adult.getByText('Enrolled', { exact: true })).toBeVisible()
+  })
+
   test('loads the household audit progressively through the opaque cursor', async ({ page }) => {
     const captured = await openMemberPortal(page, { hasMoreTransactions: true })
 

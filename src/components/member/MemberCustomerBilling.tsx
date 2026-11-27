@@ -422,12 +422,13 @@ export default function MemberCustomerBilling({
       <section className="portal-panel rounded-2xl border border-gray-200 bg-white shadow-sm">
         <div className="portal-panel-header flex flex-col gap-5 p-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
-            <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h1><StatusBadge value={overview.account.accountStatus} /></div>
+            <div className="flex flex-wrap items-center gap-2"><h1 className="text-2xl font-black text-gray-950">{overview.account.familyName || 'Family account'}</h1><StatusBadge value={overview.account.accountStatus} label={overview.account.accountStatus === 'active' ? 'Active family' : 'Inactive family'} /><StatusBadge value={overview.account.enrolled ? 'enrolled' : 'not_enrolled'} label={overview.account.enrolled ? 'Enrolled family' : 'Family not enrolled'} /></div>
             <p className="mt-1 text-sm text-gray-500">Family #{overview.account.familyId}</p>
             <div className="portal-section-tabs mt-4 flex flex-wrap gap-2">
               <button type="button" aria-pressed={selectedMemberId == null} onClick={() => setSelectedMemberId(null)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId == null ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>All family</button>
               {overview.members.map((member) => <button key={member.id} type="button" aria-pressed={selectedMemberId === member.id} onClick={() => setSelectedMemberId(member.id)} className={`rounded-full border px-3 py-1.5 text-sm font-semibold ${selectedMemberId === member.id ? 'border-vortex-red bg-red-50 text-vortex-red' : 'border-gray-300 text-gray-600'}`}>{member.name}</button>)}
             </div>
+            {selectedMemberId != null ? overview.members.filter(member => member.id === selectedMemberId).map(member => <div key={member.id} aria-label={`${member.name} status`} className="mt-3 flex flex-wrap items-center gap-2"><span className="text-sm font-semibold">{member.name}</span><StatusBadge value={member.active ? 'active' : 'inactive'} label={member.active ? 'Active' : 'Inactive'} /><StatusBadge value={member.enrolled ? 'enrolled' : 'not_enrolled'} label={member.enrolled ? 'Enrolled' : 'Not enrolled'} /></div>) : null}
           </div>
           <div className="space-y-3 xl:max-w-lg">
           {canManageBilling && canManagePaymentMethod && !unpaidMonthlyInvoice && balanceDue > 0 ? (

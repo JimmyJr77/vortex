@@ -8,6 +8,8 @@ export interface CustomerBillingMember {
   email: string | null
   phone: string | null
   isActive: boolean
+  active: boolean
+  enrolled: boolean
 }
 
 export interface CustomerBillingSearchResult {
@@ -176,6 +178,7 @@ export interface CustomerBillingOverview {
     collectionDay: number
     isActive: boolean
     accountStatus: 'active' | 'inactive'
+    enrolled: boolean
   }
   selectedMemberId: number | null
   members: CustomerBillingMember[]

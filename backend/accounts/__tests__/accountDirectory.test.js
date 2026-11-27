@@ -12,6 +12,8 @@ import {
 test('account directory query defaults are bounded and stable', () => {
   assert.deepEqual(parseAccountDirectoryQuery(), {
     search: '',
+    active: null,
+    enrolled: null,
     page: 1,
     pageSize: 25,
     sortBy: 'member',
@@ -57,6 +59,8 @@ test('account directory query normalizes composable filters and caps page size',
 })
 
 test('account directory rejects unknown facets and sort fields', () => {
+  assert.throws(() => parseAccountDirectoryQuery({ active: 'yes' }), /Unsupported active status filter/)
+  assert.throws(() => parseAccountDirectoryQuery({ enrolled: 'sometimes' }), /Unsupported enrollment filter/)
   assert.throws(
     () => parseAccountDirectoryQuery({ participation: 'athlete' }),
     AccountDirectoryQueryError,
@@ -125,6 +129,8 @@ test('account directory maps independent access, household, and participation fa
     family_id: '8',
     family_name: 'Rivera Family',
     record_status: 'active',
+    active: false,
+    enrolled: true,
     app_user_id: null,
     portal_status: 'no_login',
     staff_roles: ['COACH'],
@@ -145,6 +151,8 @@ test('account directory maps independent access, household, and participation fa
   })
 
   assert.equal(mapped.recordStatus, 'active')
+  assert.equal(mapped.active, false)
+  assert.equal(mapped.enrolled, true)
   assert.deepEqual(mapped.portalAccess, { status: 'no_login', userId: null })
   assert.deepEqual(mapped.staffAccess, { roles: ['COACH'], labels: ['Coach'], status: 'active' })
   assert.deepEqual(mapped.household.badges, ['dependent'])

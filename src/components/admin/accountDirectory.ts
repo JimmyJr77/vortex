@@ -13,6 +13,8 @@ export interface AccountDirectoryRow {
   lastName: string
   email: string | null
   phone: string | null
+  active: boolean
+  enrolled: boolean
   dateOfBirth: string | null
   age: number | null
   ageGroup: AgeGroup

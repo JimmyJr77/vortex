@@ -15,6 +15,7 @@ import { registerFreeTrialCatalogRoutes } from './freeTrials.js'
 import { assertCurrentMemberWaivers } from '../platform/waiverCompletion.js'
 import { DROP_IN_CALENDAR_COLUMNS, DROP_IN_POLICY_COLUMNS, dropInOccurrences } from './dropInOccurrences.js'
 import { lockSchedulingDay } from './dayCancellation.js'
+import { classSwapCapacityDelta, classSwapCapacityDeltas } from './classSwapsRoster.js'
 import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 
 const ACTIVE_REGISTRATION_STATUSES = ['account_required', 'confirmed', 'payment_pending']
@@ -436,6 +437,7 @@ async function loadCatalog(pool, member, { includeExcluded = false, trialsOnly =
       GROUP BY slot_group_id, class_date`,
     [[...ACTIVE_REGISTRATION_STATUSES, 'attended']],
   )
+  const swapCapacityDeltas = await classSwapCapacityDeltas(pool)
   const dropInCountByOccurrence = new Map(
     registrationCounts.rows.map((row) => [
       `${Number(row.slot_group_id)}:${formatDateOnly(row.class_date)}`,
@@ -519,7 +521,8 @@ async function loadCatalog(pool, member, { includeExcluded = false, trialsOnly =
             (!entry.cancelEffectiveDate || entry.cancelEffectiveDate > date),
           )
           .reduce((sum, entry) => sum + entry.count, 0),
-        dropInEnrolled: dropInCountByOccurrence.get(`${Number(row.slot_group_id)}:${date}`) ?? 0,
+        dropInEnrolled: (dropInCountByOccurrence.get(`${Number(row.slot_group_id)}:${date}`) ?? 0)
+          + (swapCapacityDeltas.get(`${Number(row.slot_group_id)}:${date}`) ?? 0),
       })
       const registrationHolds = Number(row.registration_holds || 0)
       availability.totalAttending += registrationHolds
@@ -807,6 +810,7 @@ export function registerDropInRoutes(app, pool) {
       const existing = await client.query(`SELECT COUNT(*)::int AS count FROM drop_in_registration WHERE slot_group_id=$1 AND class_date=$2 AND status=ANY($3)`, [slotGroupId, classDate, [...ACTIVE_REGISTRATION_STATUSES, 'attended']])
       const { max_participants, monthly_enrolled, registration_holds } = slot.rows[0]
       const occupied = Number(monthly_enrolled) + Number(existing.rows[0].count) + Number(registration_holds ?? 0)
+        + await classSwapCapacityDelta(client, slotGroupId, classDate)
       if (occupied >= Number(max_participants)) {
         await client.query('ROLLBACK'); return res.status(409).json({ success: false, message: 'That class is full.' })
       }

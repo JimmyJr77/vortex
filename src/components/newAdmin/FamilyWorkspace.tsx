@@ -10,13 +10,14 @@ import AccountNotes from './AccountNotes'
 import MemberRecordActions from '../admin/MemberRecordActions'
 import MemberAccountSecurityTab from '../admin/memberAccount/MemberAccountSecurityTab'
 import TextInput from '../common/TextInput'
+import AccountStatusTags from './AccountStatusTags'
 
 const NewEnrollment = lazyWithRetry(() => import('../customerBilling/NewBillingEnrollmentModal'))
-interface Person { id: number; name: string; firstName: string; lastName: string; email: string | null; phone: string | null; dateOfBirth: string | null; isActive: boolean; isOwner?: boolean; currentHousehold: boolean; guardianFor: number[] }
+interface Person { id: number; name: string; firstName: string; lastName: string; email: string | null; phone: string | null; dateOfBirth: string | null; active: boolean; enrolled: boolean; archived?: boolean; isActive: boolean; isOwner?: boolean; currentHousehold: boolean; guardianFor: number[] }
 interface HistoryRow { key: string; date: string | null; kind: string; memberId: number | null; title: string; summary: string; source: string; amountCents: number | null }
 interface HistoryPage { rows: HistoryRow[]; nextCursor: string | null }
 interface Workspace {
-  family: { id: number; name: string; archived: boolean }
+  family: { id: number; name: string; active: boolean; enrolled: boolean; archived: boolean }
   today?: string
   people: Person[]
   participation: Array<{ id: number; memberId: number; className: string; status: string; startDate: string | null; cancelDate: string | null; slots: Array<{ day: number | null; start: string; end: string; date: string | null; week: string | null }> }>
@@ -65,33 +66,37 @@ export default function FamilyWorkspace({ familyId, memberId, access, revision, 
             {data.permissions.canViewBilling ? <button className={primary} onClick={() => onBilling({ familyId: data.family.id, memberId: personId })}><CreditCard className="h-4 w-4" />Billing & payments</button> : null}
           </div>
         </div>
+        <div className="mt-3"><AccountStatusTags active={data.family.active} enrolled={data.family.enrolled} /></div>
         {data.financial ? <div className="mt-6 grid gap-3 sm:grid-cols-3"><Summary label="Outstanding balance" value={money(data.financial.outstandingBalanceCents)} /><Summary label="Available credit" value={money(data.financial.futureCreditsCents)} /><Summary label="Next scheduled bill" value={dateLabel(data.financial.nextBillDate)} /></div> : <p className="mt-5 text-sm text-slate-500">{data.financialIssue || (data.permissions.canViewBilling ? 'No active billing account is linked. Existing history is retained below.' : 'Billing and financial history require billing access.')}</p>}
       </header>
       <nav aria-label="Family workspace sections" className="portal-section-tabs flex flex-wrap gap-2">{tabs.map(item => <button key={item} className={button} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>
       {(tab === 'People' || tab === 'Overview') ? <div className="rounded-xl border border-slate-200 bg-white p-5">
         <h3 className="flex items-center gap-2 font-bold"><Users className="h-4 w-4" />People and responsibilities</h3>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">{data.people.map(person => <div key={person.id} className="rounded-lg border border-slate-200 p-4">
+        <div className="mt-4 grid gap-3 md:grid-cols-2">{data.people.map(person => {
+          const archived = person.archived ?? !person.isActive
+          return <article key={person.id} aria-label={person.name} className="rounded-lg border border-slate-200 p-4">
           <div className="flex flex-wrap items-start justify-between gap-2">
             <div><p className="font-semibold">{person.name}{data.financial?.payerMemberId === person.id ? ' · Payer' : ''}</p>
-              <p className="mt-1 text-xs text-slate-500">{!person.isActive ? 'Archived' : person.currentHousehold ? 'Current household' : 'Former household member'} · Member #{person.id}</p>
+              <p className="mt-1 text-xs text-slate-500">{archived ? 'Archived' : person.currentHousehold ? 'Current household' : 'Former household member'} · Member #{person.id}</p>
             </div>
             {canEdit && person.currentHousehold ? <div className="flex flex-wrap gap-2">
               <button className={button} onClick={() => onEdit(person.id)}>Edit</button>
-              {person.isActive ? <button className={button} aria-label={`Account security for ${person.name}`} onClick={() => setSecurityMemberId(person.id)}>Account security</button> : null}
+              {!archived ? <button className={button} aria-label={`Account security for ${person.name}`} onClick={() => setSecurityMemberId(person.id)}>Account security</button> : null}
             </div> : null}
           </div>
+          <div className="mt-3"><AccountStatusTags active={person.active} enrolled={person.enrolled} /></div>
           <p className="mt-3 break-all text-sm text-slate-600">{person.email || 'No email'} · {formatPhoneForDisplay(person.phone) || 'No phone'}</p>
           <p className="mt-1 text-xs text-slate-500">Born {dateLabel(person.dateOfBirth)}</p>
           {person.guardianFor.length ? <p className="mt-2 text-xs text-slate-600">Guardian for {person.guardianFor.map(name).join(', ')}</p> : null}
-          {allowed(access, 'accounts.lifecycle') && !person.isOwner && (!person.isActive || person.currentHousehold) ? <div className="mt-3">
-            <MemberRecordActions record={{ kind: 'member', id: person.id, name: person.name, archived: !person.isActive }} onChanged={action => {
+          {allowed(access, 'accounts.lifecycle') && !person.isOwner && (archived || person.currentHousehold) ? <div className="mt-3">
+            <MemberRecordActions record={{ kind: 'member', id: person.id, name: person.name, archived }} onChanged={action => {
               if (action === 'delete') {
                 if (personId === person.id) setPersonId(null)
                 onMemberDeleted(person.id)
               } else onChanged()
             }} />
           </div> : null}
-        </div>)}</div>
+        </article>})}</div>
         {!data.people.length ? <Empty>No linked people.</Empty> : null}
       </div> : null}
       {(tab === 'Classes' || tab === 'Trials and drop-ins') ? <label className="block text-sm font-semibold">Show person<select className="ml-3 rounded-lg border border-slate-300 bg-white px-3 py-2" value={personId ?? ''} onChange={event => setPersonId(event.target.value ? Number(event.target.value) : null)}><option value="">Everyone</option>{data.people.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label> : null}

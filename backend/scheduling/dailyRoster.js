@@ -9,10 +9,32 @@ import { loadDailyReportInquiries } from './dailyReportInquiries.js'
 import { loadDailyReportUnpaid } from './dailyReportBilling.js'
 import { loadDailyReportTrials } from './dailyReportTrials.js'
 import { normalizePhoneNumber } from '../phoneNumbers.js'
+import { applyClassSwapOverrides } from './classSwapsRoster.js'
+import { enrollmentStatusOnDateSql } from './enrollmentStatusOnDate.js'
 
 export const ROSTER_TIME_ZONE = 'America/New_York'
 export const DEFAULT_ROSTER_RECIPIENT = 'team@vortexathletics.com'
 const DAY_MS = 24 * 60 * 60 * 1000
+
+// The roster contact belongs to the active household's billing payer, rather
+// than the athlete. Keep this a lateral join so one registration stays one row.
+const ROSTER_PAYER_CONTACT_JOIN = `
+  LEFT JOIN LATERAL (
+    SELECT account.id AS account_id,
+           COALESCE(NULLIF(TRIM(account.billing_email), ''),
+                    NULLIF(TRIM(payer.email), ''), NULLIF(TRIM(payer_user.email), '')) AS email,
+           COALESCE(NULLIF(TRIM(account.billing_phone), ''), NULLIF(TRIM(payer.phone), '')) AS phone
+      FROM family_member membership
+      JOIN family household ON household.id = membership.family_id
+        AND household.facility_id = m.facility_id AND household.archived = FALSE
+      JOIN family_billing_account account ON account.family_id = membership.family_id AND account.is_active = TRUE
+      LEFT JOIN member payer ON payer.id = account.payer_member_id AND payer.facility_id = m.facility_id
+      LEFT JOIN app_user payer_user ON payer_user.id = payer.app_user_id
+     WHERE membership.member_id = m.id AND membership.is_active = TRUE
+     ORDER BY account.id
+     LIMIT 1
+  ) payer_contact ON TRUE
+`
 
 function cents(value) {
   return Math.round(Number(value) || 0)
@@ -193,11 +215,12 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   registeredSince = null,
   registeredThrough = null,
   includeNewRegistrations = true,
+  facilityId = null,
 } = {}) {
   const rosterDate = validateRosterDate(date)
   if (!rosterDate) throw new Error('Roster date must be a valid YYYY-MM-DD date')
 
-  const calendarRows = await loadSchedulingCalendarRows(pool, { formActive: 'active' })
+  const calendarRows = await loadSchedulingCalendarRows(pool, { formActive: 'active', facilityId })
   const calendar = expandCalendarRange({ startDate: rosterDate, endDate: rosterDate, rows: calendarRows })
   const events = calendar.events.filter(
     (event) => event.formActive && event.classActive && event.slotGroupActive && event.slotActive && !event.isCancelled,
@@ -219,8 +242,10 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
               WHEN m.date_of_birth IS NULL THEN NULL
               ELSE EXTRACT(YEAR FROM AGE($2::date, m.date_of_birth))::int
             END AS age,
-            COALESCE(NULLIF(TRIM(m.email), ''), NULLIF(TRIM(s.email), ''), '') AS email,
-            COALESCE(NULLIF(TRIM(m.phone), ''), NULLIF(TRIM(s.phone), ''), '') AS phone,
+            CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.email, '')
+              ELSE COALESCE(NULLIF(TRIM(s.email), ''), '') END AS email,
+            CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.phone, '')
+              ELSE COALESCE(NULLIF(TRIM(s.phone), ''), '') END AS phone,
             CASE
                WHEN one_time.id IS NOT NULL THEN 'one_time'
                WHEN sg.offering_id IS NOT NULL THEN 'temporary_block'
@@ -230,6 +255,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
             COALESCE(one_time.amount_cents, 0)::int AS amount_cents
           FROM scheduling_signup s
           LEFT JOIN member m ON m.id = s.member_id
+          ${ROSTER_PAYER_CONTACT_JOIN}
           LEFT JOIN scheduling_slot_group sg ON sg.id = s.slot_group_id
           LEFT JOIN LATERAL (
             SELECT c.id, c.amount_cents
@@ -240,7 +266,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
              ORDER BY c.id DESC LIMIT 1
           ) one_time ON TRUE
           WHERE s.slot_group_id = ANY($1::bigint[])
-            AND s.status = 'confirmed'
+            AND ${enrollmentStatusOnDateSql('s','$2::date')} = 'confirmed'
             AND s.orphaned_at IS NULL
             AND s.archived_at IS NULL
             AND s.enrollment_start_date <= $2::date
@@ -254,7 +280,12 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   const dropIns = groupIds.length
     ? await pool.query(
         `SELECT d.id, d.form_id, d.slot_group_id, d.member_id,
-                d.first_name, d.last_name, d.email, d.phone, d.status,
+                d.first_name, d.last_name,
+                CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.email, '')
+                  ELSE COALESCE(NULLIF(TRIM(d.email), ''), '') END AS email,
+                CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.phone, '')
+                  ELSE COALESCE(NULLIF(TRIM(d.phone), ''), '') END AS phone,
+                d.status,
                 d.amount_cents, d.benefit_type,
                 CASE
                   WHEN m.date_of_birth IS NULL THEN NULL
@@ -262,6 +293,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
                 END AS age
            FROM drop_in_registration d
            LEFT JOIN member m ON m.id = d.member_id
+           ${ROSTER_PAYER_CONTACT_JOIN}
           WHERE d.slot_group_id = ANY($1::bigint[])
             AND d.class_date = $2::date
             AND d.status IN ('confirmed', 'attended')
@@ -336,6 +368,8 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
       athleteCount: athletes.length,
     }
   })
+
+  await applyClassSwapOverrides(pool, classes, rosterDate, { facilityId })
 
   const newRegistrations = includeNewRegistrations
     ? await loadRegistrationDetails(pool, registeredSince

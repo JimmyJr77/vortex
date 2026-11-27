@@ -4,7 +4,6 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import {
-  enrollmentActiveOn,
   listCustomerBillingOverviews,
   familyAutopayStatus,
   familyAutopayScheduled,
@@ -187,20 +186,8 @@ test('upcoming month is next calendar month even before the fifth', async () => 
   assert.equal(overview.upcomingMonth, '2026-11')
 })
 
-test('enrolled reflects active service today including free and one-time classes', () => {
-  const row = { status: 'confirmed', enrollment_start_date: '2026-10-01', form_end_date: '2026-10-31', pricing_breakdown: { billingType: 'one_time' } }
-  assert.equal(enrollmentActiveOn(row, '2026-10-04'), true)
-  assert.equal(enrollmentActiveOn(row, '2026-09-30'), false)
-  assert.equal(enrollmentActiveOn(row, '2026-11-01'), false)
-  assert.equal(enrollmentActiveOn({ ...row, pause_effective_date: '2026-10-04' }, '2026-10-04'), false)
-  assert.equal(enrollmentActiveOn({ ...row, cancel_effective_date: '2026-10-04' }, '2026-10-04'), false)
-  assert.equal(enrollmentActiveOn({ ...row, status: 'cancelled' }, '2026-10-04'), false)
-  assert.equal(enrollmentActiveOn({ ...row, orphaned_at: '2026-10-03' }, '2026-10-04'), false)
-})
-
-
 test('overview reports enrollment and month filters without requiring a billing account or paid tuition', async () => {
-  const families = [1, 2, 3, 4].map((id) => ({ family_id: id, billing_account_id: null, facility_timezone: 'America/New_York' }))
+  const families = [1, 2, 3, 4].map((id) => ({ family_id: id, billing_account_id: null, facility_timezone: 'America/New_York', enrolled: [1,3].includes(id) }))
   const enrollments = [
     { family_id: 1, status: 'confirmed', enrollment_start_date: '2026-10-01', cancel_effective_date: '2026-11-01' },
     { family_id: 2, status: 'confirmed', enrollment_start_date: '2026-11-01' },
@@ -289,5 +276,26 @@ test('unpaid current tuition moves to outstanding at the facility fifth-day boun
     } }
     const result = await listCustomerBillingOverviews(pool, { facilityId: 1, asOf: new Date(asOf) })
     assert.equal(result.families[0].outstandingBalanceCents, outstanding)
+  }
+})
+
+
+test('activity and enrollment filters are independently validated and combined', async () => {
+  const families = [
+    { family_id: 1, active: true, enrolled: false },
+    { family_id: 2, active: false, enrolled: true },
+    { family_id: 3, active: true, enrolled: true },
+  ]
+  const list = async (filters) => {
+    let first = true
+    const pool = { query: async () => ({ rows: first ? (first = false, families) : [] }) }
+    return (await listCustomerBillingOverviews(pool, { facilityId: 7, ...filters })).families
+      .map(({ familyId, active, enrolled }) => [familyId, active, enrolled])
+  }
+  assert.deepEqual(await list({ active: 'true', enrolled: 'false' }), [[1,true,false]])
+  assert.deepEqual(await list({ active: false, enrolled: true }), [[2,false,true]])
+  assert.deepEqual(await list({ enrolled: true }), [[2,false,true],[3,true,true]])
+  for (const filters of [{ active: 'yes' }, { enrolled: 'no' }]) {
+    await assert.rejects(list(filters), { statusCode: 400 })
   }
 })

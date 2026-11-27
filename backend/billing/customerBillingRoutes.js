@@ -180,6 +180,8 @@ export function registerCustomerBillingRoutes(app, pool, { jwtSecret, requirePer
       try {
         const data = await listCustomerBillingOverviews(pool, {
           facilityId: facilityId(req),
+          active: req.query.active,
+          enrolled: req.query.enrolled,
         })
         res.json({ success: true, data })
       } catch (error) {

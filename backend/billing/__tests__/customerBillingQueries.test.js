@@ -2,6 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   buildCustomerBillingAnnualMemberships,
+  applyCanonicalMembershipDisplay,
   classTransferTag,
   customerBillingAccountStatus,
   buildMonthlyLedgerBill,
@@ -26,27 +27,35 @@ import {
   searchCustomerBilling,
 } from '../customerBillingQueries.js'
 
-test('overall account status is inactive without a valid membership or enrolled course', () => {
-  assert.equal(customerBillingAccountStatus({
-    account: { is_active: true },
-    annualMemberships: [{ active: false }],
-    enrollments: [],
-  }), 'inactive')
-  assert.equal(customerBillingAccountStatus({
-    account: { is_active: true },
-    annualMemberships: [{ active: true }],
-    enrollments: [],
-  }), 'active')
-  assert.equal(customerBillingAccountStatus({
-    account: { is_active: true },
-    annualMemberships: [],
-    enrollments: [{ status: 'scheduled', source: 'signup' }],
-  }), 'active')
-  assert.equal(customerBillingAccountStatus({
-    account: { is_active: false },
-    annualMemberships: [{ active: true }],
-    enrollments: [{ status: 'active', source: 'signup' }],
-  }), 'inactive')
+test('family billing status follows business activity independently of enrollment and account lifecycle', () => {
+  assert.equal(customerBillingAccountStatus({ active: false, enrolled: true, account: { is_active: true } }), 'inactive')
+  assert.equal(customerBillingAccountStatus({ active: true, enrolled: false }), 'active')
+  assert.equal(customerBillingAccountStatus({ active: false, enrollments: [{ status: 'scheduled' }] }), 'inactive')
+  assert.equal(customerBillingAccountStatus({ active: true, account: { is_active: false } }), 'active')
+})
+
+test('membership display uses entitlement rather than unpaid billing projections or recent drop-in activity', () => {
+  const members = [
+    { id: 1, active: true, hasActiveMembership: true },
+    { id: 2, active: false, hasActiveMembership: false },
+    { id: 3, active: true, hasActiveMembership: false },
+  ]
+  const projected = buildCustomerBillingAnnualMemberships({
+    members,
+    redemptions: [
+      { member_id: 1, fee_id: 1, period_key: '2027-11-01', satisfied_at: '2026-11-01T12:00:00Z' },
+      { member_id: 2, fee_id: 1, period_key: '2027-11-01', satisfied_at: null },
+    ],
+    charges: [{ id: 7, member_id: 3, source_type: 'additional_fee', source_id: '1:3:2027-11-01',
+      paid_at: '2026-11-01T12:00:00Z', collection_status: 'paid' }],
+    asOf: new Date('2026-11-25T17:00:00Z'),
+  })
+  assert.deepEqual(projected.map(row => row.active), [true,true,true])
+  const displayed = applyCanonicalMembershipDisplay(projected, members)
+  assert.deepEqual(displayed.map(row => row.active), [true,false,false])
+  assert.deepEqual(projected.map(row => row.active), [true,true,true])
+  const financialFields = ({ active, ...fields }) => fields
+  assert.deepEqual(displayed.map(financialFields), projected.map(financialFields))
 })
 
 test('class-transfer tags distinguish the outgoing and incoming bill lines without changing payment status', () => {

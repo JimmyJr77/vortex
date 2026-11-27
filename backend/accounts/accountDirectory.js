@@ -1,4 +1,5 @@
 import { phoneSearchPattern } from '../phoneNumbers.js'
+import { memberIsActiveSql, memberIsEnrolledSql } from '../newAdmin/memberActivity.js'
 
 const DEFAULT_PAGE_SIZE = 25
 const MAX_PAGE_SIZE = 100
@@ -21,6 +22,8 @@ const SORT_COLUMNS = Object.freeze({
   lastName: 'LOWER(directory.last_name)',
   family: 'LOWER(directory.family_name)',
   age: 'directory.age',
+  active: 'directory.active',
+  enrolled: 'directory.enrolled',
   participation: '(directory.current_count + directory.upcoming_count + directory.paused_count + directory.waitlisted_count)',
   household: '(directory.is_payer::int + directory.is_guardian::int + directory.is_dependent::int)',
   portalAccess: `CASE directory.portal_status
@@ -167,6 +170,8 @@ directory AS (
     member.email,
     member.phone,
     member.date_of_birth,
+    ${memberIsActiveSql('member.id', '$1', 'context.today')} AS active,
+    ${memberIsEnrolledSql('member.id', '$1', 'context.today')} AS enrolled,
     CASE
       WHEN member.date_of_birth IS NULL THEN NULL
       ELSE EXTRACT(YEAR FROM AGE(context.today, member.date_of_birth))::int
@@ -295,6 +300,13 @@ function scalar(value) {
   return Array.isArray(value) ? value[0] : value
 }
 
+function statusBoolean(value, label) {
+  if (value == null || value === '') return null
+  if (value === true || value === 'true') return true
+  if (value === false || value === 'false') return false
+  throw new AccountDirectoryQueryError(`Unsupported ${label} filter.`)
+}
+
 function positiveInteger(value, fallback, { maximum = Number.MAX_SAFE_INTEGER } = {}) {
   if (value == null || value === '') return fallback
   const normalized = Number(scalar(value))
@@ -342,6 +354,8 @@ export function parseAccountDirectoryQuery(query = {}) {
   }
   return {
     search,
+    active: statusBoolean(query.active, 'active status'),
+    enrolled: statusBoolean(query.enrolled, 'enrollment'),
     page: positiveInteger(query.page, 1),
     pageSize: positiveInteger(query.pageSize, DEFAULT_PAGE_SIZE, { maximum: MAX_PAGE_SIZE }),
     sortBy,
@@ -393,6 +407,9 @@ function buildDirectoryPredicates(parsed, values) {
   }
 
   addArrayFilter(parsed.filters.record, (p) => `directory.record_status = ANY(${p}::text[])`)
+  for (const key of ['active', 'enrolled']) {
+    if (parsed[key] != null) predicates.push(`directory.${key} = ${addValue(values, parsed[key])}::boolean`)
+  }
   addArrayFilter(parsed.filters.portal, (p) => `directory.portal_status = ANY(${p}::text[])`)
   addArrayFilter(parsed.filters.role, (p) => `directory.staff_roles && ${p}::text[]`)
   addArrayFilter(parsed.filters.responsibility, (p) => `(
@@ -527,6 +544,8 @@ export function mapAccountDirectoryRow(row) {
     lastName: row.last_name ?? '',
     email: row.email ?? null,
     phone: row.phone ?? null,
+    active: row.active === true,
+    enrolled: row.enrolled === true,
     dateOfBirth: row.date_of_birth ?? null,
     age: row.age == null ? null : number(row.age),
     ageGroup: row.age_group,

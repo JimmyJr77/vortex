@@ -12,7 +12,7 @@ const crmPath = '/api/admin/new-admin/crm'
 const unknown = '—'
 
 type Kind = 'member' | 'lead' | 'staff' | 'family'
-type SortKey = 'name' | 'family' | 'age' | 'email' | 'phone' | 'status' | 'familyActive' | 'recent' | 'children'
+type SortKey = 'name' | 'family' | 'age' | 'email' | 'phone' | 'status' | 'enrolled' | 'familyActive' | 'familyEnrolled' | 'recent' | 'children'
 type Direction = 'asc' | 'desc'
 
 interface PersonRow {
@@ -26,7 +26,9 @@ interface PersonRow {
   familyId: number | null
   familyName: string | null
   status: 'active' | 'inactive' | 'lead'
+  enrolled: boolean
   familyActive: boolean
+  familyEnrolled: boolean
   leadStatus: string | null
   archived: boolean
   childCount: number
@@ -42,6 +44,8 @@ interface RelatedPerson {
   email: string | null
   phone: string | null
   isActive: boolean
+  isEnrolled: boolean
+  archived: boolean
 }
 
 interface Child {
@@ -50,6 +54,9 @@ interface Child {
   age: number | null
   dateOfBirth: string | null
   gender: string | null
+  isActive?: boolean
+  isEnrolled?: boolean
+  archived?: boolean
 }
 
 interface ClassHistoryRow {
@@ -97,10 +104,12 @@ const kinds: Record<Kind, string> = { member: 'Member', lead: 'Lead', staff: 'St
 const sortColumns: { key: SortKey; label: string }[] = [
   { key: 'name', label: 'Name' }, { key: 'family', label: 'Family' }, { key: 'age', label: 'Age' },
   { key: 'email', label: 'Email' }, { key: 'phone', label: 'Phone' }, { key: 'children', label: 'Children' },
-  { key: 'status', label: 'Activity' }, { key: 'familyActive', label: 'Family activity' }, { key: 'recent', label: 'Last updated' },
+  { key: 'status', label: 'Active status' }, { key: 'enrolled', label: 'Enrollment' },
+  { key: 'familyActive', label: 'Family active status' }, { key: 'familyEnrolled', label: 'Family enrollment' },
+  { key: 'recent', label: 'Last updated' },
 ]
 
-const emptyFilters = { source: '', status: '', familyActive: '', leadStatus: '', ageGroup: '', minAge: '', maxAge: '', participation: '', contact: '', hasChildren: '' }
+const emptyFilters = { source: '', status: '', enrolled: '', familyActive: '', familyEnrolled: '', leadStatus: '', ageGroup: '', minAge: '', maxAge: '', participation: '', contact: '', hasChildren: '' }
 
 function displayAge(age: number | null) {
   return age == null ? unknown : String(age)
@@ -114,17 +123,28 @@ function inquiryInterests(inquiry: Inquiry) {
   return [...new Set([inquiry.interest, ...(inquiry.interests ?? []), ...(inquiry.classTypes ?? [])].filter(Boolean))].join(', ')
 }
 
-function FamilyActivity({ person }: { person: PersonRow }) {
+function FamilyActiveStatus({ person }: { person: PersonRow }) {
   if (person.familyId == null && person.kind !== 'family') return <span className="text-slate-600">No household</span>
   return <span className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${person.familyActive ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>
     {person.familyActive ? 'Family active' : 'Family inactive'}
   </span>
 }
 
-function Activity({ person }: { person: PersonRow }) {
+function Enrollment({ enrolled, family = false }: { enrolled: boolean; family?: boolean }) {
+  return <span className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${enrolled ? 'bg-blue-50 text-blue-800' : 'bg-slate-100 text-slate-700'}`}>
+    {family ? enrolled ? 'Family enrolled' : 'Family not enrolled' : enrolled ? 'Enrolled' : 'Not enrolled'}
+  </span>
+}
+
+function FamilyEnrollment({ person }: { person: PersonRow }) {
+  if (person.familyId == null && person.kind !== 'family') return <span className="text-slate-600">No household</span>
+  return <Enrollment enrolled={person.familyEnrolled} family />
+}
+
+function ActiveStatus({ person }: { person: Pick<PersonRow, 'status' | 'leadStatus' | 'archived'> }) {
   const colors = { active: 'bg-emerald-50 text-emerald-800', inactive: 'bg-slate-100 text-slate-700', lead: 'bg-amber-50 text-amber-900' }
   return <div className="flex flex-wrap items-center gap-1">
-    <span className={`rounded-full px-2 py-1 text-xs font-semibold capitalize ${colors[person.status]}`}>{person.status}</span>
+    <span className={`rounded-full px-2 py-1 text-xs font-semibold ${colors[person.status]}`}>{person.status === 'lead' ? 'Lead' : person.status === 'active' ? 'Active' : 'Inactive'}</span>
     {person.leadStatus ? <span className="text-xs capitalize text-slate-600">{person.leadStatus}</span> : null}
     {person.archived ? <span className="text-xs text-slate-600">Archived</span> : null}
   </div>
@@ -145,8 +165,9 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span className="font-semibold text-slate-700">{kinds[person.kind]}</span>
-        <Activity person={person} />
-        <FamilyActivity person={person} />
+        <ActiveStatus person={person} />
+        <Enrollment enrolled={person.enrolled} />
+        {person.kind !== 'family' ? <><FamilyActiveStatus person={person} /><FamilyEnrollment person={person} /></> : null}
         {person.kind === 'member' ? <button type="button" className={button} onClick={() => onMember(person.id)}>Open member account</button> : null}
         {person.familyId != null ? <button type="button" className={button} onClick={() => onFamily(person.familyId!)}>Open family workspace</button> : null}
       </div>
@@ -177,6 +198,7 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
               {child.id == null ? <span className="font-semibold">{child.name || 'Name unavailable'}</span> : <button type="button" className="font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => onMember(child.id!)}>{child.name}</button>}
               <p className="mt-1 text-slate-600">{child.age != null ? `Age ${child.age}` : 'Age unknown'}{child.gender ? ` · ${child.gender}` : ''}</p>
               {child.dateOfBirth ? <p className="text-slate-600">Born {displayDate(child.dateOfBirth)}</p> : null}
+              {typeof child.isActive === 'boolean' ? <div className="mt-2 flex flex-wrap items-center gap-1"><ActiveStatus person={{ status: child.isActive ? 'active' : 'inactive', leadStatus: null, archived: child.archived === true }} /><Enrollment enrolled={child.isEnrolled === true} /></div> : null}
             </li>)}
           </ul>
         </section> : null}
@@ -184,7 +206,7 @@ function CRMDetails({ row, revision, onClose, onMember, onFamily }: {
           <h3 className="font-semibold text-slate-950">Household members</h3>
           <ul className="mt-2 divide-y divide-slate-100">
             {data.people.map(related => <li key={related.id} className="grid gap-1 py-2 text-sm sm:grid-cols-[minmax(9rem,1fr)_4rem_minmax(10rem,1fr)_minmax(8rem,auto)] sm:gap-3">
-              <div><button type="button" className="text-left font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => onMember(related.id)}>{related.name}</button>{!related.isActive ? <span className="ml-2 text-xs text-slate-600">Inactive</span> : null}</div>
+              <div><button type="button" className="text-left font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => onMember(related.id)}>{related.name}</button><div className="mt-1 flex flex-wrap items-center gap-1"><ActiveStatus person={{ status: related.isActive ? 'active' : 'inactive', leadStatus: null, archived: related.archived }} /><Enrollment enrolled={related.isEnrolled} /></div></div>
               <span className="text-slate-600">{related.age != null ? `Age ${related.age}` : unknown}</span>
               <span className="break-all text-slate-600">{related.email || unknown}</span><span className="text-slate-600">{formatPhoneForDisplay(related.phone) || unknown}</span>
             </li>)}
@@ -295,7 +317,7 @@ export default function CRM({ access, revision, onMember, onFamily }: {
     </div>
     {archived && <div className="space-y-1 text-sm text-slate-600">
       <p role="status" className="font-medium">Showing archived records</p>
-      <p>Archived members are the original accounts, not separate copies. Restore a member to keep their account and class history. Inactive describes current participation; it does not mean an account is archived.</p>
+      <p>Archived members are the original accounts, not separate copies. Restore a member to keep their account and class history. Inactive means no current annual membership or recent paid drop-in. Enrollment and archiving are separate.</p>
       <p>Archived leads can be linked to member accounts that are still in use. Open the lead to check its linked account before deleting.</p>
     </div>}
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -312,12 +334,18 @@ export default function CRM({ access, revision, onMember, onFamily }: {
           {!familiesOnly ? <label className="min-w-0 text-sm font-medium">Record type<select className={input} value={filters.source} onChange={event => updateFilter('source', event.target.value)}>
             <option value="">All people</option><option value="member">Members</option><option value="lead">Leads</option><option value="staff">Staff</option>
           </select></label> : null}
-          <label className="min-w-0 text-sm font-medium">Activity<select className={input} value={filters.status} onChange={event => updateFilter('status', event.target.value)}>
-            <option value="">Any activity</option><option value="active">Active</option><option value="inactive">Inactive</option>
+          <label className="min-w-0 text-sm font-medium">Active status<select className={input} value={filters.status} onChange={event => updateFilter('status', event.target.value)}>
+            <option value="">Any active status</option><option value="active">Active</option><option value="inactive">Inactive</option>
             {!familiesOnly ? <option value="lead">Lead</option> : null}
           </select></label>
-          <label className="min-w-0 text-sm font-medium">Family activity<select className={input} value={filters.familyActive} onChange={event => updateFilter('familyActive', event.target.value)}>
-            <option value="">Any family activity</option><option value="true">Family active</option><option value="false">Family inactive</option>
+          <label className="min-w-0 text-sm font-medium">Enrollment<select className={input} value={filters.enrolled} onChange={event => updateFilter('enrolled', event.target.value)}>
+            <option value="">Any enrollment</option><option value="true">Enrolled</option><option value="false">Not enrolled</option>
+          </select></label>
+          <label className="min-w-0 text-sm font-medium">Family active status<select className={input} value={filters.familyActive} onChange={event => updateFilter('familyActive', event.target.value)}>
+            <option value="">Any family active status</option><option value="true">Family active</option><option value="false">Family inactive</option>
+          </select></label>
+          <label className="min-w-0 text-sm font-medium">Family enrollment<select className={input} value={filters.familyEnrolled} onChange={event => updateFilter('familyEnrolled', event.target.value)}>
+            <option value="">Any family enrollment</option><option value="true">Family enrolled</option><option value="false">Family not enrolled</option>
           </select></label>
 
           {!familiesOnly ? <label className="min-w-0 text-sm font-medium">Lead stage<select className={input} value={filters.leadStatus} onChange={event => updateFilter('leadStatus', event.target.value)}>
@@ -340,7 +368,7 @@ export default function CRM({ access, revision, onMember, onFamily }: {
           <div className="flex items-end"><button type="button" className={button} onClick={reset}>Reset filters</button></div>
         </div>
       </fieldset>
-      <p className="mt-3 text-xs text-slate-600">Active means a current membership, current class, or a drop-in in the past two months. Family activity reflects everyone in the household.</p>
+      <p className="mt-3 text-xs text-slate-600">Active means a current annual membership or a confirmed or attended paid drop-in in the past two months. Enrolled means a current class enrollment. A family is active when a child is active, and enrolled when at least one student is currently enrolled.</p>
     </div>
     <div className="grid grid-cols-2 gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:flex sm:flex-wrap sm:items-end">
       <label className="min-w-0 text-sm font-medium sm:min-w-44">Sort by<select className={input} value={sortBy} onChange={event => sort(event.target.value as SortKey, 'asc')}>
@@ -358,7 +386,7 @@ export default function CRM({ access, revision, onMember, onFamily }: {
     {state.data ? <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
       {state.data.rows.length ? <>
         <div className="hidden overflow-x-auto lg:block">
-          <table className="w-full min-w-[58rem] text-sm" aria-label="CRM records">
+          <table className="w-full min-w-[78rem] text-sm" aria-label="CRM records">
             <thead className="bg-slate-100 text-xs text-slate-700"><tr>{sortColumns.map(column => {
               const current = sortBy === column.key
               const Icon = current ? sortDir === 'asc' ? ArrowUp : ArrowDown : ChevronsUpDown
@@ -370,16 +398,16 @@ export default function CRM({ access, revision, onMember, onFamily }: {
               <td className="px-3 py-3 align-top"><button type="button" className="text-left font-semibold underline decoration-slate-300 underline-offset-4 hover:text-vortex-red" onClick={() => setSelected(row)}>{row.name}</button><p className="mt-0.5 text-xs text-slate-600">{kinds[row.kind]}</p></td>
               <td className="px-3 py-3 align-top">{row.kind === 'family' ? `${row.memberCount} ${row.memberCount === 1 ? 'person' : 'people'}` : row.familyName || unknown}</td><td className="px-3 py-3 align-top">{displayAge(row.age)}</td>
               <td className="max-w-52 break-all px-3 py-3 align-top">{row.email || unknown}</td><td className="whitespace-nowrap px-3 py-3 align-top">{formatPhoneForDisplay(row.phone) || unknown}</td>
-              <td className="px-3 py-3 align-top">{row.childCount ?? 0}</td><td className="px-3 py-3 align-top"><Activity person={row} /></td><td className="px-3 py-3 align-top"><FamilyActivity person={row} /></td><td className="whitespace-nowrap px-3 py-3 align-top">{displayDate(row.updatedAt)}</td>
+              <td className="px-3 py-3 align-top">{row.childCount ?? 0}</td><td className="px-3 py-3 align-top"><ActiveStatus person={row} /></td><td className="px-3 py-3 align-top"><Enrollment enrolled={row.enrolled} /></td><td className="px-3 py-3 align-top"><FamilyActiveStatus person={row} /></td><td className="px-3 py-3 align-top"><FamilyEnrollment person={row} /></td><td className="whitespace-nowrap px-3 py-3 align-top">{displayDate(row.updatedAt)}</td>
               <td className="px-3 py-3 align-top">{recordActions(row)}</td>
             </tr>)}</tbody>
           </table>
         </div>
         <ul aria-label="CRM records" className="divide-y divide-slate-100 lg:hidden">{state.data.rows.map(row => <li key={`${row.kind}-${row.id}`} className="space-y-2 p-4 text-sm">
-          <div className="flex items-start justify-between gap-3"><div className="min-w-0"><button type="button" className="break-words text-left font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => setSelected(row)}>{row.name}</button><p className="text-xs text-slate-600">{kinds[row.kind]}{row.familyName && row.kind !== 'family' ? ` · ${row.familyName}` : ''}</p></div><Activity person={row} /></div>
+          <div className="flex items-start justify-between gap-3"><div className="min-w-0"><button type="button" className="break-words text-left font-semibold underline decoration-slate-300 underline-offset-4" onClick={() => setSelected(row)}>{row.name}</button><p className="text-xs text-slate-600">{kinds[row.kind]}{row.familyName && row.kind !== 'family' ? ` · ${row.familyName}` : ''}</p></div><div className="flex flex-col items-end gap-1"><ActiveStatus person={row} /><Enrollment enrolled={row.enrolled} /></div></div>
           <p className="flex flex-wrap gap-x-3 gap-y-1 text-slate-700"><span className="break-all">{row.email || 'No email'}</span><span>{formatPhoneForDisplay(row.phone) || 'No phone'}</span></p>
           <p className="text-xs text-slate-600">{row.kind === 'family' ? `${row.memberCount} ${row.memberCount === 1 ? 'person' : 'people'} · ` : row.age != null ? `Age ${row.age} · ` : ''}{row.childCount ?? 0} {(row.childCount ?? 0) === 1 ? 'child' : 'children'}</p>
-          <div className="text-xs"><FamilyActivity person={row} /></div>
+          {row.kind !== 'family' ? <div className="flex flex-wrap gap-1 text-xs"><FamilyActiveStatus person={row} /><FamilyEnrollment person={row} /></div> : null}
           {recordActions(row)}
         </li>)}</ul>
       </> : <Empty>No CRM records match these filters.</Empty>}

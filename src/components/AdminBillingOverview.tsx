@@ -16,6 +16,7 @@ export interface BillingOverviewFamily {
   upcomingPaidCents: number
   futureCreditsCents: number
   accountBalanceCents: number
+  active: boolean
   enrolled: boolean
   currentMonthRecurring: boolean
   upcomingMonthRecurring: boolean
@@ -81,6 +82,8 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [recurringFilter, setRecurringFilter] = useState('all')
+  const [activeFilter, setActiveFilter] = useState('')
+  const [enrolledFilter, setEnrolledFilter] = useState('')
   const [sort, setSort] = useState({ key: 'familyName', direction: 'asc' as 'asc' | 'desc' })
 
   const load = useCallback(async () => {
@@ -109,12 +112,15 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
       if (key.startsWith('month:')) return family.months[key.slice(6)]?.billedCents ?? 0
       if (key === 'autopay') return autopayPresentation(family).label
       if (key === 'enrolled') return family.enrolled ? 'Yes' : 'No'
+      if (key === 'active') return family.active ? 'Yes' : 'No'
       if (key === 'cardOnFile') return cardLabel(family.cardOnFile)
       const field = family[key as keyof BillingOverviewFamily]
       return typeof field === 'number' || typeof field === 'string' ? field : ''
     }
     return rows.filter((family) =>
       family.familyName.toLocaleLowerCase().includes(search)
+      && (activeFilter === '' || family.active === (activeFilter === 'true'))
+      && (enrolledFilter === '' || family.enrolled === (enrolledFilter === 'true'))
       && (recurringFilter === 'all'
         || (recurringFilter === 'current' ? family.currentMonthRecurring : family.upcomingMonthRecurring)),
     ).sort((left, right) => {
@@ -128,10 +134,10 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
       }
       return comparison * (sort.direction === 'asc' ? 1 : -1) || left.familyId - right.familyId
     })
-  }, [payload, query, recurringFilter, sort])
+  }, [payload, query, recurringFilter, activeFilter, enrolledFilter, sort])
 
   const months = payload?.months ?? []
-  const columnCount = 10 + months.length
+  const columnCount = 11 + months.length
   const header = (key: string, label: string, sticky = false) => (
     <th key={key} scope="col" aria-sort={sort.key === key ? (sort.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
       className={`whitespace-nowrap px-5 py-3 ${sticky ? 'sticky left-0 z-20 bg-gray-50' : ''}`}>
@@ -164,13 +170,23 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
               className="w-full rounded-lg border border-gray-300 py-2 pl-9 pr-3 text-sm outline-none focus:border-black"
             />
           </label>
+          <label className="text-sm text-gray-700">Active status
+            <select className="ml-2 min-h-10 rounded-lg border border-gray-300 bg-white px-3 py-2" value={activeFilter} onChange={event => setActiveFilter(event.target.value)}>
+              <option value="">Any active status</option><option value="true">Active</option><option value="false">Inactive</option>
+            </select>
+          </label>
+          <label className="text-sm text-gray-700">Enrollment
+            <select className="ml-2 min-h-10 rounded-lg border border-gray-300 bg-white px-3 py-2" value={enrolledFilter} onChange={event => setEnrolledFilter(event.target.value)}>
+              <option value="">Any enrollment</option><option value="true">Enrolled</option><option value="false">Not enrolled</option>
+            </select>
+          </label>
           <label className="text-sm text-gray-700">
-            <span className="sr-only">Active recurring classes</span>
-            <select aria-label="Active recurring classes" value={recurringFilter} onChange={(event) => setRecurringFilter(event.target.value)}
+            <span className="sr-only">Recurring classes</span>
+            <select aria-label="Recurring classes" value={recurringFilter} onChange={(event) => setRecurringFilter(event.target.value)}
               className="min-h-10 rounded-lg border border-gray-300 bg-white px-3 py-2">
               <option value="all">All families</option>
-              <option value="current">Active recurring — {billingMonthAbbreviation(months[1]) ?? 'current month'}</option>
-              <option value="upcoming">Active recurring — {upcomingLabel}</option>
+              <option value="current">Recurring — {billingMonthAbbreviation(months[1]) ?? 'current month'}</option>
+              <option value="upcoming">Recurring — {upcomingLabel}</option>
             </select>
           </label>
           <button
@@ -190,6 +206,7 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
           <thead className="bg-gray-50 text-left text-xs font-bold uppercase tracking-wide text-gray-500">
             <tr>
               {header('familyName', 'Family', true)}
+              {header('active', 'Active status')}
               {header('enrolled', 'Enrolled')}
               {header('yearToDatePaidCents', `YTD ${payload?.year ?? ''}`)}
               {months.map((month) => header(`month:${month}`, `${billingMonthAbbreviation(month)} bill / paid`))}
@@ -224,7 +241,8 @@ export default function AdminBillingOverview({ onOpenFamily }: AdminBillingOverv
                     {family.familyName}
                   </button>
                 </td>
-                <td className="px-5 py-3">{family.enrolled ? 'Yes' : 'No'}</td>
+                <td className="whitespace-nowrap px-5 py-3">{family.active ? 'Active' : 'Inactive'}</td>
+                <td className="whitespace-nowrap px-5 py-3">{family.enrolled ? 'Enrolled' : 'Not enrolled'}</td>
                 <td className="px-5 py-3 font-semibold text-gray-900">{money(family.yearToDatePaidCents)}</td>
                 {months.map((month) => (
                   <td key={month} className="px-5 py-3 tabular-nums text-gray-800">{billPaid(family.months[month])}</td>

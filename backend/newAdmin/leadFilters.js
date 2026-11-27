@@ -2,8 +2,7 @@ import { inputError, searchValue } from './common.js'
 import { accountNotesSql } from './accountNotes.js'
 import { phoneSearchPattern } from '../phoneNumbers.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
-import { hasActiveAnnualMembershipSql } from '../scheduling/annualMembership.js'
-import { currentEnrollmentSql } from './memberActivity.js'
+import { memberIsActiveSql } from './memberActivity.js'
 
 const booleanFilter = (value, label) => {
   if (value == null || value === '') return null
@@ -38,27 +37,17 @@ export function leadFilters(query, facilityId, statuses) {
   if (!includeMembers && converted == null && status !== 'converted') clauses.push(`NOT ${isConverted}`)
   if (converted != null) clauses.push(`${isConverted}=${bind(converted)}`)
   if (!includeMembers && converted !== true && status !== 'converted') {
-    // Portal accounts alone do not complete a lead. Check actual participation
-    // for the matched contact or explicitly linked athletes, within this facility.
-    // Free trial drop-ins stay prospects until a real membership/enrollment.
+    // Check activity for the matched contact or explicitly linked athletes.
+    // Portal accounts and enrollment alone do not make a person active.
+    // Free trial drop-ins remain prospects without a membership or paid drop-in.
     const today = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
     clauses.push(`NOT EXISTS (
       SELECT 1 FROM member lead_member
-      WHERE lead_member.facility_id=r.facility_id AND lead_member.is_active IS TRUE
+      WHERE lead_member.facility_id=r.facility_id
         AND (lead_member.id=inquiry_contact.member_id OR lead_member.id=r.member_id
           OR EXISTS (SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(r.campers)='array' THEN r.campers ELSE '[]'::jsonb END) child
             WHERE child->>'memberId'=lead_member.id::text))
-        AND (EXISTS (SELECT 1 FROM account_enrollment_current s
-          WHERE s.record_member_id=lead_member.id AND s.record_facility_id=r.facility_id
-            AND ${currentEnrollmentSql(today)}
-            AND NOT EXISTS (SELECT 1 FROM scheduling_form trial_form
-              JOIN program trial_class ON trial_class.id=trial_form.program_id AND trial_class.facility_id=r.facility_id
-              WHERE trial_form.id=s.form_id AND trial_class.is_trial_assessment IS TRUE))
-          OR ${hasActiveAnnualMembershipSql('lead_member.id', today)}
-          OR EXISTS (SELECT 1 FROM drop_in_registration d
-            WHERE d.member_id=lead_member.id AND d.status IN ('confirmed','attended')
-              AND d.benefit_type IS DISTINCT FROM 'free_trial'
-              AND d.class_date BETWEEN (${today} - INTERVAL '2 months')::date AND ${today})))`)
+        AND ${memberIsActiveSql('lead_member.id', 'r.facility_id', today)})`)
   }
   for (const [key, expression] of [['contacted', 'COALESCE(r.contacted,FALSE)'], ['followUp', 'COALESCE(r.follow_up,FALSE)']]) {
     const value = booleanFilter(query[key], key)

@@ -1,16 +1,15 @@
 import { calendarDateParts } from '../members/dateOnlyAge.js'
 import { phoneSearchPattern } from '../phoneNumbers.js'
-import { hasActiveAnnualMembershipSql } from '../scheduling/annualMembership.js'
 import { id, inputError, pagination, pageResult, searchValue } from './common.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { inquiryAcquisition, inquiryAcquisitionJoin } from './leadInquiry.js'
-import { currentEnrollmentSql } from './memberActivity.js'
+import { currentEnrollmentSql, memberIsActiveSql, memberIsEnrolledSql } from './memberActivity.js'
 
 const SORT_COLUMNS = Object.freeze({
   id: 'id', name: 'lower(name)', firstName: 'lower(first_name)', lastName: 'lower(last_name)',
   family: 'lower(family_name)', age: 'age', email: 'lower(email)', phone: 'phone',
   status: "CASE status WHEN 'active' THEN 0 WHEN 'inactive' THEN 1 ELSE 2 END",
-  familyActive: 'family_active', recent: 'updated_at', children: 'child_count',
+  enrolled: 'enrolled', familyActive: 'family_active', familyEnrolled: 'family_enrolled', recent: 'updated_at', children: 'child_count',
 })
 
 const values = (query, key, allowed) => {
@@ -45,8 +44,8 @@ const householdLinks = `SELECT fm.member_id, f.id AS family_id, fm.is_active
   FROM member m JOIN family f ON f.id = m.family_id AND f.facility_id = m.facility_id
   WHERE m.facility_id = $1 AND NOT EXISTS (SELECT 1 FROM family_member fm WHERE fm.member_id = m.id)`
 
-// Only current enrollments count toward active status. A future start or a
-// held invitation may be listed in class history but does not count as active.
+// Enrollment is independent of membership/drop-in activity. Future starts and held
+// invitations may appear in class history without being enrolled now.
 const currentClass = currentEnrollmentSql('ctx.today')
 
 const pastClass = `s.status <> 'pending_setup' AND (s.historical_only
@@ -88,7 +87,9 @@ function parseQuery(query) {
   if (!['asc', 'desc'].includes(sortDir)) throw inputError('Sort direction must be asc or desc.')
   return { ...pagination(query), minAge, maxAge, sortBy, sortDir,
     familiesOnly: boolean(query.familiesOnly, 'families only') === true,
+    enrolled: boolean(query.enrolled, 'enrollment'),
     familyActive: boolean(query.familyActive, 'family activity'),
+    familyEnrolled: boolean(query.familyEnrolled, 'family enrollment'),
     hasChildren: boolean(query.hasChildren, 'has children'),
     sources: values(query, 'source', ['member', 'lead', 'staff']),
     statuses: values(query, 'status', ['active', 'inactive', 'lead']),
@@ -105,7 +106,8 @@ function rowDto(row) {
     name: row.name || 'Unnamed', email: row.email ?? null, phone: row.phone ?? null,
     age: row.age ?? null, dateOfBirth: row.date_of_birth ?? null,
     familyId: row.family_id == null ? null : Number(row.family_id), familyName: row.family_name ?? null,
-    status: row.status, familyActive: Boolean(row.family_active), archived: Boolean(row.archived), leadStatus: row.lead_status ?? null,
+    status: row.status, enrolled: Boolean(row.enrolled), familyActive: Boolean(row.family_active), familyEnrolled: Boolean(row.family_enrolled),
+    archived: Boolean(row.archived), leadStatus: row.lead_status ?? null,
     childCount: Number(row.child_count || 0), memberCount: Number(row.member_count || 0), updatedAt: row.updated_at ?? null }
 }
 
@@ -144,15 +146,19 @@ function buildListQuery(facilityId, filters, target = null) {
   if (filters.statuses.length) where.push(`directory.status = ANY(${bind(filters.statuses)}::text[])`)
   if (filters.record.length) where.push(`(CASE WHEN directory.archived THEN 'archived' ELSE 'active' END) = ANY(${bind(filters.record)}::text[])`)
   if (filters.leadStages.length) where.push(`directory.lead_status = ANY(${bind(filters.leadStages)}::text[])`)
+  if (filters.enrolled != null) where.push(`directory.enrolled = ${bind(filters.enrolled)}`)
   if (filters.familyActive != null) where.push(`directory.family_active = ${bind(filters.familyActive)}`)
+  if (filters.familyEnrolled != null) where.push(`directory.family_enrolled = ${bind(filters.familyEnrolled)}`)
   if (filters.hasChildren != null) where.push(`(directory.child_count > 0) = ${bind(filters.hasChildren)}`)
   const targetId = target == null ? null : bind(target)
 
   const familyRows = `SELECT f.id, 'family'::text AS kind, ''::text AS first_name, ''::text AS last_name,
     COALESCE(NULLIF(f.family_name, ''), 'Unnamed family') AS name, contact.email, contact.phone,
     NULL::int AS age, NULL::text AS date_of_birth, f.id AS family_id, f.family_name,
-    CASE WHEN COALESCE(h.family_active, FALSE) AND f.archived IS NOT TRUE THEN 'active' ELSE 'inactive' END AS status,
-    COALESCE(h.family_active, FALSE) AND f.archived IS NOT TRUE AS family_active, f.archived IS TRUE AS archived,
+    CASE WHEN COALESCE(h.family_active, FALSE) THEN 'active' ELSE 'inactive' END AS status,
+    COALESCE(h.family_enrolled, FALSE) AS enrolled,
+    COALESCE(h.family_active, FALSE) AS family_active, COALESCE(h.family_enrolled, FALSE) AS family_enrolled,
+    f.archived IS TRUE AS archived,
     NULL::text AS lead_status, COALESCE(h.child_count, 0) AS child_count, COALESCE(h.member_count, 0) AS member_count,
     f.updated_at, FALSE AS current_class, FALSE AS past_class, FALSE AS has_class, FALSE AS class_match
     FROM family f LEFT JOIN household_summary h ON h.family_id = f.id
@@ -169,7 +175,8 @@ function buildListQuery(facilityId, filters, target = null) {
   const personRows = [show('member') && `SELECT m.id, 'member'::text AS kind, m.first_name, m.last_name,
     concat_ws(' ', m.first_name, m.last_name) AS name, m.email, m.phone, m.age, m.date_of_birth,
     household.family_id, f.family_name, CASE WHEN m.person_active THEN 'active' ELSE 'inactive' END AS status,
-    COALESCE(h.family_active, FALSE) AND f.archived IS NOT TRUE AS family_active, m.archived, NULL::text AS lead_status,
+    m.person_enrolled AS enrolled, COALESCE(h.family_active, FALSE) AS family_active,
+    COALESCE(h.family_enrolled, FALSE) AS family_enrolled, m.archived, NULL::text AS lead_status,
     COALESCE(h.child_count, 0) AS child_count, COALESCE(h.member_count, 0) AS member_count,
     m.updated_at, m.current_class, m.past_class, m.has_class, m.class_match
     FROM member_facts m
@@ -179,7 +186,7 @@ function buildListQuery(facilityId, filters, target = null) {
     LEFT JOIN household_summary h ON h.family_id = f.id ${targetId ? `WHERE m.id = ${targetId}` : ''}`,
     show('lead') && `SELECT r.id, 'lead', r.first_name, r.last_name, concat_ws(' ', r.first_name, r.last_name),
       r.email, r.phone, CASE WHEN lower(r.submitter_role) = 'athlete' THEN r.athlete_age END, NULL::text,
-      NULL::bigint, NULL::text, 'lead', FALSE, r.archived IS TRUE, COALESCE(r.lead_status, 'new'),
+      NULL::bigint, NULL::text, 'lead', FALSE, FALSE, FALSE, r.archived IS TRUE, COALESCE(r.lead_status, 'new'),
       GREATEST(jsonb_array_length(CASE WHEN jsonb_typeof(r.campers) = 'array' THEN r.campers ELSE '[]'::jsonb END),
         COALESCE(cardinality(r.child_ages), 0), CASE WHEN r.athlete_age BETWEEN 0 AND 17 AND lower(r.submitter_role) IS DISTINCT FROM 'athlete' THEN 1 ELSE 0 END), 0,
       COALESCE(r.updated_at, r.created_at) AT TIME ZONE 'UTC', FALSE, FALSE, FALSE, FALSE
@@ -188,14 +195,14 @@ function buildListQuery(facilityId, filters, target = null) {
     ${targetId ? `AND r.id = ${targetId}` : ''}`,
     show('staff') && `SELECT u.id, 'staff', split_part(btrim(u.full_name), ' ', 1),
       regexp_replace(btrim(u.full_name), '^[^ ]+ *', ''), u.full_name, u.email, u.phone, NULL::int, NULL::text,
-      NULL::bigint, NULL::text, 'inactive', FALSE, (u.is_active IS NOT TRUE OR (u.staff_access_active IS FALSE AND u.member_portal_access_active IS FALSE)), NULL::text, 0, 0,
+      NULL::bigint, NULL::text, 'inactive', FALSE, FALSE, FALSE, (u.is_active IS NOT TRUE OR (u.staff_access_active IS FALSE AND u.member_portal_access_active IS FALSE)), NULL::text, 0, 0,
       u.updated_at, FALSE, FALSE, FALSE, FALSE
     FROM app_user u WHERE u.facility_id = $1 AND NOT EXISTS (SELECT 1 FROM member m WHERE m.facility_id = $1 AND m.app_user_id = u.id)
       ${targetId ? `AND u.id = ${targetId}` : ''}`].filter(Boolean)
 
   const select = filters.familiesOnly ? familyRows : `SELECT * FROM (${personRows.join('\nUNION ALL\n')})
     AS person(id, kind, first_name, last_name, name, email, phone, age, date_of_birth, family_id, family_name,
-      status, family_active, archived, lead_status, child_count, member_count, updated_at,
+      status, enrolled, family_active, family_enrolled, archived, lead_status, child_count, member_count, updated_at,
       current_class, past_class, has_class, class_match)`
 
   const memberCtes = memberFactsNeeded ? `ctx AS (${facilityContext}), links AS (${householdLinks}),
@@ -203,21 +210,20 @@ function buildListQuery(facilityId, filters, target = null) {
       SELECT m.id, m.first_name, m.last_name, m.email, m.phone, m.family_id, m.updated_at,
         m.is_active IS NOT TRUE AS archived, m.date_of_birth::text,
         CASE WHEN m.date_of_birth <= ctx.today THEN EXTRACT(YEAR FROM age(ctx.today, m.date_of_birth))::int END AS age,
-        ${hasClasses(currentClass)} AS current_class,
+        ${memberIsEnrolledSql('m.id', '$1', 'ctx.today')} AS current_class,
         ${filters.participation.includes('past') ? `(${hasClasses(pastClass)} OR ${hasDropIns("d.status IN ('confirmed', 'attended') AND d.class_date < ctx.today")})` : 'FALSE'} AS past_class,
         ${filters.participation.includes('none') ? `(${hasClasses("s.status <> 'pending_setup'")} OR ${hasDropIns("d.status IN ('confirmed', 'attended')")})` : 'FALSE'} AS has_class,
         ${classTerm ? `(${hasClasses('TRUE', `concat_ws(' ', s.record_class_name, form.title, top.display_name, top.name,
           s.record_source_data->>'Program') ILIKE ${classTerm} ESCAPE '\\'`)} OR ${hasDropIns('TRUE', `concat_ws(' ',
           form.title, class.display_name, top.display_name, top.name) ILIKE ${classTerm} ESCAPE '\\'`)})` : 'FALSE'} AS class_match,
-        CASE WHEN m.is_active THEN (${hasActiveAnnualMembershipSql('m.id', 'ctx.today')}
-          OR ${hasDropIns("d.status IN ('confirmed', 'attended') AND d.class_date BETWEEN (ctx.today - INTERVAL '2 months')::date AND ctx.today")})
-          ELSE FALSE END AS membership_or_drop_in
+        ${memberIsActiveSql('m.id', '$1', 'ctx.today')} AS person_active
       FROM member m JOIN ctx ON ctx.id = m.facility_id
     ), member_facts AS (
-      SELECT m.*, NOT m.archived AND (m.current_class OR m.membership_or_drop_in) AS person_active FROM member_details m
+      SELECT m.*, m.current_class AS person_enrolled FROM member_details m
     ), household_summary AS (
       SELECT l.family_id, count(*) FILTER (WHERE NOT m.archived)::int AS member_count,
-        count(*) FILTER (WHERE NOT m.archived AND m.age < 18)::int AS child_count, bool_or(m.person_active) AS family_active
+        count(*) FILTER (WHERE NOT m.archived AND m.age < 18)::int AS child_count,
+        bool_or(m.person_active AND m.age < 18) AS family_active, bool_or(m.person_enrolled) AS family_enrolled
       FROM links l JOIN member_facts m ON m.id = l.member_id WHERE l.is_active GROUP BY l.family_id
     ),` : ''
   const sql = `/* CRM directory */ WITH ${memberCtes} directory AS (${select}),
@@ -269,6 +275,8 @@ async function readPeople(pool, facilityId, familyId, memberId) {
   const result = await pool.query(`/* CRM people */ WITH ctx AS (${facilityContext}), links AS (${householdLinks})
     SELECT m.id, m.first_name, m.last_name, m.email, m.phone, m.date_of_birth::text, m.gender, m.address, m.username,
       m.is_active, CASE WHEN m.date_of_birth <= ctx.today THEN EXTRACT(YEAR FROM age(ctx.today, m.date_of_birth))::int END AS age,
+      ${memberIsActiveSql('m.id', '$1', 'ctx.today')} AS person_active,
+      ${memberIsEnrolledSql('m.id', '$1', 'ctx.today')} AS is_enrolled,
       EXISTS (SELECT 1 FROM parent_guardian_authority authority
         JOIN member guardian ON guardian.id = authority.parent_member_id AND guardian.facility_id = $1
         JOIN links guardian_household ON guardian_household.member_id = guardian.id AND guardian_household.family_id = $2 AND guardian_household.is_active
@@ -336,7 +344,8 @@ async function readInquiries(pool, facilityId, leadId, memberIds) {
 function personDetails(row) {
   return { id: Number(row.id), firstName: row.first_name, lastName: row.last_name,
     name: `${row.first_name} ${row.last_name}`.trim(), email: row.email, phone: row.phone,
-    age: row.age, dateOfBirth: row.date_of_birth, gender: row.gender, isActive: row.is_active === true }
+    age: row.age, dateOfBirth: row.date_of_birth, gender: row.gender,
+    isActive: row.person_active === true, isEnrolled: row.is_enrolled === true, archived: row.is_active !== true }
 }
 
 export async function loadCrmDetail(pool, facilityId, kind, recordId, query = {}) {

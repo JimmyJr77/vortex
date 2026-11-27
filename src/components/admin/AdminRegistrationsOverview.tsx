@@ -12,6 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import MemberEnrollmentsPanel, { type MemberEnrollmentRow } from '../member/MemberEnrollmentsPanel'
+import AdminClassSwaps from './AdminClassSwaps'
 import {
   CLASS_SKILL_LEVEL_FILTER_OPTIONS,
   type ClassSkillLevelFilter,
@@ -43,7 +44,7 @@ function formatEnrollmentStartDate(date: string | null): string {
 }
 
 function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDailyRoster>>): void {
-  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Age', 'Email', 'Phone']]
+  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Age', 'Payer Email', 'Payer Phone']]
   for (const item of roster.classes) {
     for (const athlete of item.athletes) {
       rows.push([
@@ -62,7 +63,7 @@ function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDail
 }
 
 type OverviewMode = 'by-member' | 'by-program'
-type EnrollmentTab = 'monthly' | 'daily'
+type EnrollmentTab = 'monthly' | 'daily' | 'class-swaps'
 type SortDir = 'asc' | 'desc'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
@@ -681,8 +682,8 @@ function DailyEnrollmentsView() {
                       <tr className="border-b text-left text-gray-600">
                         <th className="p-3">Athlete</th>
                         <th className="p-3">Age</th>
-                        <th className="p-3">Email</th>
-                        <th className="p-3">Phone</th>
+                        <th className="p-3">Payer Email</th>
+                        <th className="p-3">Payer Phone</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -734,12 +735,12 @@ export default function AdminRegistrationsOverview() {
         <div>
           <h2 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <ClipboardList className="w-7 h-7 text-vortex-red" />
-            {activeTab === 'monthly' ? 'Monthly Enrollments' : 'Daily Enrollments'}
+            {activeTab === 'monthly' ? 'Monthly Enrollments' : activeTab === 'daily' ? 'Daily Enrollments' : 'Class Swaps'}
           </h2>
           <p className="text-gray-600 text-sm mt-1">
             {activeTab === 'monthly'
               ? 'View recurring and temporary registrations by member or class schedule.'
-              : 'View everyone attending each class on a selected day.'}
+              : activeTab === 'daily' ? 'View everyone attending each class on a selected day.' : 'Move a single session or replace an ongoing class enrollment.'}
           </p>
         </div>
         {activeTab === 'monthly' ? <div className="flex flex-wrap items-center justify-end gap-2">
@@ -776,12 +777,13 @@ export default function AdminRegistrationsOverview() {
         </div> : null}
       </div>
 
-      <div className="inline-flex overflow-hidden rounded-lg border border-gray-300 bg-white" role="tablist" aria-label="Enrollment views">
+      <div className="inline-flex max-w-full overflow-x-auto rounded-lg border border-gray-300 bg-white" role="tablist" aria-label="Enrollment views">
         <button type="button" role="tab" aria-selected={activeTab === 'monthly'} onClick={() => setActiveTab('monthly')} className={`px-4 py-2 text-sm font-semibold ${activeTab === 'monthly' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'}`}>Monthly Enrollments</button>
         <button type="button" role="tab" aria-selected={activeTab === 'daily'} onClick={() => setActiveTab('daily')} className={`px-4 py-2 text-sm font-semibold ${activeTab === 'daily' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'}`}>Daily Enrollments</button>
+        <button type="button" role="tab" aria-selected={activeTab === 'class-swaps'} onClick={() => setActiveTab('class-swaps')} className={`whitespace-nowrap px-4 py-2 text-sm font-semibold ${activeTab === 'class-swaps' ? 'bg-vortex-red text-white' : 'text-gray-700 hover:bg-gray-50'}`}>Class Swaps</button>
       </div>
 
-      {activeTab === 'daily' ? <DailyEnrollmentsView /> : mode === 'by-member' ? (
+      {activeTab === 'class-swaps' ? <AdminClassSwaps /> : activeTab === 'daily' ? <DailyEnrollmentsView /> : mode === 'by-member' ? (
         <AdminEnrollmentsByMemberView key={`member-${refreshKey}`} onRefresh={triggerRefresh} />
       ) : (
         <AdminEnrollmentsByProgramView key={`program-${refreshKey}`} onRefresh={triggerRefresh} />

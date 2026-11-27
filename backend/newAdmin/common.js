@@ -2,6 +2,13 @@ export function inputError(message, statusCode = 400) {
   return Object.assign(new Error(message), { statusCode })
 }
 
+export function optionalBoolean(value, label) {
+  if (value == null || value === '') return null
+  if (value === true || value === 'true') return true
+  if (value === false || value === 'false') return false
+  throw inputError(`Invalid ${label} filter.`)
+}
+
 export function id(value, label = 'ID') {
   const parsed = Number(value)
   if (!Number.isSafeInteger(parsed) || parsed <= 0) throw inputError(`Invalid ${label}.`)

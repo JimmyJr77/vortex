@@ -24,6 +24,8 @@ import { resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { listHouseholdMonthlyInvoices } from './householdMonthlyInvoice.js'
 import { loadPendingMemberBalanceCheckout } from './customerBalanceCheckoutResume.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
+import { memberHasActiveMembershipSql, memberIsActiveSql, memberIsEnrolledSql } from '../newAdmin/memberActivity.js'
+import { familyIsActiveSql, familyIsEnrolledSql } from '../newAdmin/householdStatus.js'
 import {
   classifyStripePaymentMethodReadiness,
   selectStripeCustomerPaymentMethod,
@@ -340,6 +342,14 @@ export async function loadCustomerBillingAnnualMemberships(pool, {
   })
 }
 
+// Display membership validity follows the same entitlement as directories and
+// signup. Keep the financial projection's dates and renewal controls intact;
+// transfer operations still consume the unmodified financial loader above.
+export function applyCanonicalMembershipDisplay(memberships = [], members = []) {
+  const validMembers = new Set(members.filter(member => member.hasActiveMembership === true).map(member => Number(member.id)))
+  return memberships.map(membership => ({ ...membership, active: validMembers.has(Number(membership.memberId)) }))
+}
+
 export async function loadCustomerBillingAccount(pool, familyId, facilityId = null) {
   const result = await pool.query(
     `SELECT account.*, family.family_name, family.facility_id AS family_facility_id,
@@ -413,10 +423,13 @@ export async function searchCustomerBilling(pool, { facilityId, query, limit = 5
   }))
 }
 
-async function loadFamilyMembers(pool, familyId) {
+async function loadFamilyMembers(pool, familyId, today) {
   const result = await pool.query(
     `SELECT DISTINCT m.id, m.first_name, m.last_name, m.email, m.phone, m.is_active,
-            EXTRACT(YEAR FROM age(CURRENT_DATE, m.date_of_birth))::int AS age,
+            EXTRACT(YEAR FROM age($2::date, m.date_of_birth))::int AS age,
+            ${memberHasActiveMembershipSql('m.id', '$2::date')} AS has_active_membership,
+            ${memberIsActiveSql('m.id', 'm.facility_id', '$2::date')} AS active,
+            ${memberIsEnrolledSql('m.id', 'm.facility_id', '$2::date')} AS enrolled,
             EXISTS (SELECT 1 FROM parent_guardian_authority guardian
                     WHERE guardian.parent_member_id = m.id AND guardian.has_legal_authority = TRUE) AS is_guardian
      FROM member m
@@ -427,11 +440,14 @@ async function loadFamilyMembers(pool, familyId) {
        historyAlias: 'member_household_history',
      })}
      ORDER BY m.is_active DESC, m.last_name, m.first_name, m.id`,
-    [familyId],
+    [familyId, today],
   )
   return result.rows.map((row) => ({
     id: Number(row.id),
     age: row.age == null ? null : Number(row.age),
+    hasActiveMembership: row.has_active_membership === true,
+    active: row.active === true,
+    enrolled: row.enrolled === true,
     accountType: row.is_guardian ? 'Guardian' : row.age != null && Number(row.age) < 18 ? 'Youth' : 'Adult',
     firstName: row.first_name,
     lastName: row.last_name,
@@ -641,22 +657,16 @@ export function customerBillingCardPresentation(view = {}, displayPricing = {}) 
   }
 }
 
-// A ledger container stays available for historical records and an unpaid
-// balance, but that alone must not make a household appear active. Overall
-// account status reflects what is actually active today: a valid membership
-// or an enrolled (including scheduled) recurring class.
-export function customerBillingAccountStatus({
-  account = {},
-  enrollments = [],
-  annualMemberships = [],
-} = {}) {
-  if (account.is_active === false || account.isActive === false) return 'inactive'
-  const hasCurrentMembership = annualMemberships.some((membership) => membership?.active === true)
-  const hasCurrentOrUpcomingEnrollment = enrollments.some((enrollment) => (
-    ['active', 'scheduled', 'pending_cancellation'].includes(String(enrollment?.status ?? '')) &&
-    enrollment?.source !== 'drop_in'
-  ))
-  return hasCurrentMembership || hasCurrentOrUpcomingEnrollment ? 'active' : 'inactive'
+// Financial containers and enrollment do not determine business activity.
+// Family activity requires a child with membership coverage or a recent paid drop-in.
+export function customerBillingAccountStatus({ active = false } = {}) {
+  return active === true ? 'active' : 'inactive'
+}
+
+export async function loadCustomerBillingParticipation(pool, { familyId, facilityId, today }) {
+  const result = await pool.query(`SELECT ${familyIsActiveSql('$1', '$2', '$3::date')} AS active,
+    ${familyIsEnrolledSql('$1', '$2', '$3::date')} AS enrolled`, [Number(familyId), Number(facilityId), today])
+  return { active: result.rows[0]?.active === true, enrolled: result.rows[0]?.enrolled === true }
 }
 
 // A household invoice is a Stripe collection artifact, whereas Account
@@ -969,14 +979,18 @@ export async function buildCustomerBillingOverview(pool, {
   const memberRead = readMode === 'member'
   const account = await ensureCustomerBillingAccount(pool, familyId, facilityId)
   if (!account) return null
-  const members = await loadFamilyMembers(pool, familyId)
+  const asOf = new Date(startedAt)
+  const today = facilityDate(asOf, account.facility_timezone)
+  const [members, participation] = await Promise.all([
+    loadFamilyMembers(pool, familyId, today),
+    loadCustomerBillingParticipation(pool, { familyId, facilityId: account.family_facility_id, today }),
+  ])
   if (selectedMemberId != null && !members.some((member) => member.id === Number(selectedMemberId))) {
     throw new Error('Selected member does not belong to this family.')
   }
   // Keep the ledger-card classification on the same upcoming month displayed
   // by the recurring-fee card. A charge posted for the current (or past)
   // month is already due and must remain in Outstanding balance.
-  const asOf = new Date(startedAt)
   const pricingMonth = upcomingRecurringPricingMonth(asOf, account.facility_timezone)
 
   const rawSubscriptionsPromise = pool.query(
@@ -1339,7 +1353,7 @@ export async function buildCustomerBillingOverview(pool, {
       .map((row) => Number(row.id)),
     ...automaticallyResolvedAlertIds,
   ])
-  const annualMemberships = annualMembershipRows.map((membership) => ({
+  const annualMemberships = applyCanonicalMembershipDisplay(annualMembershipRows, members).map((membership) => ({
     ...membership,
     lifetimeMember: hasLifetimeOwnerWaiver === true,
   }))
@@ -1356,18 +1370,15 @@ export async function buildCustomerBillingOverview(pool, {
     members,
     classDisplays: monthlyLedgerClassDisplays,
   })
-  const accountStatus = customerBillingAccountStatus({
-    account,
-    enrollments,
-    annualMemberships,
-  })
+  const accountStatus = customerBillingAccountStatus(participation)
+  const enrolled = participation.enrolled
   const hasResumableBalanceCheckout = !memberRead && paymentMethod.stripeEnabled
     && view.reservedForPaymentAttemptsCents > 0
     && Boolean(await loadPendingMemberBalanceCheckout(pool, account))
 
   const overview = {
     revision: view.revision,
-    account: { ...mapAccount(account), accountStatus },
+    account: { ...mapAccount(account), accountStatus, enrolled },
     selectedMemberId: selectedMemberId == null ? null : Number(selectedMemberId),
     members,
     summary: {

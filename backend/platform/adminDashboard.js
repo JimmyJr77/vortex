@@ -1,37 +1,28 @@
 import { loadRevenueForecast } from './adminRevenueForecast.js'
 import { settledRefundPredicate } from '../billing/billingLedgerSql.js'
 import { loadEnrollmentTrend } from './adminEnrollmentTrend.js'
+import { currentHouseholdLinkSql, familyIsActiveSql, familyIsEnrolledSql } from '../newAdmin/householdStatus.js'
+import { currentEnrollmentSql, memberHasActiveMembershipSql, memberIsActiveSql } from '../newAdmin/memberActivity.js'
 
-const ACTIVE_SIGNUPS_CTE = `
-  WITH active_signups AS (
-    SELECT
-      signup.id AS signup_id,
-      signup.member_id,
-      signup.form_id,
-      COALESCE(signup.enrollment_start_date, signup.created_at::date) AS enrollment_start_date,
-      form.title AS class_name,
-      member.first_name,
-      member.last_name,
-      member.family_id,
-      family.family_name
-    FROM scheduling_signup signup
-    JOIN member ON member.id = signup.member_id
-    LEFT JOIN family ON family.id = member.family_id
-    JOIN scheduling_form form ON form.id = signup.form_id
-    LEFT JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
-    LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
-    WHERE signup.status = 'confirmed'
-      AND signup.orphaned_at IS NULL
-      AND signup.archived_at IS NULL
-      AND member.facility_id = $1
-      AND member.is_active = TRUE
-      AND COALESCE(signup.enrollment_start_date, signup.created_at::date) <= CURRENT_DATE
-      AND (signup.cancel_effective_date IS NULL OR signup.cancel_effective_date > CURRENT_DATE)
-      AND (signup.pause_effective_date IS NULL OR signup.pause_effective_date > CURRENT_DATE)
-      AND (COALESCE(offering.start_date, slot_group.active_start, form.start_date) IS NULL
-        OR COALESCE(offering.start_date, slot_group.active_start, form.start_date) <= CURRENT_DATE)
-      AND (COALESCE(offering.end_date, slot_group.active_end, form.end_date) IS NULL
-        OR COALESCE(offering.end_date, slot_group.active_end, form.end_date) >= CURRENT_DATE)
+const CURRENT_ENROLLMENTS_CTE = `
+  WITH ctx AS (
+    SELECT ($2::timestamptz AT TIME ZONE COALESCE(NULLIF(timezone,''),'America/New_York'))::date AS today
+    FROM facility WHERE id=$1
+  ), current_enrollments AS (
+    SELECT signup.id AS signup_id,signup.record_member_id AS member_id,signup.form_id,
+      signup.enrollment_start_date,signup.record_class_name AS class_name,
+      member.first_name,member.last_name,family.id AS family_id,family.family_name
+    FROM account_enrollment_current signup
+    JOIN member ON member.id=signup.record_member_id AND member.facility_id=signup.record_facility_id
+    CROSS JOIN ctx
+    LEFT JOIN LATERAL (
+      SELECT f.id,f.family_name FROM family f
+      WHERE f.facility_id=$1
+        AND ${currentHouseholdLinkSql('member', 'f.id')}
+      ORDER BY f.id LIMIT 1
+    ) family ON TRUE
+    WHERE signup.record_facility_id=$1
+      AND ${currentEnrollmentSql('ctx.today', 'signup')}
   )
 `
 
@@ -70,67 +61,69 @@ async function safeQuery(pool, query, params = []) {
   }
 }
 
-async function enrollmentDashboard(pool, facilityId) {
+async function enrollmentDashboard(pool, facilityId, now) {
   const [summary, classes, athletes, missingMemberships] = await Promise.all([
-    safeQuery(pool, `${ACTIVE_SIGNUPS_CTE}
+    safeQuery(pool, `${CURRENT_ENROLLMENTS_CTE}
       SELECT
-        COUNT(DISTINCT member_id)::int AS active_athletes,
-        COUNT(*)::int AS active_classes,
+        (SELECT COUNT(*)::int FROM member m CROSS JOIN ctx
+          WHERE m.facility_id=$1
+            AND ${memberIsActiveSql('m.id', '$1', 'ctx.today')}) AS active_athletes,
+        (SELECT COUNT(*)::int FROM family f CROSS JOIN ctx
+          WHERE f.facility_id=$1 AND ${familyIsActiveSql('f.id', '$1', 'ctx.today')}) AS active_families,
+        COUNT(DISTINCT member_id)::int AS enrolled_athletes,
+        (SELECT COUNT(*)::int FROM family f CROSS JOIN ctx
+          WHERE f.facility_id=$1 AND ${familyIsEnrolledSql('f.id', '$1', 'ctx.today')}) AS enrolled_families,
+        COUNT(*)::int AS current_enrollment_count,
         COUNT(DISTINCT member_id) FILTER (
-          WHERE enrollment_start_date >= date_trunc('month', CURRENT_DATE)::date
+          WHERE enrollment_start_date >= date_trunc('month', (SELECT today FROM ctx))::date
         )::int AS gained_this_month,
         (
           SELECT COUNT(DISTINCT signup.member_id)::int
           FROM scheduling_signup signup
           JOIN member cancelled_member ON cancelled_member.id = signup.member_id
-          WHERE signup.cancel_effective_date >= date_trunc('month', CURRENT_DATE)::date
-            AND signup.cancel_effective_date < (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month')::date
+          WHERE signup.cancel_effective_date >= date_trunc('month', (SELECT today FROM ctx))::date
+            AND signup.cancel_effective_date < (date_trunc('month', (SELECT today FROM ctx)) + INTERVAL '1 month')::date
             AND cancelled_member.facility_id = $1
         ) AS lost_this_month
-      FROM active_signups`, [facilityId]),
-    safeQuery(pool, `${ACTIVE_SIGNUPS_CTE}
+      FROM current_enrollments`, [facilityId, now.toISOString()]),
+    safeQuery(pool, `${CURRENT_ENROLLMENTS_CTE}
       SELECT
         class_name,
         COUNT(DISTINCT member_id)::int AS athlete_count,
         COUNT(*)::int AS enrollment_count
-      FROM active_signups
+      FROM current_enrollments
       GROUP BY class_name
       ORDER BY athlete_count DESC, class_name ASC
-      LIMIT 12`, [facilityId]),
-    safeQuery(pool, `${ACTIVE_SIGNUPS_CTE}
+      LIMIT 12`, [facilityId, now.toISOString()]),
+    safeQuery(pool, `${CURRENT_ENROLLMENTS_CTE}
       SELECT
         member_id,
         first_name,
         last_name,
         family_name,
         COUNT(*)::int AS class_count
-      FROM active_signups
+      FROM current_enrollments
       GROUP BY member_id, first_name, last_name, family_name
       ORDER BY class_count DESC, last_name ASC, first_name ASC
-      LIMIT 12`, [facilityId]),
-    safeQuery(pool, `${ACTIVE_SIGNUPS_CTE}, active_memberships AS (
-        SELECT DISTINCT member_id
-        FROM billing_subscription
-        WHERE (source_type = 'annual_membership' OR pricing_option_key = 'annual_membership')
-          AND next_bill_date > CURRENT_DATE
-      )
-      SELECT DISTINCT ON (active_signups.member_id)
-        active_signups.member_id,
-        active_signups.first_name,
-        active_signups.last_name,
-        active_signups.family_name,
-        COUNT(*) OVER (PARTITION BY active_signups.member_id)::int AS class_count
-      FROM active_signups
-      LEFT JOIN active_memberships ON active_memberships.member_id = active_signups.member_id
-      WHERE active_memberships.member_id IS NULL
-      ORDER BY active_signups.member_id, active_signups.last_name, active_signups.first_name
-      LIMIT 50`, [facilityId]),
+      LIMIT 12`, [facilityId, now.toISOString()]),
+    safeQuery(pool, `${CURRENT_ENROLLMENTS_CTE}
+      SELECT DISTINCT ON (current_enrollments.member_id)
+        current_enrollments.member_id,current_enrollments.first_name,current_enrollments.last_name,
+        current_enrollments.family_name,
+        COUNT(*) OVER (PARTITION BY current_enrollments.member_id)::int AS class_count
+      FROM current_enrollments CROSS JOIN ctx
+      WHERE NOT ${memberHasActiveMembershipSql('current_enrollments.member_id', 'ctx.today')}
+      ORDER BY current_enrollments.member_id,current_enrollments.last_name,current_enrollments.first_name
+      LIMIT 50`, [facilityId, now.toISOString()]),
   ])
 
   const row = summary.rows[0] ?? {}
   return {
     activeAthletes: numeric(row.active_athletes),
-    activeClasses: numeric(row.active_classes),
+    activeFamilies: numeric(row.active_families),
+    enrolledAthletes: numeric(row.enrolled_athletes),
+    enrolledFamilies: numeric(row.enrolled_families),
+    currentEnrollments: numeric(row.current_enrollment_count),
     gainedThisMonth: numeric(row.gained_this_month),
     lostThisMonth: numeric(row.lost_this_month),
     byClass: classes.rows.map((item) => ({
@@ -198,22 +191,20 @@ async function billingDashboard(pool, facilityId, now) {
         AND registration.status IN ('confirmed', 'attended')
         AND member.facility_id = $1`, [facilityId]),
     safeQuery(pool, `
-      SELECT COUNT(DISTINCT member_id)::int AS total
-      FROM billing_subscription subscription
-      JOIN family_billing_account account ON account.id = subscription.family_billing_account_id
-      JOIN family ON family.id = account.family_id
-      WHERE (subscription.source_type = 'annual_membership' OR subscription.pricing_option_key = 'annual_membership')
-        AND subscription.next_bill_date > CURRENT_DATE
-        AND family.facility_id = $1`, [facilityId]),
-    safeQuery(pool, `${ACTIVE_SIGNUPS_CTE}, account_enrollments AS (
-        SELECT DISTINCT active_signups.member_id, active_signups.first_name, active_signups.last_name,
-          active_signups.family_name, active_signups.family_id
-        FROM active_signups
+      SELECT COUNT(*)::int AS total FROM member m
+      JOIN facility ON facility.id=m.facility_id
+      WHERE m.facility_id=$1
+        AND ${memberHasActiveMembershipSql('m.id', "($2::timestamptz AT TIME ZONE COALESCE(NULLIF(facility.timezone,''),'America/New_York'))::date")}`,
+    [facilityId, now.toISOString()]),
+    safeQuery(pool, `${CURRENT_ENROLLMENTS_CTE}, account_enrollments AS (
+        SELECT DISTINCT current_enrollments.member_id, current_enrollments.first_name, current_enrollments.last_name,
+          current_enrollments.family_name, current_enrollments.family_id
+        FROM current_enrollments
       )
       SELECT account_enrollments.member_id, account_enrollments.first_name, account_enrollments.last_name,
-        account_enrollments.family_name, COUNT(active_signups.signup_id)::int AS class_count
+        account_enrollments.family_name, COUNT(current_enrollments.signup_id)::int AS class_count
       FROM account_enrollments
-      JOIN active_signups ON active_signups.member_id = account_enrollments.member_id
+      JOIN current_enrollments ON current_enrollments.member_id = account_enrollments.member_id
       LEFT JOIN family_billing_account account ON account.family_id = account_enrollments.family_id
       WHERE NOT EXISTS (
         SELECT 1
@@ -226,22 +217,22 @@ async function billingDashboard(pool, facilityId, now) {
       GROUP BY account_enrollments.member_id, account_enrollments.first_name,
         account_enrollments.last_name, account_enrollments.family_name
       ORDER BY account_enrollments.last_name, account_enrollments.first_name
-      LIMIT 50`, [facilityId]),
-    safeQuery(pool, `${ACTIVE_SIGNUPS_CTE}
-      SELECT active_signups.member_id, active_signups.first_name, active_signups.last_name,
-        active_signups.family_name,
+      LIMIT 50`, [facilityId, now.toISOString()]),
+    safeQuery(pool, `${CURRENT_ENROLLMENTS_CTE}
+      SELECT current_enrollments.member_id, current_enrollments.first_name, current_enrollments.last_name,
+        current_enrollments.family_name,
         COUNT(*) FILTER (WHERE subscription.id IS NULL)::int AS missing_schedule_count,
         COUNT(*)::int AS class_count
-      FROM active_signups
+      FROM current_enrollments
       LEFT JOIN billing_subscription subscription
         ON subscription.source_type = 'scheduling_signup'
-        AND subscription.source_id = active_signups.signup_id::text
+        AND subscription.source_id = current_enrollments.signup_id::text
         AND subscription.status = 'active'
-      GROUP BY active_signups.member_id, active_signups.first_name,
-        active_signups.last_name, active_signups.family_name
+      GROUP BY current_enrollments.member_id, current_enrollments.first_name,
+        current_enrollments.last_name, current_enrollments.family_name
       HAVING COUNT(*) FILTER (WHERE subscription.id IS NULL) > 0
-      ORDER BY missing_schedule_count DESC, active_signups.last_name, active_signups.first_name
-      LIMIT 50`, [facilityId]),
+      ORDER BY missing_schedule_count DESC, current_enrollments.last_name, current_enrollments.first_name
+      LIMIT 50`, [facilityId, now.toISOString()]),
     loadRevenueForecast(pool, facilityId, now),
   ])
 
@@ -272,77 +263,55 @@ async function billingDashboard(pool, facilityId, now) {
   }
 }
 
-async function mediaReleaseOptOutDashboard(pool, facilityId) {
+async function mediaReleaseOptOutDashboard(pool, facilityId, now) {
   const result = await safeQuery(pool, `
-    WITH current_enrollments AS (
-      SELECT
-        signup.id AS signup_id,
-        signup.member_id,
-        form.title AS class_name,
-        slot.schedule_mode,
-        slot.specific_date,
-        slot.day_of_week,
-        slot.start_time,
-        slot.end_time
-      FROM scheduling_signup signup
-      JOIN member enrolled_member ON enrolled_member.id = signup.member_id
-      JOIN scheduling_form form ON form.id = signup.form_id
-      LEFT JOIN scheduling_slot_group slot_group ON slot_group.id = signup.slot_group_id
-      LEFT JOIN scheduling_offering offering ON offering.id = slot_group.offering_id
+    ${CURRENT_ENROLLMENTS_CTE}, current_enrollment_schedules AS (
+      SELECT signup.signup_id,signup.member_id,signup.class_name,
+        slot.schedule_mode,slot.specific_date,slot.day_of_week,slot.start_time,slot.end_time
+      FROM current_enrollments signup
+      JOIN scheduling_signup live_signup ON live_signup.id=signup.signup_id
       LEFT JOIN LATERAL (
         SELECT time_slot.schedule_mode, time_slot.specific_date, time_slot.day_of_week,
           time_slot.start_time, time_slot.end_time
         FROM scheduling_time_slot time_slot
-        WHERE time_slot.id = signup.time_slot_id
+        WHERE time_slot.id = live_signup.time_slot_id
 
         UNION ALL
 
         SELECT group_slot.schedule_mode, group_slot.specific_date, group_slot.day_of_week,
           group_slot.start_time, group_slot.end_time
         FROM scheduling_time_slot group_slot
-        WHERE signup.time_slot_id IS NULL
-          AND group_slot.slot_group_id = signup.slot_group_id
+        WHERE live_signup.time_slot_id IS NULL
+          AND group_slot.slot_group_id = live_signup.slot_group_id
       ) slot ON TRUE
-      WHERE enrolled_member.facility_id = $1
-        AND enrolled_member.is_active = TRUE
-        AND signup.status = 'confirmed'
-        AND signup.orphaned_at IS NULL
-        AND signup.archived_at IS NULL
-        AND COALESCE(signup.enrollment_start_date, signup.created_at::date) <= CURRENT_DATE
-        AND (signup.cancel_effective_date IS NULL OR signup.cancel_effective_date > CURRENT_DATE)
-        AND (signup.pause_effective_date IS NULL OR signup.pause_effective_date > CURRENT_DATE)
-        AND (COALESCE(offering.start_date, slot_group.active_start, form.start_date) IS NULL
-          OR COALESCE(offering.start_date, slot_group.active_start, form.start_date) <= CURRENT_DATE)
-        AND (COALESCE(offering.end_date, slot_group.active_end, form.end_date) IS NULL
-          OR COALESCE(offering.end_date, slot_group.active_end, form.end_date) >= CURRENT_DATE)
     )
     SELECT
       member.id AS member_id,
       member.first_name,
       member.last_name,
       family.family_name,
-      (COUNT(DISTINCT current_enrollments.signup_id) > 0) AS is_active_student,
-      COUNT(DISTINCT current_enrollments.signup_id)::int AS active_class_count,
+      (COUNT(DISTINCT current_enrollment_schedules.signup_id) > 0) AS enrolled,
+      COUNT(DISTINCT current_enrollment_schedules.signup_id)::int AS current_enrollment_count,
       COALESCE(
         jsonb_agg(
           jsonb_build_object(
-            'className', current_enrollments.class_name,
-            'scheduleMode', current_enrollments.schedule_mode,
-            'specificDate', current_enrollments.specific_date,
-            'dayOfWeek', current_enrollments.day_of_week,
-            'startTime', current_enrollments.start_time,
-            'endTime', current_enrollments.end_time
+            'className', current_enrollment_schedules.class_name,
+            'scheduleMode', current_enrollment_schedules.schedule_mode,
+            'specificDate', current_enrollment_schedules.specific_date,
+            'dayOfWeek', current_enrollment_schedules.day_of_week,
+            'startTime', current_enrollment_schedules.start_time,
+            'endTime', current_enrollment_schedules.end_time
           )
-          ORDER BY current_enrollments.class_name,
-            current_enrollments.day_of_week NULLS LAST,
-            current_enrollments.specific_date NULLS LAST,
-            current_enrollments.start_time NULLS LAST
-        ) FILTER (WHERE current_enrollments.signup_id IS NOT NULL),
+          ORDER BY current_enrollment_schedules.class_name,
+            current_enrollment_schedules.day_of_week NULLS LAST,
+            current_enrollment_schedules.specific_date NULLS LAST,
+            current_enrollment_schedules.start_time NULLS LAST
+        ) FILTER (WHERE current_enrollment_schedules.signup_id IS NOT NULL),
         '[]'::jsonb
-      ) AS active_classes
+      ) AS current_classes
     FROM member
     LEFT JOIN family ON family.id = member.family_id
-    LEFT JOIN current_enrollments ON current_enrollments.member_id = member.id
+    LEFT JOIN current_enrollment_schedules ON current_enrollment_schedules.member_id = member.id
     WHERE member.facility_id = $1
       AND COALESCE(member.signup_source,'') <> 'jackrabbit_history_merged'
       AND EXISTS (
@@ -364,17 +333,17 @@ async function mediaReleaseOptOutDashboard(pool, facilityId) {
           AND (template.active_to IS NULL OR template.active_to > now())
       )
     GROUP BY member.id, member.first_name, member.last_name, family.family_name
-    ORDER BY is_active_student DESC, member.is_active DESC, member.last_name ASC, member.first_name ASC
-  `, [facilityId])
+    ORDER BY enrolled DESC, member.is_active DESC, member.last_name ASC, member.first_name ASC
+  `, [facilityId, now.toISOString()])
 
   return result.rows.map((item) => ({
     memberId: numeric(item.member_id),
     memberName: displayName(item),
     familyName: item.family_name || null,
-    isActiveStudent: item.is_active_student === true,
-    activeClassCount: numeric(item.active_class_count),
-    activeClasses: Array.isArray(item.active_classes)
-      ? item.active_classes.map((enrollment) => ({
+    enrolled: item.enrolled === true,
+    currentEnrollmentCount: numeric(item.current_enrollment_count),
+    currentClasses: Array.isArray(item.current_classes)
+      ? item.current_classes.map((enrollment) => ({
         className: enrollment.className || 'Untitled class',
         scheduleMode: enrollment.scheduleMode || null,
         specificDate: enrollment.specificDate || null,
@@ -397,13 +366,13 @@ export async function getAdminDashboard(pool, {
   const hasFacilityScope = Number.isInteger(parsedFacilityId) && parsedFacilityId > 0
   const [enrollment, billing, mediaReleaseOptOuts, enrollmentTrend] = await Promise.all([
     canViewEnrollment && hasFacilityScope
-      ? enrollmentDashboard(pool, parsedFacilityId)
+      ? enrollmentDashboard(pool, parsedFacilityId, now)
       : null,
     canViewBilling && hasFacilityScope
       ? billingDashboard(pool, parsedFacilityId, now)
       : null,
     canViewEnrollment && canViewWaivers && hasFacilityScope
-      ? mediaReleaseOptOutDashboard(pool, parsedFacilityId)
+      ? mediaReleaseOptOutDashboard(pool, parsedFacilityId, now)
       : null,
     canViewEnrollment && hasFacilityScope ? loadEnrollmentTrend(pool, parsedFacilityId, now) : null,
   ])

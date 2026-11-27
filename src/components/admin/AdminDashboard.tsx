@@ -26,9 +26,9 @@ interface MediaReleaseOptOutRow {
   memberId: number
   memberName: string
   familyName: string | null
-  isActiveStudent: boolean
-  activeClassCount: number
-  activeClasses: Array<{
+  enrolled: boolean
+  currentEnrollmentCount: number
+  currentClasses: Array<{
     className: string
     scheduleMode: string | null
     specificDate: string | null
@@ -44,7 +44,10 @@ interface DashboardData {
   generatedAt: string
   enrollment: null | {
     activeAthletes: number
-    activeClasses: number
+    activeFamilies: number
+    enrolledAthletes: number
+    enrolledFamilies: number
+    currentEnrollments: number
     gainedThisMonth: number
     lostThisMonth: number
     byClass: Array<{ className: string; athleteCount: number; enrollmentCount: number }>
@@ -133,7 +136,7 @@ function ExceptionList({
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-gray-900">{row.memberName}</p>
               <p className="truncate text-xs text-gray-500">
-                {row.familyName || 'No family name'} · {row.classCount} active {row.classCount === 1 ? 'class' : 'classes'}
+                {row.familyName || 'No family name'} · {row.classCount} current {row.classCount === 1 ? 'class' : 'classes'}
                 {showMissingSchedules && row.missingScheduleCount ? ` · ${row.missingScheduleCount} unscheduled` : ''}
               </p>
             </div>
@@ -195,7 +198,7 @@ function formatScheduleDate(value: string) {
     : date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 }
 
-function scheduleLabel(enrollment: MediaReleaseOptOutRow['activeClasses'][number]) {
+function scheduleLabel(enrollment: MediaReleaseOptOutRow['currentClasses'][number]) {
   const day = enrollment.scheduleMode === 'date' && enrollment.specificDate
     ? formatScheduleDate(enrollment.specificDate)
     : enrollment.dayOfWeek != null ? DAY_NAMES[enrollment.dayOfWeek] : null
@@ -223,13 +226,13 @@ function MediaReleaseOptOutList({ rows }: { rows: MediaReleaseOptOutRow[] }) {
                 <p className="truncate text-sm font-semibold text-gray-900">{row.memberName}</p>
                 <p className="truncate text-xs text-gray-500">{row.familyName || 'No family name'}</p>
               </div>
-              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${row.isActiveStudent ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}`}>
-                {row.isActiveStudent ? 'Active student' : 'Not currently enrolled'}
+              <span className={`rounded-full px-2.5 py-1 text-xs font-bold ${row.enrolled ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700'}`}>
+                {row.enrolled ? 'Enrolled' : 'Not currently enrolled'}
               </span>
             </div>
-            {row.activeClasses.length > 0 ? (
+            {row.currentClasses.length > 0 ? (
               <ul className="mt-3 space-y-1.5 text-xs text-gray-700">
-                {row.activeClasses.map((enrollment, index) => (
+                {row.currentClasses.map((enrollment, index) => (
                   <li key={`${enrollment.className}-${enrollment.dayOfWeek}-${enrollment.startTime}-${index}`}>
                     <span className="font-semibold text-gray-900">{enrollment.className}</span>
                     <span className="text-gray-500"> · {scheduleLabel(enrollment)}</span>
@@ -321,7 +324,8 @@ export default function AdminDashboard({
 
         {data.enrollment ? <>
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard label="Active athletes" value={data.enrollment.activeAthletes} detail={`${data.enrollment.activeClasses} active class enrollments`} icon={Users} />
+            <StatCard label="Active people" value={data.enrollment.activeAthletes} detail={`${data.enrollment.activeFamilies} active families · Membership or recent paid drop-in`} icon={Users} />
+            <StatCard label="Enrolled students" value={data.enrollment.enrolledAthletes} detail={`${data.enrollment.enrolledFamilies} enrolled families · ${data.enrollment.currentEnrollments} current enrollments`} icon={Users} tone="blue" />
             <StatCard label="Enrollment movement" value={`+${data.enrollment.gainedThisMonth} / −${data.enrollment.lostThisMonth}`} detail="Started / ended this calendar month" icon={UserCheck} tone="blue" />
             <StatCard label="Annual memberships" value={data.billing?.activeAnnualMemberships ?? '—'} detail="Individual paid-through memberships" icon={CalendarDays} tone="green" />
             <StatCard label="Needs attention" value={attentionCount} detail="Media release, membership, payment method, or billing schedule exceptions" icon={ShieldAlert} tone={attentionCount ? 'amber' : 'green'} />
@@ -341,8 +345,8 @@ export default function AdminDashboard({
               </div>
             </section>
             <section className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-              <div className="border-b border-gray-100 px-5 py-4"><h3 className="font-bold text-gray-950">Enrollment by athlete</h3><p className="mt-1 text-xs text-gray-500">Athletes with the most active classes.</p></div>
-              <div className="max-h-80 divide-y divide-gray-100 overflow-y-auto">{data.enrollment.byAthlete.map((row) => <div key={row.memberId} className="flex items-center justify-between gap-3 px-5 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-gray-900">{row.memberName}</p><p className="truncate text-xs text-gray-500">{row.familyName || 'No family name'}</p></div><span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{row.classCount} classes</span></div>)}{data.enrollment.byAthlete.length === 0 ? <p className="px-5 py-8 text-center text-sm text-gray-500">No active athletes.</p> : null}</div>
+              <div className="border-b border-gray-100 px-5 py-4"><h3 className="font-bold text-gray-950">Enrollment by athlete</h3><p className="mt-1 text-xs text-gray-500">Students with the most current enrollments.</p></div>
+              <div className="max-h-80 divide-y divide-gray-100 overflow-y-auto">{data.enrollment.byAthlete.map((row) => <div key={row.memberId} className="flex items-center justify-between gap-3 px-5 py-3"><div className="min-w-0"><p className="truncate text-sm font-semibold text-gray-900">{row.memberName}</p><p className="truncate text-xs text-gray-500">{row.familyName || 'No family name'}</p></div><span className="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-bold text-gray-700">{row.classCount} classes</span></div>)}{data.enrollment.byAthlete.length === 0 ? <p className="px-5 py-8 text-center text-sm text-gray-500">No enrolled students.</p> : null}</div>
             </section>
           </div>
           {data.mediaReleaseOptOuts ? <MediaReleaseOptOutList rows={data.mediaReleaseOptOuts} /> : null}
@@ -357,9 +361,9 @@ export default function AdminDashboard({
           </div>
           <section className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"><h3 className="font-bold text-gray-950">Collected &amp; expected revenue</h3><p className="mt-1 text-xs text-gray-500">Six months of collections after completed refunds, plus this month’s unpaid bills. Refunds reduce collections in the month recorded. The next two months project enrollment pricing, scheduled annual renewals, and posted bills; future totals may change.</p><RevenueBars billing={data.billing} /></section>
           <div className="grid gap-6 xl:grid-cols-3">
-            <ExceptionList title="Active athletes without a membership" description="Enrolled athletes without an individual paid-through annual membership." rows={data.enrollment?.withoutMembership ?? []} empty="Every active athlete has an annual membership." actionLabel="Open billing" onAction={onOpenCustomerBilling} />
-            <ExceptionList title="No card on file for auto-pay" description="Active class families without a remote Stripe class subscription. Review the payment method." rows={data.billing.withoutCard} empty="Every active class family has remote auto-pay." actionLabel="Open billing" onAction={onOpenCustomerBilling} />
-            <ExceptionList title="Not set up for monthly billing" description="At least one active class is missing its local monthly billing schedule." rows={data.billing.withoutMonthlyBilling} empty="Every active class has a local billing schedule." actionLabel="Open billing" onAction={onOpenCustomerBilling} showMissingSchedules />
+            <ExceptionList title="Enrolled students without a membership" description="Enrolled athletes without an individual paid-through annual membership." rows={data.enrollment?.withoutMembership ?? []} empty="Every enrolled student has an annual membership." actionLabel="Open billing" onAction={onOpenCustomerBilling} />
+            <ExceptionList title="No card on file for auto-pay" description="Enrolled families without a remote Stripe class subscription. Review the payment method." rows={data.billing.withoutCard} empty="Every enrolled family has remote auto-pay." actionLabel="Open billing" onAction={onOpenCustomerBilling} />
+            <ExceptionList title="Not set up for monthly billing" description="At least one current enrollment is missing its local monthly billing schedule." rows={data.billing.withoutMonthlyBilling} empty="Every current enrollment has a local billing schedule." actionLabel="Open billing" onAction={onOpenCustomerBilling} showMissingSchedules />
           </div>
         </> : null}
       </> : null}

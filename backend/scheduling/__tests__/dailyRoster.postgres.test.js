@@ -65,6 +65,19 @@ test('daily roster marks the first actual class day and includes only confirmed 
     const established = await member('Established')
     const wholeGroup = await member('Wholegroup')
     const duplicate = await member('Duplicate')
+    const payer = await member('Accountpayer')
+    await db.query("UPDATE member SET email='payer@example.test',phone='2025550188',date_of_birth='1985-01-01' WHERE id=$1", [payer])
+    const familyId = Number((await one("INSERT INTO family(facility_id,family_name) VALUES($1,'Roster payer family') RETURNING id", [facilityId])).id)
+    await db.query('INSERT INTO family_member(family_id,member_id) SELECT $1,unnest($2::bigint[])', [familyId, [first, wholeGroup, duplicate, payer]])
+    await db.query('UPDATE member SET family_id=$1 WHERE id=ANY($2::bigint[])', [familyId, [first, wholeGroup, duplicate, payer]])
+    await db.query("UPDATE member SET email='student-' || id || '@example.test',phone='2025550111' WHERE id=ANY($1::bigint[])", [[first, wholeGroup, duplicate]])
+    const billingAccountId = Number((await one(`INSERT INTO family_billing_account(family_id,payer_member_id,billing_email,billing_phone)
+      VALUES($1,$2,'billing@example.test','2025550199') ON CONFLICT(family_id) DO UPDATE
+      SET payer_member_id=EXCLUDED.payer_member_id,billing_email=EXCLUDED.billing_email,billing_phone=EXCLUDED.billing_phone RETURNING id`, [familyId, payer])).id)
+    const unassignedFamilyId = Number((await one("INSERT INTO family(facility_id,family_name) VALUES($1,'Unassigned roster payer') RETURNING id", [facilityId])).id)
+    await db.query('INSERT INTO family_member(family_id,member_id) VALUES($1,$2)', [unassignedFamilyId, established])
+    await db.query('UPDATE member SET family_id=$1,email=$3,phone=$4 WHERE id=$2', [unassignedFamilyId, established, 'unassigned-student@example.test', '2025550177'])
+    await db.query('INSERT INTO family_billing_account(family_id) VALUES($1) ON CONFLICT(family_id) DO NOTHING', [unassignedFamilyId])
     await enroll(first, main)
     await enroll(established, main, { start: '2029-12-01' })
     await enroll(established, newClass)
@@ -79,7 +92,7 @@ test('daily roster marks the first actual class day and includes only confirmed 
     const paid = await dropIn('Paidvisit', { benefit: 'paid' })
     const credit = await dropIn('Creditvisit', { benefit: 'annual_credit' })
     const duplicateDropIn = await dropIn('Duplicate', { memberId: duplicate, benefit: 'admin_credit' })
-    const evaluationBooking = await dropIn('Experienced', { klass: evaluation })
+    const evaluationBooking = await dropIn('Experienced', { klass: evaluation, memberId: wholeGroup })
     for (const [name, options] of [
       ['Pendingaccount', { status: 'account_required' }], ['Pendingpayment', { status: 'payment_pending' }],
       ['Cancelledtrial', { status: 'cancelled' }], ['Futuretrial', { date: '2030-01-14' }],
@@ -93,6 +106,13 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.equal(athlete(monday, main, established)?.isNew, false, 'existing enrollment is not new')
     assert.equal(athlete(monday, newClass, established)?.isNew, true, 'an established member can be new to another class')
     assert.equal(athlete(monday, multiDay, wholeGroup)?.isNew, true, 'a group-wide enrollment starts at its first weekday')
+    for (const [klass, memberId] of [[main, first], [multiDay, wholeGroup], [main, duplicate], [evaluation, wholeGroup]]) {
+      assert.equal(athlete(monday, klass, memberId)?.email, 'billing@example.test', 'recurring, group, trial and drop-in rows use the payer account email')
+      assert.equal(athlete(monday, klass, memberId)?.phone, '202-555-0199', 'the account payer phone replaces the student and signup phones')
+    }
+    assert.equal(athlete(monday, main, established)?.email, '', 'a known account with no payer contact does not display the student address as payer information')
+    assert.equal(athlete(monday, main, established)?.phone, '')
+    assert.equal(classFor(monday, main).athletes.find(row => row.source === 'drop_in' && row.signupId === confirmedTrial)?.email, `Confirmedtrial-${suffix}@example.test`, 'accountless trials retain their submitted booking contact')
     assert.deepEqual(classFor(monday, main).athletes.filter(row => row.source === 'scheduling').map(row => row.memberId).sort((a, b) => a - b), [first, established].sort((a, b) => a - b))
     assert.deepEqual(classFor(monday, main).athletes.filter(row => row.source === 'drop_in').map(row => row.signupId).sort((a, b) => a - b),
       [confirmedTrial, attendedTrial, paid, credit, duplicateDropIn].sort((a, b) => a - b))
@@ -110,6 +130,12 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.match(rendered.text, /Experienced Roster \(Free 1:1 Evaluation\)/)
     assert.doesNotMatch(rendered.text, /Experienced Roster \(Free Trial\)/)
     assert.doesNotMatch(rendered.text, /Pendingaccount|Pendingpayment|Cancelledtrial|Futuretrial|Archived Roster|Cancelled Roster|Effectivecancel Roster|Futurestart Roster/)
+
+    await db.query('UPDATE family_billing_account SET billing_email=NULL,billing_phone=NULL WHERE id=$1', [billingAccountId])
+    const payerFallback = await rosterFor('2030-01-07')
+    assert.equal(athlete(payerFallback, main, first)?.email, 'payer@example.test', 'the assigned payer supplies missing account contact fields')
+    assert.equal(athlete(payerFallback, main, first)?.phone, '202-555-0188')
+    assert.equal(athlete(payerFallback, main, duplicate)?.email, 'payer@example.test', 'drop-ins resolve the same current payer as recurring enrollments')
 
     const wednesday = await rosterFor('2030-01-09')
     assert.equal(athlete(wednesday, multiDay, wholeGroup)?.isNew, false, 'the second group weekday is no longer new')

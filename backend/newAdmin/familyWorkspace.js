@@ -1,10 +1,14 @@
-import { id, inputError, pagination, searchValue, date, memberRow } from './common.js'
+import { id, inputError, pagination, searchValue, date, memberRow, optionalBoolean } from './common.js'
 import { phoneSearchPattern } from '../phoneNumbers.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { loadWorkspacePaymentMethod } from './paymentMethodSummary.js'
 import { canonicalActiveHouseholdMemberPredicate } from '../billing/householdMembership.js'
 import { loadCanonicalFinancialSnapshot } from '../billing/canonicalBillingAccount.js'
-import { loadCustomerBillingAccount, loadCustomerBillingAnnualMemberships, upcomingRecurringPricingMonth, earliestActiveNextBillDate, billingMonthDueDate } from '../billing/customerBillingQueries.js'
+import { loadCustomerBillingAccount, loadCustomerBillingAnnualMemberships, applyCanonicalMembershipDisplay, upcomingRecurringPricingMonth, earliestActiveNextBillDate, billingMonthDueDate } from '../billing/customerBillingQueries.js'
+import { memberHasActiveMembershipSql, memberIsActiveSql, memberIsEnrolledSql } from './memberActivity.js'
+import { familyIsActiveSql, familyIsEnrolledSql } from './householdStatus.js'
+
+const todaySql = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
 
 export function workspaceNextBillDate(account, subscriptions, billingMonth) {
   // Household tuition is billed by the monthly ledger, not by an individual
@@ -30,24 +34,30 @@ export async function withFamilyRead(pool, fn) {
 
 export async function listFamilies(pool, facilityId, query = {}) {
   const paging = pagination(query)
+  const active = optionalBoolean(query.active, 'active status')
+  const enrolled = optionalBoolean(query.enrolled, 'enrollment')
   const result = await pool.query(`/* family-workspace:directory */
-    WITH matches AS (
-      SELECT f.id,f.family_name,f.archived FROM family f WHERE f.facility_id=$1
+    WITH facts AS (
+      SELECT f.id,f.family_name,f.archived,
+        ${familyIsActiveSql('f.id', '$1', todaySql)} AS active,
+        ${familyIsEnrolledSql('f.id', '$1', todaySql)} AS enrolled
+      FROM family f WHERE f.facility_id=$1
       AND ($3::text='all' OR COALESCE(f.archived,FALSE)=($3='archived'))
       AND (f.family_name ILIKE $2 ESCAPE '\\' OR EXISTS (
         SELECT 1 FROM member m WHERE m.facility_id=$1
         AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'f.id' })}
         AND (concat_ws(' ',m.first_name,m.last_name,m.email,m.phone) ILIKE $2 ESCAPE '\\'
           OR ($6::text IS NOT NULL AND regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $6))))
-    ), page AS (SELECT * FROM matches ORDER BY lower(family_name),id LIMIT $4 OFFSET $5)
+    ), matches AS (SELECT * FROM facts WHERE ($7::boolean IS NULL OR active=$7) AND ($8::boolean IS NULL OR enrolled=$8)),
+    page AS (SELECT * FROM matches ORDER BY lower(family_name),id LIMIT $4 OFFSET $5)
     SELECT (SELECT count(*)::int FROM matches) AS total,
       COALESCE((SELECT jsonb_agg(row ORDER BY lower(row.family_name),row.id) FROM (
         SELECT p.*, (SELECT count(*)::int FROM member m WHERE m.facility_id=$1
           AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'p.id' })}) AS people_count
         FROM page p) row),'[]'::jsonb) AS rows`,
-  [id(facilityId), searchValue(query.search), ['all', 'archived'].includes(query.record) ? query.record : 'active', paging.pageSize, paging.offset, phoneSearchPattern(String(query.search ?? '').slice(0, 200))])
+  [id(facilityId), searchValue(query.search), ['all', 'archived'].includes(query.record) ? query.record : 'active', paging.pageSize, paging.offset, phoneSearchPattern(String(query.search ?? '').slice(0, 200)), active, enrolled])
   const row = result.rows[0]
-  return { rows: (row?.rows ?? []).map(r => ({ id: Number(r.id), name: r.family_name || 'Unnamed family', archived: Boolean(r.archived), peopleCount: r.people_count })),
+  return { rows: (row?.rows ?? []).map(r => ({ id: Number(r.id), name: r.family_name || 'Unnamed family', archived: Boolean(r.archived), active: Boolean(r.active), enrolled: Boolean(r.enrolled), peopleCount: r.people_count })),
     total: row?.total ?? 0, page: paging.page, pageSize: paging.pageSize, totalPages: Math.ceil((row?.total ?? 0) / paging.pageSize) }
 }
 
@@ -67,8 +77,11 @@ async function resolveFamily(db, facilityId, { familyId, memberId }) {
 }
 
 async function readFamily(db, facilityId, familyId) {
+  const today = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(loc.timezone,''),'America/New_York'))::date"
   const result = await db.query(`/* family-workspace:family */
     SELECT f.id,f.family_name,f.archived,COALESCE(NULLIF(loc.timezone,''),'America/New_York') AS timezone,
+      ${familyIsActiveSql('f.id', '$2', today)} AS active,
+      ${familyIsEnrolledSql('f.id', '$2', today)} AS enrolled,
       (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(loc.timezone,''),'America/New_York'))::date::text AS today,
       to_regclass('stripe_customer_projection') IS NOT NULL AS has_payment_projection
     FROM family f JOIN facility loc ON loc.id=f.facility_id WHERE f.id=$1 AND f.facility_id=$2`, [familyId, facilityId])
@@ -78,8 +91,12 @@ async function readFamily(db, facilityId, familyId) {
 
 // Preserve inactive/former people without treating them as currently enrolled.
 async function readPeople(db, familyId, facilityId) {
+  const today = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$2),'America/New_York'))::date"
   const result = await db.query(`/* family-workspace:people */
     SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,
+      ${memberHasActiveMembershipSql('m.id', today)} AS has_active_membership,
+      ${memberIsActiveSql('m.id', '$2', today)} AS active,
+      ${memberIsEnrolledSql('m.id', '$2', today)} AS enrolled,
       $1::bigint AS family_id,
       EXISTS(SELECT 1 FROM facility f WHERE f.id=m.facility_id AND f.owner_user_id=m.app_user_id) AS is_owner,
       ARRAY(SELECT a.child_member_id FROM parent_guardian_authority a
@@ -91,7 +108,7 @@ async function readPeople(db, familyId, facilityId) {
       OR (m.family_id=$1 AND NOT EXISTS(SELECT 1 FROM family_member fm WHERE fm.member_id=m.id))
       OR EXISTS(SELECT 1 FROM account_record_source h WHERE h.family_id=$1 AND h.member_id=m.id AND h.facility_id=$2 AND NOT h.deleted))
     ORDER BY current_household DESC,m.last_name,m.first_name,m.id`, [familyId, facilityId])
-  return result.rows.map(r => ({ ...memberRow(r), name: `${r.first_name} ${r.last_name}`.trim(), isOwner: r.is_owner, currentHousehold: r.current_household, guardianFor: r.guardian_for.map(Number) }))
+  return result.rows.map(r => ({ ...memberRow(r), hasActiveMembership: Boolean(r.has_active_membership), active: Boolean(r.active), enrolled: Boolean(r.enrolled), archived: r.is_active !== true, name: `${r.first_name} ${r.last_name}`.trim(), isOwner: r.is_owner, currentHousehold: r.current_household, guardianFor: r.guardian_for.map(Number) }))
 }
 
 export function participationStatus(row, today) {
@@ -232,7 +249,7 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
         const subscriptions = await db.query(`SELECT * FROM billing_subscription WHERE family_billing_account_id=$1 AND status <> 'cancelled'`, [account.id])
         const month = upcomingRecurringPricingMonth(new Date(), family.timezone)
         const snapshot = await loadCanonicalFinancialSnapshot(db, { accountId: account.id, subscriptions: subscriptions.rows, recurringBillingMonth: month })
-        const memberships = await loadCustomerBillingAnnualMemberships(db, { accountId: account.id, members: people })
+        const memberships = applyCanonicalMembershipDisplay(await loadCustomerBillingAnnualMemberships(db, { accountId: account.id, members: people }), people)
         // Older installations may not have the optional display projection yet.
         // Show unavailable details without fetching Stripe or installing schema on a GET.
         const paymentMethod = await loadWorkspacePaymentMethod(db, account, family.has_payment_projection)
@@ -243,7 +260,7 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
             brand: paymentMethod.paymentMethod?.brand ?? null, last4: paymentMethod.paymentMethod?.last4 ?? null } }
       }
     }
-    return { family: { id: resolved, name: family.family_name, archived: Boolean(family.archived) }, people, participation, today: family.today,
+    return { family: { id: resolved, name: family.family_name, archived: Boolean(family.archived), active: Boolean(family.active), enrolled: Boolean(family.enrolled) }, people, participation, today: family.today,
       trials: { rows: trials.rows.map(r => ({ id: Number(r.id), memberId: Number(r.member_id), className: r.title || 'Archived class', date: r.class_date, kind: r.benefit_type, status: r.status })), total: trials.rows[0]?.total ?? 0 },
       leads: { rows: leads.rows.map(r => ({ id: Number(r.id), name: `${r.first_name} ${r.last_name}`, status: r.lead_status,
         createdAt: r.created_at, contactedAt: r.first_contacted_at, followUp: r.follow_up, archived: Boolean(r.archived),

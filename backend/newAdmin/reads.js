@@ -4,6 +4,7 @@ import { resolveEffectiveFormPricing } from '../programs/pricingDefaults.js'
 import { hydrateProgramPricingRow } from '../programs/programPricingOptions.js'
 import { scheduleCountsSql, scheduleSignupCountSql } from '../scheduling/scheduleCapacity.js'
 import { id, inputError, pagination, pageResult, searchValue, memberRow, date } from './common.js'
+import { memberIsActiveSql, memberIsEnrolledSql } from './memberActivity.js'
 
 const classSelect = `SELECT p.id,p.programs_id,p.display_name AS name,pr.display_name AS program_name,
   p.abridged_name,p.skill_level,p.age_min,p.age_max,p.description,p.skill_requirements,p.is_active AS class_active,
@@ -120,16 +121,20 @@ export async function classDetail(db,facilityId,classId,query={}) {
 }
 
 export async function memberDetail(db,facilityId,memberId,query={}) {
+  const today = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$2),'America/New_York'))::date"
   const selected=await db.query(`SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,fm.family_id,
+    ${memberIsActiveSql('m.id', '$2', today)} AS active,${memberIsEnrolledSql('m.id', '$2', today)} AS enrolled,
     EXISTS(SELECT 1 FROM facility f WHERE f.id=m.facility_id AND f.owner_user_id=m.app_user_id) AS is_owner
     FROM member m LEFT JOIN family_member fm ON fm.member_id=m.id AND fm.is_active=TRUE
     WHERE m.id=$1 AND m.facility_id=$2`,[id(memberId,'member'),id(facilityId)])
   if (!selected.rows[0]) throw inputError('Member not found.',404)
-  const member={...memberRow(selected.rows[0]),isOwner:selected.rows[0].is_owner},paging=pagination(query)
+  const statusRow = row => ({ ...memberRow(row), active: Boolean(row.active), enrolled: Boolean(row.enrolled), archived: row.is_active !== true })
+  const member={...statusRow(selected.rows[0]),isOwner:selected.rows[0].is_owner},paging=pagination(query)
   const [household,people,enrollments,count]=await Promise.all([
     db.query(`SELECT f.id,f.family_name,b.id AS billing_account_id,b.payer_member_id FROM family f
       LEFT JOIN family_billing_account b ON b.family_id=f.id AND b.is_active=TRUE WHERE f.id=$1 AND f.facility_id=$2`,[member.familyId,facilityId]),
-    db.query(`SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,fm.family_id
+    db.query(`SELECT m.id,m.first_name,m.last_name,m.email,m.phone,m.date_of_birth,m.is_active,m.app_user_id,fm.family_id,
+      ${memberIsActiveSql('m.id', '$2', today)} AS active,${memberIsEnrolledSql('m.id', '$2', today)} AS enrolled
       FROM family_member fm JOIN member m ON m.id=fm.member_id AND m.facility_id=$2
       WHERE fm.family_id=$1 AND fm.is_active=TRUE ORDER BY m.last_name,m.first_name,m.id LIMIT 100`,[member.familyId,facilityId]),
     db.query(`SELECT s.id,s.form_id,s.record_class_name AS class_name,s.status,s.slot_group_id,
@@ -141,7 +146,7 @@ export async function memberDetail(db,facilityId,memberId,query={}) {
       WHERE s.member_id=$1 AND s.record_facility_id=$2 AND s.orphaned_at IS NULL`,[member.id,facilityId]),
   ])
   const family=household.rows[0]
-  return {member,household:family?{id:Number(family.id),name:family.family_name,payerMemberId:family.payer_member_id==null?null:Number(family.payer_member_id),members:people.rows.map(p=>({...memberRow(p),isPayer:Number(p.id)===Number(family.payer_member_id)}))}:null,
+  return {member,household:family?{id:Number(family.id),name:family.family_name,payerMemberId:family.payer_member_id==null?null:Number(family.payer_member_id),members:people.rows.map(p=>({...statusRow(p),isPayer:Number(p.id)===Number(family.payer_member_id)}))}:null,
     billingAccountId:family?.billing_account_id==null?null:Number(family.billing_account_id),
     enrollments:enrollments.rows.map(s=>({id:Number(s.id),formId:s.form_id==null?null:Number(s.form_id),historical:s.historical,sourceId:s.source_id,className:s.class_name,status:s.status,slotGroupId:Number(s.slot_group_id),startDate:date(s.enrollment_start_date),cancelEffectiveDate:date(s.cancel_effective_date)})),
     enrollmentPagination:pageResult([],count.rows[0].total,paging)}

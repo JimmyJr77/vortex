@@ -839,6 +839,27 @@ test.describe('Account Billing & Enrollments administration', () => {
     expect(captured.searchQueries).toContain('42')
   })
 
+  test('billing shows family and individual activity independently of enrollment', async ({ page }) => {
+    const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
+    await openCustomerBilling(page, captured)
+    await page.route('**/api/admin/customer-billing/families/42/overview*', route => route.fulfill({ json: { success: true, data: {
+      ...overview,
+      account: { ...overview.account, accountStatus: 'inactive', enrolled: true },
+      members: overview.members.map(member => ({ ...member, active: member.id === 10, enrolled: member.id === 11 })),
+    } } }))
+    await findRiveraAccount(page)
+    await expect(page.getByText('Inactive family', { exact: true })).toBeVisible()
+    await expect(page.getByText('Enrolled family', { exact: true })).toBeVisible()
+    const student = page.locator('[aria-label="Jordan Rivera status"]')
+    await expect(student.getByText('Inactive', { exact: true })).toBeVisible()
+    await expect(student.getByText('Enrolled', { exact: true })).toBeVisible()
+    await page.getByRole('button', { name: 'Alex Rivera', exact: true }).click()
+    const adult = page.locator('[aria-label="Alex Rivera status"]')
+    await expect(adult.getByText('Active', { exact: true })).toBeVisible()
+    await expect(adult.getByText('Not enrolled', { exact: true })).toBeVisible()
+    await expect(page.getByText('Inactive family', { exact: true })).toBeVisible()
+  })
+
   test('opens in Admin and renders a complete member-filtered household account', async ({ page }) => {
     const captured: CapturedRequests = { searchQueries: [], priceChanges: [], customCharges: [], customChargeKeys: [], refunds: [], refundKeys: [], retryCount: 0 }
     const consoleErrors: string[] = []

@@ -1,22 +1,23 @@
 import { expect, test, type Page } from '@playwright/test'
 
 const people = [
-  { id: 10, name: 'Alex Rivera', firstName: 'Alex', lastName: 'Rivera', email: 'alex@example.test', phone: '5550100000', dateOfBirth: '1987-02-10', isActive: true, currentHousehold: true, guardianFor: [11] },
-  { id: 11, name: 'Jordan Rivera', firstName: 'Jordan', lastName: 'Rivera', email: null, phone: null, dateOfBirth: '2016-06-10', isActive: true, currentHousehold: true, guardianFor: [] },
+  { id: 10, name: 'Alex Rivera', firstName: 'Alex', lastName: 'Rivera', email: 'alex@example.test', phone: '5550100000', dateOfBirth: '1987-02-10', active: true, enrolled: false, archived: false, isActive: true, currentHousehold: true, guardianFor: [11] },
+  { id: 11, name: 'Jordan Rivera', firstName: 'Jordan', lastName: 'Rivera', email: null, phone: null, dateOfBirth: '2016-06-10', active: false, enrolled: true, archived: false, isActive: true, currentHousehold: true, guardianFor: [] },
 ]
 const history = { rows: [{ key: 'signup:20', date: '2026-10-01', kind: 'enrollment', memberId: 11, title: 'Youth Gymnastics', summary: 'confirmed · Start 2026-10-01', source: 'Vortex', amountCents: null }], nextCursor: 'older-fixture' }
 const workspace = {
-  family: { id: 42, name: 'Rivera Family', archived: false }, people, today: '2026-11-12',
+  family: { id: 42, name: 'Rivera Family', active: false, enrolled: true, archived: false }, people, today: '2026-11-12',
   participation: [{ id: 20, memberId: 11, className: 'Youth Gymnastics', status: 'active', startDate: '2026-10-01', cancelDate: null, slots: [{ day: 1, start: '16:00', end: '17:00', week: null, date: null }] }],
   trials: { rows: [{ id: 31, memberId: 11, className: 'Youth Gymnastics', date: '2026-09-25', kind: 'free_trial', status: 'attended' }], total: 1 },
   leads: { rows: [{ id: 55, name: 'Alex Rivera', status: 'qualified', createdAt: '2026-09-20', contactedAt: '2026-09-21', followUp: true, archived: false, linkType: 'contact_match', message: 'Interested in a first class.', notes: 'Trial booked.' }], total: 1 },
   financial: { accountId: 7, payerMemberId: 10, billingEmail: 'alex@example.test', billingPhone: '5550100000', outstandingBalanceCents: 12500, futureCreditsCents: 0, balanceCents: 12500, nextBillDate: '2026-12-01', recurringBillingMonth: '2026-12',
-    memberships: [{ memberId: 11, active: true, membershipDate: '2026-10-01', renewalDate: '2027-10-01', autoRenewal: true }],
+    memberships: [{ memberId: 11, active: false, membershipDate: '2025-10-01', renewalDate: '2026-10-01', autoRenewal: false }],
     paymentMethod: { available: false, syncStatus: 'pending', syncedAt: null, brand: null, last4: null } },
   permissions: { canViewBilling: true }, history, generatedAt: '2026-11-09T12:00:00Z', coverage: 'Imported records retain original dates and source references.',
 }
 async function prepare(page: Page, billing = true, permissions = ['members.view']) {
   const requests: string[] = [], errors: string[] = []
+  const directoryRequests: Array<{ path: string; params: Record<string, string> }> = []
   const noteWrites: unknown[] = []
   const memberWrites: unknown[] = []
   const credentialWrites: unknown[] = []
@@ -38,19 +39,29 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
   await page.route('**/api/**', route => {
     const url = new URL(route.request().url()), path = url.pathname
     requests.push(path)
+    if (path === '/api/admin/new-admin/families' || path === '/api/admin/account-directory') directoryRequests.push({ path, params: Object.fromEntries(url.searchParams) })
     let data: unknown = []
     if (path === '/api/admin/access/me') data = { isMasterAdmin: billing, permissions, roles: ['ADMIN'], user: { id: 1 } }
     if (path === '/api/admin/new-admin/crm') data = { rows: archivedLogins.map(login => ({ ...login, name: login.fullName, kind: 'staff', archived: true })), total: archivedLogins.length, page: 1, pageSize: 25, totalPages: 1 }
     if (path === '/api/admin/notifications') data = { notifications: [], unreadCount: 0 }
     if (path === '/api/admin/accounting/options') data = { members: [], classes: [] }
     if (path === '/api/admin/accounting/lines') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0, timezone: 'America/New_York', summary: { billedCents: 0, paidCents: 0, creditAppliedCents: 0, openCents: 0, creditCents: 0, openCount: 0 } }
-    if (path === '/api/admin/new-admin/families') data = { rows: [{ id: 42, name: 'Rivera Family', archived: false, peopleCount: 2 }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+    if (path === '/api/admin/new-admin/families') data = { rows: [{ ...workspace.family, peopleCount: 2 }], total: 1, page: 1, pageSize: 25, totalPages: 1 }
+    if (path === '/api/admin/account-directory') {
+      const rows = household.filter(person => (!url.searchParams.get('active') || person.active === (url.searchParams.get('active') === 'true'))
+        && (!url.searchParams.get('enrolled') || person.enrolled === (url.searchParams.get('enrolled') === 'true'))).map(person => ({
+        ...person, recordStatus: person.archived ? 'archived' : 'active', family: { id: 42, name: 'Rivera Family' },
+        household: { badges: person.id === 10 ? ['guardian', 'payer'] : ['dependent'] },
+        staffAccess: { roles: [] }, portalAccess: { status: 'active' }, participation: { current: person.enrolled ? 1 : 0, upcoming: 0 },
+      }))
+      data = { rows, total: rows.length, page: 1, pageSize: 25, totalPages: 1 }
+    }
     if (path === '/api/admin/new-admin/families/42/workspace') data = { ...workspace, people: household, financial: billing ? workspace.financial : null, permissions: { canViewBilling: billing } }
     if (path === '/api/admin/members/11/archive-check') return route.fulfill({ json: { success: true, canArchive: true } })
     if (path === '/api/admin/members/11/archive' && route.request().method() === 'PATCH') {
       lifecycleWrites.push('archive member')
       const active = route.request().postDataJSON().archived !== true
-      household = household.map(person => person.id === 11 ? { ...person, isActive: active, currentHousehold: active } : person)
+      household = household.map(person => person.id === 11 ? { ...person, archived: !active, isActive: active, currentHousehold: active } : person)
     }
     if (path === '/api/admin/members/11' && route.request().method() === 'DELETE') {
       lifecycleWrites.push('delete member')
@@ -74,7 +85,7 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
       household = household.map(person => person.id === legalGuardianMemberId
         ? { ...person, guardianFor: [...person.guardianFor, memberId] }
         : person)
-      household.push({ ...member, id: memberId, name: `${member.firstName} ${member.lastName}`, isActive: true, currentHousehold: true, guardianFor: [] })
+      household.push({ ...member, id: memberId, name: `${member.firstName} ${member.lastName}`, active: false, enrolled: false, archived: false, isActive: true, currentHousehold: true, guardianFor: [] })
       data = { familyId, memberId }
     }
     if (path === '/api/admin/new-admin/families/42/notes' || path === '/api/admin/new-admin/leads/55/notes') data = notes
@@ -98,8 +109,64 @@ async function prepare(page: Page, billing = true, permissions = ['members.view'
   await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Members & accounts' }).click()
   await page.getByRole('button', { name: 'Open family', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Rivera Family', exact: true })).toBeVisible()
-  return { requests, errors, noteWrites, memberWrites, lifecycleWrites, credentialWrites }
+  return { requests, directoryRequests, errors, noteWrites, memberWrites, lifecycleWrites, credentialWrites }
 }
+
+test('family and people directories filter active status independently from enrollment and record lifecycle', async ({ page }) => {
+  const { directoryRequests, errors } = await prepare(page)
+  const region = page.getByRole('region', { name: 'Unified family workspace' })
+  const familyStatus = region.locator('header').getByRole('group', { name: 'Active status and enrollment' })
+  await expect(familyStatus.getByText('Inactive', { exact: true })).toBeVisible()
+  await expect(familyStatus.getByText('Enrolled', { exact: true })).toBeVisible()
+  const payer = region.getByRole('article', { name: 'Alex Rivera', exact: true })
+  await expect(payer.getByText('Active', { exact: true })).toBeVisible()
+  await expect(payer.getByText('Not enrolled', { exact: true })).toBeVisible()
+  const student = region.getByRole('article', { name: 'Jordan Rivera', exact: true })
+  await expect(student.getByText('Inactive', { exact: true })).toBeVisible()
+  await expect(student.getByText('Enrolled', { exact: true })).toBeVisible()
+  await expect(student.getByRole('button', { name: 'Account security for Jordan Rivera' })).toBeVisible()
+  await expect(student.getByRole('button', { name: 'Archive Jordan Rivera', exact: true })).toBeVisible()
+  await expect(student.getByRole('button', { name: 'Restore Jordan Rivera', exact: true })).toHaveCount(0)
+
+  await region.getByRole('button', { name: 'All families and people' }).click()
+  const families = page.getByRole('table', { name: 'Families', exact: true })
+  const familyRow = families.getByRole('row').filter({ has: page.getByRole('button', { name: 'Rivera Family', exact: true }) })
+  await expect(familyRow.getByRole('cell').nth(2)).toHaveText('Inactive')
+  await expect(familyRow.getByRole('cell').nth(3)).toHaveText('Enrolled')
+  await page.getByRole('combobox', { name: 'Active status', exact: true }).selectOption('false')
+  await page.getByRole('combobox', { name: 'Enrollment', exact: true }).selectOption('true')
+  await expect.poll(() => directoryRequests.at(-1)).toMatchObject({ path: '/api/admin/new-admin/families', params: { active: 'false', enrolled: 'true', page: '1', record: 'active' } })
+
+  await page.getByRole('button', { name: 'People', exact: true }).click()
+  const peopleTable = page.getByRole('table', { name: 'People', exact: true })
+  const payerRow = peopleTable.getByRole('row').filter({ has: page.getByRole('button', { name: 'Alex Rivera', exact: true }) })
+  await expect(payerRow.getByRole('cell').nth(2)).toHaveText('Active')
+  await expect(payerRow.getByRole('cell').nth(3)).toHaveText('Not enrolled')
+  await page.getByRole('combobox', { name: 'Active status', exact: true }).selectOption('false')
+  await page.getByRole('combobox', { name: 'Enrollment', exact: true }).selectOption('true')
+  await expect.poll(() => directoryRequests.at(-1)).toMatchObject({ path: '/api/admin/account-directory', params: { active: 'false', enrolled: 'true', page: '1', record: 'active' } })
+  await expect(peopleTable.getByRole('button', { name: 'Jordan Rivera', exact: true })).toBeVisible()
+  await expect(peopleTable.getByRole('button', { name: 'Alex Rivera', exact: true })).toHaveCount(0)
+  await expect(peopleTable.getByRole('button', { name: 'Archive Jordan Rivera', exact: true })).toBeVisible()
+  await page.setViewportSize({ width: 390, height: 844 })
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+
+  await page.route('**/api/admin/new-admin/members/11/workspace', route => route.fulfill({ status: 404, json: { success: false, message: 'No family workspace is available.' } }))
+  await page.route('**/api/admin/new-admin/members/11?*', route => route.fulfill({ json: { success: true, data: {
+    member: { ...people[1], familyId: 42 }, household: { id: 42, name: 'Rivera Family', payerMemberId: 10, members: people },
+    enrollments: [], billingAccountId: 7,
+  } } }))
+  await peopleTable.getByRole('button', { name: 'Jordan Rivera', exact: true }).click()
+  await page.getByRole('button', { name: 'Open individual profile', exact: true }).click()
+  const profile = page.getByRole('region', { name: 'Individual member profile', exact: true })
+  const profileStatus = profile.getByRole('group', { name: 'Active status and enrollment' }).first()
+  await expect(profileStatus.getByText('Inactive', { exact: true })).toBeVisible()
+  await expect(profileStatus.getByText('Enrolled', { exact: true })).toBeVisible()
+  await expect(profile.getByRole('button', { name: 'Account security', exact: true })).toBeVisible()
+  await expect(profile.getByRole('button', { name: 'Archive Jordan Rivera', exact: true })).toBeVisible()
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  expect(errors).toEqual([])
+})
 
 test('family workspace saves and reloads a member login username', async ({ page }) => {
   const { credentialWrites } = await prepare(page)

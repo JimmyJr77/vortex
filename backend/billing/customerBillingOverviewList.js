@@ -10,6 +10,14 @@ import {
 import { enrollmentBillsInPeriod, resolveFamilyEnrollmentPricing } from './familyEnrollmentPricing.js'
 import { canonicalActiveHouseholdMemberPredicate } from './householdMembership.js'
 import { classifyStripePaymentMethodReadiness } from './stripePaymentMethodReadiness.js'
+import { familyIsActiveSql, familyIsEnrolledSql } from '../newAdmin/householdStatus.js'
+
+function participationFilter(value, label) {
+  if (value == null || value === '') return null
+  if (value === true || value === 'true') return true
+  if (value === false || value === 'false') return false
+  throw Object.assign(new Error(`Invalid ${label} filter.`), { statusCode: 400 })
+}
 
 function cents(value) {
   return Number(value ?? 0) || 0
@@ -26,18 +34,6 @@ function monthKey(value) {
 export function overviewBillingMonths(asOf = new Date(), timeZone = 'America/New_York') {
   const current = billingMonthInTimeZone(asOf, timeZone) ?? String(asOf.toISOString()).slice(0, 7)
   return [1, 0].map((offset) => String(addBillingMonths(current, -offset)).slice(0, 7))
-}
-
-// Enrollment is independent of price and includes one-time classes.
-export function enrollmentActiveOn(row, today) {
-  const date = (value) => value instanceof Date ? value.toISOString().slice(0, 10) : String(value ?? '').slice(0, 10)
-  if (row.status !== 'confirmed' || row.orphaned_at) return false
-  const starts = [row.enrollment_start_date ?? row.created_at,
-    row.offering_start_date ?? row.group_active_start ?? row.form_start_date]
-  const end = row.offering_end_date ?? row.group_active_end ?? row.form_end_date
-  return starts.every((value) => !value || date(value) <= today)
-    && (!end || date(end) >= today)
-    && [row.cancel_effective_date, row.pause_effective_date].every((value) => !value || date(value) > today)
 }
 
 export function yearToDateBounds(asOf = new Date(), timeZone = 'America/New_York') {
@@ -152,9 +148,12 @@ function monthBillPaid(invoiceRow, chargeCents, paymentCents) {
   }
 }
 
-export async function listCustomerBillingOverviews(pool, { facilityId, asOf = new Date() } = {}) {
+export async function listCustomerBillingOverviews(pool, { facilityId, asOf = new Date(), active, enrolled } = {}) {
   const normalizedFacilityId = Number(facilityId)
   if (!Number.isFinite(normalizedFacilityId)) throw new Error('A facility is required.')
+  const activeFilter = participationFilter(active, 'active')
+  const enrolledFilter = participationFilter(enrolled, 'enrolled')
+  const todaySql = "($2::timestamptz AT TIME ZONE COALESCE(NULLIF(facility.timezone,''),'America/New_York'))::date"
 
   const families = await pool.query(
     `SELECT
@@ -175,7 +174,9 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
        payer.id AS payer_id,
        payer.first_name AS payer_first_name,
        payer.last_name AS payer_last_name,
-       first_member.id AS first_member_id
+       first_member.id AS first_member_id,
+       ${familyIsActiveSql('f.id', 'f.facility_id', todaySql)} AS active,
+       ${familyIsEnrolledSql('f.id', 'f.facility_id', todaySql)} AS enrolled
      FROM family f
      JOIN facility ON facility.id = f.facility_id
      LEFT JOIN family_billing_account fba
@@ -241,7 +242,7 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
        )
      ORDER BY COALESCE(NULLIF(TRIM(f.family_name), ''), TRIM(CONCAT(payer.last_name, ' ', payer.first_name)), f.id::text),
               f.id`,
-    [normalizedFacilityId],
+    [normalizedFacilityId, asOf.toISOString()],
   )
 
   // A facility endpoint contains families from one facility. Resolve every
@@ -249,6 +250,8 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
   // the overview agrees with the account page and the billing worker around
   // UTC day boundaries.
   const facilityTimeZone = String(families.rows[0]?.facility_timezone || 'America/New_York')
+  families.rows = families.rows.filter((row) => (activeFilter == null || (row.active === true) === activeFilter)
+    && (enrolledFilter == null || (row.enrolled === true) === enrolledFilter))
   const months = overviewBillingMonths(asOf, facilityTimeZone)
   const pricingMonth = String(addBillingMonths(months[1], 1)).slice(0, 7)
   const balanceRecurringMonth = upcomingRecurringPricingMonth(asOf, facilityTimeZone)
@@ -279,13 +282,8 @@ export async function listCustomerBillingOverviews(pool, { facilityId, asOf = ne
     [normalizedFacilityId],
   )
   const enrollmentsByFamily = groupByAccount(enrollmentResult.rows, 'family_id')
-  const dateParts = new Intl.DateTimeFormat('en-CA', {
-    timeZone: facilityTimeZone, year: 'numeric', month: '2-digit', day: '2-digit',
-  }).formatToParts(asOf)
-  const today = ['year', 'month', 'day'].map((type) => dateParts.find((part) => part.type === type).value).join('-')
   for (const row of families.rows) {
     const enrollments = enrollmentsByFamily.get(Number(row.family_id)) ?? []
-    row.enrolled = enrollments.some((enrollment) => enrollmentActiveOn(enrollment, today))
     row.current_month_recurring = enrollments.some((enrollment) => enrollmentBillsInPeriod(enrollment, months[1]))
     row.upcoming_month_recurring = enrollments.some((enrollment) => enrollmentBillsInPeriod(enrollment, pricingMonth))
   }
@@ -687,6 +685,7 @@ function serializeFamilyRow(row, metrics) {
     monthlyRecurringCents: metrics.monthlyRecurringCents,
     futureCreditsCents: metrics.futureCreditsCents,
     accountBalanceCents: metrics.accountBalanceCents,
+    active: row.active === true,
     enrolled: row.enrolled === true,
     currentMonthRecurring: row.current_month_recurring === true,
     upcomingMonthRecurring: row.upcoming_month_recurring === true,

@@ -75,7 +75,7 @@ test('dashboard does not query the media-release roster without waiver access', 
   assert.equal(queries.some((sql) => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), false)
 })
 
-test('dashboard lists members without an accepted media release with active students first', async () => {
+test('dashboard lists members without an accepted media release with enrolled students first', async () => {
   const queries = []
   const pool = {
     query: async (sql) => {
@@ -87,9 +87,9 @@ test('dashboard lists members without an accepted media release with active stud
             first_name: 'Avery',
             last_name: 'Smith',
             family_name: 'Smith Family',
-            is_active_student: true,
-            active_class_count: 1,
-            active_classes: [{
+            enrolled: true,
+            current_enrollment_count: 1,
+            current_classes: [{
               className: 'Tumbling',
               scheduleMode: 'weekly',
               specificDate: null,
@@ -115,9 +115,9 @@ test('dashboard lists members without an accepted media release with active stud
     memberId: 12,
     memberName: 'Avery Smith',
     familyName: 'Smith Family',
-    isActiveStudent: true,
-    activeClassCount: 1,
-    activeClasses: [{
+    enrolled: true,
+    currentEnrollmentCount: 1,
+    currentClasses: [{
       className: 'Tumbling',
       scheduleMode: 'weekly',
       specificDate: null,
@@ -126,7 +126,7 @@ test('dashboard lists members without an accepted media release with active stud
       endTime: '17:00:00',
     }],
   }])
-  assert.match(queries.find((sql) => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), /ORDER BY is_active_student DESC/)
+  assert.match(queries.find((sql) => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), /ORDER BY enrolled DESC/)
   assert.match(queries.find(sql => sql.includes("template.waiver_type = 'MEDIA_RELEASE'")), /COALESCE\(member.signup_source,''\) <> 'jackrabbit_history_merged'/)
 })
 
