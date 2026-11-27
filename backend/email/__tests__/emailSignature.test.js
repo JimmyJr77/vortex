@@ -2,14 +2,14 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import nodemailer from 'nodemailer'
 import { registerEmailPool } from '../emailDeliveryStore.js'
-import { composeEmailHtml, emailFooterHtml, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID } from '../emailHtml.js'
+import { composeEmailHtml, emailFooterHtml, escapeHtml, EMAIL_LOGO_CID, EMAIL_LOGO_URL, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID } from '../emailHtml.js'
 
 const occurrences = (text, value) => String(text).split(value).length - 1
 const readableHtml = html => String(html).replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
 
 function assertFullSignature(mail) {
   assert.ok(mail.text.includes(EMAIL_SIGNATURE.name))
-  assert.ok(mail.html.includes(EMAIL_SIGNATURE.name), 'HTML identifies Vortex Gymnastics in the signature or logo alternative text')
+  assert.ok(mail.html.includes(escapeHtml(EMAIL_SIGNATURE.name)), 'HTML identifies the home-page brand in the logo alternative text')
   for (const value of [EMAIL_SIGNATURE.address, EMAIL_SIGNATURE.website, EMAIL_SIGNATURE.phone]) {
     assert.ok(mail.text.includes(value), `plain text includes ${value}`)
     assert.ok(readableHtml(mail.html).includes(value), `HTML includes ${value}`)
@@ -21,13 +21,17 @@ function assertFullSignature(mail) {
   assert.equal(occurrences(readableHtml(mail.html), 'Warmly,'), 1)
   assert.equal(occurrences(readableHtml(mail.html), 'The Vortex Athletics Team'), 1)
   assert.ok(mail.text.indexOf('Warmly,') < mail.text.indexOf(EMAIL_SIGNATURE.address))
-  assert.ok(mail.html.indexOf('Warmly,') < mail.html.indexOf(`cid:${EMAIL_SIGNATURE_LOGO_CID}`))
+  assert.ok(mail.html.indexOf('Warmly,') < mail.html.lastIndexOf(`cid:${EMAIL_SIGNATURE_LOGO_CID}`))
   assert.ok(readableHtml(mail.html).indexOf('Warmly,') < readableHtml(mail.html).indexOf(EMAIL_SIGNATURE.address))
   const logo = mail.attachments.find(attachment => attachment.cid === EMAIL_SIGNATURE_LOGO_CID)
   assert.ok(logo, 'the signature logo is attached inline')
-  assert.equal(logo.filename, 'vortex-gymnastics-logo.jpg')
-  assert.equal(logo.contentType, 'image/jpeg', 'the existing .png URL contains JPEG data')
+  assert.equal(logo.filename, 'vortex-athletics-gymnastics-logo.png')
+  assert.equal(logo.contentType, 'image/png')
   assert.equal(logo.path, EMAIL_SIGNATURE.logoUrl)
+  assert.equal(EMAIL_SIGNATURE.logoUrl, EMAIL_LOGO_URL, 'header and signature share the home-page artwork')
+  assert.equal(EMAIL_SIGNATURE_LOGO_CID, EMAIL_LOGO_CID)
+  assert.equal(occurrences(mail.html, `cid:${EMAIL_LOGO_CID}`), 2, 'the header and signature display the same inline logo')
+  assert.equal(mail.attachments.length, 1, 'the shared logo is attached only once')
 }
 
 test('all outbound SMTP messages receive one complete Vortex signature without weakening mail guardrails', async t => {
@@ -40,7 +44,7 @@ test('all outbound SMTP messages receive one complete Vortex signature without w
   let deliveryId = 0
   Object.assign(process.env, {
     SMTP_HOST: 'smtp.example.test', SMTP_PORT: '587', SMTP_USER: 'sender@example.test', SMTP_PASS: 'synthetic-password',
-    SMTP_FROM: 'Vortex Gymnastics <sender@example.test>', SMTP_REPLY_TO: 'frontdesk@example.test',
+    SMTP_FROM: 'Vortex Athletics & Gymnastics <sender@example.test>', SMTP_REPLY_TO: 'frontdesk@example.test',
     EMAIL_KILL_SWITCH: 'false', EMAIL_KILL_SWITCH_SCHEDULE_CHANGE: 'false',
     EMAIL_KILL_SWITCH_SIGNIN_MAGIC_LINK: 'false', EMAIL_KILL_SWITCH_NEWSLETTER: 'false',
   })
@@ -87,6 +91,25 @@ test('all outbound SMTP messages receive one complete Vortex signature without w
       await sendEmail({ ...base, text: `Your account is ready.\n\n${emailFooterHtml.text}`,
         html: composeEmailHtml('<p>Your account is ready.</p>') })
       assertFullSignature(sent.at(-1))
+    })
+
+    await t.test('saved emails with the previous logos upgrade both images and keep one signature', async () => {
+      const oldContact = ['Vortex Gymnastics', EMAIL_SIGNATURE.address, EMAIL_SIGNATURE.website, EMAIL_SIGNATURE.phone].join('\n')
+      await sendEmail({ ...base, text: `Saved update.\n\nWarmly,\nThe Vortex Athletics Team\n\n${oldContact}`,
+        html: `<html data-vortex-email-layout="vortex" data-vortex-email-layout-version="v3-full-signature"><body>
+          <img src="cid:vortex-athletics-logo@vortex" alt="Vortex Athletics" />
+          <p>Saved update.</p>
+          <!-- vortex-email-footer:start --><div data-vortex-email-signature="v1">
+            <p>Warmly,<br />The Vortex Athletics Team</p>
+            <img src="cid:vortex-gymnastics-logo@vortex" alt="Vortex Gymnastics" />
+            <p>${EMAIL_SIGNATURE.address}<br />${EMAIL_SIGNATURE.website}<br />${EMAIL_SIGNATURE.phone}</p>
+          </div><!-- vortex-email-footer:end -->
+        </body></html>` })
+      const mail = sent.at(-1)
+      assertFullSignature(mail)
+      assert.doesNotMatch(mail.html, /cid:vortex-(?:athletics|gymnastics)-logo@vortex/)
+      assert.match(mail.html, /data-vortex-email-layout-version="v4-home-page-logo"/)
+      assert.match(mail.html, /Saved update\./)
     })
 
     await t.test('previously composed branded HTML receives the current signature', async () => {

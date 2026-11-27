@@ -282,7 +282,7 @@ test('calendar cancels and restores an individual regular or trial session by da
   await expect(email).toHaveValue(/Monday, November 16, 2026/)
   await expect(email).toHaveValue(/Tumbling: 4:00 PM – 5:00 PM/)
   const signature = regular.getByRole('complementary', { name: 'Vortex email signature' })
-  await expect(signature.getByRole('img', { name: 'Vortex Gymnastics' })).toBeVisible()
+  await expect(signature.getByRole('img', { name: 'Vortex Athletics & Gymnastics' })).toHaveAttribute('src', 'https://vortexathletics.com/vortex-athletics-gymnastics-logo.png')
   await expect(signature).toContainText('4961 Tesla Dr, Ste E, Bowie, MD 20715')
   await expect(signature.getByRole('link', { name: '443-422-4794 (gym)' })).toHaveAttribute('href', 'tel:4434224794')
   const editedMessage = `${await email.inputValue()}\nPlease contact our front desk to arrange your make-up.`

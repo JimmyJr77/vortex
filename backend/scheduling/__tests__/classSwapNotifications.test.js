@@ -32,7 +32,7 @@ test('permanent letter lists every replacement and uses a neutral effective date
   assert.equal((html.match(/The Vortex Athletics Team/g) || []).length,1)
   const text = normalizeOutboundEmailText(body)
   assert.equal((text.match(/Warmly,/g) || []).length,1)
-  assert.match(text,/\n\nWarmly,\nThe Vortex Athletics Team\n\nVortex Gymnastics\n4961 Tesla Dr, Ste E, Bowie, MD 20715/)
+  assert.match(text,/\n\nWarmly,\nThe Vortex Athletics Team\n\nVortex Athletics & Gymnastics\n4961 Tesla Dr, Ste E, Bowie, MD 20715/)
 })
 
 test('edited parent letters preserve exact plain text while rejecting blank, oversized or promotional copy', () => {

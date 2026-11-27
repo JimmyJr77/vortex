@@ -3,24 +3,25 @@
 import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
-export const EMAIL_LAYOUT_VERSION = 'v3-full-signature'
-export const EMAIL_LOGO_CID = 'vortex-athletics-logo@vortex'
-export const EMAIL_SIGNATURE_LOGO_CID = 'vortex-gymnastics-logo@vortex'
-export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v1"'
+export const EMAIL_LAYOUT_VERSION = 'v4-home-page-logo'
+export const EMAIL_LOGO_CID = 'vortex-athletics-gymnastics-logo@vortex'
+export const EMAIL_SIGNATURE_LOGO_CID = EMAIL_LOGO_CID
+export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v2"'
 
-/** Public logo asset — must be absolute URL for email clients. */
-export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-logo.png'
+/** Email-compatible PNG of the artwork used by PublicBrandImage on the home page. */
+export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-gymnastics-logo.png'
 
 export const EMAIL_SIGNATURE = Object.freeze({
-  name: 'Vortex Gymnastics',
+  name: 'Vortex Athletics & Gymnastics',
   address: '4961 Tesla Dr, Ste E, Bowie, MD 20715',
   website: 'www.vortexathletics.com',
   phone: '443-422-4794 (gym)',
-  logoUrl: 'https://vortexathletics.com/vortex_gymnastics_logo.png',
+  logoUrl: EMAIL_LOGO_URL,
 })
 
 const SIGNOFF = 'Warmly,\nThe Vortex Athletics Team'
 const CONTACT_SIGNATURE = [EMAIL_SIGNATURE.name, EMAIL_SIGNATURE.address, EMAIL_SIGNATURE.website, EMAIL_SIGNATURE.phone].join('\n')
+const LEGACY_CONTACT_SIGNATURE = ['Vortex Gymnastics', EMAIL_SIGNATURE.address, EMAIL_SIGNATURE.website, EMAIL_SIGNATURE.phone].join('\n')
 const FOOTER_START = '<!-- vortex-email-footer:start -->'
 const FOOTER_END = '<!-- vortex-email-footer:end -->'
 const legacyFooterHtml = /Vortex Athletics\s*·\s*<a\b[^>]*href=["']https?:\/\/(?:www\.)?vortexathletics\.com\/?["'][^>]*>\s*(?:www\.)?vortexathletics\.com\/?\s*<\/a>/i
@@ -47,7 +48,7 @@ export function plainLinkLine(label, url) {
   return `${label}: ${url}`
 }
 
-/** Logo shown in the black email header (see src/utils/seo.ts HUB_HEADER_LOGO). */
+/** The same home-page artwork is used in the email header and signature. */
 export function emailLogoUrl() {
   return EMAIL_LOGO_URL
 }
@@ -81,7 +82,7 @@ export const emailFooterHtml = {
       <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">Warmly,<br />The Vortex Athletics Team</p>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:100%;">
         <tr><td style="padding:0 0 12px;">
-          <img src="cid:${EMAIL_SIGNATURE_LOGO_CID}" alt="${EMAIL_SIGNATURE.name}" width="360" style="display:block;width:360px;max-width:100%;height:auto;border:0;background-color:#000000;" />
+          <img src="cid:${EMAIL_SIGNATURE_LOGO_CID}" alt="${escapeHtml(EMAIL_SIGNATURE.name)}" width="360" style="display:block;width:360px;max-width:100%;height:auto;border:0;" />
         </td></tr>
         <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:${BRAND.footerColor};">
           ${EMAIL_SIGNATURE.address}<br />
@@ -102,8 +103,10 @@ function withoutTextSignoff(text) {
   let body = String(text ?? '').replace(/\r\n?/g, '\n').trimEnd()
   // Some older templates already append the shared footer. Strip only known
   // terminal signatures; message paragraphs and links remain untouched.
-  while (body.endsWith(emailFooterHtml.text) || body.endsWith(CONTACT_SIGNATURE)) {
-    body = body.slice(0, -(body.endsWith(emailFooterHtml.text) ? emailFooterHtml.text.length : CONTACT_SIGNATURE.length)).trimEnd()
+  const signatures = [emailFooterHtml.text, CONTACT_SIGNATURE, LEGACY_CONTACT_SIGNATURE]
+  let signature
+  while ((signature = signatures.find(value => body.endsWith(value)))) {
+    body = body.slice(0, -signature.length).trimEnd()
   }
   body = body.replace(/(?:^|\n)\s*—?\s*Vortex Athletics\s*\n(?:https?:\/\/)?(?:www\.)?vortexathletics\.com\/?\s*$/i, '').trimEnd()
   body = body.replace(/(?:^|\n)(?:(?:Warmly|Thank you|Sincerely|Best regards),?\s*\n)?(?:The Vortex Athletics Team|—\s*Vortex Athletics)\s*$/i, '').trimEnd()
@@ -150,13 +153,17 @@ export function normalizeOutboundEmailText(text, html = '') {
   return body ? `${body}\n\n${emailFooterHtml.text}` : emailFooterHtml.text
 }
 
+function headerLogoHtml() {
+  return `<a href="${escapeHtml(publicAppUrl())}" style="text-decoration:none;">
+    <img src="cid:${EMAIL_LOGO_CID}" alt="${escapeHtml(EMAIL_SIGNATURE.name)}" width="440" style="display:block;width:440px;max-width:100%;height:auto;border:0;margin:0 auto;" />
+  </a>`
+}
+
 /**
  * Full email document: black header (logo), white body, grey footer — each full width of
  * the centered email column.
  */
 export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
-  const logoSrc = `cid:${EMAIL_LOGO_CID}`
-  const siteUrl = publicAppUrl()
   const body = withoutHtmlSignoff(withoutFooterBlocks(bodyHtml))
 
   return `<!DOCTYPE html>
@@ -176,9 +183,7 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
           <tr>
             <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">
-              <a href="${escapeHtml(siteUrl)}" style="text-decoration:none;">
-                <img src="${escapeHtml(logoSrc)}" alt="Vortex Athletics" width="440" style="display:block;width:440px;max-width:100%;height:auto;border:0;margin:0 auto;" />
-              </a>
+              ${headerLogoHtml()}
             </td>
           </tr>
           <tr>
@@ -202,13 +207,19 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
 /** Wrap a body fragment in the standard layout (used by sendEmail for all outbound HTML). */
 export function normalizeOutboundEmailHtml(html, { text = '' } = {}) {
   let fragment = String(html ?? '').trim()
+  for (const oldCid of ['vortex-athletics-logo@vortex', 'vortex-gymnastics-logo@vortex']) {
+    fragment = fragment.replaceAll(`cid:${oldCid}`, `cid:${EMAIL_LOGO_CID}`)
+  }
   if (fragment.includes(EMAIL_LAYOUT_MARKER) && fragment.includes(EMAIL_SIGNATURE_MARKER)) return fragment
 
   if (fragment.includes('data-vortex-email-layout=')) {
     // Upgrade the existing branded document in place: wrapping it again would
     // duplicate the header and leave the old incomplete footer visible.
+    const existingSignature = /<!-- vortex-email-footer:start -->[\s\S]*?<!-- vortex-email-footer:end -->/
     const oldFooter = legacyFooterHtml.exec(fragment)
-    if (oldFooter) {
+    if (existingSignature.test(fragment)) {
+      fragment = fragment.replace(existingSignature, emailFooterHtml.html)
+    } else if (oldFooter) {
       fragment = withoutHtmlSignoff(fragment.slice(0, oldFooter.index)) + emailFooterHtml.html + fragment.slice(oldFooter.index + oldFooter[0].length)
     } else {
       const bodyEnd = /<\/body>/i.exec(fragment)
@@ -216,7 +227,13 @@ export function normalizeOutboundEmailHtml(html, { text = '' } = {}) {
         ? withoutHtmlSignoff(fragment.slice(0, bodyEnd.index)) + emailFooterHtml.html + fragment.slice(bodyEnd.index)
         : withoutHtmlSignoff(fragment) + emailFooterHtml.html
     }
-    return fragment
+    if (!fragment.slice(0, fragment.indexOf(FOOTER_START)).includes(`cid:${EMAIL_LOGO_CID}`)) {
+      fragment = fragment.replace(/<body\b[^>]*>/i, body => `${body}
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
+          <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">${headerLogoHtml()}</td>
+        </tr></table>`)
+    }
+    return fragment.replace(/data-vortex-email-layout-version=["'][^"']*["']/i, `data-vortex-email-layout-version="${EMAIL_LAYOUT_VERSION}"`)
   }
 
   if (!fragment) fragment = plainTextToEmailHtml(text)
