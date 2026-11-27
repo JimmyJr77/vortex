@@ -12,7 +12,7 @@ type TrialInvitation = {
 const defaultDays = 7
 
 export default function TrialLead({ lead, onClose, onSent }: { lead: Lead; onClose: () => void; onSent: () => void }) {
-  const existing = useRead<TrialInvitation>(lead.invitation ? `/api/admin/new-admin/lead-registration/${lead.invitation.id}` : null)
+  const existing = useRead<TrialInvitation>(lead.invitation?.purpose === 'trial' ? `/api/admin/new-admin/lead-registration/${lead.invitation.id}` : null)
   const [result, setResult] = useState<TrialInvitation | null>(null)
   const [editing, setEditing] = useState(false)
   const [guardian, setGuardian] = useState<Guardian>({ firstName: lead.firstName, lastName: lead.lastName, email: lead.email, phone: lead.phone || '' })
@@ -72,7 +72,7 @@ export default function TrialLead({ lead, onClose, onSent }: { lead: Lead; onClo
     {existing.loading ? <Loading /> : existing.error && !result ? null : invitation && !editing ? <section className="max-w-3xl space-y-4">
       <h3 className="text-lg font-semibold">{invitation.status === 'completed' ? 'Trial account setup completed' : invitation.status === 'sent' ? 'Trial invitation sent' : 'Trial invitation saved — email not sent'}</h3>
       <p>{invitation.email || lead.email} · Username: <strong>{invitation.username}</strong></p>
-      <p>{invitation.status === 'completed' ? 'The family can choose an available free trial date after completing their information and waivers. Bookings appear in Free Trials next to each child.' : `The parent will complete family information and sign waivers, then choose a specific free trial class and date. Finish account setup by ${new Date(invitation.expiresAt).toLocaleDateString()}.`}</p>
+      <p>{invitation.status === 'completed' ? 'The family can choose an available free trial date after completing their information and waivers. Bookings appear in Date of free trial next to each child.' : `The parent will complete family information and sign waivers, then choose a specific free trial class and date. Finish account setup by ${new Date(invitation.expiresAt).toLocaleDateString()}.`}</p>
       <p className="text-sm text-slate-600">The family stays under Leads while trying a class.</p>
       {invitation.children?.length > 0 && <ul className="list-inside list-disc">{invitation.children.map((child, index) => <li key={index}>{[child.firstName, child.lastName].filter(Boolean).join(' ') || `Child ${index + 1}`}</li>)}</ul>}
       {invitation.instructions && <p className="whitespace-pre-wrap text-sm">{invitation.instructions}</p>}

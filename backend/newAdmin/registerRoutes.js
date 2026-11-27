@@ -11,6 +11,7 @@ import { listAccountDirectory } from '../accounts/accountDirectory.js'
 import { createSchedulingHandlers } from '../scheduling/handlers.js'
 import { handler,id,inputError } from './common.js'
 import { listLeads,createLead,saveLead,leadNotes,convertLead,createScopedMember } from './leads.js'
+import { loadLeadTrialBooking, bookLeadTrialForStaff } from './leadTrialBooking.js'
 import { listClasses,classDetail,memberDetail } from './reads.js'
 import { schedulingScopeMiddleware } from './scope.js'
 import { listFamilies, loadFamilyWorkspace } from './familyWorkspace.js'
@@ -120,6 +121,10 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
   app.delete(`${base}/leads/:id`,allow('accounts.lifecycle'),handler(req=>changeLeadLifecycle(pool,facility(req),req.params.id,'archive')))
   app.delete(`${base}/leads/:id/permanent`,allow('accounts.lifecycle'),handler(req=>changeLeadLifecycle(pool,facility(req),req.params.id,'delete')))
   app.get(`${base}/leads/:id/notes`,allow('members.view'),handler(req=>leadNotes(pool,facility(req),req.params.id)))
+  app.get(`${base}/leads/:id/trial-booking`,allow('members.edit'),allow('scheduling.manage'),
+    handler(req=>loadLeadTrialBooking(pool,facility(req),req.params.id)))
+  app.post(`${base}/leads/:id/trial-booking`,allow('members.edit'),allow('scheduling.manage'),
+    handler(req=>bookLeadTrialForStaff(pool,{facilityId:facility(req),leadId:req.params.id,body:req.body})))
   app.post(`${base}/leads/:id/convert`,allow('members.edit'),handler(async req=>{
     if (req.body?.mode === 'invite' || req.body?.mode === 'trial') {
       if ((req.body.selections || []).some(item=>item.kind==='reserved') && !await canonicalAdminPermission(pool,req.canonicalAccess.userId,'scheduling.manage')) throw inputError('Scheduling permission is required to reserve a class.',403)

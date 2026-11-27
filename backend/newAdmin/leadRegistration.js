@@ -13,6 +13,7 @@ import { bookMemberFreeTrial, trialAgeOnDate, validateTrialSelection } from '../
 import { inquiryInput } from './leadInquiry.js'
 import { leadInput, updateLead } from './leads.js'
 import { id, inputError } from './common.js'
+import { recordFreeTrialLead } from './trialLeads.js'
 
 const digest = value => crypto.createHash('sha256').update(String(value)).digest('hex')
 const invitationPurpose = invite => invite.pending_payload.purpose === 'trial' ? 'trial' : 'registration'
@@ -183,8 +184,10 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     const lead = (await client.query('SELECT * FROM registrations WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE FOR UPDATE', [id(leadId), facilityId])).rows[0]
     if (!lead) throw inputError('Lead not found.', 404)
     if (lead.converted_member_id || lead.member_id || lead.trial_contact_member_id) throw inputError('This lead already has a member account. Open that account to manage registrations.', 409)
-    const existing = (await client.query(`SELECT * FROM account_invite WHERE registration_id=$1 AND invite_type='lead_registration' AND used_at IS NULL AND expires_at>now() ORDER BY id DESC LIMIT 1`, [lead.id])).rows[0]
-    if (existing) {
+    const purpose = body.mode === 'trial' ? 'trial' : 'registration'
+    const existing = (await client.query(`SELECT * FROM account_invite WHERE registration_id=$1 AND facility_id=$2
+      AND invite_type='lead_registration' AND used_at IS NULL AND expires_at>now() ORDER BY id DESC LIMIT 1 FOR UPDATE`, [lead.id,facilityId])).rows[0]
+    if (existing && invitationPurpose(existing)===purpose) {
       await client.query('COMMIT')
       return deliverLeadInvitation(pool, { facilityId, inviteId: existing.id }, dependencies)
     }
@@ -193,7 +196,6 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     const emailConflict = await client.query('SELECT id FROM app_user WHERE LOWER(BTRIM(email))=$1 OR LOWER(BTRIM(username))=$1 UNION ALL SELECT id FROM member WHERE LOWER(BTRIM(email))=$1 LIMIT 1', [email])
     if (emailConflict.rows.length) throw inputError('This email already has an account. Link the verified existing member instead of creating another login.', 409)
     const children = inquiryInput({ campers: body.children || lead.campers || [] }).campers
-    const purpose = body.mode === 'trial' ? 'trial' : 'registration'
     const selections = await validateLeadSelections(client, facilityId, children,
       invitationSelections({ pending_payload: { purpose } }, body.selections || []))
     const holdDays = Number(body.holdDays ?? 7)
@@ -201,6 +203,17 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     const instructions = String(body.instructions || '').trim()
     if (instructions.length > 4000) throw inputError('Instructions must be at most 4,000 characters.')
     const username = await nextLeadUsername(client, lead.first_name, lead.last_name)
+    if(existing){
+      // A deliberate switch between trial and registration starts the correct
+      // flow. Keep the old invitation as provenance while revoking its link.
+      const oldHolds=(await client.query("SELECT slot_group_id FROM scheduling_signup WHERE account_invite_id=$1 AND status='pending_setup'",[existing.id])).rows
+      const affectedGroups=[...new Set([...oldHolds.map(row=>Number(row.slot_group_id)),
+        ...selections.filter(item=>item.kind==='reserved').map(item=>item.slotGroupId)])].sort((a,b)=>a-b)
+      if(affectedGroups.length)await client.query('SELECT id FROM scheduling_slot_group WHERE id=ANY($1::bigint[]) ORDER BY id FOR UPDATE',[affectedGroups])
+      await client.query(`UPDATE account_invite SET expires_at=LEAST(expires_at,now()),temporary_password_hash=NULL,
+        pending_payload=pending_payload-'passwordCiphertext' WHERE id=$1 AND facility_id=$2 AND used_at IS NULL`,[existing.id,facilityId])
+      await client.query("UPDATE scheduling_signup SET status='cancelled',reserved_until=NULL WHERE account_invite_id=$1 AND status='pending_setup'",[existing.id])
+    }
     const password = generateTemporaryPassword(16), token = crypto.randomBytes(32).toString('hex')
     const payload = { purpose, guardian: { firstName: lead.first_name, lastName: lead.last_name, email, phone: lead.phone || '' }, children, selections, instructions, passwordCiphertext: encryptAccountInviteToken(password) }
     invite = (await client.query(`INSERT INTO account_invite(facility_id,registration_id,invite_type,token_hash,token_ciphertext,invitee_email,pending_payload,expires_at,suggested_username,temporary_password_hash,request_key,created_by_user_id)
@@ -257,6 +270,9 @@ export async function deliverLeadInvitation(pool, { facilityId, inviteId, resend
     try { sent = (await sendInvitation({ invite, token: decryptAccountInviteToken(invite.token_ciphertext), password: decryptAccountInviteToken(invite.pending_payload.passwordCiphertext) }))?.sent === true } catch { /* Keep the invitation and its holds available for an explicit retry. */ }
     invite.delivery_status = sent ? 'sent' : 'failed'
     await db.query('UPDATE account_invite SET delivery_status=$2 WHERE id=$1', [invite.id, invite.delivery_status])
+    if (sent) await db.query(`UPDATE registrations SET last_contacted_date=(CURRENT_TIMESTAMP AT TIME ZONE
+      COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$2),'America/New_York'))::date,updated_at=now()
+      WHERE id=$1 AND facility_id=$2`, [lead.id,facilityId])
     await db.query('COMMIT')
     return invitationSummary(invite)
   } catch (error) { await db.query('ROLLBACK'); throw error } finally { db.release() }
@@ -505,9 +521,9 @@ export async function bookLeadInvitationTrial(pool, inviteId, body) {
   try {
     await db.query('BEGIN')
     const reference = await loadInvitation(db, inviteId, body.token)
-    const lead = (await db.query('SELECT id,archived FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE',
+    const lead = (await db.query('SELECT id,archived FROM registrations WHERE id=$1 AND facility_id=$2',
       [reference.registration_id, reference.facility_id])).rows[0]
-    const invite = await loadInvitation(db, inviteId, body.token, true)
+    let invite = await loadInvitation(db, inviteId, body.token)
     if (!lead || lead.archived) throw inputError('This trial invitation is no longer available. Contact Vortex to continue.', 409)
     const result = invite.pending_payload.result
     if (invitationPurpose(invite) !== 'trial' || !invite.used_at || !result?.trialRegistration) {
@@ -527,6 +543,16 @@ export async function bookLeadInvitationTrial(pool, inviteId, body) {
     if (!payer) throw inputError('This athlete is no longer available in this family.', 403)
     const booking = await bookMemberFreeTrial(db, selection, { memberId: child.memberId, facilityId: invite.facility_id,
       contactEmail: payer.email || invite.invitee_email, contactPhone: payer.phone || null })
+    // Match member-portal and staff booking order: child/credit/class first,
+    // then guardian/household/lead. No path may hold the lead waiting on a child.
+    await recordFreeTrialLead(db,{facilityId:invite.facility_id,payerMemberId:result.payerMemberId,memberId:child.memberId})
+    const currentLead=(await db.query('SELECT id,archived FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE',
+      [reference.registration_id,reference.facility_id])).rows[0]
+    invite=await loadInvitation(db,inviteId,body.token,true)
+    if(!currentLead||currentLead.archived||invitationPurpose(invite)!=='trial'||!invite.used_at
+      ||!invite.pending_payload.result?.trialRegistration){
+      throw inputError('This trial invitation is no longer available. Contact Vortex to continue.',409)
+    }
     const bookings = await loadInvitationTrialBookings(db, result)
     await db.query("UPDATE account_invite SET pending_payload=jsonb_set(pending_payload,'{result,trialBookings}',$2::jsonb) WHERE id=$1",
       [invite.id, JSON.stringify(bookings)])

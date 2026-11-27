@@ -4,7 +4,7 @@ import { originalLeadContactMatchSql } from './leadDeduplication.js'
 // Membership is explicit: a child's saved ID, rather than a matching name or
 // email, joins a trial to the child displayed in the adjacent column.
 export const leadFreeTrialsJoin = `LEFT JOIN LATERAL (
-  SELECT jsonb_agg(jsonb_build_object('id',booking.id,'memberId',athlete.id,
+  SELECT MIN(booking.class_date) AS first_trial_date, jsonb_agg(jsonb_build_object('id',booking.id,'memberId',athlete.id,
     'childIndex',camper.ordinality-1,'childName',concat_ws(' ',athlete.first_name,athlete.last_name),
     'date',booking.class_date::text,'className',COALESCE(NULLIF(p.display_name,''),p.name,sf.title),
     'status',booking.status) ORDER BY camper.ordinality,booking.class_date DESC,booking.id DESC) AS free_trials

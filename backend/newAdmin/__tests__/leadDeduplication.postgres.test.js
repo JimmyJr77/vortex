@@ -18,6 +18,7 @@ test('generated trial history combines with its verified original inquiry withou
   try{
     await db.query('BEGIN')
     await db.query(await readFile(new URL('../../migrations/882_lead_trial_contact_identity.sql',import.meta.url),'utf8'))
+    await db.query(await readFile(new URL('../../migrations/883_lead_last_contacted_date.sql',import.meta.url),'utf8'))
     const suffix=randomUUID()
     const facilityId=Number((await one("INSERT INTO facility(name,timezone) VALUES('Lead dedup regression','America/New_York') RETURNING id")).id)
     const familyId=Number((await one("INSERT INTO family(facility_id,family_name) VALUES($1,'Dedup household') RETURNING id",[facilityId])).id)

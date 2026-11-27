@@ -39,7 +39,7 @@ test('lead invitations reserve shared class places, require new credentials, and
   const rejectSql=async(sql,args,pattern)=>{await db.query('SAVEPOINT reject_sql');await assert.rejects(()=>db.query(sql,args),pattern);await db.query('ROLLBACK TO SAVEPOINT reject_sql');await db.query('RELEASE SAVEPOINT reject_sql')}
   try {
     await db.query('BEGIN')
-    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql','860_trial_assessment_booking_policy.sql','882_lead_trial_contact_identity.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql','860_trial_assessment_booking_policy.sql','882_lead_trial_contact_identity.sql','883_lead_last_contacted_date.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
     const owner = (await db.query(`SELECT u.id,u.facility_id FROM app_user u
       LEFT JOIN facility f ON f.owner_user_id=u.id
       WHERE u.username='admin2' OR f.id IS NOT NULL
@@ -61,6 +61,50 @@ test('lead invitations reserve shared class places, require new credentials, and
     let captured,sendCount=0
     const sendInvitation=async args=>{captured=args;sendCount++;return {sent:true}}
     let invitation,session,result
+    await t.test('changing trial versus registration purpose retires old links and reservations without losing inquiry provenance',async()=>{
+      await db.query('SAVEPOINT invitation_purpose_case')
+      try{
+      const prospect=await createLead(pool,facilityId,{firstName:'Purposeparent',lastName:'Invite',email:`purpose-${nonce}@example.test`,inquiry:{campers:[children[0]]}})
+      const purposeGroup=(await db.query('INSERT INTO scheduling_slot_group(form_id,max_participants,is_active) VALUES($1,2,TRUE) RETURNING id',[form.id])).rows[0]
+      const purposeSlot=(await db.query("INSERT INTO scheduling_time_slot(form_id,slot_group_id,day_of_week,start_time,end_time,is_active) VALUES($1,$2,2,'18:00','19:00',TRUE) RETURNING id",[form.id,purposeGroup.id])).rows[0]
+      const selected=[{kind:'reserved',childIndex:0,programsId:program.id,classEventId:klass.id,timeSlotId:purposeSlot.id,enrollmentStartDate}]
+      const sends=[]
+      const sender={sendInvitation:async args=>{sends.push(args);return{sent:true}}}
+      const trial=await createLeadInvitation(pool,{facilityId,leadId:prospect.id,userId:owner.id,
+        body:{mode:'trial',children:[children[0]],selections:[],requestKey:`purpose-trial-${nonce}`}},sender)
+      assert.equal(trial.purpose,'trial')
+      const trialCredentials=sends[0]
+      await assert.rejects(createLeadInvitation(pool,{facilityId,leadId:prospect.id,userId:owner.id,
+        body:{mode:'invite',children:[children[0]],selections:[{...selected[0],timeSlotId:999999999}],requestKey:`purpose-invalid-${nonce}`}},sender),/unavailable/)
+      assert.equal((await db.query('SELECT expires_at>now() AS active FROM account_invite WHERE id=$1',[trial.id])).rows[0].active,true)
+      assert.equal(sends.length,1)
+      const registration=await createLeadInvitation(pool,{facilityId,leadId:prospect.id,userId:owner.id,
+        body:{mode:'invite',children:[children[0]],selections:selected,requestKey:`purpose-registration-${nonce}`}},sender)
+      assert.notEqual(registration.id,trial.id)
+      assert.equal(registration.purpose,'registration')
+      assert.equal(registration.selections.length,1)
+      assert.equal(sends.length,2)
+      const retired=(await db.query('SELECT expires_at<=now() AS expired,temporary_password_hash,pending_payload FROM account_invite WHERE id=$1',[trial.id])).rows[0]
+      assert.equal(retired.expired,true)
+      assert.equal(retired.temporary_password_hash,null)
+      assert.equal(retired.pending_payload.purpose,'trial')
+      assert.equal('passwordCiphertext' in retired.pending_payload,false)
+      await assert.rejects(openLeadRegistration(pool,trial.id,{token:trialCredentials.token,username:trial.username,password:trialCredentials.password}),/expired/i)
+      const repeated=await createLeadInvitation(pool,{facilityId,leadId:prospect.id,userId:owner.id,
+        body:{mode:'invite',children:[children[0]],selections:selected,requestKey:`purpose-registration-${nonce}`}},sender)
+      assert.equal(repeated.id,registration.id)
+      assert.equal(sends.length,2)
+      assert.deepEqual((await listLeads(pool,facilityId,{search:prospect.email})).rows[0].participationTags,['inquiry','free_trial'])
+      const backToTrial=await createLeadInvitation(pool,{facilityId,leadId:prospect.id,userId:owner.id,
+        body:{mode:'trial',children:[children[0]],selections:[],requestKey:`purpose-trial-again-${nonce}`}},sender)
+      assert.equal(backToTrial.purpose,'trial')
+      const oldHolds=(await db.query('SELECT status,reserved_until FROM scheduling_signup WHERE account_invite_id=$1',[registration.id])).rows
+      assert.ok(oldHolds.length===1&&oldHolds.every(row=>row.status==='cancelled'&&row.reserved_until==null))
+      assert.equal(Number((await db.query('SELECT pending_registration_holds($1) AS n',[purposeGroup.id])).rows[0].n),0)
+      assert.equal((await db.query('SELECT converted_member_id FROM registrations WHERE id=$1',[prospect.id])).rows[0].converted_member_id,null)
+      assert.equal(sends.length,3)
+      }finally{await db.query('ROLLBACK TO SAVEPOINT invitation_purpose_case');await db.query('RELEASE SAVEPOINT invitation_purpose_case')}
+    })
     await t.test('conversion sends one invitation and reserves two seats without accounts or charges',async()=>{
       invitation=await createLeadInvitation(pool,{facilityId,leadId:lead.id,userId:owner.id,body:{children,selections,requestKey:'same-request'}},{sendInvitation})
       assert.equal(invitation.status,'sent');assert.match(invitation.username,/^testparenti\d*$/)
@@ -84,9 +128,18 @@ test('lead invitations reserve shared class places, require new credentials, and
       assert.equal(beforeRows.length, 1)
 
       const beforeDelivery = sendCount
+      await db.query("UPDATE registrations SET last_contacted_date='2001-01-01' WHERE id=$1",[lead.id])
+      const lastContact = async () => (await db.query('SELECT last_contacted_date::text AS date FROM registrations WHERE id=$1',[lead.id])).rows[0].date
+      await deliverLeadInvitation(pool, { facilityId, inviteId: invitation.id }, { sendInvitation })
+      assert.equal(sendCount,beforeDelivery,'an idempotent read does not send another contact')
+      assert.equal(await lastContact(),'2001-01-01')
+      await deliverLeadInvitation(pool, { facilityId, inviteId: invitation.id, resend: true }, { sendInvitation:async()=>({sent:false}) })
+      assert.equal(await lastContact(),'2001-01-01','failed delivery does not advance the last contact date')
       const resent = await deliverLeadInvitation(pool, { facilityId, inviteId: invitation.id, resend: true }, { sendInvitation })
       assert.equal(resent.id, invitation.id)
       assert.equal(sendCount, beforeDelivery + 1)
+      const today=(await db.query("SELECT (CURRENT_TIMESTAMP AT TIME ZONE timezone)::date::text AS date FROM facility WHERE id=$1",[facilityId])).rows[0].date
+      assert.equal(await lastContact(),today,'a real successful contact advances the date')
       assert.deepEqual(await matchingRegistrations(), beforeRows)
       assert.deepEqual(await matchingInquiries(), before)
     })

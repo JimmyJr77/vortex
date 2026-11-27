@@ -155,6 +155,7 @@ test('reaction counts update live across all portals while each person keeps the
       ])
     }
     const openPicker = async (page: Page) => {
+      await page.getByRole('log', { name: 'Conversation history' }).getByText(MESSAGE.body).hover()
       await page.getByRole('button', { name: /^Actions for message from/ }).click()
       return page.getByRole('group', { name: 'Message actions' }).getByRole('button', { name: 'Thumbs up reaction' })
     }

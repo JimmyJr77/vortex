@@ -49,7 +49,8 @@ export function leadDirectoryCtes(facility = '$1') {
       (array_agg(source.dedup_contact_id ORDER BY source.created_at NULLS LAST,source.id)
         FILTER (WHERE source.generated_trial OR NULLIF(to_jsonb(source)->>'trial_contact_member_id','') IS NOT NULL))[1] AS trial_contact_member_id,
       bool_or(COALESCE(source.contacted,FALSE)) AS contacted,bool_or(COALESCE(source.follow_up,FALSE)) AS follow_up,
-      min(source.first_contacted_at) AS first_contacted_at
+      min(source.first_contacted_at) AS first_contacted_at,
+      max(NULLIF(to_jsonb(source)->>'last_contacted_date','')::date) AS last_contacted_date
     FROM lead_assignments links JOIN lead_base source ON source.id=links.id GROUP BY links.canonical_id
   ), lead_child_rows AS MATERIALIZED (
     SELECT links.canonical_id,source.id AS source_id,source.id=links.canonical_id AS original_child,
@@ -81,6 +82,7 @@ export function leadDirectoryCtes(facility = '$1') {
       'trial_contact_member_id',summary.trial_contact_member_id,
       'lead_status',CASE WHEN summary.is_converted THEN 'converted' ELSE original.lead_status END,
       'contacted',summary.contacted,'follow_up',summary.follow_up,'first_contacted_at',summary.first_contacted_at,
+      'last_contacted_date',summary.last_contacted_date,
       'campers',(SELECT COALESCE(jsonb_agg(child.child ORDER BY child.original_child DESC,child.source_id,child.ordinality),'[]'::jsonb)
         FROM lead_unique_children child WHERE child.canonical_id=summary.canonical_id))) populated
   )`

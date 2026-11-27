@@ -82,6 +82,7 @@ export const RUNTIME_COMPATIBILITY_MIGRATIONS = Object.freeze([
   '869_stripe_terminal_payments.sql',
   '871_store_terminal_payment.sql',
   '882_lead_trial_contact_identity.sql',
+  '883_lead_last_contacted_date.sql',
 ])
 
 const REQUIRED_BILLING_MIGRATION_SET = new Set(REQUIRED_BILLING_MIGRATIONS)

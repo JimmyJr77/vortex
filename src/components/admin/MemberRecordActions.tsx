@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Archive, ArchiveRestore } from 'lucide-react'
 import { adminApiRequest } from '../../utils/api'
 import { button } from '../newAdmin/shared'
 import { confirmArchive, confirmPermanentDelete } from '../../utils/confirmArchive'
@@ -17,7 +18,7 @@ async function checkResponse(response: Response, fallback: string, requireArchiv
   throw new Error(blockers.length ? blockers.join(' ') : data?.message || fallback)
 }
 
-export default function MemberRecordActions({ record, onChanged, compact = false }: { record: AccountRecord; onChanged: (action: RecordAction) => void; compact?: boolean }) {
+export default function MemberRecordActions({ record, onChanged, compact = false, iconOnly = false, archiveClassName = '' }: { record: AccountRecord; onChanged: (action: RecordAction) => void; compact?: boolean; iconOnly?: boolean; archiveClassName?: string }) {
   const actionClass = compact ? `${button} !h-8 !py-0` : button
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -62,9 +63,10 @@ export default function MemberRecordActions({ record, onChanged, compact = false
 
   return <div className="min-w-0">
     <div className="flex flex-wrap items-start gap-1.5">
-      {record.kind !== 'login' && <button type="button" className={actionClass} disabled={busy}
+      {record.kind !== 'login' && <button type="button" className={`${actionClass} ${iconOnly ? '!h-7 !w-7 !p-0' : ''} ${archiveClassName}`} disabled={busy}
         aria-label={`${record.archived ? 'Restore' : 'Archive'} ${record.name}`}
-        onClick={() => void update(record.archived ? 'restore' : 'archive')}>{record.archived ? 'Restore' : 'Archive'}</button>}
+        title={`${record.archived ? 'Restore' : 'Archive'} ${record.name}`}
+        onClick={() => void update(record.archived ? 'restore' : 'archive')}>{iconOnly ? record.archived ? <ArchiveRestore className="h-3.5 w-3.5" aria-hidden="true" /> : <Archive className="h-3.5 w-3.5" aria-hidden="true" /> : record.archived ? 'Restore' : 'Archive'}</button>}
       {(record.kind === 'login' || record.archived) && <button type="button" className={`${actionClass} !text-red-700`} disabled={busy}
         aria-label={`Permanently delete ${record.name}`} onClick={() => void update('delete')}>Delete permanently</button>}
     </div>

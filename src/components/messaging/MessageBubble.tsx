@@ -215,7 +215,7 @@ export default function MessageBubble({
   }
 
   return (
-    <article className={`flex items-end gap-2 ${ownMessage ? 'flex-row-reverse' : ''}`}>
+    <article className={`group/message flex items-end gap-2 ${ownMessage ? 'flex-row-reverse' : ''}`}>
       <div className="min-w-[min(12rem,80%,calc(100%-2.75rem))] lg:min-w-[min(20rem,80%,calc(100%-2.75rem))] max-w-[calc(100%-2.75rem)] sm:max-w-[min(80%,40rem)]">
         <div className={`mb-1.5 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 px-0.5 text-xs ${ownMessage ? 'justify-end' : ''}`}>
           <span className="min-w-0 break-words font-semibold !text-slate-800">{senderName}</span>
@@ -226,9 +226,14 @@ export default function MessageBubble({
         </div>
         <div
           className={`${messageBubbleClassName(message, ownMessage)}${pinSelected ? ' ring-2 ring-blue-700 ring-offset-1' : ''}${canSelect ? ' cursor-pointer' : ''}`}
-          onClick={canSelect ? (event) => {
-            if (!(event.target as HTMLElement).closest('a, button')) onPinSelectionToggle?.(message)
-          } : undefined}
+          tabIndex={hasActions ? -1 : undefined}
+          onClick={(event) => {
+            if ((event.target as HTMLElement).closest('a, button')) return
+            if (canSelect) onPinSelectionToggle?.(message)
+            else if (hasActions && window.matchMedia('(hover: none)').matches) {
+              event.currentTarget.focus({ preventScroll: true })
+            }
+          }}
           onContextMenu={handleContextMenu}
           onTouchStart={(event) => {
             if (!hasActions || (event.target as HTMLElement).closest('a, button')) return
@@ -320,7 +325,7 @@ export default function MessageBubble({
           aria-expanded={Boolean(openMenu)}
           aria-controls={openMenu ? actionId : undefined}
           onClick={() => openMenu ? closeMenu() : openAtTrigger()}
-          className="mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 aria-expanded:bg-slate-200/70 aria-expanded:text-slate-900"
+          className="pointer-events-none mb-1 grid h-8 w-8 shrink-0 place-items-center rounded-lg text-slate-500 opacity-0 group-hover/message:pointer-events-auto group-hover/message:opacity-100 [@media(hover:none)]:group-focus-within/message:pointer-events-auto [@media(hover:none)]:group-focus-within/message:opacity-100 focus-visible:pointer-events-auto focus-visible:opacity-100 hover:bg-slate-200/70 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 aria-expanded:pointer-events-auto aria-expanded:bg-slate-200/70 aria-expanded:text-slate-900 aria-expanded:opacity-100"
         >
           <Ellipsis size={18} aria-hidden="true" />
         </button>

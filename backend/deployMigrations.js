@@ -58,6 +58,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '878_vortex_private_gymnastics_evaluations.sql',
   '879_scheduling_class_swaps.sql',
   '882_lead_trial_contact_identity.sql',
+  '883_lead_last_contacted_date.sql',
   '840_staff_legal_signatures.sql',
 ])
 export const DEPLOY_RELEASE_MIGRATION_FILES = Object.freeze([

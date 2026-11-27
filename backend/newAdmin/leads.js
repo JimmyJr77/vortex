@@ -10,6 +10,9 @@ import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 import { leadFreeTrialsJoin } from './trialLeads.js'
 import { leadDirectoryCtes, loadCanonicalLeadGroup } from './leadDeduplication.js'
 import { leadMetadataJoin, leadStatusMetadata } from './leadStatus.js'
+import { leadOrderBy } from './leadSorting.js'
+import { leadActionEligibilityJoin } from './leadActions.js'
+import { isValidCalendarDate } from '../members/dateOnlyAge.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
@@ -17,10 +20,15 @@ export function leadRow(row) {
   return { id: Number(row.id), archived: row.archived === true, firstName: row.first_name, lastName: row.last_name,
     email: row.email, phone: row.phone, status: convertedMemberId ? 'converted' : row.lead_status || 'new',
     contacted: Boolean(row.contacted), followUp: Boolean(row.follow_up), firstContactedAt: row.first_contacted_at ?? null,
+    lastContactedAt: row.last_contacted_date_text ?? (row.last_contacted_date instanceof Date
+      ? `${row.last_contacted_date.getFullYear()}-${String(row.last_contacted_date.getMonth()+1).padStart(2,'0')}-${String(row.last_contacted_date.getDate()).padStart(2,'0')}`
+      : row.last_contacted_date ?? null),
     acquisition: inquiryAcquisition(row),
     inquiry: { athleteAge: row.athlete_age, interests: row.interests_array ?? row.interests, interest: row.interest, classTypes: row.class_types, childAges: row.child_ages, campers: row.campers, submitterRole: row.submitter_role, source: row.inquiry_source, newsletter: row.newsletter_opt_in ?? null, submittedBy: row.submitted_by_name ? { userId: row.submitted_by_user_id == null ? null : Number(row.submitted_by_user_id), name: row.submitted_by_name } : null },
     invitation: row.invitation ?? null,
     freeTrials: row.free_trials ?? [],
+    hasFreeTrialUsed: row.has_free_trial_used === true,
+    linkedMemberId: row.linked_member_id == null ? null : Number(row.linked_member_id),
     notes: row.admin_notes || '', message: row.message || '', createdAt: row.created_at,
     convertedMemberId: convertedMemberId == null ? null : Number(convertedMemberId),
     matchedMemberId: row.matched_member_id == null ? null : Number(row.matched_member_id),
@@ -30,18 +38,20 @@ export function leadRow(row) {
 
 export async function listLeads(db, facilityId, query = {}) {
   const paging = pagination(query)
+  const orderBy = leadOrderBy(query)
   const { where, values, join } = leadFilters(query, id(facilityId, 'facility'), LEAD_STATUSES)
   const today="(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
   const [rows, count] = await Promise.all([
-    db.query(`WITH ${leadDirectoryCtes('$1')} SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot, trial_history.free_trials,
+    db.query(`WITH ${leadDirectoryCtes('$1')} SELECT r.*,to_jsonb(r)->>'last_contacted_date' AS last_contacted_date_text, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot, trial_history.free_trials,
       lead_metadata.display_status,lead_metadata.participation_tags,lead_metadata.converted_at AS metadata_converted_at,
+      lead_actions.has_free_trial_used,lead_actions.linked_member_id,
       (SELECT jsonb_build_object('id',ai.id,'username',ai.suggested_username,'expiresAt',ai.expires_at,
         'purpose',CASE WHEN ai.pending_payload->>'purpose'='trial' THEN 'trial' ELSE 'registration' END,
         'status',CASE WHEN ai.used_at IS NOT NULL THEN 'completed' WHEN ai.expires_at<=now() THEN 'expired' ELSE ai.delivery_status END)
         FROM account_invite ai WHERE ai.registration_id=ANY(r.related_registration_ids) AND ai.facility_id=r.facility_id
           AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
-      FROM effective_leads r ${inquiryAcquisitionJoin} ${join} ${leadFreeTrialsJoin} ${leadMetadataJoin(today)}
-      WHERE ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
+      FROM effective_leads r ${inquiryAcquisitionJoin} ${join} ${leadFreeTrialsJoin} ${leadMetadataJoin(today)} ${leadActionEligibilityJoin()}
+      WHERE ${where} ORDER BY ${orderBy} LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
     db.query(`WITH ${leadDirectoryCtes('$1')} SELECT COUNT(*)::int AS total FROM effective_leads r ${join} WHERE ${where}`, values),
   ])
   return pageResult(rows.rows.map(leadRow), count.rows[0].total, paging)
@@ -76,12 +86,28 @@ export function leadInput(body, { partial = false, currentPhone } = {}) {
   }
   if (result.contacted === true && result.status === 'new') result.status = 'contacted'
   if (result.contacted === false && result.status === 'contacted') result.status = 'new'
+  if (Object.hasOwn(body, 'lastContactedAt')) {
+    const value = body.lastContactedAt
+    if (value !== null && (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value) || !isValidCalendarDate(value))) {
+      throw inputError('Last contacted date must be a valid YYYY-MM-DD date or null.')
+    }
+    result.lastContactedAt = value
+  }
   if (Object.hasOwn(body, 'inquiry')) result.inquiry = inquiryInput(body.inquiry)
   return result
 }
 
+const leadTodaySql = facility => `(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=${facility}),'America/New_York'))::date`
+
+async function validateLastContactedDate(db, facilityId, value) {
+  if (value == null) return
+  const result = await db.query(`SELECT ${leadTodaySql('$1')}::text AS today`, [id(facilityId)])
+  if (value > result.rows[0].today) throw inputError('Last contacted date cannot be in the future.')
+}
+
 export async function createLead(db, facilityId, body, { userId = null } = {}) {
   const input = leadInput(body)
+  await validateLastContactedDate(db, facilityId, input.lastContactedAt)
   const acquisitionSource = text(body.acquisitionSource, 'Acquisition source', 100)
   if (acquisitionSource && !/^[a-z][a-z0-9 _.-]*$/i.test(acquisitionSource)) {
     throw inputError('Acquisition source must start with a letter and use only letters, numbers, spaces, dashes, underscores or periods.')
@@ -99,16 +125,17 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
   const result = await db.query(`WITH saved AS (INSERT INTO registrations
     (facility_id,first_name,last_name,email,phone,admin_notes,message,lead_status,contacted,follow_up,first_contacted_at,
      interests_array,interests,class_types,campers,submitter_role,inquiry_source,interest,athlete_age,child_ages,
-     submitted_by_user_id,submitted_by_name,newsletter_opt_in)
+     submitted_by_user_id,submitted_by_name,newsletter_opt_in,last_contacted_date)
     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,CASE WHEN $9::boolean THEN now() ELSE NULL END,
-      $11::text[],$12,$13::text[],$14::jsonb,$15,$16,$17,$18,$19::int[],$20,$21,$22) RETURNING *),
+      $11::text[],$12,$13::text[],$14::jsonb,$15,$16,$17,$18,$19::int[],$20,$21,$22,
+      CASE WHEN $23::boolean THEN $24::date WHEN $9::boolean THEN ${leadTodaySql('$1')} ELSE NULL END) RETURNING *),
     subscribed AS (INSERT INTO newsletter_subscribers(email)
       SELECT email FROM saved WHERE newsletter_opt_in IS TRUE AND NULLIF(btrim(email),'') IS NOT NULL ON CONFLICT (email) DO NOTHING)
-    SELECT r.*, inquiry_contact.member_id AS matched_member_id FROM saved r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`,
+    SELECT r.*,to_jsonb(r)->>'last_contacted_date' AS last_contacted_date_text, inquiry_contact.member_id AS matched_member_id FROM saved r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`,
   [facility,input.firstName,input.lastName,input.email,input.phone,input.notes,input.message,input.status || (input.contacted ? 'contacted' : 'new'),input.contacted ?? input.status === 'contacted',input.followUp ?? false,
     inquiry.interests ?? null,inquiry.interests?.join(', ') ?? null,inquiry.classTypes ?? null,JSON.stringify(inquiry.campers ?? []),
     inquiry.submitterRole ?? null,inquiry.source || 'admin_portal',inquiry.interest ?? null,inquiry.athleteAge ?? null,inquiry.childAges ?? null,
-    submittedBy?.id ?? null,submittedBy?.name ?? null,inquiry.newsletter ?? false])
+    submittedBy?.id ?? null,submittedBy?.name ?? null,inquiry.newsletter ?? false,Object.hasOwn(input,'lastContactedAt'),input.lastContactedAt ?? null])
   const row = result.rows[0]
   if (acquisitionSource && await recordBusinessAcquisition(db, 'inquiry', row.id, { source: acquisitionSource, medium: 'self_reported' })) {
     row.acquisition_snapshot = { source: acquisitionSource, medium: 'self_reported', campaign: null, referrer_host: null, landing_path: null }
@@ -118,6 +145,7 @@ export async function createLead(db, facilityId, body, { userId = null } = {}) {
 
 export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   const input = leadInput(body, { partial: true, currentPhone })
+  await validateLastContactedDate(db, facilityId, input.lastContactedAt)
   const inquiry = input.inquiry
   if (inquiry?.campers) {
     // Child IDs are assigned by signup, never by staff-entered contact data.
@@ -133,7 +161,7 @@ export async function updateLead(db, facilityId, leadId, body, currentPhone) {
     })
   }
   delete input.inquiry
-  const columns = { firstName:'first_name',lastName:'last_name',email:'email',phone:'phone',notes:'admin_notes',message:'message',status:'lead_status',contacted:'contacted',followUp:'follow_up' }
+  const columns = { firstName:'first_name',lastName:'last_name',email:'email',phone:'phone',notes:'admin_notes',message:'message',status:'lead_status',contacted:'contacted',followUp:'follow_up',lastContactedAt:'last_contacted_date' }
   const values = [id(leadId), id(facilityId)]
   const updates = Object.entries(input).map(([key,value]) => { values.push(value); return `${columns[key]} = $${values.length}` })
   const inquiryColumns = { interests: 'interests_array', classTypes: 'class_types', campers: 'campers', submitterRole: 'submitter_role', source: 'inquiry_source', interest: 'interest', athleteAge: 'athlete_age', childAges: 'child_ages', newsletter: 'newsletter_opt_in' }
@@ -145,13 +173,16 @@ export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   if (!updates.length) throw inputError('No supported changes were supplied.')
   if (input.status && input.contacted === undefined) updates.push(`contacted = ('${input.status}' <> 'new')`)
   if (input.contacted === true || (input.status && input.status !== 'new')) updates.push('first_contacted_at = COALESCE(first_contacted_at, now())')
+  if (!Object.hasOwn(input,'lastContactedAt') && (input.contacted === true || (input.contacted === undefined && input.status && input.status !== 'new'))) {
+    updates.push(`last_contacted_date = CASE WHEN contacted IS NOT TRUE THEN ${leadTodaySql('$2')} ELSE last_contacted_date END`)
+  }
   if (input.contacted !== undefined && !input.status) updates.push(`lead_status = CASE WHEN COALESCE(converted_member_id,CASE WHEN inquiry_source IS DISTINCT FROM 'free_trial' THEN member_id END) IS NOT NULL THEN 'converted' WHEN lead_status IN ('new','contacted') OR lead_status IS NULL THEN '${input.contacted ? 'contacted' : 'new'}' ELSE lead_status END`)
   const subscribeParameter = values.push(inquiry?.newsletter === true)
   const result = await db.query(`WITH saved AS (UPDATE registrations SET ${updates.join(',')},updated_at=now()
     WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE RETURNING *),
     subscribed AS (INSERT INTO newsletter_subscribers(email)
       SELECT email FROM saved WHERE $${subscribeParameter}::boolean AND NULLIF(btrim(email),'') IS NOT NULL ON CONFLICT (email) DO NOTHING)
-    SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot
+    SELECT r.*,to_jsonb(r)->>'last_contacted_date' AS last_contacted_date_text, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot
     FROM saved r ${inquiryAcquisitionJoin} ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}`, values)
   if (!result.rows[0]) throw inputError('Lead not found.',404)
   return leadRow(result.rows[0])
@@ -164,8 +195,12 @@ export async function saveLead(pool, facilityId, leadId, body, req) {
     await db.query('BEGIN')
     const group=await loadCanonicalLeadGroup(db,facilityId,leadId)
     leadId=group.canonicalId
-    const before = await db.query('SELECT admin_notes,updated_at,phone FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE', [id(leadId), id(facilityId)])
+    const sourceRows = await db.query('SELECT id,admin_notes,updated_at,phone,contacted FROM registrations WHERE id=ANY($1::bigint[]) AND facility_id=$2 ORDER BY id FOR UPDATE', [group.registrationIds, id(facilityId)])
+    const before = { rows: sourceRows.rows.filter(row => Number(row.id) === Number(leadId)) }
     if (!before.rows[0]) throw inputError('Lead not found.', 404)
+    const wasContacted = sourceRows.rows.some(row => row.contacted === true)
+    const dateInput = Object.hasOwn(body,'lastContactedAt') ? leadInput({ lastContactedAt: body.lastContactedAt },{ partial: true }) : null
+    if (dateInput) await validateLastContactedDate(db,facilityId,dateInput.lastContactedAt)
     if(group.registrationIds.length>1 && group.memberId!=null)await db.query(
       'UPDATE registrations SET trial_contact_member_id=$3 WHERE id=$1 AND facility_id=$2', [leadId,id(facilityId),group.memberId])
     const flags=[];const flagValues=[group.registrationIds,id(facilityId)]
@@ -175,6 +210,10 @@ export async function saveLead(pool, facilityId, leadId, body, req) {
       flagValues.push(value);flags.push(`${column}=$${flagValues.length}`)
       if(key==='contacted'&&value)flags.push('first_contacted_at=COALESCE(first_contacted_at,now())')
     }
+    const markingContacted = Object.hasOwn(body,'contacted') ? body.contacted === true : Boolean(body.status && body.status !== 'new')
+    if (dateInput) {
+      flagValues.push(dateInput.lastContactedAt);flags.push(`last_contacted_date=$${flagValues.length}::date`)
+    } else if (markingContacted && !wasContacted) flags.push(`last_contacted_date=${leadTodaySql('$2')}`)
     if(flags.length)await db.query(`UPDATE registrations SET ${flags.join(',')},updated_at=now()
       WHERE id=ANY($1::bigint[]) AND facility_id=$2`,flagValues)
     if (Object.hasOwn(body, 'notes') && before.rows[0].admin_notes?.trim()) {
@@ -239,6 +278,17 @@ export async function convertLead(pool,{facilityId,leadId,userId,body={}}) {
   const client = await pool.connect()
   try {
     await client.query('BEGIN')
+    // Trial booking locks the guardian/household before its lead. Take any
+    // requested existing target in that order so conversion cannot invert it.
+    if (body.memberId) {
+      const member = await client.query('SELECT id FROM member WHERE id=$1 AND facility_id=$2 AND is_active=TRUE FOR UPDATE',
+        [id(body.memberId,'member'),id(facilityId)])
+      if (!member.rows[0]) throw inputError('Member not found.',404)
+    } else if (body.familyId) {
+      const family = await client.query('SELECT id FROM family WHERE id=$1 AND facility_id=$2 AND archived=FALSE FOR UPDATE',
+        [id(body.familyId,'family'),id(facilityId)])
+      if (!family.rows[0]) throw inputError('Family not found.',404)
+    }
     const locked = await client.query(`SELECT * FROM registrations WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE FOR UPDATE`,[id(leadId),id(facilityId)])
     const lead = locked.rows[0]
     if (!lead) throw inputError('Lead not found.',404)

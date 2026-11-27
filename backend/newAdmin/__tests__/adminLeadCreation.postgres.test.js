@@ -30,7 +30,7 @@ test('admin inquiry creation stores trusted staff attribution, optional public f
   await db.connect()
   try {
     await db.query('BEGIN')
-    for (const migration of ['855_repeat_public_inquiries.sql', '857_admin_lead_submission.sql', '875_business_acquisition.sql']) {
+    for (const migration of ['855_repeat_public_inquiries.sql', '857_admin_lead_submission.sql', '875_business_acquisition.sql', '883_lead_last_contacted_date.sql']) {
       await db.query(await readFile(new URL(`../../migrations/${migration}`, import.meta.url), 'utf8'))
     }
     const facility = (await db.query("INSERT INTO facility(name) VALUES('Admin lead fixture') RETURNING id")).rows[0]

@@ -22,7 +22,7 @@ const defaultHoldDays = 7
 
 export default function ConvertLead({ lead, access, onClose, onSent }: { lead: Lead; access: Access; onClose: () => void; onSent: () => void }) {
   const catalog = useRead<CatalogRow[]>('/api/admin/new-admin/lead-registration/catalog')
-  const existing = useRead<Invitation>(lead.invitation ? `/api/admin/new-admin/lead-registration/${lead.invitation.id}` : null)
+  const existing = useRead<Invitation>(lead.invitation && lead.invitation.purpose !== 'trial' ? `/api/admin/new-admin/lead-registration/${lead.invitation.id}` : null)
   const [result, setResult] = useState<Invitation | null>(null)
   const [editing, setEditing] = useState(false)
   const [guardian, setGuardian] = useState<Guardian>({ firstName: lead.firstName, lastName: lead.lastName, email: lead.email, phone: lead.phone || '' })

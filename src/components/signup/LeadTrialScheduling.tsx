@@ -24,6 +24,8 @@ export interface LeadTrialBooking {
   isTrialAssessment?: boolean
 }
 
+export type TrialBookingSelection = GymnasticsTrialAnswers & { program: FreeTrialProgram; slotGroupId: number; classDate: string }
+
 const fieldClass = 'mt-1 block w-full rounded-lg border border-slate-300 p-3'
 const actionClass = 'rounded-lg bg-vortex-red px-5 py-3 font-semibold text-white disabled:opacity-50'
 
@@ -59,14 +61,16 @@ export default function LeadTrialScheduling({ inviteId, token, session, facility
   </section>
 }
 
-function ChildTrialScheduling({ child, facilityId, inviteId, token, session, booking, onBooked }: {
+export function ChildTrialScheduling({ child, facilityId, inviteId, token, session, booking, onBooked, bookTrial, staff = false }: {
   child: TrialChild
   facilityId: number
-  inviteId: number
-  token: string
-  session: string
+  inviteId?: number
+  token?: string
+  session?: string
   booking?: LeadTrialBooking
   onBooked: (booking: LeadTrialBooking) => void
+  bookTrial?: (selection: TrialBookingSelection) => Promise<LeadTrialBooking>
+  staff?: boolean
 }) {
   const currentAge = calculateAge(child.dateOfBirth)
   const [age, setAge] = useState(currentAge ?? -1)
@@ -138,14 +142,19 @@ function ChildTrialScheduling({ child, facilityId, inviteId, token, session, boo
     setBookingBusy(true)
     setError(null)
     try {
-      const response = await fetch(`${getApiUrl()}/api/signup/lead/${inviteId}/trial`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ token, session, freeTrial: { memberIndex: child.memberIndex, program,
-          slotGroupId: selected.slotGroupId, classDate: selected.date, ...qualification } }),
-      })
-      const body = await response.json()
-      if (!response.ok || !body.success) throw new Error(body.message || 'Unable to confirm this trial. Refresh the dates and try again.')
-      const saved = body.data as LeadTrialBooking
+      const selection = { program, slotGroupId: selected.slotGroupId, classDate: selected.date, ...qualification }
+      let saved: LeadTrialBooking
+      if (bookTrial) saved = await bookTrial(selection)
+      else {
+        if (!inviteId || !token || !session) throw new Error('Open the registration link again before booking a trial.')
+        const response = await fetch(`${getApiUrl()}/api/signup/lead/${inviteId}/trial`, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, session, freeTrial: { memberIndex: child.memberIndex, ...selection } }),
+        })
+        const body = await response.json()
+        if (!response.ok || !body.success) throw new Error(body.message || 'Unable to confirm this trial. Refresh the dates and try again.')
+        saved = body.data as LeadTrialBooking
+      }
       if (saved.status !== 'confirmed' || saved.benefitType !== 'free_trial' || saved.totalCents !== 0) throw new Error('We could not confirm your free trial. Contact Vortex before attending.')
       onBooked({ ...saved, className: selected.className, classDate: selected.date, startTime: selected.startTime, endTime: selected.endTime,
         isTrialAssessment: saved.isTrialAssessment ?? selected.isTrialAssessment ?? isEvaluation })
@@ -185,7 +194,7 @@ function ChildTrialScheduling({ child, facilityId, inviteId, token, session, boo
             </select>
           </label>}
           {program === 'gymnastics' && experience === 'none' && age >= 2 && age <= 3 && <label className="flex items-start gap-2 sm:col-span-2">
-            <input type="checkbox" className="mt-1" checked={pottyTrained} onChange={event => { clearAvailability(); setPottyTrained(event.target.checked) }} />I confirm my child is potty trained for Mommy &amp; Me.
+            <input type="checkbox" className="mt-1" checked={pottyTrained} onChange={event => { clearAvailability(); setPottyTrained(event.target.checked) }} />{staff ? 'The family confirmed this athlete is potty trained for Mommy & Me.' : 'I confirm my child is potty trained for Mommy & Me.'}
           </label>}
         </fieldset>
         {isEvaluation && <p className="text-sm text-slate-600">Book a free private 30-minute evaluation, 1:1 with a coach, to assess your child’s skills and recommend the right class. Each time is reserved for one athlete.</p>}
