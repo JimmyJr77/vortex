@@ -3,10 +3,10 @@
 import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
-export const EMAIL_LAYOUT_VERSION = 'v4-home-page-logo'
+export const EMAIL_LAYOUT_VERSION = 'v5-compact-logo-spacing'
 export const EMAIL_LOGO_CID = 'vortex-athletics-gymnastics-logo@vortex'
 export const EMAIL_SIGNATURE_LOGO_CID = EMAIL_LOGO_CID
-export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v2"'
+export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v3"'
 
 /** Email-compatible PNG of the artwork used by PublicBrandImage on the home page. */
 export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-gymnastics-logo.png'
@@ -81,7 +81,7 @@ export const emailFooterHtml = {
     <div ${EMAIL_SIGNATURE_MARKER}>
       <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">Warmly,<br />The Vortex Athletics Team</p>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:100%;">
-        <tr><td style="padding:0 0 12px;">
+        <tr><td style="padding:0;">
           <img src="cid:${EMAIL_SIGNATURE_LOGO_CID}" alt="${escapeHtml(EMAIL_SIGNATURE.name)}" width="360" style="display:block;width:360px;max-width:100%;height:auto;border:0;" />
         </td></tr>
         <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:${BRAND.footerColor};">
@@ -182,7 +182,7 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
       <td align="left" style="padding:0;">
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="width:100%;">
           <tr>
-            <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">
+            <td align="center" style="background-color:${BRAND.headerBg};padding:8px 24px;">
               ${headerLogoHtml()}
             </td>
           </tr>
@@ -210,6 +210,8 @@ export function normalizeOutboundEmailHtml(html, { text = '' } = {}) {
   for (const oldCid of ['vortex-athletics-logo@vortex', 'vortex-gymnastics-logo@vortex']) {
     fragment = fragment.replaceAll(`cid:${oldCid}`, `cid:${EMAIL_LOGO_CID}`)
   }
+  fragment = fragment.replaceAll(`background-color:${BRAND.headerBg};padding:36px 24px;`,
+    `background-color:${BRAND.headerBg};padding:8px 24px;`)
   if (fragment.includes(EMAIL_LAYOUT_MARKER) && fragment.includes(EMAIL_SIGNATURE_MARKER)) return fragment
 
   if (fragment.includes('data-vortex-email-layout=')) {
@@ -230,7 +232,7 @@ export function normalizeOutboundEmailHtml(html, { text = '' } = {}) {
     if (!fragment.slice(0, fragment.indexOf(FOOTER_START)).includes(`cid:${EMAIL_LOGO_CID}`)) {
       fragment = fragment.replace(/<body\b[^>]*>/i, body => `${body}
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-          <td align="center" style="background-color:${BRAND.headerBg};padding:36px 24px;">${headerLogoHtml()}</td>
+          <td align="center" style="background-color:${BRAND.headerBg};padding:8px 24px;">${headerLogoHtml()}</td>
         </tr></table>`)
     }
     return fragment.replace(/data-vortex-email-layout-version=["'][^"']*["']/i, `data-vortex-email-layout-version="${EMAIL_LAYOUT_VERSION}"`)

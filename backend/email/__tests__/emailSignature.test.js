@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import nodemailer from 'nodemailer'
 import { registerEmailPool } from '../emailDeliveryStore.js'
-import { composeEmailHtml, emailFooterHtml, escapeHtml, EMAIL_LOGO_CID, EMAIL_LOGO_URL, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID } from '../emailHtml.js'
+import { composeEmailHtml, emailFooterHtml, escapeHtml, EMAIL_LAYOUT_VERSION, EMAIL_LOGO_CID, EMAIL_LOGO_URL, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID } from '../emailHtml.js'
 
 const occurrences = (text, value) => String(text).split(value).length - 1
 const readableHtml = html => String(html).replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
@@ -108,7 +108,7 @@ test('all outbound SMTP messages receive one complete Vortex signature without w
       const mail = sent.at(-1)
       assertFullSignature(mail)
       assert.doesNotMatch(mail.html, /cid:vortex-(?:athletics|gymnastics)-logo@vortex/)
-      assert.match(mail.html, /data-vortex-email-layout-version="v4-home-page-logo"/)
+      assert.ok(mail.html.includes(`data-vortex-email-layout-version="${EMAIL_LAYOUT_VERSION}"`))
       assert.match(mail.html, /Saved update\./)
     })
 
