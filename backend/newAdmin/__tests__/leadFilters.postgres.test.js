@@ -35,9 +35,11 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       CREATE TABLE program(id bigint PRIMARY KEY,facility_id bigint,display_name text,name text,is_trial_assessment boolean DEFAULT FALSE);
       CREATE TABLE scheduling_form(id bigint PRIMARY KEY,program_id bigint,title text);
       CREATE TABLE drop_in_registration(id bigint PRIMARY KEY,member_id bigint,benefit_type text,form_id bigint,class_date date,status text);
-      CREATE TABLE account_enrollment_current(record_member_id bigint,record_facility_id bigint,form_id bigint,
+      CREATE TABLE account_enrollment_current(id bigint,record_source text DEFAULT 'vortex',record_member_id bigint,record_facility_id bigint,form_id bigint,
         historical_only boolean DEFAULT FALSE,archived_at timestamptz,orphaned_at timestamptz,status text,
         enrollment_start_date date,cancel_effective_date date,pause_effective_date date,record_program_end date);
+      CREATE TABLE billing_account_activity(signup_id bigint,member_id bigint,event_type text,after_value jsonb,details jsonb);
+      CREATE TABLE enrollment_action(signup_id bigint,requested_status text,status text,effective_date date);
       CREATE TABLE additional_fee(id bigint PRIMARY KEY,trigger_type text,apply_basis text,name text);
       CREATE TABLE additional_fee_redemption(fee_id bigint,member_id bigint,billing_charge_id bigint,period_key text,
         amount_cents int,satisfied_at timestamptz,ended_at timestamptz);
@@ -152,6 +154,90 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.equal(page.total,4);assert.equal(page.totalPages,2);assert.equal(page.rows.length,2)
       assert.deepEqual(page.rows.map(row=>row.id),[3,1])
     })
+    await t.test('participation buttons use actual linked bookings and current households without hiding converted leads', async () => {
+      await db.query('SAVEPOINT participation_bookings')
+      try {
+        await db.query(`
+          INSERT INTO member(id,facility_id,first_name,last_name) SELECT id,1,'Category',id::text FROM generate_series(100,112) id;
+          INSERT INTO registrations(id,facility_id,first_name,last_name,email,campers,contacted,follow_up)
+            SELECT id,1,'Category',id::text,'category-'||id||'@example.test',jsonb_build_array(jsonb_build_object('memberId',id)),FALSE,TRUE
+            FROM generate_series(100,108) id;
+          INSERT INTO program(id,facility_id,display_name,name) VALUES(100,1,'Category class','Category class'),(101,2,'Foreign category','Foreign category');
+          INSERT INTO scheduling_form VALUES(100,100,'Category class'),(101,101,'Foreign category');
+          INSERT INTO drop_in_registration VALUES
+            (100,100,'free_trial',100,CURRENT_DATE+1,'confirmed'),(101,101,'paid',100,CURRENT_DATE-1,'attended'),
+            (102,102,'free_trial',100,CURRENT_DATE-1,'cancelled'),(103,105,'paid',101,CURRENT_DATE-1,'attended'),
+            (104,106,'paid',100,CURRENT_DATE-1,'attended'),(105,4,'free_trial',101,CURRENT_DATE-1,'attended'),
+            (106,108,'free_trial',100,CURRENT_DATE-10,'attended');
+          UPDATE registrations SET converted_member_id=100,lead_status='converted' WHERE id=100;
+          INSERT INTO family VALUES(100,1),(101,1);
+          UPDATE member SET family_id=100 WHERE id IN(101,111);
+          UPDATE member SET family_id=101 WHERE id IN(106,112);
+          INSERT INTO family_member VALUES(100,101,TRUE),(100,111,TRUE),(101,106,FALSE),(101,112,TRUE);
+          UPDATE registrations SET campers='[]',member_id=111 WHERE id=101;
+          UPDATE registrations SET campers='[{"firstName":"Category","lastName":"100"}]' WHERE id=103;
+          UPDATE registrations SET campers='[]',inquiry_source='free_trial' WHERE id=104;
+          UPDATE registrations SET campers='[]',member_id=112 WHERE id=106;
+          UPDATE registrations SET campers='[{"memberId":4},{"memberId":"invalid"}]' WHERE id=107;
+        `)
+        assert.deepEqual(await ids({participation:'free_trial',search:'category'}),[100,108])
+        assert.deepEqual(await ids({participation:'drop_in',search:'category'}),[101])
+        assert.deepEqual(await ids({participation:'free_trial',search:'category',converted:'false'}),[108])
+        assert.deepEqual(await ids({participation:'free_trial',search:'category',followUp:'false'}),[])
+        const page=await listLeads(db,1,{participation:'free_trial',search:'category',pageSize:1,page:2})
+        assert.equal(page.total,2);assert.equal(page.totalPages,2);assert.deepEqual(page.rows.map(row=>row.id),[100])
+        assert.deepEqual(await ids({search:'category'}),[102,103,104,107,108])
+        await db.query('UPDATE registrations SET archived=TRUE WHERE id=108')
+        assert.deepEqual(await ids({participation:'free_trial',search:'category'}),[100])
+        assert.deepEqual(await ids({participation:'free_trial',search:'category',archived:'true'}),[108])
+      } finally { await db.query('ROLLBACK TO SAVEPOINT participation_bookings') }
+    })
+    await t.test('recent drops use the last 90 facility-local effective days, retain finalized cancellations and exclude class swaps', async () => {
+      await db.query('SAVEPOINT participation_drops')
+      try {
+        await db.query(`
+          INSERT INTO member(id,facility_id,first_name,last_name) SELECT id,1,'Drop',id::text FROM generate_series(120,138) id;
+          INSERT INTO registrations(id,facility_id,first_name,last_name,email,converted_member_id,campers,contacted,follow_up)
+            SELECT id,1,'Drop',id::text,'drop-'||id||'@example.test',id,jsonb_build_array(jsonb_build_object('memberId',id)),FALSE,TRUE
+            FROM generate_series(120,138) id;
+          INSERT INTO account_enrollment_current(id,record_member_id,record_facility_id,status,enrollment_start_date,cancel_effective_date)
+            SELECT id,id,1,'cancelled',CURRENT_DATE-365,CURRENT_DATE-10 FROM generate_series(120,138) id;
+          UPDATE account_enrollment_current SET cancel_effective_date=(CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date-90 WHERE id=120;
+          UPDATE account_enrollment_current SET cancel_effective_date=(CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date-91 WHERE id=121;
+          UPDATE account_enrollment_current SET cancel_effective_date=CURRENT_DATE+1 WHERE id=122;
+          INSERT INTO billing_account_activity(signup_id,member_id,event_type) VALUES(123,123,'enrollment_class_swapped'),(128,128,'enrollment_class_swapped');
+          UPDATE account_enrollment_current SET cancel_effective_date=NULL WHERE id IN(124,125,126,127,131,136);
+          INSERT INTO billing_account_activity VALUES
+            (124,124,'enrollment_cancellation_scheduled',jsonb_build_object('cancelEffectiveDate',(CURRENT_DATE-5)::text),NULL),
+            (131,131,'enrollment_cancelled_immediately',NULL,jsonb_build_object('preview',jsonb_build_object('effectiveDate',(CURRENT_DATE+1)::text)));
+          INSERT INTO enrollment_action VALUES(125,'cancelled','applied',CURRENT_DATE-7),
+            (126,'cancelled','applied',CURRENT_DATE-8),(136,'cancelled','cancelled',CURRENT_DATE-9);
+          UPDATE account_enrollment_current SET status='confirmed' WHERE id=126;
+          UPDATE account_enrollment_current SET status='completed',record_program_end=CURRENT_DATE-2 WHERE id=127;
+          INSERT INTO account_enrollment_current(id,record_member_id,record_facility_id,status,enrollment_start_date,cancel_effective_date) VALUES
+            (228,128,1,'cancelled',CURRENT_DATE-9,CURRENT_DATE-2),(230,130,1,'confirmed',CURRENT_DATE-9,NULL);
+          UPDATE account_enrollment_current SET id=-129,record_source='jackrabbit',historical_only=TRUE WHERE id=129;
+          UPDATE registrations SET archived=TRUE WHERE id=132;
+          UPDATE registrations SET facility_id=2 WHERE id=133;
+          INSERT INTO family VALUES(120,1),(121,1);
+          UPDATE member SET family_id=120 WHERE id IN(134,137);
+          UPDATE member SET family_id=121 WHERE id IN(135,138);
+          INSERT INTO family_member VALUES(120,134,TRUE),(120,137,TRUE),(121,135,FALSE),(121,138,TRUE);
+          DELETE FROM account_enrollment_current WHERE record_member_id IN(137,138);
+          UPDATE registrations SET converted_member_id=137,campers='[]' WHERE id=134;
+          UPDATE registrations SET converted_member_id=138,campers='[]' WHERE id=135;
+          UPDATE registrations SET campers='{}',converted_member_id=NULL WHERE id=137;
+        `)
+        assert.deepEqual(await ids({participation:'recent_drop',search:'drop'}),[120,124,125,128,129,130,134])
+        assert.deepEqual(await ids({participation:'recent_drop',search:'drop',archived:'true'}),[132])
+        assert.deepEqual(await ids({participation:'recent_drop',search:'drop',followUp:'false'}),[])
+        const page=await listLeads(db,1,{participation:'recent_drop',search:'drop',pageSize:2,page:2})
+        assert.equal(page.total,7);assert.equal(page.totalPages,4);assert.deepEqual(page.rows.map(row=>row.id),[129,128])
+        await db.query(`UPDATE billing_account_activity SET after_value=NULL,
+          details=jsonb_build_object('preview',jsonb_build_object('effectiveDate',(CURRENT_DATE-5)::text)) WHERE signup_id=124`)
+        assert.deepEqual(await ids({participation:'recent_drop',search:'drop-124'}),[124])
+      } finally { await db.query('ROLLBACK TO SAVEPOINT participation_drops') }
+    })
     await t.test('family and converted leads show the same notes in both directions without tenant leaks', async () => {
       assert.deepEqual(await leadNotes(db,1,2),await familyNotes(db,1,1))
       assert.deepEqual(await leadNotes(db,1,7),await familyNotes(db,1,1))
@@ -173,7 +259,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       await assert.rejects(leadNotes(db,2,2),error=>error.statusCode===404)
     })
     await t.test('invalid filter values fail before querying', async () => {
-      for(const query of [{contacted:'yes'},{converted:'nope'},{includeMembers:'yes'},{ageMin:'-1'},{ageMax:'3.5'},{ageMin:'15',ageMax:'4'},{gender:'invalid'}]) {
+      for(const query of [{contacted:'yes'},{converted:'nope'},{includeMembers:'yes'},{ageMin:'-1'},{ageMax:'3.5'},{ageMin:'15',ageMax:'4'},{gender:'invalid'},{participation:'invented'}]) {
         await assert.rejects(listLeads(db,1,query),error=>error.statusCode===400)
       }
     })

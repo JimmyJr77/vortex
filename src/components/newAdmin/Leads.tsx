@@ -16,7 +16,7 @@ const checkboxCell = 'whitespace-nowrap px-0.5 py-3 text-center align-top'
 const cell = 'px-2.5 py-3 text-left align-top'
 const inquiryDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
 
-const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '' }
+const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '', participation: '' }
 export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
   const [query, setQuery] = useState('')
   const search = useSearch(query)
@@ -45,7 +45,7 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
   }
   return <section>
     <div className="mb-5 flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl font-bold">Leads</h2><p className="mt-1 text-sm text-slate-500">Follow up on inquiries from prospective families.</p></div><div className="flex flex-wrap items-center gap-2">
-      <button type="button" className={button} aria-pressed={includeMembers} onClick={() => { setIncludeMembers(value => !value); setPage(1) }}>{includeMembers ? 'Hide active and converted members' : 'Show active and converted members'}</button>
+      <button type="button" className={button} aria-pressed={includeMembers || Boolean(filters.participation)} disabled={Boolean(filters.participation)} onClick={() => { setIncludeMembers(value => !value); setPage(1) }}>{filters.participation ? 'Active and converted members included' : includeMembers ? 'Hide active and converted members' : 'Show active and converted members'}</button>
       {canManage ? <button className={primary} onClick={() => setAdding(true)}><Plus className="h-4 w-4" />Add lead</button> : null}
     </div></div>
     <LeadFilters value={filters} onChange={patch => { setFilters(current => ({ ...current, ...patch })); setPage(1) }} search={query} onSearch={value => { setQuery(value); setPage(1) }} keywords={keywords} onKeywords={value => { setKeywords(value); setPage(1) }} onReset={() => { setFilters(emptyFilters); setQuery(''); setKeywords(''); setIncludeMembers(false); setPage(1) }} />

@@ -3,6 +3,7 @@ import { accountNotesSql } from './accountNotes.js'
 import { phoneSearchPattern } from '../phoneNumbers.js'
 import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { memberIsActiveSql } from './memberActivity.js'
+import { leadParticipationFilter, leadParticipationSql } from './leadParticipation.js'
 
 const booleanFilter = (value, label) => {
   if (value == null || value === '') return null
@@ -21,6 +22,10 @@ export function leadFilters(query, facilityId, statuses) {
   const bind = value => { values.push(value); return `$${values.length}` }
   const archived = booleanFilter(query.archived, 'archived') === true
   const clauses = ['r.facility_id=$1', archived ? 'r.archived IS TRUE' : 'r.archived IS NOT TRUE']
+  const participation = leadParticipationFilter(query.participation)
+  const today = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
+  const participationClause = leadParticipationSql(participation, today)
+  if (participationClause) clauses.push(participationClause)
   const search = String(query.search ?? '').trim().slice(0, 200)
   if (search) {
     const text = bind(searchValue(search))
@@ -45,14 +50,13 @@ export function leadFilters(query, facilityId, statuses) {
   const isConverted = `(${convertedMember} IS NOT NULL OR COALESCE(r.lead_status,'new')='converted')`
   if (status) clauses.push(`(CASE WHEN ${convertedMember} IS NOT NULL THEN 'converted' ELSE COALESCE(r.lead_status,'new') END)=${bind(status)}`)
   const converted = booleanFilter(query.converted, 'converted')
-  const includeMembers = booleanFilter(query.includeMembers, 'include members') === true
+  const includeMembers = booleanFilter(query.includeMembers, 'include members') === true || Boolean(participation)
   if (!includeMembers && converted == null && status !== 'converted') clauses.push(`NOT ${isConverted}`)
   if (converted != null) clauses.push(`${isConverted}=${bind(converted)}`)
   if (!includeMembers && converted !== true && status !== 'converted') {
     // Check activity for the matched contact or explicitly linked athletes.
     // Portal accounts and enrollment alone do not make a person active.
     // Free trial drop-ins remain prospects without a membership or paid drop-in.
-    const today = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
     clauses.push(`NOT EXISTS (
       SELECT 1 FROM member lead_member
       WHERE lead_member.facility_id=r.facility_id
