@@ -427,17 +427,26 @@ async function loadCatalog(pool, member, { includeExcluded = false, trialsOnly =
      ORDER BY primary_dt.name, top.display_name, p.display_name,
               ts.day_of_week, ts.specific_date, ts.start_time
   `)
+  if (!result.rows.length) return { classes: [], sessions: [], benefits }
+  const catalogGroupIds = [...new Set(result.rows.map(row => Number(row.slot_group_id)))]
+  const catalogStarts = result.rows.map(row => formatDateOnly(row.facility_date)).filter(Boolean).sort()
+  const catalogEnds = result.rows.map(row => formatDateOnly(row.booking_end_date)).filter(Boolean).sort()
+  const catalogStart = catalogStarts[0] ?? null
+  const catalogEnd = catalogEnds.at(-1) ?? null
   const registrationCounts = await pool.query(
     `SELECT slot_group_id, class_date, COUNT(*)::int AS count,
             COUNT(*) FILTER (WHERE status IN ('confirmed', 'attended'))::int AS confirmed_count
        FROM drop_in_registration
       WHERE status = ANY($1)
+        AND slot_group_id = ANY($2::bigint[])
         AND class_date >= CURRENT_DATE - 1
         AND class_date <= (CURRENT_DATE + INTERVAL '2 months' + INTERVAL '1 day')::date
       GROUP BY slot_group_id, class_date`,
-    [[...ACTIVE_REGISTRATION_STATUSES, 'attended']],
+    [[...ACTIVE_REGISTRATION_STATUSES, 'attended'], catalogGroupIds],
   )
-  const swapCapacityDeltas = await classSwapCapacityDeltas(pool)
+  const swapCapacityDeltas = await classSwapCapacityDeltas(pool, {
+    startDate: catalogStart, endDate: catalogEnd, groupIds: catalogGroupIds,
+  })
   const dropInCountByOccurrence = new Map(
     registrationCounts.rows.map((row) => [
       `${Number(row.slot_group_id)}:${formatDateOnly(row.class_date)}`,
@@ -451,10 +460,11 @@ async function loadCatalog(pool, member, { includeExcluded = false, trialsOnly =
     `SELECT slot_group_id, enrollment_start_date, cancel_effective_date, COUNT(*)::int AS count
        FROM scheduling_signup
       WHERE status = 'confirmed'
-        AND slot_group_id IS NOT NULL
+        AND slot_group_id = ANY($1::bigint[])
         AND orphaned_at IS NULL
         AND archived_at IS NULL
       GROUP BY slot_group_id, enrollment_start_date, cancel_effective_date`,
+    [catalogGroupIds],
   )
   const monthlyStartsByGroup = new Map()
   for (const row of monthlyEnrollmentCounts.rows) {

@@ -37,7 +37,7 @@ import http from 'http'
 import cors from 'cors'
 import helmet from 'helmet'
 import rateLimit from 'express-rate-limit'
-import pkg from 'pg'
+import { createRuntimeDatabasePool } from './platform/runtimeDatabasePool.js'
 import { registerNewAdminRoutes } from './newAdmin/registerRoutes.js'
 import { registerAdminAccountReadRoutes } from './accounts/adminAccountReadRoutes.js'
 import Joi from 'joi'
@@ -148,8 +148,6 @@ import {startSettlementRecoveryScheduler} from './payroll/settlementRecoverySche
 import {startPaymentRecoveryScheduler} from './payroll/paymentRecoveryScheduler.js'
 import { startPayrollComplianceScheduler } from './payroll/complianceScheduler.js'
 
-const { Pool } = pkg
-
 // Load environment variables - try .env.local first, then .env
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -173,7 +171,7 @@ const ensureProductionEnv = () => {
     'JWT_SECRET',
     'FRONTEND_URL',
   ]
-  const hasDatabaseUrl = Boolean(process.env.DATABASE_URL)
+  const hasDatabaseUrl = Boolean(process.env.DATABASE_URL || process.env.DB_URL)
   const hasDbParts = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD'].every((key) => Boolean(process.env[key]))
   if (!hasDatabaseUrl && !hasDbParts) {
     throw new Error('Production database configuration is missing. Set DATABASE_URL or DB_* variables.')
@@ -357,35 +355,8 @@ const passwordResetLimiter = rateLimit({
   },
 })
 
-// PostgreSQL Database setup. Local development sometimes points at the hosted
-// database via DATABASE_URL; hosted PostgreSQL still requires TLS even though
-// NODE_ENV is not "production" in that case.
-const databaseConnectionString = process.env.DATABASE_URL || process.env.DB_URL
-const databaseUrlRequiresSsl = (() => {
-  if (!databaseConnectionString) return false
-  try {
-    const hostname = new URL(databaseConnectionString).hostname.toLowerCase()
-    return !['localhost', '127.0.0.1', '::1'].includes(hostname)
-  } catch {
-    return false
-  }
-})()
-const databaseSsl =
-  process.env.DATABASE_SSL === 'false'
-    ? false
-    : process.env.DATABASE_SSL === 'true' || isProduction || databaseUrlRequiresSsl
-      ? { rejectUnauthorized: false }
-      : false
-
-const pool = new Pool({
-  connectionString: databaseConnectionString,
-  user: process.env.DB_USER || 'postgres',
-  host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'vortex_athletics',
-  password: process.env.DB_PASSWORD || 'password',
-  port: process.env.DB_PORT || 5432,
-  ssl: databaseSsl
-})
+const pool = createRuntimeDatabasePool()
+let paymentFactAuditScheduler = null
 
 // Job applications use their own request limit and JSON size cap before the generic parser.
 registerPublicJobApplicationRoutes(app, pool)
@@ -396,16 +367,6 @@ console.log(`🛡️ API rate limit: ${apiRateLimitMax} requests / 15 min`)
 
 let requiredBillingSchemaReady = false
 let requiredAccessSchemaReady = false
-
-// Test database connection
-pool.on('connect', () => {
-  console.log('✅ Connected to PostgreSQL database')
-})
-
-pool.on('error', (err) => {
-  console.error('❌ PostgreSQL connection error:', err)
-  process.exit(-1)
-})
 
 async function isDefaultMasterUserById(userId) {
   if (!userId) return false
@@ -11924,7 +11885,7 @@ const startServer = async () => {
         startDailyRosterScheduler(pool)
         startAccountInviteReminderScheduler(pool)
         startMessageThreadAutoArchiveScheduler(pool)
-        startPaymentFactAuditScheduler(pool)
+        paymentFactAuditScheduler = startPaymentFactAuditScheduler(pool)
         startPayrollComplianceScheduler(pool)
         startPaymentRecoveryScheduler(pool)
         startW2ProviderEventScheduler(pool)
@@ -12057,6 +12018,7 @@ app.post('/api/admin/run-migration', async (req, res) => {
 // Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down server...')
+  paymentFactAuditScheduler?.stop()
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')
@@ -12068,6 +12030,7 @@ process.on('SIGINT', async () => {
 
 process.on('SIGTERM', async () => {
   console.log('\n🛑 SIGTERM received, shutting down server...')
+  paymentFactAuditScheduler?.stop()
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')

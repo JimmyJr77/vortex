@@ -36,11 +36,15 @@ export async function listFamilies(pool, facilityId, query = {}) {
   const paging = pagination(query)
   const active = optionalBoolean(query.active, 'active status')
   const enrolled = optionalBoolean(query.enrolled, 'enrollment')
+  // Unfiltered participation is presentation data. Compute it only after the
+  // page has been selected instead of materializing it for every search match.
+  const activeFact = active == null ? '' : `, ${familyIsActiveSql('f.id', '$1', todaySql)} AS active`
+  const enrolledFact = enrolled == null ? '' : `, ${familyIsEnrolledSql('f.id', '$1', todaySql)} AS enrolled`
+  const pageActive = active == null ? familyIsActiveSql('p.id', '$1', todaySql) : 'p.active'
+  const pageEnrolled = enrolled == null ? familyIsEnrolledSql('p.id', '$1', todaySql) : 'p.enrolled'
   const result = await pool.query(`/* family-workspace:directory */
     WITH facts AS (
-      SELECT f.id,f.family_name,f.archived,
-        ${familyIsActiveSql('f.id', '$1', todaySql)} AS active,
-        ${familyIsEnrolledSql('f.id', '$1', todaySql)} AS enrolled
+      SELECT f.id,f.family_name,f.archived${activeFact}${enrolledFact}
       FROM family f WHERE f.facility_id=$1
       AND ($3::text='all' OR COALESCE(f.archived,FALSE)=($3='archived'))
       AND (f.family_name ILIKE $2 ESCAPE '\\' OR EXISTS (
@@ -48,11 +52,13 @@ export async function listFamilies(pool, facilityId, query = {}) {
         AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'f.id' })}
         AND (concat_ws(' ',m.first_name,m.last_name,m.email,m.phone) ILIKE $2 ESCAPE '\\'
           OR ($6::text IS NOT NULL AND regexp_replace(COALESCE(m.phone, ''), '[^0-9]', '', 'g') LIKE $6))))
-    ), matches AS (SELECT * FROM facts WHERE ($7::boolean IS NULL OR active=$7) AND ($8::boolean IS NULL OR enrolled=$8)),
-    page AS (SELECT * FROM matches ORDER BY lower(family_name),id LIMIT $4 OFFSET $5)
+    ), matches AS (SELECT * FROM facts WHERE ${active == null ? '$7::boolean IS NULL' : 'active=$7::boolean'}
+      AND ${enrolled == null ? '$8::boolean IS NULL' : 'enrolled=$8::boolean'}),
+    page AS MATERIALIZED (SELECT * FROM matches ORDER BY lower(family_name),id LIMIT $4 OFFSET $5)
     SELECT (SELECT count(*)::int FROM matches) AS total,
       COALESCE((SELECT jsonb_agg(row ORDER BY lower(row.family_name),row.id) FROM (
-        SELECT p.*, (SELECT count(*)::int FROM member m WHERE m.facility_id=$1
+        SELECT p.id,p.family_name,p.archived,${pageActive} AS active,${pageEnrolled} AS enrolled,
+          (SELECT count(*)::int FROM member m WHERE m.facility_id=$1
           AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'p.id' })}) AS people_count
         FROM page p) row),'[]'::jsonb) AS rows`,
   [id(facilityId), searchValue(query.search), ['all', 'archived'].includes(query.record) ? query.record : 'active', paging.pageSize, paging.offset, phoneSearchPattern(String(query.search ?? '').slice(0, 200)), active, enrolled])

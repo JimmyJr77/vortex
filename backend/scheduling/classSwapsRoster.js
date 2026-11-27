@@ -46,7 +46,8 @@ export function applyClassSwapRows(classes, date, swaps) {
 }
 
 export async function applyClassSwapOverrides(db, classes, date, { facilityId = null } = {}) {
-  if (!await hasClassSwapSchema(db)) return
+  if (!classes.length || !await hasClassSwapSchema(db)) return
+  const timeSlotIds = [...new Set(classes.map(item => Number(item.timeSlotId)))]
   const swaps = await db.query(`SELECT swap.*,swap.source_date::text,swap.target_date::text,
       COALESCE(NULLIF(TRIM(m.first_name),''),signup.first_name,booking.first_name,'') AS current_first_name,
       COALESCE(NULLIF(TRIM(m.last_name),''),signup.last_name,booking.last_name,'') AS current_last_name,
@@ -71,9 +72,11 @@ export async function applyClassSwapOverrides(db, classes, date, { facilityId = 
       LEFT JOIN app_user payer_user ON payer_user.id=payer.app_user_id
       WHERE membership.member_id=m.id AND membership.is_active=TRUE ORDER BY account.id LIMIT 1
     ) payer_contact ON TRUE
-    WHERE (swap.source_date=$1::date OR swap.target_date=$1::date) AND ($2::bigint IS NULL OR swap.facility_id=$2)
+    WHERE ((swap.source_date=$1::date AND swap.source_time_slot_id=ANY($3::bigint[]))
+      OR (swap.target_date=$1::date AND swap.target_time_slot_id=ANY($3::bigint[])))
+      AND ($2::bigint IS NULL OR swap.facility_id=$2)
       AND ${CLASS_SWAP_ACTIVE_SOURCE_SQL}
-    ORDER BY swap.id`, [date,facilityId])
+    ORDER BY swap.id`, [date,facilityId,timeSlotIds])
   const hydrated=swaps.rows.map(swap=>{
     const snapshot=typeof swap.athlete==='string'?JSON.parse(swap.athlete):swap.athlete
     return {...swap,athlete:{...snapshot,
@@ -89,20 +92,35 @@ export async function applyClassSwapOverrides(db, classes, date, { facilityId = 
 
 // Public group bookings cover every sibling slot. Reserve against the busiest
 // affected slot; a departure can free a seat when the group has one active slot.
-export async function classSwapCapacityDeltas(db, { startDate = null, endDate = null, groupId = null } = {}) {
-  if (!await hasClassSwapSchema(db)) return new Map()
+export async function classSwapCapacityDeltas(db, { startDate = null, endDate = null, groupId = null, groupIds = null, facilityId = null } = {}) {
+  const requestedGroups = groupIds == null
+    ? (groupId == null ? null : [Number(groupId)])
+    : [...new Set(groupIds.map(Number))].filter(id => groupId == null || id === Number(groupId))
+  if (requestedGroups?.length === 0 || !await hasClassSwapSchema(db)) return new Map()
   const result = await db.query(`WITH active_swaps AS (
-    SELECT swap.* FROM scheduling_class_swap swap ${CLASS_SWAP_SOURCE_JOINS} WHERE ${CLASS_SWAP_ACTIVE_SOURCE_SQL}
+    SELECT swap.source_slot_group_id,swap.source_time_slot_id,swap.source_date,
+      swap.target_slot_group_id,swap.target_time_slot_id,swap.target_date
+    FROM scheduling_class_swap swap ${CLASS_SWAP_SOURCE_JOINS}
+    WHERE ($4::bigint IS NULL OR swap.facility_id=$4)
+      AND (((($1::date IS NULL OR swap.source_date >= $1) AND ($2::date IS NULL OR swap.source_date <= $2))
+          AND ($3::bigint[] IS NULL OR swap.source_slot_group_id=ANY($3)))
+        OR ((($1::date IS NULL OR swap.target_date >= $1) AND ($2::date IS NULL OR swap.target_date <= $2))
+          AND ($3::bigint[] IS NULL OR swap.target_slot_group_id=ANY($3))))
+      AND ${CLASS_SWAP_ACTIVE_SOURCE_SQL}
   ), deltas AS (
     SELECT target_slot_group_id AS group_id,target_time_slot_id AS slot_id,target_date AS date,1 AS delta FROM active_swaps
-    UNION ALL SELECT source_slot_group_id,source_time_slot_id,source_date,-1 FROM active_swaps
+      WHERE ($1::date IS NULL OR target_date >= $1) AND ($2::date IS NULL OR target_date <= $2)
+        AND ($3::bigint[] IS NULL OR target_slot_group_id=ANY($3))
+    UNION ALL
+    SELECT source_slot_group_id,source_time_slot_id,source_date,-1 FROM active_swaps
+      WHERE ($1::date IS NULL OR source_date >= $1) AND ($2::date IS NULL OR source_date <= $2)
+        AND ($3::bigint[] IS NULL OR source_slot_group_id=ANY($3))
   ), per_slot AS (SELECT group_id,slot_id,date,SUM(delta)::int AS delta FROM deltas
-    WHERE ($1::date IS NULL OR date >= $1) AND ($2::date IS NULL OR date <= $2) AND ($3::bigint IS NULL OR group_id=$3)
     GROUP BY group_id,slot_id,date)
     SELECT group_id,date::text,
       CASE WHEN (SELECT COUNT(*) FROM scheduling_time_slot slot WHERE slot.slot_group_id=per_slot.group_id AND slot.is_active=TRUE)=1
         THEN MAX(delta) ELSE GREATEST(0,MAX(delta)) END::int AS delta
-    FROM per_slot GROUP BY group_id,date`, [startDate,endDate,groupId])
+    FROM per_slot GROUP BY group_id,date`, [startDate,endDate,requestedGroups,facilityId])
   return new Map(result.rows.map(row => [`${row.group_id}:${row.date}`,Number(row.delta)]))
 }
 

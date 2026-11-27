@@ -216,11 +216,12 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
   registeredThrough = null,
   includeNewRegistrations = true,
   facilityId = null,
+  slotGroupIds = null,
 } = {}) {
   const rosterDate = validateRosterDate(date)
   if (!rosterDate) throw new Error('Roster date must be a valid YYYY-MM-DD date')
 
-  const calendarRows = await loadSchedulingCalendarRows(pool, { formActive: 'active', facilityId })
+  const calendarRows = await loadSchedulingCalendarRows(pool, { formActive: 'active', facilityId, slotGroupIds })
   const calendar = expandCalendarRange({ startDate: rosterDate, endDate: rosterDate, rows: calendarRows })
   const events = calendar.events.filter(
     (event) => event.formActive && event.classActive && event.slotGroupActive && event.slotActive && !event.isCancelled,

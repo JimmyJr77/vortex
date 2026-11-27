@@ -8,7 +8,7 @@ export default function LeadFilters({ value, onChange, search, onSearch, keyword
 }) {
   return <section aria-label="Lead filters" className="mb-4 space-y-4 rounded-xl border border-slate-200 bg-white p-4">
     <div className="grid gap-3 md:grid-cols-2">
-      <label className="text-sm font-medium">Name, email, phone<input className={input} maxLength={200} value={search} onChange={event => onSearch(event.target.value)} placeholder="Search lead contact details" /></label>
+      <label className="text-sm font-medium">Name, email, phone<input className={input} maxLength={200} value={search} onChange={event => onSearch(event.target.value)} placeholder="Search parent or child names, email, or phone" /></label>
       <label className="text-sm font-medium">Keywords<input className={input} maxLength={200} value={keywords} onChange={event => onKeywords(event.target.value)} placeholder="Inquiry, interests, or notes" /></label>
     </div>
     <div className="flex flex-wrap items-end gap-4">

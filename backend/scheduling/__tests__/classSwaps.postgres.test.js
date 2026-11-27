@@ -66,6 +66,13 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     await assert.rejects(executeClassSwap(pool,{facilityId,actorUserId,input:{...input,targetTimeSlotId:source.slots[1]}}),/different class swap/)
     const original=await one('SELECT status,slot_group_id FROM scheduling_signup WHERE id=$1',[signupId]);assert.equal(original.status,'confirmed');assert.equal(Number(original.slot_group_id),source.groupId)
 
+    const overlappingEvaluation=await addClass('Overlapping private evaluation',[3],1)
+    await db.query(`UPDATE program SET is_trial_assessment=TRUE
+      WHERE id IN (SELECT program_id FROM scheduling_form WHERE id=ANY($1::bigint[]))`,[[target.formId,overlappingEvaluation.formId]])
+    await assert.rejects(previewClassSwap(db,{facilityId,input:{...input,source:'drop_in',signupId:trialId,
+      targetFormId:overlappingEvaluation.formId,targetSlotGroupId:overlappingEvaluation.groupId,targetTimeSlotId:overlappingEvaluation.slots[0]}}),
+    /private evaluation time has already been booked/,'scoping the destination must still check overlapping private evaluation groups')
+
     // Permanent package replacements share one billing transaction and one
     // source credit, even when the replacement times are different class types.
     const permanentSource=await addClass('Two-time paid package',[1,3],20)

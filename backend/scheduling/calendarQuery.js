@@ -50,6 +50,7 @@ export function parseCalendarDateRange(query) {
  *   programsId?: number | null,
  *   programId?: number | null,
  *   slotGroupId?: number | string | null,
+ *   slotGroupIds?: number[] | null,
  *   formActive?: 'all' | 'active' | 'inactive', // admin: filters program.is_active (class status)
  *   publicOnly?: boolean,
  *   includeCancelled?: boolean,
@@ -76,6 +77,7 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
     programsId = null,
     programId = null,
     slotGroupId = null,
+    slotGroupIds = null,
     formActive = 'all',
     publicOnly = false,
   } = options
@@ -117,6 +119,10 @@ export async function loadSchedulingCalendarRows(pool, options = {}) {
   if (slotGroupId != null) {
     params.push(slotGroupId)
     filters.push(`sg.id = $${params.length}`)
+  }
+  if (slotGroupIds != null) {
+    params.push(slotGroupIds)
+    filters.push(`sg.id = ANY($${params.length}::bigint[])`)
   }
 
   const programEnrollSelect = hasSchedCols

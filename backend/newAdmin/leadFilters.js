@@ -21,11 +21,23 @@ export function leadFilters(query, facilityId, statuses) {
   const bind = value => { values.push(value); return `$${values.length}` }
   const archived = booleanFilter(query.archived, 'archived') === true
   const clauses = ['r.facility_id=$1', archived ? 'r.archived IS TRUE' : 'r.archived IS NOT TRUE']
-  const search = String(query.search ?? '').trim()
+  const search = String(query.search ?? '').trim().slice(0, 200)
   if (search) {
     const text = bind(searchValue(search))
+    const nameTokens = bind([...new Set(search.split(/\s+/))].map(searchValue))
     const phoneSearch = phoneSearchPattern(search)
-    clauses.push(`(concat_ws(' ',r.first_name,r.last_name,r.email,r.phone) ILIKE ${text} ESCAPE '\\'${phoneSearch ? ` OR regexp_replace(COALESCE(r.phone,''),'[^0-9]','','g') LIKE ${bind(phoneSearch)}` : ''})`)
+    clauses.push(`(concat_ws(' ',r.first_name,r.last_name,r.email,r.phone) ILIKE ${text} ESCAPE '\\'
+      OR EXISTS (
+        SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(r.campers)='array' THEN r.campers ELSE '[]'::jsonb END) search_child
+        LEFT JOIN member search_athlete ON search_athlete.facility_id=r.facility_id AND search_athlete.id=
+          CASE WHEN COALESCE(search_child->>'memberId',search_child->>'member_id','') ~ '^[0-9]{1,18}$'
+            THEN COALESCE(search_child->>'memberId',search_child->>'member_id')::bigint END
+        WHERE NOT EXISTS (SELECT 1 FROM unnest(${nameTokens}::text[]) AS name_token(pattern)
+          WHERE concat_ws(' ',search_child->>'firstName',search_child->>'lastName',
+            search_child->>'first_name',search_child->>'last_name',search_child->>'name',
+            search_child->>'fullName',search_child->>'full_name',search_athlete.first_name,search_athlete.last_name)
+            NOT ILIKE name_token.pattern ESCAPE '\\'))
+      ${phoneSearch ? ` OR regexp_replace(COALESCE(r.phone,''),'[^0-9]','','g') LIKE ${bind(phoneSearch)}` : ''})`)
   }
   const status = String(query.status || '')
   if (status && !statuses.includes(status)) throw inputError('Invalid lead status.')

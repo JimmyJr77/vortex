@@ -127,52 +127,75 @@ export async function listClassSwapStudents(db,{facilityId,search=''}={}) {
   return {students:[...students.values()]}
 }
 
-export async function listClassSwapClasses(db,{facilityId,mode,effectiveDate,search=''}={}) {
-  facilityId=requireAdminFacilityScope({facilityId})
-  if(!['temporary','permanent'].includes(mode)||!validateRosterDate(effectiveDate)||validateRosterDate(effectiveDate)!==effectiveDate)throw fail('Choose a valid change type and swap date.')
-  const rows=await loadSchedulingCalendarRows(db,{facilityId,formActive:'active'})
-  const active=rows.filter(row=>row.is_active&&row.sg_is_active&&row.form_is_active&&row.class_is_active)
+export async function listClassSwapClasses(db, { facilityId, mode, effectiveDate, search = '', slotGroupIds = null } = {}) {
+  facilityId = requireAdminFacilityScope({ facilityId })
+  if (!['temporary', 'permanent'].includes(mode) || !validateRosterDate(effectiveDate) || validateRosterDate(effectiveDate) !== effectiveDate) {
+    throw fail('Choose a valid change type and swap date.')
+  }
+  const requestedGroups = slotGroupIds == null ? null : [...new Set(slotGroupIds.map(id => integer(id, 'class schedule')))]
+  if (requestedGroups?.length === 0) return { classes: [] }
+  const rows = await loadSchedulingCalendarRows(db, { facilityId, formActive: 'active', slotGroupIds: requestedGroups })
+  const active = rows.filter(row => row.is_active && row.sg_is_active && row.form_is_active && row.class_is_active)
   let classes
-  if(mode==='temporary'){
-    const roster=await buildDailyRoster(db,effectiveDate,{includeNewRegistrations:false,facilityId})
-    classes=roster.classes.map(item=>({...item,key:keyFor(item.formId,item.slotGroupId,item.timeSlotId),scheduleLabel:item.timeLabel,date:effectiveDate,enrolledCount:item.athleteCount}))
-  }else{
-    const recurring=await db.query(`SELECT sf.id FROM scheduling_form sf JOIN program p ON p.id=sf.program_id
-      WHERE p.facility_id=$1 AND (sf.cost_unit='per_month' OR sf.class_monthly_price_cents IS NOT NULL)`,[facilityId])
-    const allowed=new Set(recurring.rows.map(row=>Number(row.id)))
-    const events=expandCalendarRange({startDate:effectiveDate,endDate:dateAfter(effectiveDate,27),rows:active}).events
-    const availableSlots=new Set(events.filter(event=>!event.isCancelled).map(event=>Number(event.timeSlotId)))
-    const counts=await db.query(`SELECT s.slot_group_id,s.time_slot_id,COUNT(*)::int AS count FROM scheduling_signup s
-      WHERE ${enrollmentStatusOnDateSql('s','$1::date')}='confirmed'
+  if (mode === 'temporary') {
+    const roster = await buildDailyRoster(db, effectiveDate, { includeNewRegistrations: false, facilityId, slotGroupIds: requestedGroups })
+    classes = roster.classes.map(item => ({ ...item, key: keyFor(item.formId, item.slotGroupId, item.timeSlotId), scheduleLabel: item.timeLabel, date: effectiveDate, enrolledCount: item.athleteCount }))
+  } else {
+    const formIds = [...new Set(active.map(row => Number(row.form_id)))]
+    if (!formIds.length) return { classes: [] }
+    const recurring = await db.query(`SELECT sf.id FROM scheduling_form sf JOIN program p ON p.id=sf.program_id
+      WHERE p.facility_id=$1 AND sf.id=ANY($2::bigint[])
+        AND (sf.cost_unit='per_month' OR sf.class_monthly_price_cents IS NOT NULL)`, [facilityId, formIds])
+    const allowed = new Set(recurring.rows.map(row => Number(row.id)))
+    const events = expandCalendarRange({ startDate: effectiveDate, endDate: dateAfter(effectiveDate, 27), rows: active }).events
+    const availableSlots = new Set(events.filter(event => !event.isCancelled).map(event => Number(event.timeSlotId)))
+    const destinations = active.filter(row => allowed.has(Number(row.form_id)) && availableSlots.has(Number(row.id)))
+    const destinationGroups = [...new Set(destinations.map(row => Number(row.slot_group_id)))]
+    if (!destinationGroups.length) return { classes: [] }
+    // Restrict the enrollment population before projecting dated actions. A
+    // single class review must not evaluate every facility's signup history.
+    const counts = await db.query(`SELECT s.slot_group_id,s.time_slot_id,COUNT(*)::int AS count FROM scheduling_signup s
+      WHERE s.slot_group_id=ANY($2::bigint[])
+        AND ${enrollmentStatusOnDateSql('s', '$1::date')}='confirmed'
         AND s.archived_at IS NULL AND s.orphaned_at IS NULL
         AND s.enrollment_start_date<=$1::date AND (s.cancel_effective_date IS NULL OR s.cancel_effective_date>$1::date)
-      GROUP BY s.slot_group_id,s.time_slot_id`,[effectiveDate])
-    const byGroup=new Map()
-    for(const row of counts.rows)byGroup.set(Number(row.slot_group_id),(byGroup.get(Number(row.slot_group_id))??0)+Number(row.count))
-    classes=active.filter(row=>allowed.has(Number(row.form_id))&&availableSlots.has(Number(row.id))).map(row=>({
-      key:keyFor(row.form_id,row.slot_group_id,row.id),formId:Number(row.form_id),slotGroupId:Number(row.slot_group_id),timeSlotId:Number(row.id),
-      className:row.class_name||row.form_title,programName:row.program_name??null,scheduleLabel:buildSlotDisplayLabel(row),date:effectiveDate,
-      enrolledCount:counts.rows.filter(count=>Number(count.slot_group_id)===Number(row.slot_group_id)&&(count.time_slot_id==null||Number(count.time_slot_id)===Number(row.id))).reduce((total,count)=>total+Number(count.count),0),
-      groupEnrolledCount:byGroup.get(Number(row.slot_group_id))??0,
+      GROUP BY s.slot_group_id,s.time_slot_id`, [effectiveDate, destinationGroups])
+    const byGroup = new Map(), wholeGroup = new Map(), bySlot = new Map()
+    for (const row of counts.rows) {
+      const groupId = Number(row.slot_group_id), count = Number(row.count)
+      byGroup.set(groupId, (byGroup.get(groupId) ?? 0) + count)
+      if (row.time_slot_id == null) wholeGroup.set(groupId, count)
+      else bySlot.set(Number(row.time_slot_id), count)
+    }
+    classes = destinations.map(row => ({
+      key: keyFor(row.form_id, row.slot_group_id, row.id), formId: Number(row.form_id), slotGroupId: Number(row.slot_group_id), timeSlotId: Number(row.id),
+      className: row.class_name || row.form_title, programName: row.program_name ?? null, scheduleLabel: buildSlotDisplayLabel(row), date: effectiveDate,
+      enrolledCount: (wholeGroup.get(Number(row.slot_group_id)) ?? 0) + (bySlot.get(Number(row.id)) ?? 0),
+      groupEnrolledCount: byGroup.get(Number(row.slot_group_id)) ?? 0,
     }))
   }
-  const rowBySlot=new Map(active.map(row=>[Number(row.id),row]))
-  const pending=mode==='temporary'?await db.query(`SELECT slot_group_id,COUNT(*)::int AS count FROM drop_in_registration
-    WHERE class_date=$1::date AND status IN ('account_required','payment_pending')
-      AND (status<>'account_required' OR expires_at IS NULL OR expires_at>now()) GROUP BY slot_group_id`,[effectiveDate]):{rows:[]}
-  const pendingByGroup=new Map(pending.rows.map(row=>[Number(row.slot_group_id),Number(row.count)]))
-  const futureSwapDeltas=mode==='permanent'?await classSwapCapacityDeltas(db,{startDate:effectiveDate}):new Map()
-  const swapReservationsByGroup=new Map()
-  for(const [key,value] of futureSwapDeltas){const groupId=Number(key.split(':')[0]);swapReservationsByGroup.set(groupId,Math.max(swapReservationsByGroup.get(groupId)??0,value))}
-  const term=String(search).trim().toLowerCase()
-  return {classes:classes.filter(item=>!term||`${item.className} ${item.programName} ${item.scheduleLabel}`.toLowerCase().includes(term)).map(item=>{
-    const row=rowBySlot.get(item.timeSlotId)
-    const capacity=Number(row?.sg_max_participants??row?.max_participants??0)
-    const reservedCount=Number(row?.reserved_count??0)+(pendingByGroup.get(item.slotGroupId)??0)+(swapReservationsByGroup.get(item.slotGroupId)??0)
-    const groupEnrolledCount=item.groupEnrolledCount??item.enrolledCount
-    return {key:item.key,formId:item.formId,slotGroupId:item.slotGroupId,timeSlotId:item.timeSlotId,className:item.className,programName:item.programName,
-      scheduleLabel:item.scheduleLabel,date:item.date,capacity,enrolledCount:item.enrolledCount,groupEnrolledCount,reservedCount,availableSpots:Math.max(0,capacity-item.enrolledCount-reservedCount)}
-  })}
+  if (!classes.length) return { classes: [] }
+  const classGroups = [...new Set(classes.map(item => item.slotGroupId))]
+  const rowBySlot = new Map(active.map(row => [Number(row.id), row]))
+  const pending = mode === 'temporary' ? await db.query(`SELECT slot_group_id,COUNT(*)::int AS count FROM drop_in_registration
+    WHERE class_date=$1::date AND slot_group_id=ANY($2::bigint[]) AND status IN ('account_required','payment_pending')
+      AND (status<>'account_required' OR expires_at IS NULL OR expires_at>now()) GROUP BY slot_group_id`, [effectiveDate, classGroups]) : { rows: [] }
+  const pendingByGroup = new Map(pending.rows.map(row => [Number(row.slot_group_id), Number(row.count)]))
+  const futureSwapDeltas = mode === 'permanent' ? await classSwapCapacityDeltas(db, { startDate: effectiveDate, groupIds: classGroups, facilityId }) : new Map()
+  const swapReservationsByGroup = new Map()
+  for (const [key, value] of futureSwapDeltas) {
+    const groupId = Number(key.split(':')[0])
+    swapReservationsByGroup.set(groupId, Math.max(swapReservationsByGroup.get(groupId) ?? 0, value))
+  }
+  const term = String(search).trim().toLowerCase()
+  return { classes: classes.filter(item => !term || `${item.className} ${item.programName} ${item.scheduleLabel}`.toLowerCase().includes(term)).map(item => {
+    const row = rowBySlot.get(item.timeSlotId)
+    const capacity = Number(row?.sg_max_participants ?? row?.max_participants ?? 0)
+    const reservedCount = Number(row?.reserved_count ?? 0) + (pendingByGroup.get(item.slotGroupId) ?? 0) + (swapReservationsByGroup.get(item.slotGroupId) ?? 0)
+    const groupEnrolledCount = item.groupEnrolledCount ?? item.enrolledCount
+    return { key: item.key, formId: item.formId, slotGroupId: item.slotGroupId, timeSlotId: item.timeSlotId, className: item.className, programName: item.programName,
+      scheduleLabel: item.scheduleLabel, date: item.date, capacity, enrolledCount: item.enrolledCount, groupEnrolledCount, reservedCount, availableSpots: Math.max(0, capacity - item.enrolledCount - reservedCount) }
+  }) }
 }
 
 async function loadSource(db,request,facilityId,{lock=false}={}) {
@@ -197,7 +220,7 @@ async function loadSource(db,request,facilityId,{lock=false}={}) {
 
 async function validateSelection(db,request,facilityId,{lock=false}={}) {
   const source=await loadSource(db,request,facilityId,{lock})
-  const destinations=await listClassSwapClasses(db,{facilityId,mode:request.mode,effectiveDate:request.effectiveDate})
+  const destinations=await listClassSwapClasses(db,{facilityId,mode:request.mode,effectiveDate:request.effectiveDate,slotGroupIds:request.targetSelections.map(target=>target.targetSlotGroupId)})
   const targets=request.targetSelections.map(selection=>destinations.classes.find(row=>row.formId===selection.targetFormId&&row.slotGroupId===selection.targetSlotGroupId&&row.timeSlotId===selection.targetTimeSlotId))
   if(targets.some(target=>!target))throw fail('A destination class is not available on the selected date.',409)
   if(request.mode==='permanent'){
@@ -214,7 +237,7 @@ async function validateSelection(db,request,facilityId,{lock=false}={}) {
   const target=targets[0]
   let athlete=null,sourceClass=null,sourceTimeSlotId=null
   if(request.mode==='temporary'){
-    const roster=await buildDailyRoster(db,request.sourceDate,{includeNewRegistrations:false,facilityId})
+    const roster=await buildDailyRoster(db,request.sourceDate,{includeNewRegistrations:false,facilityId,slotGroupIds:[Number(source.slot_group_id)]})
     const choices=roster.classes.filter(item=>item.athletes.some(row=>row.source===request.source&&row.signupId===request.signupId)
       &&(request.sourceTimeSlotId==null||item.timeSlotId===request.sourceTimeSlotId))
     if(choices.length!==1)throw fail(choices.length?'Choose the specific original class time.':'The student is not registered for the original class on that date.',409)
@@ -225,11 +248,14 @@ async function validateSelection(db,request,facilityId,{lock=false}={}) {
     const duplicate=(await db.query(`SELECT id FROM scheduling_class_swap WHERE source_type=$1 AND source_id=$2 AND source_date=$3 AND source_time_slot_id=$4`,
       [request.source,request.signupId,request.sourceDate,sourceTimeSlotId])).rows[0]
     if(duplicate)throw fail('This class occurrence already has a one-time swap.',409)
-    const targetRoster=await buildDailyRoster(db,request.effectiveDate,{includeNewRegistrations:false,facilityId})
+    const targetRoster=await buildDailyRoster(db,request.effectiveDate,{includeNewRegistrations:false,facilityId,slotGroupIds:targets.map(target=>target.slotGroupId)})
     const destination=targetRoster.classes.find(item=>item.timeSlotId===target.timeSlotId)
     if(destination?.athletes.some(row=>(source.member_id!=null&&row.memberId===Number(source.member_id))||(row.source===request.source&&row.signupId===request.signupId)))throw fail('The student is already registered for the destination class.',409)
     if(destination?.isTrialAssessment){
-      const overlapping=targetRoster.classes.some(item=>item.isTrialAssessment&&item.timeSlotId!==destination.timeSlotId
+      const assessmentGroups=await db.query(`SELECT sg.id FROM scheduling_slot_group sg JOIN scheduling_form sf ON sf.id=sg.form_id
+        JOIN program assessment ON assessment.id=sf.program_id WHERE assessment.facility_id=$1 AND assessment.is_trial_assessment=TRUE AND sg.is_active=TRUE`,[facilityId])
+      const assessmentRoster=await buildDailyRoster(db,request.effectiveDate,{includeNewRegistrations:false,facilityId,slotGroupIds:assessmentGroups.rows.map(row=>Number(row.id))})
+      const overlapping=assessmentRoster.classes.some(item=>item.isTrialAssessment&&item.timeSlotId!==destination.timeSlotId
         &&item.startTime<destination.endTime&&item.endTime>destination.startTime
         &&item.athletes.some(row=>!(request.sourceDate===request.effectiveDate&&item.timeSlotId===sourceTimeSlotId&&row.source===request.source&&row.signupId===request.signupId)))
       const pending=(await db.query(`SELECT booking.id FROM drop_in_registration booking JOIN scheduling_form form ON form.id=booking.form_id

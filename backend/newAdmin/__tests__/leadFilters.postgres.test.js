@@ -108,6 +108,45 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.deepEqual(await ids({keywords:'Deleted note'}),[])
       assert.deepEqual(await ids({keywords:'%'}),[])
     })
+    await t.test('name search includes the same listed child, legacy child names and facility-scoped trial athletes', async () => {
+      await db.query('SAVEPOINT child_name_search')
+      try {
+        await db.query(`
+          UPDATE registrations SET campers='[{"firstName":"Avery","lastName":"Student"},{"firstName":"Morgan","lastName":"Sibling"},{"memberId":"invalid"},{"memberId":"999999999999999999999999"}]' WHERE id=1;
+          UPDATE registrations SET campers='[{"first_name":"Casey","last_name":"Legacy"}]' WHERE id=3;
+          UPDATE registrations SET campers='[{"name":"Reese Historical"}]' WHERE id=4;
+          UPDATE registrations SET campers='[{"firstName":"Avery","lastName":"Student"}]' WHERE id IN (5,6);
+          UPDATE registrations SET campers='{"firstName":"Malformed","lastName":"Object"}' WHERE id=8;
+          UPDATE member SET first_name='Linked',last_name='Trialname' WHERE id=2;
+          UPDATE member SET first_name='Foreign',last_name='Linkedchild' WHERE id=4;
+          INSERT INTO registrations(id,facility_id,first_name,last_name,email,member_id,inquiry_source,campers) VALUES
+            (30,1,'Harper','Contact','harper@example.test',1,'free_trial','[{"memberId":2}]'),
+            (31,1,'Private','Link','private-link@example.test',NULL,NULL,'[{"memberId":4}]');
+          INSERT INTO program(id,facility_id,display_name,name) VALUES(30,1,'Name search trial','Name search trial');
+          INSERT INTO scheduling_form VALUES(30,30,'Name search trial');
+          INSERT INTO drop_in_registration VALUES(30,2,'free_trial',30,'2027-01-15','confirmed');
+        `)
+        assert.deepEqual(await ids({search:'Avery Student'}),[1])
+        assert.deepEqual(await ids({search:'aVeR'}),[1])
+        assert.deepEqual(await ids({search:'STUDENT'}),[1])
+        assert.deepEqual(await ids({search:'ave stu'}),[1])
+        assert.deepEqual(await ids({search:'Student Avery'}),[1])
+        assert.deepEqual(await ids({search:'Avery Sibling'}),[], 'name tokens cannot come from different siblings')
+        assert.deepEqual(await ids({search:'Casey Legacy'}),[3])
+        assert.deepEqual(await ids({search:'Reese Historical'}),[4])
+        const linked = await listLeads(db,1,{search:'Linked Trialname'})
+        assert.deepEqual(linked.rows.map(row=>row.id),[30])
+        assert.equal(linked.rows[0].freeTrials[0].childName,'Linked Trialname')
+        assert.deepEqual(await ids({search:'Foreign Linkedchild'}),[], 'a linked ID cannot reveal a different facility’s athlete')
+        assert.deepEqual(await ids({search:'Avery Student',archived:'true'}),[5])
+        assert.deepEqual((await listLeads(db,2,{search:'Avery Student'})).rows.map(row=>row.id),[6])
+        assert.deepEqual(await ids({search:'Malformed Object'}),[])
+        assert.deepEqual(await ids({search:'%'}),[], 'name searches treat SQL wildcard characters literally')
+        assert.deepEqual(await ids({search:'Alex Inquiry'}),[1])
+        assert.deepEqual(await ids({search:'alex@example.test'}),[1])
+        assert.deepEqual(await ids({search:'+1 (202) 555-0111'}),[1])
+      } finally { await db.query('ROLLBACK TO SAVEPOINT child_name_search') }
+    })
     await t.test('filtered pagination has accurate totals and no duplicate leads', async () => {
       const page = await listLeads(db,1,{contacted:'false',page:2,pageSize:2})
       assert.equal(page.total,4);assert.equal(page.totalPages,2);assert.equal(page.rows.length,2)

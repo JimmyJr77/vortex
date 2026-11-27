@@ -7,6 +7,7 @@ const ADVISORY_LOCK_ID = 810202609
 const SCHEDULER_INTERVAL_MS = 5 * 1000
 const MAX_JOBS_PER_PASS = 8
 const MAX_ATTEMPTS = 5
+const schedulers = new WeakMap()
 
 function paymentFactStatus(value) {
   const status = String(value ?? '').trim().toLowerCase()
@@ -196,12 +197,22 @@ async function runClaimedPaymentFactAudit(pool, job, { now = new Date(), stripe 
 
 /** Run queued payment fact audits. A database advisory lock prevents multiple Render instances from duplicating work. */
 export async function runDuePaymentFactAudits(pool, { now = new Date(), stripe = undefined } = {}) {
-  const lock = await pool.query('SELECT pg_try_advisory_lock($1) AS acquired', [ADVISORY_LOCK_ID])
-  if (!lock.rows[0]?.acquired) return { processed: 0, skipped: 'lock_not_acquired' }
+  // Session locks must stay on one checked-out client. Using pool.query here
+  // can acquire and release the lock on different PostgreSQL sessions.
+  const client = await pool.connect()
+  let locked = false
+  let destroy = false
+  let lockError = null
+  const onLockError = (error) => { lockError = error; destroy = true }
+  client.on('error', onLockError)
   let processed = 0
   let failed = 0
   try {
+    const lock = await client.query('SELECT pg_try_advisory_lock($1) AS acquired', [ADVISORY_LOCK_ID])
+    locked = lock.rows[0]?.acquired === true
+    if (!locked) return { processed: 0, skipped: 'lock_not_acquired' }
     while (processed < MAX_JOBS_PER_PASS) {
+      if (lockError) throw lockError
       const job = await claimNextJob(pool)
       if (!job) break
       try {
@@ -212,22 +223,52 @@ export async function runDuePaymentFactAudits(pool, { now = new Date(), stripe =
       }
       processed += 1
     }
+    if (lockError) throw lockError
     return { processed, failed }
+  } catch (error) {
+    destroy = true
+    throw error
   } finally {
-    await pool.query('SELECT pg_advisory_unlock($1)', [ADVISORY_LOCK_ID]).catch(() => {})
+    if (locked && !lockError) {
+      try {
+        await client.query('SELECT pg_advisory_unlock($1)', [ADVISORY_LOCK_ID])
+      } catch {
+        destroy = true
+      }
+    }
+    client.release(destroy)
+    client.removeListener('error', onLockError)
   }
 }
 
 /** Start the durable worker. Payment writes are already queued by the database trigger. */
 export function startPaymentFactAuditScheduler(pool) {
+  const existing = schedulers.get(pool)
+  if (existing) return existing
+  let running = null
+  let stopped = false
   const run = () => {
-    void runDuePaymentFactAudits(pool).catch((error) => {
+    if (stopped || running) return
+    running = Promise.resolve().then(() => runDuePaymentFactAudits(pool)).catch((error) => {
       console.warn('[billing-payment-fact-audit] scheduler failed:', error?.message ?? error)
+    }).finally(() => {
+      running = null
     })
   }
-  setTimeout(run, 1_000)
+  const first = setTimeout(run, 1_000)
+  first.unref?.()
   const timer = setInterval(run, SCHEDULER_INTERVAL_MS)
-  if (typeof timer.unref === 'function') timer.unref()
+  timer.unref?.()
+  const scheduler = {
+    stop() {
+      stopped = true
+      clearTimeout(first)
+      clearInterval(timer)
+      schedulers.delete(pool)
+    },
+  }
+  schedulers.set(pool, scheduler)
+  return scheduler
 }
 
 export { paymentFactStatus, auditSummary }

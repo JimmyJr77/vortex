@@ -4,7 +4,7 @@ import { randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { listClassSwapStudents, listClassSwapClasses } from '../classSwaps.js'
 import { buildDailyRoster } from '../dailyRoster.js'
-import { classSwapCapacityDelta } from '../classSwapsRoster.js'
+import { classSwapCapacityDelta, classSwapCapacityDeltas } from '../classSwapsRoster.js'
 
 const connectionString=process.env.NEW_ADMIN_TEST_DATABASE_URL
 if(connectionString){
@@ -14,7 +14,7 @@ if(connectionString){
     ||!/^\/vortex_new_admin_dev(?:_[a-z0-9_]+)?$/.test(url.pathname))throw new Error('An isolated local test database is required.')
 }
 
-test('selection lists retain package cardinality, project per-slot enrollment actions and show moved upcoming trials',{skip:!connectionString},async()=>{
+test('selection lists retain package cardinality, project per-slot enrollment actions and show moved upcoming trials',{skip:!connectionString},async(t)=>{
   const db=new pg.Client({connectionString,ssl:false});await db.connect()
   try{
     await db.query('BEGIN')
@@ -62,6 +62,33 @@ test('selection lists retain package cardinality, project per-slot enrollment ac
       assert.equal(row.enrolledCount,1,'one-time counts project the pending pause/resume on the actual class date')
       assert.equal(row.availableSpots,1)
     }
+    // The validation path needs only its selected destinations. Populate an
+    // unrelated history to ensure dated-action projections stay bounded.
+    const unrelated=await addClass('Unrelated enrollment history',[2],2000)
+    await db.query(`WITH inserted AS (
+      INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,first_name,last_name,email,status,enrollment_start_date)
+      SELECT $1,$2,$3,'Unrelated','History','unrelated-'||n||'-'||$5||'@example.test','confirmed','2026-01-01'
+      FROM generate_series(1,400) n RETURNING id
+    ) INSERT INTO enrollment_action(signup_id,facility_id,requested_status,previous_status,effective_date,request_key)
+      SELECT id,$4,'confirmed','paused','2026-01-01','history-'||id FROM inserted`,
+    [unrelated.formId,unrelated.groupId,unrelated.slots[0],facilityId,suffix])
+    const countQueries=[]
+    const boundedDb={query:async(sql,args)=>{
+      if(sql.includes('COUNT(*)::int AS count FROM scheduling_signup s'))countQueries.push({sql,args})
+      return db.query(sql,args)
+    }}
+    const boundedClasses=await listClassSwapClasses(boundedDb,{facilityId,mode:'permanent',effectiveDate:'2030-01-07',slotGroupIds:[destination.groupId]})
+    assert.deepEqual(boundedClasses.classes,classes.classes.filter(row=>row.slotGroupId===destination.groupId))
+    const countQuery=countQueries[0]
+    assert.ok(countQuery,'the selected destination still receives dated enrollment counts')
+    const explained=(await db.query(`EXPLAIN (ANALYZE,FORMAT JSON) ${countQuery.sql}`,countQuery.args)).rows[0]['QUERY PLAN'][0].Plan
+    const planNodes=[]
+    const visit=node=>{planNodes.push(node);for(const child of node.Plans??[])visit(child)}
+    visit(explained)
+    const actionScans=planNodes.filter(node=>node['Relation Name']==='enrollment_action')
+    assert.ok(actionScans.some(node=>node['Actual Loops']>0),'the plan exercises scheduled status projection')
+    assert.ok(actionScans.every(node=>node['Actual Loops']<=4),'unrelated signup histories must not execute dated-action subplans')
+    t.diagnostic(`Scoped status projection scanned at most ${Math.max(...actionScans.map(node=>node['Actual Loops']))} destination signups with 400 unrelated histories present.`)
     const trialMember=await member('Movedtrial')
     const originalDate=(await one("SELECT ((CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date-14-EXTRACT(DOW FROM (CURRENT_TIMESTAMP AT TIME ZONE 'America/New_York')::date)::int+1)::text AS date")).date
     const trialId=Number((await one(`INSERT INTO drop_in_registration(form_id,slot_group_id,member_id,class_date,first_name,last_name,email,phone,status,benefit_type)
@@ -82,6 +109,13 @@ test('selection lists retain package cardinality, project per-slot enrollment ac
     assert.equal(movedAthlete.email,'fresh-contact@example.test','one-time arrivals use the live booking contact instead of their stored snapshot')
     assert.equal(movedAthlete.phone,'202-555-0199')
     assert.equal(await classSwapCapacityDelta(db,destination.groupId,'2030-01-07'),1)
+    const allDeltas=await classSwapCapacityDeltas(db,{startDate:'2030-01-07',endDate:'2030-01-10',facilityId})
+    const scopedDeltas=await classSwapCapacityDeltas(db,{startDate:'2030-01-07',endDate:'2030-01-10',facilityId,groupIds:[destination.groupId]})
+    assert.deepEqual([...scopedDeltas],[...allDeltas].filter(([key])=>Number(key.split(':')[0])===destination.groupId),
+      'a scoped arrival retains a swap whose original group and date are outside the selected window')
+    const scopedRoster=await buildDailyRoster(db,'2030-01-07',{facilityId,includeNewRegistrations:false,slotGroupIds:[destination.groupId]})
+    assert.ok(scopedRoster.classes.every(row=>row.slotGroupId===destination.groupId))
+    assert.deepEqual(scopedRoster.classes,roster.classes.filter(row=>row.slotGroupId===destination.groupId))
     await db.query("UPDATE drop_in_registration SET status='cancelled' WHERE id=$1",[trialId])
     assert.equal(await classSwapCapacityDelta(db,destination.groupId,'2030-01-07'),0,'canceled sources stop reserving destination capacity')
     assert.ok(!(await buildDailyRoster(db,'2030-01-07',{facilityId,includeNewRegistrations:false})).classes.find(row=>row.timeSlotId===destination.slots[0]).athletes.some(row=>row.memberId===trialMember))

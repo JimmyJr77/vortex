@@ -179,6 +179,30 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       await assert.rejects(listFamilies(pool,1,{active:'yes'}),{statusCode:400})
       await assert.rejects(listFamilies(pool,1,{enrolled:'maybe'}),{statusCode:400})
     })
+    await t.test('unfiltered directory participation reads are limited to the selected page', async () => {
+      let statement
+      const directory = await listFamilies({ query: (sql, values) => {
+        statement = { sql, values }
+        return pool.query(sql, values)
+      } }, 1, { search: 'Status', pageSize: 1 })
+      assert.equal(directory.total, 7)
+      assert.equal(directory.rows.length, 1)
+      assert.deepEqual([directory.rows[0].active,directory.rows[0].enrolled],[true,false])
+      const result = await pool.query(`EXPLAIN (ANALYZE, FORMAT JSON) ${statement.sql}`, statement.values)
+      const nodes = []
+      const visit = node => {
+        nodes.push(node)
+        for (const child of node.Plans ?? []) visit(child)
+      }
+      visit(result.rows[0]['QUERY PLAN'][0].Plan)
+      const statusReads = nodes.filter(node => node.Alias === 'status_member')
+      assert.ok(statusReads.length > 0)
+      assert.ok(statusReads.every(node => node['Actual Loops'] <= 1),
+        'activity and enrollment must be evaluated for the one displayed family, not all seven matches')
+      const next = await listFamilies(pool, 1, { search: 'Status', pageSize: 1, page: 2 })
+      assert.equal(next.total, directory.total)
+      assert.notEqual(next.rows[0].id, directory.rows[0].id)
+    })
   } finally {
     await pool.end()
     await admin.query(`DROP SCHEMA "${schema}" CASCADE`)
