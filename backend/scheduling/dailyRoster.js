@@ -21,6 +21,8 @@ const DAY_MS = 24 * 60 * 60 * 1000
 const ROSTER_PAYER_CONTACT_JOIN = `
   LEFT JOIN LATERAL (
     SELECT account.id AS account_id,
+           COALESCE(NULLIF(TRIM(CONCAT_WS(' ', NULLIF(TRIM(payer.first_name), ''), NULLIF(TRIM(payer.last_name), ''))), ''),
+                    CASE WHEN payer_user.facility_id = m.facility_id THEN NULLIF(TRIM(payer_user.full_name), '') END) AS name,
            COALESCE(NULLIF(TRIM(account.billing_email), ''),
                     NULLIF(TRIM(payer.email), ''), NULLIF(TRIM(payer_user.email), '')) AS email,
            COALESCE(NULLIF(TRIM(account.billing_phone), ''), NULLIF(TRIM(payer.phone), '')) AS phone
@@ -244,6 +246,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
               WHEN m.date_of_birth IS NULL THEN NULL
               ELSE EXTRACT(YEAR FROM AGE($2::date, m.date_of_birth))::int
             END AS age,
+            payer_contact.name AS payer_name,
             CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.email, '')
               ELSE COALESCE(NULLIF(TRIM(s.email), ''), '') END AS email,
             CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.phone, '')
@@ -283,6 +286,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
     ? await pool.query(
         `SELECT d.id, d.form_id, d.slot_group_id, d.member_id,
                 d.first_name, d.last_name,
+                payer_contact.name AS payer_name,
                 CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.email, '')
                   ELSE COALESCE(NULLIF(TRIM(d.email), ''), '') END AS email,
                 CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.phone, '')
@@ -321,6 +325,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
         lastName: signup.last_name || '',
         name: `${signup.first_name || ''} ${signup.last_name || ''}`.trim() || 'Unnamed athlete',
         age: signup.age != null ? Number(signup.age) : null,
+        payerName: signup.payer_name || null,
         email: signup.email || '',
         phone: normalizePhoneNumber(signup.phone) ?? (signup.phone || ''),
         status: 'confirmed',
@@ -343,6 +348,7 @@ export async function buildDailyRoster(pool, date = dateInTimeZone(), {
         lastName: dropIn.last_name || '',
         name: `${dropIn.first_name || ''} ${dropIn.last_name || ''}`.trim() || 'Unnamed athlete',
         age: dropIn.age != null ? Number(dropIn.age) : null,
+        payerName: dropIn.payer_name || null,
         email: dropIn.email || '',
         phone: normalizePhoneNumber(dropIn.phone) ?? (dropIn.phone || ''),
         status: dropIn.status,

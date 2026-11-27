@@ -191,7 +191,7 @@ function buildListQuery(facilityId, filters, target = null) {
         COALESCE(cardinality(r.child_ages), 0), CASE WHEN r.athlete_age BETWEEN 0 AND 17 AND lower(r.submitter_role) IS DISTINCT FROM 'athlete' THEN 1 ELSE 0 END), 0,
       COALESCE(r.updated_at, r.created_at) AT TIME ZONE 'UTC', FALSE, FALSE, FALSE, FALSE
     FROM registrations r ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
-    WHERE r.facility_id = $1 AND (r.archived IS TRUE OR COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NULL)
+    WHERE r.facility_id = $1 AND (r.archived IS TRUE OR COALESCE(r.converted_member_id, NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint, r.member_id, inquiry_contact.member_id) IS NULL)
     ${targetId ? `AND r.id = ${targetId}` : ''}`,
     show('staff') && `SELECT u.id, 'staff', split_part(btrim(u.full_name), ' ', 1),
       regexp_replace(btrim(u.full_name), '^[^ ]+ *', ''), u.full_name, u.email, u.phone, NULL::int, NULL::text,
@@ -334,10 +334,10 @@ async function readInquiries(pool, facilityId, leadId, memberIds) {
       r.campers, r.child_ages, r.athlete_age, r.interest, r.interests_array, r.class_types, r.submitter_role,
       r.inquiry_source, r.contacted, r.follow_up, ctx.today::text,
       r.utm_source, r.utm_medium, r.utm_campaign, r.landing_page, to_jsonb(acquisition) AS acquisition_snapshot,
-      COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) IS NOT NULL AS member_inquiry
+      COALESCE(r.converted_member_id, NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint, r.member_id, inquiry_contact.member_id) IS NOT NULL AS member_inquiry
     FROM registrations r JOIN ctx ON ctx.id = r.facility_id ${inquiryAcquisitionJoin}
     ${inquiryMemberMatchJoin('r.facility_id', 'r.email')}
-    WHERE r.id = $2 OR COALESCE(r.converted_member_id, r.member_id, inquiry_contact.member_id) = ANY($3::bigint[])
+    WHERE r.id = $2 OR COALESCE(r.converted_member_id, NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint, r.member_id, inquiry_contact.member_id) = ANY($3::bigint[])
     ORDER BY r.created_at DESC NULLS LAST, r.id DESC LIMIT 25`, [facilityId, leadId, memberIds])).rows
 }
 
@@ -369,7 +369,7 @@ export async function loadCrmDetail(pool, facilityId, kind, recordId, query = {}
     kind === 'staff' ? pool.query('SELECT username FROM app_user WHERE id = $1 AND facility_id = $2', [target, facilityId]) : null,
     leadId ? pool.query(`SELECT m.id, concat_ws(' ', m.first_name, m.last_name) AS name,
       m.is_active IS NOT TRUE AS archived
-      FROM registrations r JOIN member m ON m.id = COALESCE(r.converted_member_id, r.member_id)
+      FROM registrations r JOIN member m ON m.id = COALESCE(r.converted_member_id, NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint, r.member_id)
         AND m.facility_id = r.facility_id
       WHERE r.id = $1 AND r.facility_id = $2`, [target, facilityId]) : null,
   ])

@@ -54,6 +54,7 @@ export async function applyClassSwapOverrides(db, classes, date, { facilityId = 
       COALESCE(signup.member_id,booking.member_id) AS current_member_id,
       CASE WHEN m.date_of_birth IS NULL THEN NULL
         ELSE EXTRACT(YEAR FROM AGE($1::date,m.date_of_birth))::int END AS current_age,
+      payer_contact.name AS current_payer_name,
       CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.email,'')
         ELSE COALESCE(NULLIF(TRIM(signup.email),''),NULLIF(TRIM(booking.email),''),'') END AS current_email,
       CASE WHEN payer_contact.account_id IS NOT NULL THEN COALESCE(payer_contact.phone,'')
@@ -63,6 +64,8 @@ export async function applyClassSwapOverrides(db, classes, date, { facilityId = 
     LEFT JOIN member m ON m.id=COALESCE(signup.member_id,booking.member_id)
     LEFT JOIN LATERAL (
       SELECT account.id AS account_id,
+        COALESCE(NULLIF(TRIM(CONCAT_WS(' ',NULLIF(TRIM(payer.first_name),''),NULLIF(TRIM(payer.last_name),''))),''),
+          CASE WHEN payer_user.facility_id=m.facility_id THEN NULLIF(TRIM(payer_user.full_name),'') END) AS name,
         COALESCE(NULLIF(TRIM(account.billing_email),''),NULLIF(TRIM(payer.email),''),NULLIF(TRIM(payer_user.email),'')) AS email,
         COALESCE(NULLIF(TRIM(account.billing_phone),''),NULLIF(TRIM(payer.phone),'')) AS phone
       FROM family_member membership
@@ -84,6 +87,7 @@ export async function applyClassSwapOverrides(db, classes, date, { facilityId = 
       firstName:swap.current_first_name,lastName:swap.current_last_name,
       name:`${swap.current_first_name} ${swap.current_last_name}`.trim()||'Unnamed athlete',
       age:swap.current_age==null?null:Number(swap.current_age),email:swap.current_email,
+      payerName:swap.current_payer_name||null,
       phone:normalizePhoneNumber(swap.current_phone)??swap.current_phone,
     }}
   })

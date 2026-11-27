@@ -203,6 +203,22 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       assert.equal(next.total, directory.total)
       assert.notEqual(next.rows[0].id, directory.rows[0].id)
     })
+    await t.test('trial contact retains original inquiries and staff history after its contact email changes', async () => {
+      await pool.query(`ALTER TABLE registrations ADD COLUMN trial_contact_member_id bigint;
+        INSERT INTO registrations(id,first_name,last_name,lead_status,created_at,facility_id,email,trial_contact_member_id,message) VALUES
+          (999,'Trial','Original','qualified',now(),1,'old-parent@example.test',1,'Preserved original trial inquiry'),
+          (998,'Foreign','Original','qualified',now(),2,'old-parent@example.test',4,'Private foreign trial inquiry');
+        INSERT INTO note VALUES(999,'registration',999,'Staff','Preserved trial inquiry note',FALSE,now());`)
+      const result = await loadFamilyWorkspace(pool, { facilityId: 1, familyId: 1 })
+      const original = result.leads.rows.find(row => row.id === 999)
+      assert.equal(original.message, 'Preserved original trial inquiry')
+      assert.equal(original.status, 'qualified', 'trial contact is not a conversion marker')
+      assert.equal(original.linkType, 'contact_match')
+      assert.equal(result.history.rows.find(row => row.key === 'inquiry:999').memberId, 1)
+      assert.equal(result.history.rows.find(row => row.key === 'note:999').summary, 'Preserved trial inquiry note')
+      assert.ok(!result.leads.rows.some(row => row.id === 998))
+      assert.ok(!result.history.rows.some(row => row.key === 'inquiry:998'))
+    })
   } finally {
     await pool.end()
     await admin.query(`DROP SCHEMA "${schema}" CASCADE`)

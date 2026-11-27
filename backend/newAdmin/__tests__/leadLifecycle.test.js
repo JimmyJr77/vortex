@@ -4,12 +4,14 @@ import { changeLeadLifecycle } from '../leadLifecycle.js'
 import { permissionMiddleware } from '../registerRoutes.js'
 import { leadFilters } from '../leadFilters.js'
 
-function fixture(lead, { foreignKey = false, invites = [], held = false, sharedReference = false } = {}) {
+function fixture(lead, { foreignKey = false, invites = [], held = false, sharedReference = false, groupIds = [5] } = {}) {
   const calls = []
   const tables = ['registrations','account_invite','new_admin_lead_ownership_audit','note','utm_attribution','visitor_identities']
   const client = {
     async query(sql, values) {
       calls.push({ sql, values })
+      if (sql.includes('FROM effective_leads r WHERE')) return { rows: lead ? [{ id:5, related_registration_ids:groupIds, contact_member_id:lead.converted_member_id ?? lead.member_id ?? null }] : [] }
+      if (sql.startsWith('SELECT id, archived') && sql.includes('WHERE id=ANY')) return { rows:groupIds.map(id=>({...lead,id})) }
       if (sql.startsWith('SELECT id, archived')) return { rows: lead ? [{ id:5,...lead }] : [] }
       if (sql.includes("(pending_payload ? 'result')")) return { rows: invites }
       if (sql.startsWith('SELECT 1 FROM scheduling_signup')) return { rows: held ? [{}] : [] }
@@ -36,6 +38,21 @@ for (const action of ['archive', 'restore']) test(`${action} is facility scoped 
   assert.deepEqual(pool.calls.find(c => c.sql.startsWith('SELECT id')).values, [5, 2])
   assert.deepEqual(pool.calls.find(c => c.sql.startsWith('UPDATE registrations')).values, [5, 2, action === 'archive'])
   assert.ok(pool.calls.some(c => c.sql === 'COMMIT'))
+})
+
+for (const action of ['archive','restore']) test(`${action} updates all combined inquiry sources together`, async () => {
+  const pool=fixture({archived:action==='restore'},{groupIds:[5,6]})
+  await changeLeadLifecycle(pool,2,5,action)
+  assert.deepEqual(pool.calls.find(call=>call.sql.startsWith('UPDATE registrations')).values,[[5,6],2,action==='archive'])
+  assert.ok(pool.calls.some(call=>call.sql==='COMMIT'))
+})
+
+test('permanent deletion covers all archived duplicate sources without touching accounts', async () => {
+  const pool=fixture({archived:true,member_id:7},{groupIds:[5,6]})
+  await changeLeadLifecycle(pool,2,5,'delete')
+  assert.deepEqual(pool.calls.find(call=>call.sql.startsWith('DELETE FROM registrations')).values,[[5,6],2])
+  assert.deepEqual(pool.calls.find(call=>call.sql.startsWith('DELETE FROM note')).values,[[5,6]])
+  assert.ok(!pool.calls.some(call=>/(?:DELETE FROM|UPDATE) (?:member|family|scheduling_signup|billing_)/.test(call.sql)))
 })
 
 for (const [label, lead, options, message] of [

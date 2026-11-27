@@ -8,6 +8,8 @@ import { inquiryMemberMatchJoin } from './inquiryMemberMatch.js'
 import { normalizeUpdatedPhoneNumber } from '../phoneNumbers.js'
 import { recordBusinessAcquisition } from '../analytics/businessAcquisition.js'
 import { leadFreeTrialsJoin } from './trialLeads.js'
+import { leadDirectoryCtes, loadCanonicalLeadGroup } from './leadDeduplication.js'
+import { leadMetadataJoin, leadStatusMetadata } from './leadStatus.js'
 
 export const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'converted', 'closed']
 export function leadRow(row) {
@@ -21,21 +23,26 @@ export function leadRow(row) {
     freeTrials: row.free_trials ?? [],
     notes: row.admin_notes || '', message: row.message || '', createdAt: row.created_at,
     convertedMemberId: convertedMemberId == null ? null : Number(convertedMemberId),
-    matchedMemberId: row.matched_member_id == null ? null : Number(row.matched_member_id) }
+    matchedMemberId: row.matched_member_id == null ? null : Number(row.matched_member_id),
+    relatedRegistrationIds: row.related_registration_ids?.map(Number) ?? [Number(row.id)],
+    ...leadStatusMetadata(row) }
 }
 
 export async function listLeads(db, facilityId, query = {}) {
   const paging = pagination(query)
   const { where, values, join } = leadFilters(query, id(facilityId, 'facility'), LEAD_STATUSES)
+  const today="(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
   const [rows, count] = await Promise.all([
-    db.query(`SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot, trial_history.free_trials,
+    db.query(`WITH ${leadDirectoryCtes('$1')} SELECT r.*, inquiry_contact.member_id AS matched_member_id, to_jsonb(acquisition) AS acquisition_snapshot, trial_history.free_trials,
+      lead_metadata.display_status,lead_metadata.participation_tags,lead_metadata.converted_at AS metadata_converted_at,
       (SELECT jsonb_build_object('id',ai.id,'username',ai.suggested_username,'expiresAt',ai.expires_at,
         'purpose',CASE WHEN ai.pending_payload->>'purpose'='trial' THEN 'trial' ELSE 'registration' END,
         'status',CASE WHEN ai.used_at IS NOT NULL THEN 'completed' WHEN ai.expires_at<=now() THEN 'expired' ELSE ai.delivery_status END)
-        FROM account_invite ai WHERE ai.registration_id=r.id AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
-      FROM registrations r ${inquiryAcquisitionJoin} ${join} ${leadFreeTrialsJoin}
+        FROM account_invite ai WHERE ai.registration_id=ANY(r.related_registration_ids) AND ai.facility_id=r.facility_id
+          AND ai.invite_type='lead_registration' ORDER BY ai.id DESC LIMIT 1) AS invitation
+      FROM effective_leads r ${inquiryAcquisitionJoin} ${join} ${leadFreeTrialsJoin} ${leadMetadataJoin(today)}
       WHERE ${where} ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length + 1} OFFSET $${values.length + 2}`, [...values, paging.pageSize, paging.offset]),
-    db.query(`SELECT COUNT(*)::int AS total FROM registrations r ${join} WHERE ${where}`, values),
+    db.query(`WITH ${leadDirectoryCtes('$1')} SELECT COUNT(*)::int AS total FROM effective_leads r ${join} WHERE ${where}`, values),
   ])
   return pageResult(rows.rows.map(leadRow), count.rows[0].total, paging)
 }
@@ -115,7 +122,8 @@ export async function updateLead(db, facilityId, leadId, body, currentPhone) {
   if (inquiry?.campers) {
     // Child IDs are assigned by signup, never by staff-entered contact data.
     // Preserve those trusted links when the lead form is edited.
-    const previous = (await db.query('SELECT campers FROM registrations WHERE id=$1 AND facility_id=$2', [id(leadId), id(facilityId)])).rows[0]?.campers || []
+    const previous = (await db.query(`WITH ${leadDirectoryCtes('$2')}
+      SELECT campers FROM effective_leads WHERE id=$1 AND facility_id=$2`, [id(leadId), id(facilityId)])).rows[0]?.campers || []
     const linked = new Map(previous.filter(child => child.memberId).map(child => [Number(child.memberId), child]))
     inquiry.campers = inquiry.campers.map((child, index) => {
       const memberId = Number(body.inquiry.campers[index]?.memberId)
@@ -154,8 +162,21 @@ export async function saveLead(pool, facilityId, leadId, body, req) {
   const db = await pool.connect()
   try {
     await db.query('BEGIN')
+    const group=await loadCanonicalLeadGroup(db,facilityId,leadId)
+    leadId=group.canonicalId
     const before = await db.query('SELECT admin_notes,updated_at,phone FROM registrations WHERE id=$1 AND facility_id=$2 FOR UPDATE', [id(leadId), id(facilityId)])
     if (!before.rows[0]) throw inputError('Lead not found.', 404)
+    if(group.registrationIds.length>1 && group.memberId!=null)await db.query(
+      'UPDATE registrations SET trial_contact_member_id=$3 WHERE id=$1 AND facility_id=$2', [leadId,id(facilityId),group.memberId])
+    const flags=[];const flagValues=[group.registrationIds,id(facilityId)]
+    for(const [key,column] of [['contacted','contacted'],['followUp','follow_up']]){
+      const value=Object.hasOwn(body,key)?body[key]:key==='contacted'&&body.status?body.status!=='new':undefined
+      if(typeof value!=='boolean')continue
+      flagValues.push(value);flags.push(`${column}=$${flagValues.length}`)
+      if(key==='contacted'&&value)flags.push('first_contacted_at=COALESCE(first_contacted_at,now())')
+    }
+    if(flags.length)await db.query(`UPDATE registrations SET ${flags.join(',')},updated_at=now()
+      WHERE id=ANY($1::bigint[]) AND facility_id=$2`,flagValues)
     if (Object.hasOwn(body, 'notes') && before.rows[0].admin_notes?.trim()) {
       await db.query(`INSERT INTO note(subject_type,subject_id,note_type,body,source,created_at)
         SELECT 'registration',$1,'staff_note',$2,'legacy_inquiry_note',$3
@@ -173,10 +194,9 @@ export async function saveLead(pool, facilityId, leadId, body, req) {
 
 /** Account notes share the existing note table and explicit member/family links. */
 export async function leadNotes(db, facilityId, leadId) {
-  const lead = (await db.query('SELECT * FROM registrations WHERE id=$1 AND facility_id=$2', [id(leadId), id(facilityId)])).rows[0]
-  if (!lead) throw inputError('Lead not found.', 404)
-  const memberId = lead.converted_member_id ?? lead.member_id ?? null
-  return loadAccountNotes(db, { facilityId, memberId, leadId: id(leadId) })
+  const group=await loadCanonicalLeadGroup(db,facilityId,leadId)
+  if(!group)throw inputError('Lead not found.',404)
+  return loadAccountNotes(db, { facilityId, memberId:group.memberId, leadId:group.canonicalId,leadIds:group.registrationIds })
 }
 
 /** Shared canonical member creation; never provisions remote billing or guesses identity. */

@@ -23,7 +23,7 @@ test('lead validation cannot fabricate conversion or accept invalid email',()=>{
 
 test('lead list carries tenant, escaped search, status, and pagination as bound values',async()=>{
   const calls=[]
-  const db={query:async(text,values)=>{calls.push({text,values});return {rows:text.startsWith('SELECT COUNT')?[{total:0}]:[]}}}
+  const db={query:async(text,values)=>{calls.push({text,values});return {rows:text.includes('SELECT COUNT(*)::int AS total FROM effective_leads')?[{total:0}]:[]}}}
   const result=await listLeads(db,7,{search:'x%',page:3,pageSize:5,status:'new'})
   assert.equal(result.rows.length,0)
   assert.equal(result.page,3)

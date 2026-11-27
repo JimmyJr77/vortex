@@ -60,7 +60,7 @@ export function leadFilters(query, facilityId, statuses) {
     clauses.push(`NOT EXISTS (
       SELECT 1 FROM member lead_member
       WHERE lead_member.facility_id=r.facility_id
-        AND (lead_member.id=inquiry_contact.member_id OR lead_member.id=r.member_id
+        AND (lead_member.id=inquiry_contact.member_id OR lead_member.id=r.member_id OR lead_member.id=r.dedup_trial_contact_member_id
           OR EXISTS (SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(r.campers)='array' THEN r.campers ELSE '[]'::jsonb END) child
             WHERE child->>'memberId'=lead_member.id::text))
         AND ${memberIsActiveSql('lead_member.id', 'r.facility_id', today)})`)
@@ -99,7 +99,7 @@ export function leadFilters(query, facilityId, statuses) {
   }
   const keywords = [...new Set(String(query.keywords ?? '').trim().slice(0,200).split(/\s+/).filter(Boolean))]
   const join = `${inquiryMemberMatchJoin('r.facility_id', 'r.email')} ${keywords.length ? `LEFT JOIN LATERAL (
-    SELECT string_agg(body,' ') AS body FROM (${accountNotesSql({ facilityId: 'r.facility_id', memberId: 'COALESCE(r.converted_member_id,r.member_id)', leadId: 'r.id' })}) notes
+    SELECT string_agg(body,' ') AS body FROM (${accountNotesSql({ facilityId: 'r.facility_id', memberId: 'COALESCE(r.converted_member_id,r.dedup_trial_contact_member_id,r.member_id)', leadId: 'r.id', leadIds: 'r.related_registration_ids' })}) notes
   ) correspondence ON TRUE` : ''}`
   for (const word of keywords) clauses.push(`concat_ws(' ',r.message,r.admin_notes,r.interests,r.interest,r.inquiry_source,r.submitter_role,
     r.interests_array::text,r.class_types::text,r.campers::text,correspondence.body) ILIKE ${bind(searchValue(word))} ESCAPE '\\'`)

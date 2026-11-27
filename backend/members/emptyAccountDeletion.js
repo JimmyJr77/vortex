@@ -50,10 +50,12 @@ export async function deleteEmptyArchivedAccounts(db, { facilityId, familyId = n
 
   // A registration linked to both this account and another person is retained:
   // the dependency guard below rejects it instead of deleting the other lead.
+  const trialContact = "NULLIF(to_jsonb(registrations)->>'trial_contact_member_id','')::bigint"
   const leads = await capture('registrations', `facility_id=$2
-    AND (member_id=ANY($1::bigint[]) OR converted_member_id=ANY($1::bigint[]))
+    AND (member_id=ANY($1::bigint[]) OR converted_member_id=ANY($1::bigint[]) OR ${trialContact}=ANY($1::bigint[]))
     AND (member_id IS NULL OR member_id=ANY($1::bigint[]))
-    AND (converted_member_id IS NULL OR converted_member_id=ANY($1::bigint[]))`, [memberIds, facilityId])
+    AND (converted_member_id IS NULL OR converted_member_id=ANY($1::bigint[]))
+    AND (${trialContact} IS NULL OR ${trialContact}=ANY($1::bigint[]))`, [memberIds, facilityId])
   const invites = await capture('account_invite', `facility_id=$3 AND (pending_family_id=$1 OR registration_id=ANY($2::bigint[]))`, [familyId, leads.rows.map(lead => lead.id), facilityId])
   for (const invite of invites.rows) {
     if (invite.inviter_member_id != null && !memberIds.some(id => String(id) === String(invite.inviter_member_id))) throw deletionBlocked('An invitation belongs to another member and must be retained.')

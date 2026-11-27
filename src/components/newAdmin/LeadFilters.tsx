@@ -1,7 +1,12 @@
 import { button, input } from './shared'
 
-export type LeadParticipation = '' | 'free_trial' | 'drop_in' | 'recent_drop'
+export type LeadParticipation = '' | 'inquiry' | 'free_trial' | 'drop_in' | 'recent_drop'
 export interface LeadFilterValues { contacted: string; followUp: string; ageMin: string; ageMax: string; gender: string; participation: LeadParticipation }
+
+const participationDescriptions: Partial<Record<LeadParticipation, string>> = {
+  inquiry: 'Inquiries without a free-trial request or recorded participation.',
+  recent_drop: 'Class enrollments dropped in the past 90 days. Class swaps are excluded.',
+}
 
 export default function LeadFilters({ value, onChange, search, onSearch, keywords, onKeywords, onReset }: {
   value: LeadFilterValues; onChange: (patch: Partial<LeadFilterValues>) => void
@@ -14,9 +19,9 @@ export default function LeadFilters({ value, onChange, search, onSearch, keyword
     </div>
     <fieldset><legend className="mb-2 text-sm font-medium">Participation</legend>
       <div className="flex flex-wrap gap-2">
-        {([['', 'All lead types'], ['free_trial', 'Free trials'], ['drop_in', 'Drop-ins'], ['recent_drop', 'Recent drops']] as const).map(([key, label]) => <button key={key} type="button" className={`${button} aria-pressed:border-sky-600 aria-pressed:bg-sky-50 aria-pressed:text-sky-800`} aria-pressed={value.participation === key} onClick={() => onChange({ participation: value.participation === key ? '' : key })}>{label}</button>)}
+        {([['', 'All lead types'], ['inquiry', 'Inquiry'], ['free_trial', 'Free trials'], ['drop_in', 'Drop-ins'], ['recent_drop', 'Recent drops']] as const).map(([key, label]) => <button key={key} type="button" className={`${button} aria-pressed:border-sky-600 aria-pressed:bg-sky-50 aria-pressed:text-sky-800`} aria-pressed={value.participation === key} onClick={() => onChange({ participation: value.participation === key ? '' : key })}>{label}</button>)}
       </div>
-      {value.participation ? <p className="mt-2 text-xs text-slate-500">{value.participation === 'recent_drop' ? 'Class enrollments dropped in the past 90 days. Class swaps are excluded. ' : ''}Includes matching active and converted leads.</p> : null}
+      {value.participation ? <p className="mt-2 text-xs text-slate-500">{participationDescriptions[value.participation]} Includes matching active and converted leads.</p> : null}
     </fieldset>
     <div className="flex flex-wrap items-end gap-4">
       <fieldset className="min-w-0"><legend className="mb-2 text-sm font-medium">Contact</legend><div className="flex flex-wrap gap-1">

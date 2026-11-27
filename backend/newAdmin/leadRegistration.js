@@ -129,7 +129,7 @@ export async function updateLeadInvitation(pool, { facilityId, inviteId, body, c
     const invite = (await db.query("SELECT * FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration' FOR UPDATE", [id(inviteId), facilityId])).rows[0]
     if (!invite) throw inputError('Invitation not found.', 404)
     if (invite.used_at || new Date(invite.expires_at) <= new Date()) throw inputError('This invitation is completed or expired.', 409)
-    if (!lead || lead.archived || lead.converted_member_id || lead.member_id) throw inputError('This lead already has an account or is no longer open.', 409)
+    if (!lead || lead.archived || lead.converted_member_id || lead.member_id || lead.trial_contact_member_id) throw inputError('This lead already has an account or is no longer open.', 409)
     const revision = invite.pending_payload.revision || 0
     if (!Number.isInteger(body.revision) || body.revision !== revision) throw inputError('This invitation changed. Close and reopen it before editing.', 409)
     const children = inquiryInput({ campers: body.children }).campers
@@ -182,7 +182,7 @@ export async function createLeadInvitation(pool, { facilityId, leadId, userId, b
     await client.query('BEGIN')
     const lead = (await client.query('SELECT * FROM registrations WHERE id=$1 AND facility_id=$2 AND archived IS NOT TRUE FOR UPDATE', [id(leadId), facilityId])).rows[0]
     if (!lead) throw inputError('Lead not found.', 404)
-    if (lead.converted_member_id || lead.member_id) throw inputError('This lead already has a member account. Open that account to manage registrations.', 409)
+    if (lead.converted_member_id || lead.member_id || lead.trial_contact_member_id) throw inputError('This lead already has a member account. Open that account to manage registrations.', 409)
     const existing = (await client.query(`SELECT * FROM account_invite WHERE registration_id=$1 AND invite_type='lead_registration' AND used_at IS NULL AND expires_at>now() ORDER BY id DESC LIMIT 1`, [lead.id])).rows[0]
     if (existing) {
       await client.query('COMMIT')
@@ -233,7 +233,7 @@ export async function deliverLeadInvitation(pool, { facilityId, inviteId, resend
     const invite = (await db.query("SELECT * FROM account_invite WHERE id=$1 AND facility_id=$2 AND invite_type='lead_registration' FOR UPDATE", [id(inviteId), facilityId])).rows[0]
     if (!invite) throw inputError('Invitation not found.', 404)
     if (invite.used_at || new Date(invite.expires_at) <= new Date()) throw inputError('This invitation is completed or expired.', 409)
-    if (!lead || lead.archived || lead.converted_member_id || lead.member_id) throw inputError('This lead already has an account or is no longer open.', 409)
+    if (!lead || lead.archived || lead.converted_member_id || lead.member_id || lead.trial_contact_member_id) throw inputError('This lead already has an account or is no longer open.', 409)
     const email = normalizeSignupEmail(lead.email)
     if (!email) throw inputError('Update the lead with a valid email address before sending the invitation.')
     if (email !== invite.invitee_email) {
@@ -413,7 +413,7 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
     // Lead conversion and invitation creation both lock the lead before the
     // invitation so they cannot attach two different accounts to one inquiry.
     const inviteReference = await loadInvitation(db, inviteId, body.token)
-    const lead = (await db.query(`SELECT id, converted_member_id, member_id, archived FROM registrations
+    const lead = (await db.query(`SELECT id, converted_member_id, member_id, trial_contact_member_id, archived FROM registrations
       WHERE id=$1 AND facility_id=$2 FOR UPDATE`, [inviteReference.registration_id, inviteReference.facility_id])).rows[0]
     const invite = await loadInvitation(db, inviteId, body.token, true)
     const primaryAdult = body.primaryAdult || {}
@@ -430,7 +430,7 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
       await db.query('COMMIT')
       return result
     }
-    if (!lead || lead.archived || lead.converted_member_id || lead.member_id) {
+    if (!lead || lead.archived || lead.converted_member_id || lead.member_id || lead.trial_contact_member_id) {
       throw inputError('This lead already has an account or is no longer open. Contact Vortex to continue.', 409)
     }
     if (new Date(invite.expires_at) <= new Date()) throw inputError('This invitation has expired. Ask Vortex for a new invitation.', 410)
@@ -481,7 +481,8 @@ export async function completeLeadRegistration(pool, inviteId, body, request = {
       dateOfBirth: child.dateOfBirth, gender: child.gender, memberId: Number(result.memberIds[index + 1]) }))
     await db.query("UPDATE account_invite SET used_at=now(),temporary_password_hash=NULL,pending_payload=(pending_payload-'passwordCiphertext')||jsonb_build_object('result',$2::jsonb,'children',$3::jsonb) WHERE id=$1", [invite.id, JSON.stringify(completed), JSON.stringify(savedChildren)])
     if (isTrial) {
-      await db.query(`UPDATE registrations SET member_id=$2,inquiry_source='free_trial',campers=$3::jsonb,
+      await db.query(`UPDATE registrations SET trial_contact_member_id=$2,
+        member_id=CASE WHEN inquiry_source='free_trial' THEN $2 ELSE member_id END,campers=$3::jsonb,
         lead_status='qualified',contacted=TRUE,first_contacted_at=COALESCE(first_contacted_at,now()),updated_at=now()
         WHERE id=$1 AND facility_id=$4`, [invite.registration_id, result.payerMemberId, JSON.stringify(savedChildren), invite.facility_id])
     } else {

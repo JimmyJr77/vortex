@@ -93,7 +93,7 @@ async function openEnrollments(page: Page, options: FixtureOptions = {}): Promis
       classCount: 1, athleteCount: 1, classes: [{ eventId: '10:31:41:2026-11-27', formId: 10,
         slotGroupId: 31, timeSlotId: 41, className: 'Foundations', programName: 'Gymnastics',
         timeLabel: '4:00 PM–5:00 PM', athletes: [{ signupId: 21, source: 'scheduling', memberId: 11,
-          name: 'Avery Rivera', age: 9, email: 'payer@example.test', phone: '2025550101' }] }],
+          name: 'Avery Rivera', age: 9, payerName: 'Jordan Rivera', email: 'payer@example.test', phone: '2025550101' }] }],
     }
     await route.fulfill({ json: { success: true, data } })
   })
@@ -106,7 +106,8 @@ async function openEnrollments(page: Page, options: FixtureOptions = {}): Promis
 test('daily enrollment columns and CSV identify payer contacts', async ({ page }) => {
   await openEnrollments(page)
   await page.getByRole('tab', { name: 'Daily Enrollments', exact: true }).click()
-  await expect(page.getByRole('columnheader')).toHaveText(['Athlete', 'Age', 'Payer Email', 'Payer Phone'])
+  await expect(page.getByRole('columnheader')).toHaveText(['Athlete', 'Age', 'Payer Name', 'Payer Email', 'Payer Phone'])
+  await expect(page.getByRole('cell', { name: 'Jordan Rivera', exact: true })).toBeVisible()
   await expect(page.getByRole('cell', { name: 'payer@example.test', exact: true })).toBeVisible()
   const download = page.waitForEvent('download')
   await page.getByRole('button', { name: 'Export CSV', exact: true }).click()
@@ -116,7 +117,8 @@ test('daily enrollment columns and CSV identify payer contacts', async ({ page }
   const chunks = []
   for await (const chunk of stream) chunks.push(chunk)
   const csv = Buffer.concat(chunks).toString('utf8')
-  expect(csv).toContain('"Payer Email","Payer Phone"')
+  expect(csv).toContain('"Payer Name","Payer Email","Payer Phone"')
+  expect(csv).toContain('Jordan Rivera')
   expect(csv).toContain('payer@example.test')
 })
 

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import { randomUUID } from 'node:crypto'
 import test from 'node:test'
+import { readFile } from 'node:fs/promises'
 import pg from 'pg'
 import { validateRehearsalDatabaseUrl } from '../../newAdmin/migrationAudit.js'
 import { changeLeadLifecycle } from '../../newAdmin/leadLifecycle.js'
@@ -14,6 +15,7 @@ test('permanent member deletion releases an archived login and preserves protect
   await client.connect()
   try {
     await client.query('BEGIN')
+    await client.query(await readFile(new URL('../../migrations/882_lead_trial_contact_identity.sql', import.meta.url), 'utf8'))
     // Each deletion is atomic within a savepoint. The outer transaction keeps
     // test identities and their dependent records out of the shared database.
     const transactionCommands = {
@@ -83,7 +85,9 @@ test('permanent member deletion releases an archived login and preserves protect
     await changeLeadLifecycle(pool, facility.id, lead.id, 'delete')
     assert.equal((await client.query('SELECT 1 FROM member WHERE id=$1', [member.id])).rowCount, 1)
     assert.equal((await client.query('SELECT 1 FROM scheduling_signup WHERE id=$1', [signup.id])).rowCount, 1)
+    const trialContactLead = (await client.query("INSERT INTO registrations(facility_id,first_name,last_name,email,trial_contact_member_id,archived) VALUES($1,'Archive','Inquiry',$2,$3,TRUE) RETURNING id", [facility.id,email,member.id])).rows[0]
     await deleteArchivedMember(pool, target)
+    assert.equal((await client.query('SELECT 1 FROM registrations WHERE id=$1', [trialContactLead.id])).rowCount, 0)
     assert.equal((await client.query('SELECT 1 FROM member_waiver_acceptance WHERE member_id=$1', [member.id])).rowCount, 0)
     assert.equal((await client.query('SELECT 1 FROM scheduling_signup WHERE id=$1', [signup.id])).rowCount, 0)
     assert.equal((await client.query('SELECT 1 FROM member WHERE id = $1', [member.id])).rowCount, 0)

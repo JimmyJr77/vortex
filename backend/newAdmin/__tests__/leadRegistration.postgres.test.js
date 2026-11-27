@@ -39,7 +39,7 @@ test('lead invitations reserve shared class places, require new credentials, and
   const rejectSql=async(sql,args,pattern)=>{await db.query('SAVEPOINT reject_sql');await assert.rejects(()=>db.query(sql,args),pattern);await db.query('ROLLBACK TO SAVEPOINT reject_sql');await db.query('RELEASE SAVEPOINT reject_sql')}
   try {
     await db.query('BEGIN')
-    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql','860_trial_assessment_booking_policy.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
+    for(const file of ['845_dated_enrollment_actions.sql','846_lead_registration_invitations.sql','847_program_archive_guard.sql','848_class_owned_pricing.sql','853_registration_hold_start_dates.sql','857_admin_lead_submission.sql','860_trial_assessment_booking_policy.sql','882_lead_trial_contact_identity.sql']) await db.query(await fs.readFile(new URL(`../../migrations/${file}`,import.meta.url),'utf8'))
     const owner = (await db.query(`SELECT u.id,u.facility_id FROM app_user u
       LEFT JOIN facility f ON f.owner_user_id=u.id
       WHERE u.username='admin2' OR f.id IS NOT NULL
@@ -239,14 +239,17 @@ test('lead invitations reserve shared class places, require new credentials, and
         assert.deepEqual(saved.pendingEnrollments, [])
         assert.equal(saved.trialChildren[0].memberId, saved.memberIds[1])
         assert.equal(saved.trialChildren[0].memberIndex, 1)
-        const linked = (await db.query('SELECT member_id,converted_member_id,converted_at,lead_status,inquiry_source,campers FROM registrations WHERE id=$1', [prospect.id])).rows[0]
-        assert.equal(Number(linked.member_id), Number(saved.payerMemberId))
+        const linked = (await db.query('SELECT member_id,trial_contact_member_id,converted_member_id,converted_at,lead_status,inquiry_source,campers FROM registrations WHERE id=$1', [prospect.id])).rows[0]
+        assert.equal(linked.member_id, null)
+        assert.equal(Number(linked.trial_contact_member_id), Number(saved.payerMemberId))
         assert.equal(linked.converted_member_id, null)
         assert.equal(linked.converted_at, null)
         assert.equal(linked.lead_status, 'qualified')
-        assert.equal(linked.inquiry_source, 'free_trial')
+        assert.equal(linked.inquiry_source, prospect.inquiry.source)
         assert.equal(linked.campers[0].memberId, saved.memberIds[1])
-        assert.equal((await listLeads(pool, facilityId, { search: prospect.email })).rows[0].status, 'qualified')
+        const trialLead=(await listLeads(pool, facilityId, { search: prospect.email })).rows[0]
+        assert.equal(trialLead.status, 'qualified')
+        assert.deepEqual(trialLead.participationTags,['inquiry','free_trial'])
         await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, token: 'bad' }), /Invalid registration link/)
         await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, session: 'bad' }), /sign in/)
         await assert.rejects(() => bookLeadInvitationTrial(pool, invited.id, { ...bookBody, freeTrial: { ...freeTrial, memberIndex: 0 } }), /Choose a child/)

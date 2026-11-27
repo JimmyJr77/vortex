@@ -68,6 +68,7 @@ test('platform boot includes every schema contract required by current Admin rou
     '838_enrollment_deletion_stripe_reconciliation.sql',
     '869_stripe_terminal_payments.sql',
     '871_store_terminal_payment.sql',
+    '882_lead_trial_contact_identity.sql',
   ])
 })
 

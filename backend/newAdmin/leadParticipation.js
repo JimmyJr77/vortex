@@ -1,12 +1,14 @@
 import { inputError } from './common.js'
 
-export const LEAD_PARTICIPATION_FILTERS = ['', 'free_trial', 'drop_in', 'recent_drop']
+export const LEAD_PARTICIPATION_FILTERS = ['', 'inquiry', 'free_trial', 'drop_in', 'recent_drop']
 
 // Keep the lead directory anchored to saved inquiries. A parent's explicit
 // account/household links can identify their children; matching athlete names
 // or email addresses must never invent a relationship.
-const relatedAthletes = `WITH direct_ids AS MATERIALIZED (
+export const relatedAthletes = `WITH direct_ids AS MATERIALIZED (
     SELECT r.converted_member_id AS id UNION SELECT r.member_id UNION SELECT inquiry_contact.member_id
+    UNION SELECT CASE WHEN COALESCE(to_jsonb(r)->>'trial_contact_member_id',to_jsonb(r)->>'dedup_trial_contact_member_id','') ~ '^[0-9]{1,18}$'
+      THEN COALESCE(to_jsonb(r)->>'trial_contact_member_id',to_jsonb(r)->>'dedup_trial_contact_member_id')::bigint END
     UNION SELECT CASE WHEN COALESCE(child->>'memberId',child->>'member_id','') ~ '^[0-9]{1,18}$'
       THEN COALESCE(child->>'memberId',child->>'member_id')::bigint END
     FROM jsonb_array_elements(CASE WHEN jsonb_typeof(r.campers)='array' THEN r.campers ELSE '[]'::jsonb END) child
@@ -37,6 +39,23 @@ export function leadParticipationFilter(value) {
 
 export function leadParticipationSql(participation, today) {
   if (!participation) return null
+  if (participation === 'inquiry') {
+    // Public inquiries store the page path and ordinary program interests.
+    // Only structured trial requests and linked records distinguish a trial
+    // prospect from an inquiry; free-text messages cannot establish intent.
+    return `(lower(btrim(COALESCE(r.inquiry_source,''),' /')) NOT IN ('free_trial','free-trial','free trial','trial')
+      AND NOT EXISTS (SELECT 1 FROM account_invite trial_request
+        WHERE trial_request.registration_id=r.id AND trial_request.facility_id=r.facility_id
+          AND trial_request.invite_type='lead_registration' AND trial_request.pending_payload->>'purpose'='trial')
+      AND NOT EXISTS (${relatedAthletes} SELECT 1 FROM athletes athlete
+        WHERE EXISTS (SELECT 1 FROM drop_in_registration booking
+          JOIN scheduling_form booking_form ON booking_form.id=booking.form_id
+          JOIN program booking_class ON booking_class.id=booking_form.program_id AND booking_class.facility_id=r.facility_id
+          WHERE booking.member_id=athlete.id)
+        OR EXISTS (SELECT 1 FROM account_enrollment_current enrollment
+          WHERE enrollment.record_member_id=athlete.id AND enrollment.record_facility_id=r.facility_id
+            AND enrollment.status<>'pending_setup')))`
+  }
   const booking = `EXISTS (SELECT 1 FROM drop_in_registration booking
     JOIN scheduling_form booking_form ON booking_form.id=booking.form_id
     JOIN program booking_class ON booking_class.id=booking_form.program_id AND booking_class.facility_id=r.facility_id

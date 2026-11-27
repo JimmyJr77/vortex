@@ -2,7 +2,7 @@ import { id, inputError } from './common.js'
 
 // SQL expressions are supplied only by callers in this module and leadFilters.
 // Both screens use the same explicit household links, including historical notes.
-export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberId = 'NULL::bigint', leadId = 'NULL::bigint' }) {
+export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberId = 'NULL::bigint', leadId = 'NULL::bigint', leadIds = 'NULL::bigint[]' }) {
   return `WITH linked_families AS (
     SELECT f.id FROM family f WHERE f.facility_id=${facilityId} AND (
       f.id=${familyId} OR (${familyId} IS NULL AND (
@@ -21,7 +21,8 @@ export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberI
     SELECT inquiry.* FROM registrations inquiry WHERE
       (inquiry.facility_id=${facilityId} OR (inquiry.facility_id IS NULL AND EXISTS (
         SELECT 1 FROM member linked WHERE linked.id=inquiry.member_id AND linked.facility_id=${facilityId})))
-      AND (inquiry.id=${leadId} OR COALESCE(inquiry.converted_member_id,inquiry.member_id) IN (SELECT id FROM account_members))
+      AND (inquiry.id=${leadId} OR inquiry.id=ANY(${leadIds}) OR COALESCE(inquiry.converted_member_id,
+        NULLIF(to_jsonb(inquiry)->>'trial_contact_member_id','')::bigint,inquiry.member_id) IN (SELECT id FROM account_members))
   )
   SELECT n.id,n.subject_type,n.subject_id,
     CASE WHEN original.submitted_by_name IS NOT NULL THEN 'staff_note' ELSE n.note_type END AS note_type,n.body,
@@ -44,9 +45,11 @@ export function accountNotesSql({ facilityId, familyId = 'NULL::bigint', memberI
       SELECT 1 FROM note n WHERE n.subject_type='registration' AND n.subject_id=inquiry.id AND n.is_deleted=FALSE AND TRIM(n.body)=TRIM(inquiry.message))`
 }
 
-export async function loadAccountNotes(db, { facilityId, familyId = null, memberId = null, leadId = null }) {
-  const result = await db.query(`${accountNotesSql({ facilityId: '$1', familyId: '$2::bigint', memberId: '$3::bigint', leadId: '$4::bigint' })}
-    ORDER BY created_at DESC,id DESC`, [id(facilityId), familyId, memberId, leadId])
+export async function loadAccountNotes(db, { facilityId, familyId = null, memberId = null, leadId = null, leadIds = null }) {
+  const values = [id(facilityId), familyId, memberId, leadId]
+  const related = leadIds == null ? 'NULL::bigint[]' : `$${values.push([...new Set(leadIds.map(value => id(value, 'lead')))])}::bigint[]`
+  const result = await db.query(`${accountNotesSql({ facilityId: '$1', familyId: '$2::bigint', memberId: '$3::bigint', leadId: '$4::bigint', leadIds: related })}
+    ORDER BY created_at DESC,id DESC`, values)
   return result.rows.map(row => ({ id: Number(row.id), subjectType: row.subject_type, subjectId: Number(row.subject_id), noteType: row.note_type,
     body: row.body, authorName: row.author_name, createdAt: row.created_at, source: row.source }))
 }

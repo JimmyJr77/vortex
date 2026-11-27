@@ -41,11 +41,13 @@ test('lead filters combine contact, children and keyword searches and reset toge
   await filters.getByLabel('Keywords', { exact: true }).fill('trial Tuesday')
   await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ contacted: 'false', followUp: 'true', ageMin: '7', ageMax: '12', gender: 'female', search: 'Rivera', keywords: 'trial Tuesday', page: '1' })
   await expect(filters.getByRole('button', { name: 'All lead types', exact: true })).toHaveAttribute('aria-pressed', 'true')
-  for (const [label, participation] of [['Free trials', 'free_trial'], ['Drop-ins', 'drop_in'], ['Recent drops', 'recent_drop']]) {
+  await expect(filters.getByRole('group', { name: 'Participation', exact: true }).getByRole('button')).toHaveText(['All lead types', 'Inquiry', 'Free trials', 'Drop-ins', 'Recent drops'])
+  for (const [label, participation] of [['Inquiry', 'inquiry'], ['Free trials', 'free_trial'], ['Drop-ins', 'drop_in'], ['Recent drops', 'recent_drop']]) {
     await filters.getByRole('button', { name: label, exact: true }).click()
     await expect.poll(() => Object.fromEntries(requests.at(-1)?.searchParams ?? [])).toMatchObject({ participation, contacted: 'false', followUp: 'true', search: 'Rivera', page: '1' })
     await expect(filters.getByRole('button', { name: label, exact: true })).toHaveAttribute('aria-pressed', 'true')
     await expect(page.getByRole('button', { name: 'Active and converted members included', exact: true })).toBeDisabled()
+    if (participation === 'inquiry') await expect(filters.getByText(/Inquiries without a free-trial request/)).toBeVisible()
   }
   await expect(filters.getByText(/Class enrollments dropped in the past 90 days/)).toBeVisible()
   await expect(filters.getByRole('button', { name: 'Drop-ins', exact: true })).toHaveAttribute('aria-pressed', 'false')

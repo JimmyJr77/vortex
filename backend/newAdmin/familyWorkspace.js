@@ -191,15 +191,15 @@ export async function readFamilyHistory(db, { familyId, facilityId, memberIds, c
       ) t WHERE t.record_family_id=$1 AND t.record_facility_id=$2 AND $4
       UNION ALL
       SELECT 'inquiry:'||r.id,r.created_at AT TIME ZONE 'UTC','inquiry',
-        COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id,inquiry_contact.member_id),
+        COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id,inquiry_contact.member_id),
         'Inquiry · '||concat_ws(' ',r.first_name,r.last_name),
         concat_ws(' · ',r.lead_status,r.message,r.admin_notes,
           CASE WHEN to_jsonb(r)->>'converted_member_id' IS NOT NULL THEN 'Explicit conversion' ELSE 'Contact match' END),
         'Vortex',NULL::bigint
       FROM registrations r ${inquiryMemberMatchJoin("NULLIF(to_jsonb(r)->>'facility_id','')::bigint", "to_jsonb(r)->>'email'")}
       WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR
-        (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2)))
-        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id,inquiry_contact.member_id)=ANY($3::bigint[])
+        (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=COALESCE(NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id) AND linked.facility_id=$2)))
+        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id,inquiry_contact.member_id)=ANY($3::bigint[])
       UNION ALL
       SELECT 'activity:'||a.id,a.occurred_at,'account_activity',a.member_id,a.summary,
         a.event_type,'Vortex',NULL::bigint
@@ -213,7 +213,7 @@ export async function readFamilyHistory(db, { familyId, facilityId, memberIds, c
         (n.subject_type='family' AND n.subject_id=$1) OR
         (n.subject_type='member' AND n.subject_id=ANY($3::bigint[])) OR
         (n.subject_type='registration' AND n.subject_id IN (SELECT r.id FROM registrations r
-          WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2))) AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id)=ANY($3::bigint[]))))
+          WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(SELECT 1 FROM member linked WHERE linked.id=COALESCE(NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id) AND linked.facility_id=$2))) AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id)=ANY($3::bigint[]))))
     ) SELECT *,sort_at::text AS cursor_date FROM history
       WHERE ($5::timestamptz IS NULL OR (sort_at,key)<($5::timestamptz,$6::text))
       ORDER BY sort_at DESC,key DESC LIMIT $7`,
@@ -244,8 +244,8 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
       NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint AS converted_member_id,r.archived,r.message,r.admin_notes,count(*) OVER()::int AS total
       FROM registrations r ${inquiryMemberMatchJoin("NULLIF(to_jsonb(r)->>'facility_id','')::bigint", "to_jsonb(r)->>'email'")}
       WHERE (NULLIF(to_jsonb(r)->>'facility_id','')::bigint=$2 OR (to_jsonb(r)->>'facility_id' IS NULL AND EXISTS(
-        SELECT 1 FROM member linked WHERE linked.id=r.member_id AND linked.facility_id=$2)))
-        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,r.member_id,inquiry_contact.member_id)=ANY($1::bigint[])
+        SELECT 1 FROM member linked WHERE linked.id=COALESCE(NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id) AND linked.facility_id=$2)))
+        AND COALESCE(NULLIF(to_jsonb(r)->>'converted_member_id','')::bigint,NULLIF(to_jsonb(r)->>'trial_contact_member_id','')::bigint,r.member_id,inquiry_contact.member_id)=ANY($1::bigint[])
       ORDER BY r.created_at DESC,r.id DESC LIMIT 25`, [memberIds, facilityId])
     const history = await readFamilyHistory(db, { familyId: resolved, facilityId, memberIds, canViewBilling })
     let financial = null

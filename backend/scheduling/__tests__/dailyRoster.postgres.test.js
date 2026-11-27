@@ -107,12 +107,15 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.equal(athlete(monday, newClass, established)?.isNew, true, 'an established member can be new to another class')
     assert.equal(athlete(monday, multiDay, wholeGroup)?.isNew, true, 'a group-wide enrollment starts at its first weekday')
     for (const [klass, memberId] of [[main, first], [multiDay, wholeGroup], [main, duplicate], [evaluation, wholeGroup]]) {
+      assert.equal(athlete(monday, klass, memberId)?.payerName, 'Accountpayer Roster', 'the payer name comes from the same assigned account payer, not the enrolled athlete')
       assert.equal(athlete(monday, klass, memberId)?.email, 'billing@example.test', 'recurring, group, trial and drop-in rows use the payer account email')
       assert.equal(athlete(monday, klass, memberId)?.phone, '202-555-0199', 'the account payer phone replaces the student and signup phones')
     }
     assert.equal(athlete(monday, main, established)?.email, '', 'a known account with no payer contact does not display the student address as payer information')
     assert.equal(athlete(monday, main, established)?.phone, '')
+    assert.equal(athlete(monday, main, established)?.payerName, null, 'an account without an assigned payer has no payer name')
     assert.equal(classFor(monday, main).athletes.find(row => row.source === 'drop_in' && row.signupId === confirmedTrial)?.email, `Confirmedtrial-${suffix}@example.test`, 'accountless trials retain their submitted booking contact')
+    assert.equal(classFor(monday, main).athletes.find(row => row.source === 'drop_in' && row.signupId === confirmedTrial)?.payerName, null, 'an accountless booking does not invent a payer name from the athlete')
     assert.deepEqual(classFor(monday, main).athletes.filter(row => row.source === 'scheduling').map(row => row.memberId).sort((a, b) => a - b), [first, established].sort((a, b) => a - b))
     assert.deepEqual(classFor(monday, main).athletes.filter(row => row.source === 'drop_in').map(row => row.signupId).sort((a, b) => a - b),
       [confirmedTrial, attendedTrial, paid, credit, duplicateDropIn].sort((a, b) => a - b))
@@ -136,6 +139,16 @@ test('daily roster marks the first actual class day and includes only confirmed 
     assert.equal(athlete(payerFallback, main, first)?.email, 'payer@example.test', 'the assigned payer supplies missing account contact fields')
     assert.equal(athlete(payerFallback, main, first)?.phone, '202-555-0188')
     assert.equal(athlete(payerFallback, main, duplicate)?.email, 'payer@example.test', 'drop-ins resolve the same current payer as recurring enrollments')
+    assert.equal(athlete(payerFallback, main, duplicate)?.payerName, 'Accountpayer Roster')
+
+    await db.query('SAVEPOINT payer_name_fallback')
+    const payerUserId = Number((await one(`INSERT INTO app_user(facility_id,role,full_name,username,email)
+      VALUES($1,'MEMBER_ATHLETE','  Login Payer  ',$2,$3) RETURNING id`, [facilityId,`roster-payer-${suffix}`,`roster-payer-${suffix}@example.test`])).id)
+    await db.query("UPDATE member SET app_user_id=$2,first_name=' ',last_name='' WHERE id=$1", [payer,payerUserId])
+    const loginFallback = await rosterFor('2030-01-07')
+    assert.equal(athlete(loginFallback, main, first)?.payerName, 'Login Payer', 'a blank payer member name falls back to that payer login full name')
+    assert.equal(athlete(loginFallback, main, duplicate)?.payerName, 'Login Payer')
+    await db.query('ROLLBACK TO SAVEPOINT payer_name_fallback')
 
     const wednesday = await rosterFor('2030-01-09')
     assert.equal(athlete(wednesday, multiDay, wholeGroup)?.isNew, false, 'the second group weekday is no longer new')

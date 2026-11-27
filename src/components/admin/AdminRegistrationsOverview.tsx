@@ -43,12 +43,12 @@ function formatEnrollmentStartDate(date: string | null): string {
 }
 
 function downloadDailyRosterCsv(roster: Awaited<ReturnType<typeof adminFetchDailyRoster>>): void {
-  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Age', 'Payer Email', 'Payer Phone']]
+  const rows = [['Class', 'Program', 'Time', 'Athlete', 'Age', 'Payer Name', 'Payer Email', 'Payer Phone']]
   for (const item of roster.classes) {
     for (const athlete of item.athletes) {
       rows.push([
         item.className, item.programName || '', item.timeLabel, athlete.name,
-        String(athlete.age ?? ''), athlete.email, formatPhoneForDisplay(athlete.phone),
+        String(athlete.age ?? ''), athlete.payerName || '', athlete.email, formatPhoneForDisplay(athlete.phone),
       ])
     }
   }
@@ -66,7 +66,7 @@ type EnrollmentTab = 'monthly' | 'daily' | 'class-swaps'
 type SortDir = 'asc' | 'desc'
 
 const UNSPECIFIED_SPORT = '__unspecified_sport__'
-const DAILY_ROSTER_COLUMN_WIDTHS = ['34%', '10%', '28%', '28%'] as const
+const DAILY_ROSTER_COLUMN_WIDTHS = ['26%', '8%', '22%', '26%', '18%'] as const
 
 function classMatchesLevelFilter(skillLevel: string | null, levelFilter: ClassSkillLevelFilter): boolean {
   if (levelFilter === 'all') return true
@@ -673,14 +673,15 @@ function DailyEnrollmentsView() {
                 <p className="p-4 text-sm text-gray-500">No enrollments for this class.</p>
               ) : (
                 <div className="overflow-x-auto">
-                  <table className="w-full min-w-[720px] table-fixed text-sm">
+                  <table className="w-full min-w-[920px] table-fixed text-sm">
                     <colgroup>
-                      {DAILY_ROSTER_COLUMN_WIDTHS.map((width) => <col key={width} style={{ width }} />)}
+                      {DAILY_ROSTER_COLUMN_WIDTHS.map((width, index) => <col key={index} style={{ width }} />)}
                     </colgroup>
                     <thead>
                       <tr className="border-b text-left text-gray-600">
                         <th className="p-3">Athlete</th>
                         <th className="p-3">Age</th>
+                        <th className="p-3">Payer Name</th>
                         <th className="p-3">Payer Email</th>
                         <th className="p-3">Payer Phone</th>
                       </tr>
@@ -690,6 +691,7 @@ function DailyEnrollmentsView() {
                         <tr key={`${athlete.source}:${athlete.signupId}`} className="border-b last:border-0">
                           <td className="break-words p-3 font-semibold text-gray-900">{athlete.name}</td>
                           <td className="p-3 text-gray-600">{athlete.age ?? '—'}</td>
+                          <td className="break-words p-3 text-gray-600">{athlete.payerName || '—'}</td>
                           <td className="break-words p-3 text-gray-600">{athlete.email || '—'}</td>
                           <td className="break-words p-3 text-gray-600">{formatPhoneForDisplay(athlete.phone) || '—'}</td>
                         </tr>

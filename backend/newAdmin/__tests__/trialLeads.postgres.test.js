@@ -26,7 +26,8 @@ test('trial lead history backfill is exact, idempotent, facility scoped and conv
       CREATE TABLE parent_guardian_authority(parent_member_id bigint,child_member_id bigint,has_legal_authority boolean);
       CREATE TABLE registrations(id bigserial PRIMARY KEY,facility_id bigint,member_id bigint,converted_member_id bigint,
         converted_at timestamptz,first_name text,last_name text,email text,phone text,campers jsonb,inquiry_source text,
-        lead_status text,contacted boolean,follow_up boolean,archived boolean DEFAULT FALSE,updated_at timestamptz DEFAULT now());
+        lead_status text,contacted boolean,follow_up boolean,archived boolean DEFAULT FALSE,created_at timestamptz DEFAULT now(),updated_at timestamptz DEFAULT now());
+      CREATE TABLE account_invite(registration_id bigint,facility_id bigint,invite_type text);
       CREATE TABLE program(id bigint PRIMARY KEY,facility_id bigint,name text,display_name text,is_trial_assessment boolean DEFAULT FALSE);
       CREATE TABLE scheduling_form(id bigint PRIMARY KEY,program_id bigint,title text);
       CREATE TABLE drop_in_registration(id bigint PRIMARY KEY,member_id bigint,form_id bigint,benefit_type text,class_date date,status text);
@@ -54,6 +55,7 @@ test('trial lead history backfill is exact, idempotent, facility scoped and conv
     const migration = await readFile(new URL('../../migrations/877_free_trial_leads.sql', import.meta.url), 'utf8')
     await db.query(migration)
     await db.query(migration)
+    await db.query(await readFile(new URL('../../migrations/882_lead_trial_contact_identity.sql', import.meta.url), 'utf8'))
     const leads = (await db.query('SELECT * FROM registrations ORDER BY id')).rows
     assert.equal(leads.length,3)
     assert.deepEqual(leads[0].campers.map(child => child.memberId),[2,3])

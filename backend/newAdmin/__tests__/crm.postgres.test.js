@@ -89,6 +89,28 @@ test('CRM keeps membership/drop-in activity and current enrollment independent f
     await assert.rejects(loadCrmDetail(pool, 1, 'member', 7), { statusCode: 404 })
   })
 
+  await t.test('trial contacts retain original inquiries after email changes without becoming converted leads', async () => {
+    const db = await pool.connect()
+    try {
+      await db.query('BEGIN')
+      await db.query(`ALTER TABLE registrations ADD COLUMN trial_contact_member_id bigint;
+        INSERT INTO registrations(id,facility_id,first_name,last_name,email,lead_status,trial_contact_member_id,message) VALUES
+          (90,1,'Trial','Original','old-parent@example.test','qualified',1,'Preserved trial inquiry'),
+          (91,2,'Foreign','Trial','old-parent@example.test','qualified',7,'Foreign trial inquiry');`)
+      assert.deepEqual((await listCrm(db,1,{source:'lead',search:'Trial Original'})).rows, [],
+        'the original inquiry is represented by its explicitly linked person')
+      const person = await loadCrmDetail(db,1,'member',1)
+      assert.equal(person.inquiries.find(row=>row.id===90).memberInquiry,true)
+      assert.equal(person.inquiries.find(row=>row.id===90).status,'qualified')
+      assert.ok(!person.inquiries.some(row=>row.id===91))
+      assert.ok((await loadCrmDetail(db,1,'family',1)).inquiries.some(row=>row.id===90))
+      await db.query('UPDATE registrations SET archived=TRUE WHERE id=90')
+      const archivedInquiry = await loadCrmDetail(db,1,'lead',90)
+      assert.equal(archivedInquiry.linkedMember.id,1)
+      assert.equal(archivedInquiry.inquiries.find(row=>row.id===90).status,'qualified')
+    } finally { await db.query('ROLLBACK'); db.release() }
+  })
+
   await t.test('activity and enrollment filters are independent for people and families', async () => {
     const active = await listCrm(pool, 1, { status: 'active', sortBy: 'age', sortDir: 'desc' })
     assert.deepEqual(active.rows.map(row => [row.id,row.enrolled]), [[4,false],[3,false]])

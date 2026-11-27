@@ -31,7 +31,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
         archived boolean DEFAULT FALSE,created_at timestamptz DEFAULT now(),updated_at timestamptz DEFAULT now(),
         first_contacted_at timestamptz,admin_notes text,message text,athlete_age int,interests text,interests_array text[],
         interest text,class_types text[],child_ages int[],campers jsonb,submitter_role text,inquiry_source text,submitted_by_name text);
-      CREATE TABLE account_invite(id bigint,registration_id bigint,invite_type text,suggested_username text,expires_at timestamptz,used_at timestamptz,delivery_status text,pending_payload jsonb);
+      CREATE TABLE account_invite(id bigint,facility_id bigint,registration_id bigint,invite_type text,suggested_username text,expires_at timestamptz,used_at timestamptz,delivery_status text,pending_payload jsonb);
       CREATE TABLE program(id bigint PRIMARY KEY,facility_id bigint,display_name text,name text,is_trial_assessment boolean DEFAULT FALSE);
       CREATE TABLE scheduling_form(id bigint PRIMARY KEY,program_id bigint,title text);
       CREATE TABLE drop_in_registration(id bigint PRIMARY KEY,member_id bigint,benefit_type text,form_id bigint,class_date date,status text);
@@ -121,8 +121,9 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
           UPDATE registrations SET campers='{"firstName":"Malformed","lastName":"Object"}' WHERE id=8;
           UPDATE member SET first_name='Linked',last_name='Trialname' WHERE id=2;
           UPDATE member SET first_name='Foreign',last_name='Linkedchild' WHERE id=4;
+          INSERT INTO member(id,facility_id,first_name,last_name) VALUES(30,1,'Harper','Contact');
           INSERT INTO registrations(id,facility_id,first_name,last_name,email,member_id,inquiry_source,campers) VALUES
-            (30,1,'Harper','Contact','harper@example.test',1,'free_trial','[{"memberId":2}]'),
+            (30,1,'Harper','Contact','harper@example.test',30,'free_trial','[{"memberId":2}]'),
             (31,1,'Private','Link','private-link@example.test',NULL,NULL,'[{"memberId":4}]');
           INSERT INTO program(id,facility_id,display_name,name) VALUES(30,1,'Name search trial','Name search trial');
           INSERT INTO scheduling_form VALUES(30,30,'Name search trial');
@@ -191,6 +192,58 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
         assert.deepEqual(await ids({participation:'free_trial',search:'category'}),[100])
         assert.deepEqual(await ids({participation:'free_trial',search:'category',archived:'true'}),[108])
       } finally { await db.query('ROLLBACK TO SAVEPOINT participation_bookings') }
+    })
+    await t.test('inquiry participation keeps saved inquiries separate from trial requests and linked participation before or after booking', async () => {
+      await db.query('SAVEPOINT participation_inquiries')
+      try {
+        await db.query(`
+          INSERT INTO member(id,facility_id,first_name,last_name)
+            SELECT id,1,'Inquiry category',id::text FROM generate_series(200,222) id;
+          INSERT INTO registrations(id,facility_id,first_name,last_name,email,campers,contacted,follow_up,inquiry_source)
+            SELECT id,1,'Inquiry category',id::text,'inquiry-category-'||id||'@example.test',
+              jsonb_build_array(jsonb_build_object('memberId',id)),FALSE,TRUE,'admin_portal' FROM generate_series(200,221) id;
+          UPDATE registrations SET inquiry_source='/',interests_array=ARRAY['Gymnastics'],message='We are not ready for a trial.' WHERE id=201;
+          UPDATE registrations SET inquiry_source=NULL,interest='Free trial information' WHERE id=202;
+          UPDATE registrations SET inquiry_source='free_trial' WHERE id=203;
+          UPDATE registrations SET inquiry_source='/Free-Trial/' WHERE id=217;
+          UPDATE registrations SET archived=TRUE WHERE id=215;
+          UPDATE registrations SET campers='[{"firstName":"Inquiry category","lastName":"206"}]' WHERE id=218;
+          UPDATE registrations SET converted_member_id=219,lead_status='converted' WHERE id=219;
+          UPDATE registrations SET facility_id=2 WHERE id=220;
+          INSERT INTO program(id,facility_id,display_name,name) VALUES(200,1,'Inquiry category class','Inquiry category class'),(201,2,'Foreign inquiry category','Foreign inquiry category');
+          INSERT INTO scheduling_form VALUES(200,200,'Inquiry category class'),(201,201,'Foreign inquiry category');
+          INSERT INTO account_invite(id,facility_id,registration_id,invite_type,expires_at,delivery_status,pending_payload) VALUES
+            (200,1,204,'lead_registration',now()+INTERVAL '1 week','pending','{"purpose":"trial"}'),
+            (201,1,205,'lead_registration',now()-INTERVAL '1 day','sent','{"purpose":"trial"}'),
+            (202,2,214,'lead_registration',now()+INTERVAL '1 week','pending','{"purpose":"trial"}'),
+            (203,1,216,'lead_registration',now()+INTERVAL '1 week','pending','{"purpose":"registration"}');
+          INSERT INTO drop_in_registration VALUES
+            (200,206,'free_trial',200,CURRENT_DATE+1,'confirmed'),
+            (201,207,'free_trial',200,CURRENT_DATE-1,'cancelled'),
+            (202,208,'free_trial',200,CURRENT_DATE+1,'payment_pending'),
+            (203,209,'paid',200,CURRENT_DATE-1,'attended'),
+            (204,213,'free_trial',201,CURRENT_DATE-1,'attended'),
+            (205,222,'free_trial',200,CURRENT_DATE-1,'attended');
+          INSERT INTO account_enrollment_current(record_member_id,record_facility_id,status,historical_only,enrollment_start_date) VALUES
+            (210,1,'confirmed',FALSE,CURRENT_DATE-1),
+            (211,1,'cancelled',TRUE,CURRENT_DATE-365),
+            (212,1,'pending_setup',FALSE,CURRENT_DATE+1);
+          INSERT INTO family VALUES(200,1);
+          INSERT INTO family_member VALUES(200,221,TRUE),(200,222,TRUE);
+          UPDATE registrations SET campers='[]',member_id=221 WHERE id=221;
+        `)
+        const query={participation:'inquiry',search:'inquiry-category'}
+        assert.deepEqual(await ids(query),[200,201,202,212,213,214,216,218,219])
+        assert.deepEqual(await ids({...query,converted:'false'}),[200,201,202,212,213,214,216,218])
+        assert.deepEqual(await ids({...query,converted:'true'}),[219])
+        assert.deepEqual(await ids({...query,archived:'true'}),[215])
+        assert.deepEqual(await ids({...query,followUp:'false'}),[])
+        const page=await listLeads(db,1,{...query,pageSize:3,page:2})
+        assert.equal(page.total,9)
+        assert.equal(page.totalPages,3)
+        assert.deepEqual(page.rows.map(row=>row.id),[214,213,212])
+        assert.deepEqual((await listLeads(db,2,query)).rows.map(row=>row.id),[220])
+      } finally { await db.query('ROLLBACK TO SAVEPOINT participation_inquiries') }
     })
     await t.test('recent drops use the last 90 facility-local effective days, retain finalized cancellations and exclude class swaps', async () => {
       await db.query('SAVEPOINT participation_drops')
@@ -347,8 +400,9 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       await db.query(`
         INSERT INTO program(id,facility_id,display_name,name) VALUES(1,1,'Cyclones','Cyclones'),(2,2,'Foreign class','Foreign class');
         INSERT INTO scheduling_form VALUES(1,1,'Cyclones'),(2,2,'Foreign class');
+        INSERT INTO member(id,facility_id,first_name,last_name) VALUES(40,1,'Trial','Contact');
         UPDATE member SET first_name='Listed',last_name='Child' WHERE id=2;
-        UPDATE registrations SET member_id=1,inquiry_source='free_trial',lead_status='qualified',
+        UPDATE registrations SET member_id=40,inquiry_source='free_trial',lead_status='qualified',
           campers='[{"memberId":2,"firstName":"Listed"},{"firstName":"No trial"}]' WHERE id=1;
         INSERT INTO drop_in_registration VALUES(1,2,'free_trial',1,'2027-01-15','confirmed'),
           (2,2,'paid',1,'2027-01-16','confirmed'),(3,4,'free_trial',2,'2027-01-15','confirmed'),
@@ -359,7 +413,7 @@ test('lead filters and shared account correspondence use real PostgreSQL and sta
       assert.equal(trial.convertedMemberId,null)
       assert.deepEqual(trial.freeTrials,[{ id:1,memberId:2,childName:'Listed Child',childIndex:0,date:'2027-01-15',className:'Cyclones',status:'confirmed' }])
       assert.deepEqual(await ids({converted:'true',search:'alex@example.test'}),[])
-      await db.query('UPDATE registrations SET converted_member_id=1 WHERE id=1')
+      await db.query('UPDATE registrations SET converted_member_id=40 WHERE id=1')
       assert.deepEqual(await ids({search:'alex@example.test'}),[])
       assert.deepEqual(await ids({converted:'true',search:'alex@example.test'}),[1])
     })

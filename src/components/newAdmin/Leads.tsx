@@ -8,13 +8,29 @@ import LeadFilters, { type LeadFilterValues } from './LeadFilters'
 import { AcquisitionDetails, InquiryInformation, KidDetails, LeadFields } from './LeadInquiry'
 import ConvertLead from './ConvertLead'
 import TrialLead from './TrialLead'
-import { leadDisplayName, type Lead } from './leadTypes'
+import { leadChildRows, leadDisplayName, type Lead, type LeadParticipationTag } from './leadTypes'
 import { formatDateShort } from '../../utils/dateUtils'
 import { allowed, request, useRead, useSearch, type Access, type Page } from './api'
 
 const checkboxCell = 'whitespace-nowrap px-0.5 py-3 text-center align-top'
 const cell = 'px-2.5 py-3 text-left align-top'
 const inquiryDateFormatter = new Intl.DateTimeFormat('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+const participationLabels: Record<LeadParticipationTag, string> = { inquiry: 'Inquiry', free_trial: 'Free Trial', drop_in: 'Non-Member Drop-in', recent_drop: 'Recent Drop' }
+
+function LeadStatus({ lead }: { lead: Lead }) {
+  const converted = lead.displayStatus ? lead.displayStatus === 'converted' : lead.convertedMemberId != null || lead.status === 'converted'
+  const tags = lead.participationTags ?? (lead.inquiry?.source === 'free_trial' ? ['free_trial'] : ['inquiry', ...((lead.freeTrials?.length || lead.invitation?.purpose === 'trial') ? ['free_trial'] : [])])
+  return <div className="space-y-2"><div><Status value={converted ? 'Converted' : 'Lead'} /></div>
+    <div className="flex flex-wrap items-start gap-1">{(Object.keys(participationLabels) as LeadParticipationTag[]).filter(tag => tags.includes(tag)).map(tag => <Status key={tag} value={participationLabels[tag]} />)}</div>
+    {lead.invitation ? <p className="text-xs text-slate-500">{lead.invitation.purpose === 'trial' ? 'Trial invitation' : 'Invitation'} {lead.invitation.status}</p> : null}
+  </div>
+}
+
+function LeadDate({ value }: { value: string | null | undefined }) {
+  if (!value) return <>—</>
+  const date = new Date(value)
+  return !Number.isNaN(date.getTime()) ? <time dateTime={value}>{inquiryDateFormatter.format(date)}</time> : <>—</>
+}
 
 const emptyFilters: LeadFilterValues = { contacted: '', followUp: '', ageMin: '', ageMax: '', gender: '', participation: '' }
 export default function Leads({ access, revision, onOpenMember }: { access: Access; revision: number; onOpenMember: (id: number) => void }) {
@@ -54,15 +70,16 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
     <ErrorNotice message={data.error} onRetry={refresh} />
     {data.loading ? <Loading label="Loading leads…" /> : data.data ? <div className="rounded-xl border border-slate-200 bg-white">
       {data.data.rows.length ? <div className="overflow-x-auto rounded-t-xl">
-        <table className="w-full min-w-[100rem] table-fixed text-sm">
+        <table className="w-full min-w-[112rem] table-fixed text-sm">
           <colgroup>
             <col span={2} className="w-[4.25rem]" />
-            <col className="w-[15%]" />
-            <col className="w-[19%]" />
-            <col className="w-28" />
+            <col className="w-48" />
+            <col className="w-60" />
+            <col className="w-44" />
             <col />
             <col className="w-32" />
             <col className="w-64" />
+            <col className="w-36" />
             <col className="w-96" />
           </colgroup>
           <thead className="bg-slate-100 text-xs uppercase text-slate-500"><tr>
@@ -74,18 +91,13 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
             <th scope="col" className={cell}>Kid details</th>
             <th scope="col" className={cell}>Date of inquiry</th>
             <th scope="col" className={cell}>Free Trials</th>
+            <th scope="col" className={cell}>Conversion Date</th>
             <th scope="col" className={cell}>Actions</th>
           </tr></thead>
           <tbody className="divide-y divide-slate-100">{data.data.rows.map(lead => {
             const name = leadDisplayName(lead)
-            const inquiryDate = lead.createdAt ? new Date(lead.createdAt) : null
-            const trials = lead.freeTrials || []
-            const children = [...(lead.inquiry?.campers || [])]
-            for (const booking of trials) {
-              if (!children.some((child, index) => child.memberId === booking.memberId || booking.childIndex === index)) children.push({ memberId: booking.memberId, firstName: booking.childName })
-            }
-            const childRows = children.length ? children : [null]
-            return childRows.map((child, index) => <tr key={`${lead.id}:${index}`}>
+            const childRows = leadChildRows(lead)
+            return childRows.map(({ child, trials }, index) => <tr key={`${lead.id}:${index}`}>
               {index === 0 && <><td rowSpan={childRows.length} className={checkboxCell}><input type="checkbox" aria-label={`Contacted ${name}`} checked={lead.contacted} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { contacted: event.target.checked })} /></td>
               <td rowSpan={childRows.length} className={checkboxCell}><input type="checkbox" aria-label={`Follow up ${name}`} checked={lead.followUp} disabled={!canManage || saving !== null} onChange={event => void flag(lead, { followUp: event.target.checked })} /></td>
               <td rowSpan={childRows.length} className={cell}>
@@ -93,18 +105,19 @@ export default function Leads({ access, revision, onOpenMember }: { access: Acce
                 <p className="mt-1 text-xs text-slate-500">{lead.matchedMemberId ? 'Member inquiry' : 'Lead'} #{lead.id}</p>
               </td>
               <td rowSpan={childRows.length} className={`${cell} [overflow-wrap:anywhere]`}>{lead.email}<p className="text-slate-500">{formatPhoneForDisplay(lead.phone) || 'No phone'}</p></td>
-              <td rowSpan={childRows.length} className={`${cell} [overflow-wrap:anywhere]`}><Status value={lead.status} />{lead.invitation && <p className="mt-1 text-xs text-slate-500">{lead.invitation.purpose === 'trial' ? 'Trial invitation' : 'Invitation'} {lead.invitation.status}</p>}</td></>}
+              <td rowSpan={childRows.length} className={`${cell} [overflow-wrap:anywhere]`}><LeadStatus lead={lead} /></td></>}
               <td className={`${cell} [overflow-wrap:anywhere]`}><KidDetails children={child ? [child] : []} /></td>
-              {index === 0 && <td rowSpan={childRows.length} className={`${cell} whitespace-nowrap`}>{inquiryDate && !Number.isNaN(inquiryDate.getTime()) ? <time dateTime={lead.createdAt}>{inquiryDateFormatter.format(inquiryDate)}</time> : '—'}</td>}
+              {index === 0 && <td rowSpan={childRows.length} className={`${cell} whitespace-nowrap`}><LeadDate value={lead.createdAt} /></td>}
               <td className={`${cell} [overflow-wrap:anywhere]`}>
-                {trials.some(booking => child?.memberId === booking.memberId || booking.childIndex === index) ? <ul className="space-y-2" aria-label={`Free trials for ${child ? [child.firstName, child.lastName].filter(Boolean).join(' ') || `Child ${index + 1}` : name}`}>
-                  {trials.filter(booking => child?.memberId === booking.memberId || booking.childIndex === index).map(booking => <li key={booking.id}>
+                {trials.length ? <ul className="space-y-2" aria-label={`Free trials for ${child ? [child.firstName, child.lastName].filter(Boolean).join(' ') || `Child ${index + 1}` : name}`}>
+                  {trials.map(booking => <li key={booking.id}>
                     <p className="font-medium">{formatDateShort(booking.date)}</p>
                     <p>{booking.className}</p>
                     <p className="text-xs capitalize text-slate-500">{booking.status === 'confirmed' ? 'Scheduled' : booking.status === 'attended' ? 'Participated' : booking.status.replaceAll('_', ' ')}</p>
                   </li>)}
                 </ul> : <span className="text-slate-500">No free trial booked</span>}
               </td>
+              {index === 0 && <td rowSpan={childRows.length} className={`${cell} whitespace-nowrap`}><LeadDate value={lead.convertedAt} /></td>}
               {index === 0 && <td rowSpan={childRows.length} className={cell}><div className="flex items-start gap-1 [&_button]:whitespace-nowrap [&_button]:px-1.5 [&_button]:!text-xs">
                 <button className={button} onClick={() => setNotes(lead)}>Notes</button>
                 {lead.matchedMemberId ? <button className={button} onClick={() => onOpenMember(Number(lead.matchedMemberId))}>Open member</button> : null}

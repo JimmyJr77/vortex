@@ -106,6 +106,7 @@ export interface DailyRosterAthlete {
   lastName: string
   name: string
   age: number | null
+  payerName: string | null
   email: string
   phone: string
   status: string
