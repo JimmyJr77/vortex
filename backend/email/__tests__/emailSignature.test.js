@@ -2,7 +2,8 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import nodemailer from 'nodemailer'
 import { registerEmailPool } from '../emailDeliveryStore.js'
-import { composeEmailHtml, emailFooterHtml, escapeHtml, EMAIL_LAYOUT_VERSION, EMAIL_LOGO_CID, EMAIL_LOGO_URL, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID } from '../emailHtml.js'
+import { EMAIL_CATEGORIES, isMarketing } from '../emailCategories.js'
+import { composeEmailHtml, emailFooterHtml, escapeHtml, EMAIL_LAYOUT_MARKER, EMAIL_LAYOUT_VERSION, EMAIL_LOGO_CID, EMAIL_LOGO_URL, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID, EMAIL_SIGNATURE_MARKER } from '../emailHtml.js'
 
 const occurrences = (text, value) => String(text).split(value).length - 1
 const readableHtml = html => String(html).replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim()
@@ -36,7 +37,7 @@ function assertFullSignature(mail) {
 
 test('all outbound SMTP messages receive one complete Vortex signature without weakening mail guardrails', async t => {
   const names = ['SMTP_HOST','SMTP_PORT','SMTP_USER','SMTP_PASS','SMTP_FROM','SMTP_REPLY_TO','EMAIL_KILL_SWITCH',
-    'EMAIL_KILL_SWITCH_SCHEDULE_CHANGE','EMAIL_KILL_SWITCH_SIGNIN_MAGIC_LINK','EMAIL_KILL_SWITCH_NEWSLETTER']
+    ...Object.keys(EMAIL_CATEGORIES).map(category => `EMAIL_KILL_SWITCH_${category.toUpperCase()}`)]
   const previous = Object.fromEntries(names.map(name => [name, process.env[name]]))
   const createTransport = nodemailer.createTransport
   const sent = []
@@ -45,8 +46,8 @@ test('all outbound SMTP messages receive one complete Vortex signature without w
   Object.assign(process.env, {
     SMTP_HOST: 'smtp.example.test', SMTP_PORT: '587', SMTP_USER: 'sender@example.test', SMTP_PASS: 'synthetic-password',
     SMTP_FROM: 'Vortex Athletics & Gymnastics <sender@example.test>', SMTP_REPLY_TO: 'frontdesk@example.test',
-    EMAIL_KILL_SWITCH: 'false', EMAIL_KILL_SWITCH_SCHEDULE_CHANGE: 'false',
-    EMAIL_KILL_SWITCH_SIGNIN_MAGIC_LINK: 'false', EMAIL_KILL_SWITCH_NEWSLETTER: 'false',
+    EMAIL_KILL_SWITCH: 'false',
+    ...Object.fromEntries(names.filter(name => name.startsWith('EMAIL_KILL_SWITCH_')).map(name => [name, 'false'])),
   })
   nodemailer.createTransport = () => ({ sendMail: async mail => {
     sent.push(mail)
@@ -58,6 +59,26 @@ test('all outbound SMTP messages receive one complete Vortex signature without w
   try {
     const { sendEmail } = await import(`../sendEmail.js?signature-regression=${Date.now()}`)
     const base = { to: 'parent@example.test', subject: 'Class schedule update', category: 'schedule_change', skipPolicy: true }
+
+    await t.test('every email category uses the approved header and footer at the SMTP boundary', async () => {
+      for (const category of Object.keys(EMAIL_CATEGORIES)) {
+        const before = sent.length
+        const result = await sendEmail({
+          ...base, category, subject: 'An update from Vortex',
+          text: 'Your Vortex account update.', html: '<p>Your Vortex account update.</p>',
+          ...(isMarketing(category) ? { listUnsubscribeUrl: 'https://vortexathletics.com/email/unsubscribe/synthetic-token' } : {}),
+        })
+        assert.equal(result.sent, true, `${category} reaches the shared sender`)
+        assert.equal(sent.length, before + 1, `${category} produces one message`)
+        const mail = sent.at(-1)
+        assertFullSignature(mail)
+        assert.ok(mail.html.includes(EMAIL_LAYOUT_MARKER), `${category} uses the standard document`)
+        assert.ok(mail.html.includes(`data-vortex-email-layout-version="${EMAIL_LAYOUT_VERSION}"`), `${category} uses the approved version`)
+        assert.ok(mail.html.includes(EMAIL_SIGNATURE_MARKER), `${category} uses the approved signature`)
+        assert.ok(mail.html.includes(emailFooterHtml.html), `${category} retains the complete approved footer`)
+        assert.ok(mail.html.indexOf(`cid:${EMAIL_LOGO_CID}`) < mail.html.indexOf('Your Vortex account update.'), `${category} displays its header before the message`)
+      }
+    })
 
     await t.test('HTML and plain-text bodies retain their spacing above the standardized signature', async () => {
       const text = 'Dear family,\n\nPrevious schedule:\nMonday at 4:00 PM\n\nUpdated schedule:\nTuesday at 5:00 PM\n\nWarmly,\nThe Vortex Athletics Team'

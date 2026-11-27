@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { CheckCircle2, Loader2, Mail, RefreshCw, XCircle } from 'lucide-react'
 import { adminApiRequest } from '../utils/api'
-
-/** Current transactional email template — update when composeEmailHtml changes. */
-export const EXPECTED_EMAIL_LAYOUT_VERSION = 'v2-black-header-white-body'
+import { EMAIL_LAYOUT_VERSION } from '../../backend/email/emailBranding.js'
 
 interface EmailStatus {
   configured: boolean
@@ -94,7 +92,7 @@ export default function AdminEmail({ embedded = false }: { embedded?: boolean })
   )
 
   const layoutIsCurrent =
-    status?.emailLayoutVersion === EXPECTED_EMAIL_LAYOUT_VERSION
+    status?.emailLayoutVersion === EMAIL_LAYOUT_VERSION
 
   return (
     <div className="max-w-2xl space-y-6">
@@ -146,12 +144,12 @@ export default function AdminEmail({ embedded = false }: { embedded?: boolean })
                   ? ` (template ${status.emailLayoutVersion})`
                   : ' (no template version — pre-layout backend)'}
                 . Expected template{' '}
-                <code className="text-xs">{EXPECTED_EMAIL_LAYOUT_VERSION}</code>.
+                <code className="text-xs">{EMAIL_LAYOUT_VERSION}</code>.
               </p>
               <p className="mt-2">
                 Redeploy the <strong>Render</strong> backend service (<code>backend/</code> root on{' '}
                 <code>main</code>). Vercel frontend deploys do not update email HTML. After deploy,
-                refresh this page — build should be <code>email-layout-v2-2026-06-27</code> or newer.
+                refresh this page to confirm that the email template version matches.
               </p>
             </div>
           )}

@@ -1,23 +1,14 @@
 /** Shared HTML helpers for transactional email (consistent layout, deliverability). */
 
 import { publicAppUrl } from './publicAppUrl.js'
+import { EMAIL_LAYOUT_VERSION, EMAIL_LOGO_URL, EMAIL_SIGNATURE } from './emailBranding.js'
+
+export { EMAIL_LAYOUT_VERSION, EMAIL_LOGO_URL, EMAIL_SIGNATURE } from './emailBranding.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
-export const EMAIL_LAYOUT_VERSION = 'v6-closer-signature-contacts'
 export const EMAIL_LOGO_CID = 'vortex-athletics-gymnastics-logo@vortex'
 export const EMAIL_SIGNATURE_LOGO_CID = EMAIL_LOGO_CID
 export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v4"'
-
-/** Email-compatible PNG of the artwork used by PublicBrandImage on the home page. */
-export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-gymnastics-logo.png'
-
-export const EMAIL_SIGNATURE = Object.freeze({
-  name: 'Vortex Athletics & Gymnastics',
-  address: '4961 Tesla Dr, Ste E, Bowie, MD 20715',
-  website: 'www.vortexathletics.com',
-  phone: '443-422-4794 (gym)',
-  logoUrl: EMAIL_LOGO_URL,
-})
 
 const SIGNOFF = 'Warmly,\nThe Vortex Athletics Team'
 const CONTACT_SIGNATURE = [EMAIL_SIGNATURE.name, EMAIL_SIGNATURE.address, EMAIL_SIGNATURE.website, EMAIL_SIGNATURE.phone].join('\n')

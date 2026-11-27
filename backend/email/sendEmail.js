@@ -180,6 +180,9 @@ function resolveReplyTo() {
 /**
  * Send a transactional (or marketing) email.
  *
+ * Every message receives the shared Vortex header and footer here. Callers only
+ * need to supply their message content; email branding stays centralized.
+ *
  * Backward compatible: existing callers passing only `{ to, subject, text, html }` keep
  * working (treated as transactional). New callers should pass a `category` so the message
  * is classified, suppression/policy is enforced, and delivery is logged.
