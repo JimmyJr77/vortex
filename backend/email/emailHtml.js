@@ -3,10 +3,10 @@
 import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
-export const EMAIL_LAYOUT_VERSION = 'v5-compact-logo-spacing'
+export const EMAIL_LAYOUT_VERSION = 'v6-closer-signature-contacts'
 export const EMAIL_LOGO_CID = 'vortex-athletics-gymnastics-logo@vortex'
 export const EMAIL_SIGNATURE_LOGO_CID = EMAIL_LOGO_CID
-export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v3"'
+export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v4"'
 
 /** Email-compatible PNG of the artwork used by PublicBrandImage on the home page. */
 export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-gymnastics-logo.png'
@@ -74,15 +74,25 @@ export function emailButtonHtml(label, url) {
   `
 }
 
-/** Required signoff and contact block, shared by every outbound email. */
+/**
+ * Required signoff and contact block, shared by every outbound email. The logo
+ * frame trims 16px of transparent bottom padding at 360px wide, scaling with it.
+ * Word-based Outlook keeps the full image rather than clipping the artwork.
+ */
 export const emailFooterHtml = {
   text: `${SIGNOFF}\n\n${CONTACT_SIGNATURE}`,
   html: `${FOOTER_START}
     <div ${EMAIL_SIGNATURE_MARKER}>
       <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">Warmly,<br />The Vortex Athletics Team</p>
       <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:100%;">
-        <tr><td style="padding:0;">
+        <tr><td style="padding:0;font-size:0;line-height:0;">
+          <!--[if !mso]><!-->
+          <div style="height:0;padding-bottom:28.888889%;overflow:hidden;">
+          <!--<![endif]-->
           <img src="cid:${EMAIL_SIGNATURE_LOGO_CID}" alt="${escapeHtml(EMAIL_SIGNATURE.name)}" width="360" style="display:block;width:360px;max-width:100%;height:auto;border:0;" />
+          <!--[if !mso]><!-->
+          </div>
+          <!--<![endif]-->
         </td></tr>
         <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:${BRAND.footerColor};">
           ${EMAIL_SIGNATURE.address}<br />
