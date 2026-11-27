@@ -95,6 +95,14 @@ export async function buildAdminClassRegistrationSummaries(pool) {
   const schema = await resolveProgramsSchema(pool)
   const programsTable = schema.programsTable
   const programFkColumn = schema.programFkColumn
+  const programActiveColumn = await pool.query(
+    `SELECT 1 FROM information_schema.columns
+     WHERE table_name = $1 AND column_name = 'is_active' LIMIT 1`,
+    [programsTable],
+  )
+  const activeProgramClause = programActiveColumn.rows.length > 0
+    ? 'AND (pr.id IS NULL OR COALESCE(pr.is_active, TRUE) = TRUE)'
+    : ''
 
   const linesRes = await pool.query(
     `
@@ -133,6 +141,12 @@ export async function buildAdminClassRegistrationSummaries(pool) {
       LEFT JOIN ${programsTable} pr ON pr.id = COALESCE(sf.programs_id, class_p.${programFkColumn})
       LEFT JOIN discipline_tag sport_dt ON sport_dt.id = pr.primary_discipline_tag_id
       WHERE sf.deleted_at IS NULL
+        AND class_p.is_active = TRUE
+        AND class_p.archived = FALSE
+        AND (pr.id IS NULL OR pr.archived = FALSE)
+        ${activeProgramClause}
+        AND sg.is_active = TRUE
+        AND (ts.id IS NULL OR ts.is_active = TRUE)
       ORDER BY sport_name NULLS LAST, program_name, class_name, offering_label, ts.day_of_week, ts.start_time
     `,
   )

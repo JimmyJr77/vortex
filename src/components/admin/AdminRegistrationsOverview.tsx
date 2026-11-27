@@ -17,7 +17,6 @@ import {
   CLASS_SKILL_LEVEL_FILTER_OPTIONS,
   type ClassSkillLevelFilter,
 } from '../../utils/classDisplayUtils'
-import { fetchClassesOffered, type PublicProgramOffered } from '../../utils/publicClassesApi'
 import {
   adminFetchClassRegistrationSummaries,
   adminFetchEnrollmentsByMember,
@@ -298,7 +297,6 @@ function AdminEnrollmentsByMemberView({ onRefresh }: { onRefresh: () => void }) 
 
 function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void }) {
   const [summaries, setSummaries] = useState<AdminClassRegistrationSummary[]>([])
-  const [programs, setPrograms] = useState<PublicProgramOffered[]>([])
   const [expandedRowKey, setExpandedRowKey] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -313,12 +311,8 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
     setLoading(true)
     setError(null)
     try {
-      const [summaryData, classesData] = await Promise.all([
-        adminFetchClassRegistrationSummaries(),
-        fetchClassesOffered().catch(() => ({ programs: [] as PublicProgramOffered[] })),
-      ])
+      const summaryData = await adminFetchClassRegistrationSummaries()
       setSummaries(summaryData.rows ?? [])
-      setPrograms(classesData.programs ?? [])
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load class registrations')
       setSummaries([])
@@ -338,12 +332,16 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
       if (row.sportName) names.add(row.sportName)
       else hasUnspecified = true
     }
-    for (const program of programs) {
-      if (program.primarySportName) names.add(program.primarySportName)
-      else hasUnspecified = true
-    }
     return { named: [...names].sort((a, b) => a.localeCompare(b)), hasUnspecified }
-  }, [summaries, programs])
+  }, [summaries])
+
+  const programOptions = useMemo(() => {
+    const options = new Map<number, string>()
+    for (const row of summaries) {
+      if (row.programId != null && row.programName) options.set(row.programId, row.programName)
+    }
+    return [...options].sort((a, b) => a[1].localeCompare(b[1]))
+  }, [summaries])
 
   const filteredRows = useMemo(() => {
     const q = searchQuery.trim().toLowerCase()
@@ -416,7 +414,7 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
             className={`${controlClass} pl-9`}
           />
         </div>
-        <select value={sportFilter} onChange={(e) => setSportFilter(e.target.value)} className={controlClass}>
+        <select aria-label="Filter monthly enrollments by sport" value={sportFilter} onChange={(e) => setSportFilter(e.target.value)} className={controlClass}>
           <option value="all">All sports</option>
           {sportOptions.named.map((sport) => (
             <option key={sport} value={sport}>
@@ -426,6 +424,7 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
           {sportOptions.hasUnspecified && <option value={UNSPECIFIED_SPORT}>Unspecified sport</option>}
         </select>
         <select
+          aria-label="Filter monthly enrollments by program"
           value={programFilter === 'all' ? 'all' : String(programFilter)}
           onChange={(e) =>
             setProgramFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))
@@ -433,9 +432,9 @@ function AdminEnrollmentsByProgramView({ onRefresh }: { onRefresh: () => void })
           className={controlClass}
         >
           <option value="all">All programs</option>
-          {programs.map((program) => (
-            <option key={program.id} value={program.id}>
-              {program.displayName}
+          {programOptions.map(([id, name]) => (
+            <option key={id} value={id}>
+              {name}
             </option>
           ))}
         </select>
