@@ -173,6 +173,11 @@ test('one-time click swap requires the exact confirmation and retains both occur
   await expect(email).toHaveValue(/Monday, November 30, 2026/)
   await expect(email).toHaveValue(/Tuesday, December 1, 2026/)
   await expect(email).toHaveValue(/tuition remain unchanged/)
+  const signature = dialog.getByRole('complementary', { name: 'Vortex email signature' })
+  await expect(signature.getByRole('img', { name: 'Vortex Gymnastics' })).toHaveAttribute('src', 'https://vortexathletics.com/vortex_gymnastics_logo.png')
+  await expect(signature).toContainText('4961 Tesla Dr, Ste E, Bowie, MD 20715')
+  await expect(signature.getByRole('link', { name: 'www.vortexathletics.com' })).toHaveAttribute('href', 'https://www.vortexathletics.com')
+  await expect(signature.getByRole('link', { name: '443-422-4794 (gym)' })).toHaveAttribute('href', 'tel:4434224794')
   const editedEmail = `${await email.inputValue()}\nPlease arrive five minutes before the replacement class.`
   await email.fill(' ')
   await expect(dialog.getByRole('button', { name: 'Finalize swap', exact: true })).toBeDisabled()

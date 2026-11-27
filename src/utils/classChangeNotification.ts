@@ -1,8 +1,11 @@
+import type { VortexEmailSignature } from './emailSignature'
+
 export interface ClassChangeEmailPreview {
   subject: string
   body: string
   recipientCount: number
   missingContactCount: number
+  signature?: VortexEmailSignature
 }
 
 export interface ClassChangeNotifications {

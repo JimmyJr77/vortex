@@ -25,7 +25,8 @@ import {
   recordDelivery,
   updateDeliveryStatus,
 } from './emailDeliveryStore.js'
-import { EMAIL_LOGO_CID, EMAIL_LOGO_URL, normalizeOutboundEmailHtml } from './emailHtml.js'
+import { EMAIL_LOGO_CID, EMAIL_LOGO_URL, EMAIL_SIGNATURE, EMAIL_SIGNATURE_LOGO_CID,
+  normalizeOutboundEmailHtml, normalizeOutboundEmailText } from './emailHtml.js'
 
 let transporter = null
 
@@ -322,13 +323,19 @@ export async function sendEmail({
       to: normalizedTo,
       replyTo: replyToAddress,
       subject,
-      text,
-      html: normalizeOutboundEmailHtml(html),
+      text: normalizeOutboundEmailText(text, html),
+      html: normalizeOutboundEmailHtml(html, { text }),
       attachments: [
         {
           filename: 'vortex-athletics-logo.png',
           path: EMAIL_LOGO_URL,
           cid: EMAIL_LOGO_CID,
+        },
+        {
+          filename: 'vortex-gymnastics-logo.jpg',
+          path: EMAIL_SIGNATURE.logoUrl,
+          cid: EMAIL_SIGNATURE_LOGO_CID,
+          contentType: 'image/jpeg',
         },
       ],
       headers,

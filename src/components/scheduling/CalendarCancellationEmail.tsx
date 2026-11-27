@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { adminPreviewCalendarCancellation, type CalendarCancellationPreview } from '../../utils/schedulingApi'
+import EmailSignaturePreview from './EmailSignaturePreview'
 
 export default function CalendarCancellationEmail({ date, slotId, onChange, disabled = false }: {
   date: string
@@ -38,6 +39,7 @@ export default function CalendarCancellationEmail({ date, slotId, onChange, disa
     {preview.missingContactCount > 0 ? <p role="status" className="text-amber-800">{preview.missingContactCount} student{preview.missingContactCount === 1 ? ' has' : 's have'} no valid parent or account email on file.</p> : null}
     <label htmlFor={messageId} className="block font-semibold">Email message to parents</label>
     <textarea id={messageId} rows={10} maxLength={20000} required disabled={disabled} value={body} onChange={event => { setBody(event.target.value); onChange(event.target.value) }} className="w-full rounded-lg border border-gray-300 bg-white p-3 font-normal leading-relaxed text-gray-900 disabled:opacity-60" />
-    <p className="text-xs text-gray-500">Review or edit this message before confirming. The text above will be the email body.</p>
+    <p className="text-xs text-gray-500">Review or edit this message before confirming. The full Vortex signature below is added automatically.</p>
+    <EmailSignaturePreview signature={preview.signature} />
   </section>
 }

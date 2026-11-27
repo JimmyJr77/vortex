@@ -4,6 +4,7 @@ import { formatDateOnly } from './slotActiveDates.js'
 import { dedupeEmails, listMemberGuardianContacts, resolveMemberHouseholdPayerContact } from '../email/memberContact.js'
 import { sendEmail } from '../email/sendEmail.js'
 import { findPromotionalContent } from '../email/emailCategories.js'
+import { EMAIL_SIGNATURE, plainTextToEmailHtml } from '../email/emailHtml.js'
 
 const TEMPLATE = 'class-swap-update-v1'
 const workers = new WeakMap()
@@ -27,18 +28,18 @@ export function validateClassSwapEmailBody(value) {
 export function classSwapEmailBody({ mode, athleteName, effectiveDate, originalSessions, replacementSessions }) {
   const name = athleteName || 'your child'
   return [
-    `Dear ${athleteName ? `${athleteName}’s` : 'Vortex'} family,`, '',
+    `Dear ${athleteName ? `${athleteName}’s` : 'Vortex'} family,`,
     mode === 'temporary' ? `We’re writing to confirm a one-time class change for ${name}.`
-      : `We’re writing to confirm ${athleteName ? `${athleteName}’s` : 'your child’s'} updated class schedule, effective ${dateLabel(effectiveDate)}.`, '',
-    mode === 'temporary' ? `Original session: ${originalSessions.join('; ')}` : 'Previous schedule:',
-    ...(mode === 'permanent' ? originalSessions.map(session => `• ${session}`) : []), '',
-    mode === 'temporary' ? `Replacement session: ${replacementSessions.join('; ')}` : 'Updated schedule:',
-    ...(mode === 'permanent' ? replacementSessions.map(session => `• ${session}`) : []), '',
+      : `We’re writing to confirm ${athleteName ? `${athleteName}’s` : 'your child’s'} updated class schedule, effective ${dateLabel(effectiveDate)}.`,
+    mode === 'temporary' ? `Original session: ${originalSessions.join('; ')}`
+      : ['Previous schedule:', ...originalSessions.map(session => `• ${session}`)].join('\n'),
+    mode === 'temporary' ? `Replacement session: ${replacementSessions.join('; ')}`
+      : ['Updated schedule:', ...replacementSessions.map(session => `• ${session}`)].join('\n'),
     mode === 'temporary' ? `This change applies only to the session listed above. ${athleteName ? `${athleteName}’s` : 'Your child’s'} regular enrollment and tuition remain unchanged.`
-      : 'Please follow the updated schedule for classes on and after this date.', '',
-    'Thank you for your flexibility. Please reply if you have any questions or need help with the updated schedule.', '',
-    'Warmly,', 'The Vortex Athletics Team',
-  ].join('\n')
+      : 'Please follow the updated schedule for classes on and after this date.',
+    'Thank you for your flexibility. Please reply if you have any questions or need help with the updated schedule.',
+    'Warmly,\nThe Vortex Athletics Team',
+  ].join('\n\n')
 }
 
 function sessionLabel(row, rows, occurrenceDate = null) {
@@ -110,7 +111,7 @@ export async function previewClassSwapNotification(db, {
   return { subject, body: classSwapEmailBody({ mode, athleteName, effectiveDate,
     originalSessions: original.map(row => sessionLabel(row, rows, mode === 'temporary' ? sourceDate : null)),
     replacementSessions: replacements.map(row => sessionLabel(row, rows, mode === 'temporary' ? effectiveDate : null)),
-  }), recipientCount: recipients.length, missingContactCount: recipients.length ? 0 : 1, recipients }
+  }), signature: EMAIL_SIGNATURE, recipientCount: recipients.length, missingContactCount: recipients.length ? 0 : 1, recipients }
 }
 
 export function publicClassSwapNotification(preview) {
@@ -145,8 +146,7 @@ export async function completeClassSwapNotification(pool, scope) {
   catch { return { notificationSummaryUnavailable: true } }
 }
 
-const htmlBody = body => `<div style="white-space:pre-wrap">${String(body).replaceAll('&','&amp;').replaceAll('<','&lt;')
-  .replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}</div>`
+const htmlBody = plainTextToEmailHtml
 
 export async function dispatchClassSwapNotifications(pool, { send = sendEmail, limit = 10 } = {}) {
   let processed = 0

@@ -3,11 +3,27 @@
 import { publicAppUrl } from './publicAppUrl.js'
 
 export const EMAIL_LAYOUT_MARKER = 'data-vortex-email-layout="vortex"'
-export const EMAIL_LAYOUT_VERSION = 'v2-black-header-white-body'
+export const EMAIL_LAYOUT_VERSION = 'v3-full-signature'
 export const EMAIL_LOGO_CID = 'vortex-athletics-logo@vortex'
+export const EMAIL_SIGNATURE_LOGO_CID = 'vortex-gymnastics-logo@vortex'
+export const EMAIL_SIGNATURE_MARKER = 'data-vortex-email-signature="v1"'
 
 /** Public logo asset — must be absolute URL for email clients. */
 export const EMAIL_LOGO_URL = 'https://vortexathletics.com/vortex-athletics-logo.png'
+
+export const EMAIL_SIGNATURE = Object.freeze({
+  name: 'Vortex Gymnastics',
+  address: '4961 Tesla Dr, Ste E, Bowie, MD 20715',
+  website: 'www.vortexathletics.com',
+  phone: '443-422-4794 (gym)',
+  logoUrl: 'https://vortexathletics.com/vortex_gymnastics_logo.png',
+})
+
+const SIGNOFF = 'Warmly,\nThe Vortex Athletics Team'
+const CONTACT_SIGNATURE = [EMAIL_SIGNATURE.name, EMAIL_SIGNATURE.address, EMAIL_SIGNATURE.website, EMAIL_SIGNATURE.phone].join('\n')
+const FOOTER_START = '<!-- vortex-email-footer:start -->'
+const FOOTER_END = '<!-- vortex-email-footer:end -->'
+const legacyFooterHtml = /Vortex Athletics\s*·\s*<a\b[^>]*href=["']https?:\/\/(?:www\.)?vortexathletics\.com\/?["'][^>]*>\s*(?:www\.)?vortexathletics\.com\/?\s*<\/a>/i
 
 const BRAND = {
   headerBg: '#000000',
@@ -57,12 +73,81 @@ export function emailButtonHtml(label, url) {
   `
 }
 
-/** Plain-text + HTML footer (rendered in the grey footer band). */
+/** Required signoff and contact block, shared by every outbound email. */
 export const emailFooterHtml = {
-  text: '— Vortex Athletics\nwww.vortexathletics.com',
-  html: `
-    Vortex Athletics · <a href="https://www.vortexathletics.com" style="color: ${BRAND.footerColor}; text-decoration: none;">www.vortexathletics.com</a>
-  `.trim(),
+  text: `${SIGNOFF}\n\n${CONTACT_SIGNATURE}`,
+  html: `${FOOTER_START}
+    <div ${EMAIL_SIGNATURE_MARKER}>
+      <p style="margin:0 0 24px;font-size:16px;line-height:1.6;">Warmly,<br />The Vortex Athletics Team</p>
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="max-width:100%;">
+        <tr><td style="padding:0 0 12px;">
+          <img src="cid:${EMAIL_SIGNATURE_LOGO_CID}" alt="${EMAIL_SIGNATURE.name}" width="360" style="display:block;width:360px;max-width:100%;height:auto;border:0;background-color:#000000;" />
+        </td></tr>
+        <tr><td style="font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.7;color:${BRAND.footerColor};">
+          ${EMAIL_SIGNATURE.address}<br />
+          <a href="https://${EMAIL_SIGNATURE.website}" style="color:${BRAND.footerColor};text-decoration:underline;">${EMAIL_SIGNATURE.website}</a><br />
+          <a href="tel:+14434224794" style="color:${BRAND.footerColor};text-decoration:underline;">${EMAIL_SIGNATURE.phone}</a>
+        </td></tr>
+      </table>
+    </div>
+    ${FOOTER_END}`,
+}
+
+function withoutFooterBlocks(html) {
+  return String(html ?? '').replace(/<!-- vortex-email-footer:start -->[\s\S]*?<!-- vortex-email-footer:end -->/g, '')
+    .replace(legacyFooterHtml, '')
+}
+
+function withoutTextSignoff(text) {
+  let body = String(text ?? '').replace(/\r\n?/g, '\n').trimEnd()
+  // Some older templates already append the shared footer. Strip only known
+  // terminal signatures; message paragraphs and links remain untouched.
+  while (body.endsWith(emailFooterHtml.text) || body.endsWith(CONTACT_SIGNATURE)) {
+    body = body.slice(0, -(body.endsWith(emailFooterHtml.text) ? emailFooterHtml.text.length : CONTACT_SIGNATURE.length)).trimEnd()
+  }
+  body = body.replace(/(?:^|\n)\s*—?\s*Vortex Athletics\s*\n(?:https?:\/\/)?(?:www\.)?vortexathletics\.com\/?\s*$/i, '').trimEnd()
+  body = body.replace(/(?:^|\n)(?:(?:Warmly|Thank you|Sincerely|Best regards),?\s*\n)?(?:The Vortex Athletics Team|—\s*Vortex Athletics)\s*$/i, '').trimEnd()
+  return body
+}
+
+function withoutHtmlSignoff(html) {
+  // The final signoff can be a paragraph, a pair of <br>s, or plain text inside
+  // an older pre-wrap block. Only remove it when no message text follows it.
+  return String(html ?? '').replace(/(?:<p\b[^>]*>\s*)?(?:(?:Warmly|Thank you|Sincerely|Best regards),?(?:\s|<br\s*\/?>)+)?(?:The Vortex Athletics Team|—\s*Vortex Athletics)(?:\s|<br\s*\/?>)*(?:<\/p>)?(?=(?:\s|<\/?(?:div|p|td|tr|table|tbody|center)\b[^>]*>)*$)/i, '').trim()
+}
+
+/** Render real paragraphs instead of relying on inconsistent email white-space support. */
+export function plainTextToEmailHtml(text) {
+  return String(text ?? '').replace(/\r\n?/g, '\n').split(/\n[\t ]*\n+/)
+    .filter(paragraph => paragraph.trim())
+    .map(paragraph => `<p style="margin:0 0 20px;line-height:1.6;">${escapeHtml(paragraph).replace(/\n/g, '<br />')}</p>`).join('\n')
+}
+
+function decodeHtmlEntities(text) {
+  const named = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ' }
+  return text.replace(/&(#x[\da-f]+|#\d+|amp|lt|gt|quot|apos|nbsp);/gi, (entity, key) => {
+    if (!key.startsWith('#')) return named[key.toLowerCase()]
+    const code = key[1].toLowerCase() === 'x' ? parseInt(key.slice(2), 16) : Number(key.slice(1))
+    return code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : entity
+  })
+}
+
+function htmlText(html) {
+  return decodeHtmlEntities(withoutFooterBlocks(html)
+    .replace(/<(head|style|script)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+    .replace(/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, (_match, href, label) => {
+      const text = label.replace(/<[^>]*>/g, '')
+      if (!text.trim()) return ''
+      return /^(https?:|mailto:|tel:)/i.test(href) && text !== href ? `${text} (${href})` : text
+    })
+    .replace(/<br\s*\/?>/gi, '\n').replace(/<\/(?:p|div|tr|h[1-6]|li)>/gi, '\n\n')
+    .replace(/<[^>]*>/g, '').replace(/[\t ]+\n/g, '\n').replace(/\n[\t ]*\n(?:[\t ]*\n)+/g, '\n\n')).trim()
+}
+
+/** Preserve body copy and blank lines, then append the required signature once. */
+export function normalizeOutboundEmailText(text, html = '') {
+  const body = withoutTextSignoff(String(text ?? '').trim() ? text : htmlText(html))
+  return body ? `${body}\n\n${emailFooterHtml.text}` : emailFooterHtml.text
 }
 
 /**
@@ -72,10 +157,10 @@ export const emailFooterHtml = {
 export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
   const logoSrc = `cid:${EMAIL_LOGO_CID}`
   const siteUrl = publicAppUrl()
-  const body = String(bodyHtml ?? '').trim()
+  const body = withoutHtmlSignoff(withoutFooterBlocks(bodyHtml))
 
   return `<!DOCTYPE html>
-<html lang="en" ${EMAIL_LAYOUT_MARKER}>
+<html lang="en" ${EMAIL_LAYOUT_MARKER} data-vortex-email-layout-version="${EMAIL_LAYOUT_VERSION}">
 <head>
   <meta charset="utf-8">
   <meta name="color-scheme" content="light dark">
@@ -102,7 +187,7 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
             </td>
           </tr>
           <tr>
-            <td align="center" style="background-color:${BRAND.footerBg};padding:24px 28px;font-family:Arial,Helvetica,sans-serif;font-size:12px;line-height:1.6;color:${BRAND.footerColor};">
+            <td align="left" style="background-color:${BRAND.footerBg};padding:24px 28px;font-family:Arial,Helvetica,sans-serif;font-size:14px;line-height:1.6;color:${BRAND.footerColor};">
               ${emailFooterHtml.html}
             </td>
           </tr>
@@ -115,11 +200,26 @@ export function composeEmailHtml(bodyHtml, { preheader = '' } = {}) {
 }
 
 /** Wrap a body fragment in the standard layout (used by sendEmail for all outbound HTML). */
-export function normalizeOutboundEmailHtml(html) {
+export function normalizeOutboundEmailHtml(html, { text = '' } = {}) {
   let fragment = String(html ?? '').trim()
-  if (!fragment || fragment.includes('data-vortex-email-layout=')) {
-    return html
+  if (fragment.includes(EMAIL_LAYOUT_MARKER) && fragment.includes(EMAIL_SIGNATURE_MARKER)) return fragment
+
+  if (fragment.includes('data-vortex-email-layout=')) {
+    // Upgrade the existing branded document in place: wrapping it again would
+    // duplicate the header and leave the old incomplete footer visible.
+    const oldFooter = legacyFooterHtml.exec(fragment)
+    if (oldFooter) {
+      fragment = withoutHtmlSignoff(fragment.slice(0, oldFooter.index)) + emailFooterHtml.html + fragment.slice(oldFooter.index + oldFooter[0].length)
+    } else {
+      const bodyEnd = /<\/body>/i.exec(fragment)
+      fragment = bodyEnd
+        ? withoutHtmlSignoff(fragment.slice(0, bodyEnd.index)) + emailFooterHtml.html + fragment.slice(bodyEnd.index)
+        : withoutHtmlSignoff(fragment) + emailFooterHtml.html
+    }
+    return fragment
   }
+
+  if (!fragment) fragment = plainTextToEmailHtml(text)
 
   if (/<!DOCTYPE|<html/i.test(fragment)) {
     const bodyMatch = fragment.match(/<body[^>]*>([\s\S]*)<\/body>/i)
@@ -127,7 +227,7 @@ export function normalizeOutboundEmailHtml(html) {
   }
 
   // Legacy callers may still append the footer fragment inside the body.
-  fragment = fragment.replace(emailFooterHtml.html, '').trim()
+  fragment = withoutFooterBlocks(fragment).trim()
 
   let preheader = ''
   const preheaderRe = /^(\s*<div style="display:none[^>]*>[\s\S]*?<\/div>\s*)+/i

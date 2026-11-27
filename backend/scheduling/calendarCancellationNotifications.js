@@ -4,6 +4,7 @@ import { loadSchedulingCalendar } from './calendarQuery.js'
 import { dedupeEmails, listMemberGuardianContacts, resolveMemberHouseholdPayerContact } from '../email/memberContact.js'
 import { sendEmail } from '../email/sendEmail.js'
 import { findPromotionalContent } from '../email/emailCategories.js'
+import { EMAIL_SIGNATURE, plainTextToEmailHtml } from '../email/emailHtml.js'
 
 const TEMPLATE = 'calendar-cancellation-v1'
 const workers = new WeakMap()
@@ -19,13 +20,13 @@ const timeLabel = time => {
 
 export function cancellationEmailBody(sessions, date, { fullDay = false } = {}) {
   return [
-    'Dear Vortex families,', '',
+    'Dear Vortex families,',
     fullDay ? `We are sorry to let you know that all classes and trials on ${dateLabel(date)} have been canceled.`
       : 'We are sorry to let you know that the following class session has been canceled:',
-    '', ...sessions.map(session => `${session.className} — ${dateLabel(session.date)}, ${timeLabel(session.startTime)}–${timeLabel(session.endTime)}`),
-    '', 'We apologize for the inconvenience and appreciate your understanding. We will work with you to facilitate a make-up date. Please reply to this email with any questions or scheduling needs.',
-    '', 'Thank you,', 'The Vortex Athletics Team',
-  ].join('\n')
+    sessions.map(session => `${session.className} — ${dateLabel(session.date)}, ${timeLabel(session.startTime)}–${timeLabel(session.endTime)}`).join('\n'),
+    'We apologize for the inconvenience and appreciate your understanding. We will work with you to facilitate a make-up date. Please reply to this email with any questions or scheduling needs.',
+    'Warmly,\nThe Vortex Athletics Team',
+  ].filter(Boolean).join('\n\n')
 }
 
 export function validateCancellationEmailBody(value) {
@@ -100,7 +101,7 @@ export async function previewCalendarCancellation(db, { facilityId, date, slotId
   const subject = slotId == null ? `Classes canceled — ${dateLabel(date)}`
     : `Class canceled: ${matching[0].className} — ${dateLabel(date)}`
   return { subject, body: cancellationEmailBody(affectedSessions, date, { fullDay: slotId == null }),
-    recipientCount: recipients.size, affectedSessions, missingContactCount, recipients: [...recipients.values()] }
+    signature: EMAIL_SIGNATURE, recipientCount: recipients.size, affectedSessions, missingContactCount, recipients: [...recipients.values()] }
 }
 
 /** Caller owns the cancellation transaction and its day/group locks. */
@@ -136,8 +137,7 @@ export async function calendarCancellationSummary(db, { facilityId, date, slotId
     recipientCount: Number(row?.recipient_count ?? 0), missingContactCount: Number(row?.missing_contact_count ?? 0) }
 }
 
-const htmlBody = body => `<div style="white-space:pre-wrap">${String(body).replaceAll('&','&amp;').replaceAll('<','&lt;')
-  .replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}</div>`
+const htmlBody = plainTextToEmailHtml
 
 /** A durable lease prevents concurrent workers claiming the same recipient. */
 export async function dispatchCalendarCancellationNotifications(pool, { send = sendEmail, limit = 10 } = {}) {

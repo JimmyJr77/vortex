@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import type { ClassChangeEmailPreview as EmailPreview } from '../../utils/classChangeNotification'
+import EmailSignaturePreview from './EmailSignaturePreview'
 
 export default function ClassChangeEmailPreview({ preview, body, onChange, disabled = false }: {
   preview: EmailPreview
@@ -14,6 +15,7 @@ export default function ClassChangeEmailPreview({ preview, body, onChange, disab
     {preview.missingContactCount > 0 ? <p role="status" className="text-amber-800">{preview.missingContactCount} student{preview.missingContactCount === 1 ? ' has' : 's have'} no valid parent or account email on file.</p> : null}
     <label htmlFor={messageId} className="block font-semibold">Email message to parents</label>
     <textarea id={messageId} rows={11} maxLength={20000} required disabled={disabled} value={body} onChange={event => onChange(event.target.value)} className="w-full rounded-lg border border-gray-300 bg-white p-3 font-normal leading-relaxed text-gray-900 disabled:opacity-60" />
-    <p className="text-xs text-gray-500">Review or edit the message before confirming. This text will be the email body.</p>
+    <p className="text-xs text-gray-500">Review or edit the message before confirming. The full Vortex signature below is added automatically.</p>
+    <EmailSignaturePreview signature={preview.signature} />
   </section>
 }

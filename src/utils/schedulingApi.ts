@@ -7,6 +7,7 @@ import {
   getSchedulingEnrollApiCapabilities,
 } from './schedulingEnrollApi'
 import { randomUUID } from './uuid'
+import type { VortexEmailSignature } from './emailSignature'
 
 export type { EnrollSiteKey }
 
@@ -819,6 +820,7 @@ export interface CalendarCancellationPreview {
   body: string
   recipientCount: number
   missingContactCount: number
+  signature?: VortexEmailSignature
   affectedSessions: { className: string; date: string; startTime: string; endTime: string }[]
 }
 
