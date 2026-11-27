@@ -11,6 +11,8 @@ import {
 } from '../../utils/schedulingApi'
 import { adminApiRequest } from '../../utils/api'
 import type { CustomerBillingEnrollment, CustomerBillingMember } from './types'
+import ClassChangeEmailPreview from '../scheduling/ClassChangeEmailPreview'
+import { classChangeDeliveryMessage, type ClassChangeEmailPreview as EmailPreview } from '../../utils/classChangeNotification'
 
 interface ScheduleChoice {
   slotGroupId: number
@@ -21,6 +23,7 @@ interface ScheduleChoice {
 }
 
 interface ClassSwapPreview {
+  notificationEmail?: EmailPreview
   laterSourceCreditCents?: number
   replacementCatchupCents?: number
   effectiveDate: string
@@ -133,6 +136,7 @@ export default function NewBillingEnrollmentModal({
   const [selectedScheduleKey, setSelectedScheduleKey] = useState<string | null>(null)
   const [reviewing, setReviewing] = useState(false)
   const [swapPreview, setSwapPreview] = useState<ClassSwapPreview | null>(null)
+  const [emailBody, setEmailBody] = useState('')
   const [swapReason, setSwapReason] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -247,6 +251,7 @@ export default function NewBillingEnrollmentModal({
 
   const confirmEnrollment = async () => {
     if (!selectedMember || !selectedForm || !selectedSchedule) return
+    if (swapEnrollment && (!swapPreview || (swapPreview.notificationEmail && !emailBody.trim()))) return
     setSubmitting(true)
     setError(null)
     try {
@@ -263,12 +268,13 @@ export default function NewBillingEnrollmentModal({
               effectiveDate: enrollmentDate,
               reason: swapReason.trim(),
               requestKey: swapRequestKey,
+              emailBody: swapPreview?.notificationEmail ? emailBody : undefined,
             }),
           },
         )
         const body = await response.json().catch(() => ({}))
-        if (!response.ok) throw new Error(body.message || 'The class move could not be applied.')
-        onCreated('Class move completed. The current-month class bills and any existing payment were reconciled in place.')
+        if (!response.ok || body.success === false) throw new Error(body.message || 'The class move could not be applied.')
+        onCreated(`Class move completed. The current-month class bills and any existing payment were reconciled in place. ${classChangeDeliveryMessage(body.data?.notifications, body.data?.notificationSummaryUnavailable)}`)
         return
       }
       await adminCreateSignup({
@@ -311,8 +317,9 @@ export default function NewBillingEnrollmentModal({
         },
       )
       const body = await response.json().catch(() => ({}))
-      if (!response.ok) throw new Error(body.message || 'The class move could not be previewed.')
+      if (!response.ok || body.success === false) throw new Error(body.message || 'The class move could not be previewed.')
       setSwapPreview(body.data)
+      setEmailBody(body.data?.notificationEmail?.body ?? '')
       setReviewing(true)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'The class move could not be previewed.')
@@ -357,6 +364,7 @@ export default function NewBillingEnrollmentModal({
                 <div><dt className="text-xs font-bold uppercase tracking-wide text-gray-500">Schedule</dt><dd className="mt-1 font-semibold text-gray-950">{selectedSchedule.label}</dd><dd className="text-sm text-gray-600">{selectedSchedule.availability}</dd></div>
               </dl>
               {swapPreview ? <div className="rounded-xl border border-violet-200 bg-violet-50 p-5 text-sm text-violet-950"><strong>Billing impact</strong><div className="mt-3 grid gap-3 sm:grid-cols-2"><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Original class through move date</span><strong className="mt-1 block text-lg">{money(swapPreview.sourceFirstPeriodCents)}</strong><span className="text-xs text-violet-800">{swapPreview.sourceRemainingClasses} unused scheduled session{swapPreview.sourceRemainingClasses === 1 ? '' : 's'} will be removed from its bill</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Replacement class for the remaining month</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementFirstMonthCents)}</strong><span className="text-xs text-violet-800">{swapPreview.replacementRemainingClasses ?? 0} scheduled session{swapPreview.replacementRemainingClasses === 1 ? '' : 's'} in this billing month</span></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">New monthly price</span><strong className="mt-1 block text-lg">{money(swapPreview.replacementMonthlyCents)}</strong></div><div><span className="block text-xs font-semibold uppercase tracking-wide text-violet-700">Account after move</span><strong className="mt-1 block text-lg">{money(swapPreview.resultingBalanceCents)}</strong></div></div>{Boolean(swapPreview.laterSourceCreditCents) && <p className="mt-3">Credits for later bills from the original class: <strong>{money(swapPreview.laterSourceCreditCents ?? 0)}</strong>.</p>}{Boolean(swapPreview.replacementCatchupCents) && <p className="mt-3">Replacement tuition for later months: <strong>{money(swapPreview.replacementCatchupCents ?? 0)}</strong>.</p>}<p className="mt-4 font-semibold">The original and replacement class lines will be prorated in place. Any settled payment is reassigned to the replacement class where applicable; no separate class-swap credit line is created.</p></div> : <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-950"><strong>This will change the billing account for {selectedMember.name}.</strong><p className="mt-1 text-amber-800">The household’s recurring charges and discounts may be recalculated when the enrollment is added.</p></div>}
+              {isSwap && swapPreview?.notificationEmail ? <ClassChangeEmailPreview preview={swapPreview.notificationEmail} body={emailBody} onChange={setEmailBody} disabled={submitting} /> : null}
             </div>
           ) : (
             <div className="space-y-6">
@@ -392,7 +400,7 @@ export default function NewBillingEnrollmentModal({
 
         <div className="portal-dialog-footer flex flex-wrap justify-between gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
           {reviewing ? <button type="button" onClick={() => setReviewing(false)} disabled={submitting} className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50"><ArrowLeft className="h-4 w-4" /> Back to edit</button> : <button type="button" onClick={onClose} disabled={submitting} className="rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-semibold text-gray-700 disabled:opacity-50">Cancel</button>}
-          {reviewing ? <button type="button" onClick={() => void confirmEnrollment()} disabled={submitting || (isSwap && !swapPreview)} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} {isSwap ? 'Confirm class move' : 'Yes, add enrollment'}</button> : <button type="button" onClick={() => void reviewSelection()} disabled={!canReview || detailLoading || submitting} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{isSwap ? 'Review class move' : 'Review addition'} <ChevronRight className="h-4 w-4" /></button>}
+          {reviewing ? <button type="button" onClick={() => void confirmEnrollment()} disabled={submitting || (isSwap && !swapPreview) || Boolean(isSwap && swapPreview?.notificationEmail && !emailBody.trim())} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />} {isSwap ? 'Confirm class move' : 'Yes, add enrollment'}</button> : <button type="button" onClick={() => void reviewSelection()} disabled={!canReview || detailLoading || submitting} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">{submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{isSwap ? 'Review class move' : 'Review addition'} <ChevronRight className="h-4 w-4" /></button>}
         </div>
       </div>
     </div>

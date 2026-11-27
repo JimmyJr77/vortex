@@ -6,6 +6,8 @@ import {
   type SwapClass, type SwapEnrollment, type SwapEnrollmentKind, type SwapStudent,
 } from '../../utils/classSwapsApi'
 import { randomUUID } from '../../utils/uuid'
+import ClassChangeEmailPreview from '../scheduling/ClassChangeEmailPreview'
+import { classChangeDeliveryMessage } from '../../utils/classChangeNotification'
 
 const kindLabels: Record<SwapEnrollmentKind, string> = {
   recurring: 'Enrolled', multi_class: 'Multi-class', trial: 'Upcoming trial', drop_in: 'Drop-in',
@@ -42,13 +44,18 @@ function SwapConfirmation({ draft, onClose, onCompleted }: { draft: SwapDraft; o
   const [saving, setSaving] = useState(false)
   const [confirmation, setConfirmation] = useState('')
   const [reason, setReason] = useState(draft.input.reason)
+  const [emailBody, setEmailBody] = useState('')
   const [requestKey] = useState(() => `daily-class-swap-${randomUUID()}`)
   const dialogRef = useRef<HTMLElement>(null)
   const requiredWord = draft.input.mode === 'permanent' ? 'PERMANENT' : 'TEMPORARY'
 
   useEffect(() => {
     const controller = new AbortController()
-    previewClassSwap(draft.input, controller.signal).then(setPreview).catch(err => {
+    previewClassSwap(draft.input, controller.signal).then(data => {
+      if (controller.signal.aborted) return
+      setPreview(data)
+      setEmailBody(data.notificationEmail?.body ?? '')
+    }).catch(err => {
       if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'Unable to preview this swap.')
     }).finally(() => { if (!controller.signal.aborted) setLoading(false) })
     return () => controller.abort()
@@ -62,12 +69,12 @@ function SwapConfirmation({ draft, onClose, onCompleted }: { draft: SwapDraft; o
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (saving || loading || !preview || confirmation !== requiredWord || !reason.trim()) return
+    if (saving || loading || !preview || confirmation !== requiredWord || !reason.trim() || (preview.notificationEmail && !emailBody.trim())) return
     setSaving(true)
     setError(null)
     try {
-      const result = await finalizeClassSwap({ ...draft.input, reason: reason.trim() }, confirmation, requestKey)
-      onCompleted(result.message || `${draft.student.name}’s ${draft.input.mode === 'temporary' ? 'one-time' : 'permanent'} class swap was saved.`)
+      const result = await finalizeClassSwap({ ...draft.input, reason: reason.trim(), emailBody: preview.notificationEmail ? emailBody : undefined }, confirmation, requestKey)
+      onCompleted(`${result.message || `${draft.student.name}’s ${draft.input.mode === 'temporary' ? 'one-time' : 'permanent'} class swap was saved.`} ${classChangeDeliveryMessage(result.notifications, result.notificationSummaryUnavailable)}`)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to save this swap.')
       setSaving(false)
@@ -105,12 +112,13 @@ function SwapConfirmation({ draft, onClose, onCompleted }: { draft: SwapDraft; o
         {preview.billingImpact.laterSourceCreditCents ? <p className="mt-2">Later original-class bill credits: {money(preview.billingImpact.laterSourceCreditCents)}.</p> : null}
         {preview.billingImpact.replacementCatchupCents ? <p className="mt-2">Later replacement tuition: {money(preview.billingImpact.replacementCatchupCents)}.</p> : null}
         <p className="mt-3">Tuition, discounts and settled payments follow the existing billing transfer rules.</p>
-      </section> : preview ? <p className="mb-5 rounded-xl bg-blue-50 p-4 text-sm text-blue-900">{preview.message || 'Only the selected session moves. Tuition stays unchanged and the student returns to their original schedule afterward.'}</p> : null}
+      </section> : preview ? <p className="mb-5 rounded-xl bg-blue-50 p-4 text-sm text-blue-900">{preview.message || 'Only the selected session moves. Regular enrollment and tuition stay unchanged.'}</p> : null}
       <form onSubmit={event => void submit(event)} className="space-y-4">
+        {preview?.notificationEmail ? <ClassChangeEmailPreview preview={preview.notificationEmail} body={emailBody} onChange={setEmailBody} disabled={saving} /> : null}
         <label className="block text-sm font-semibold text-gray-700">Reason for swap<textarea value={reason} onChange={event => setReason(event.target.value)} disabled={saving} rows={2} required className={fieldClass} /></label>
         <label className="block text-sm font-semibold text-gray-700">Type {requiredWord} to confirm<input value={confirmation} onChange={event => setConfirmation(event.target.value)} disabled={saving || loading || !preview} autoComplete="off" spellCheck={false} className={fieldClass} /></label>
         {error ? <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p> : null}
-        <div className="flex justify-end gap-2"><button type="button" onClick={onClose} disabled={saving} className="rounded-lg border px-4 py-2 text-sm font-semibold disabled:opacity-50">Cancel</button><button type="submit" disabled={saving || loading || !preview || confirmation !== requiredWord || !reason.trim()} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRightLeft className="h-4 w-4" />}Finalize swap</button></div>
+        <div className="flex justify-end gap-2"><button type="button" onClick={onClose} disabled={saving} className="rounded-lg border px-4 py-2 text-sm font-semibold disabled:opacity-50">Cancel</button><button type="submit" disabled={saving || loading || !preview || confirmation !== requiredWord || !reason.trim() || Boolean(preview.notificationEmail && !emailBody.trim())} className="inline-flex items-center gap-2 rounded-lg bg-vortex-red px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50">{saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRightLeft className="h-4 w-4" />}Finalize swap</button></div>
       </form>
     </section>
   </div>

@@ -126,6 +126,7 @@ import { isIsolatedAdminDevelopment } from './newAdmin/localDevelopment.js'
 import { startMessageThreadAutoArchiveScheduler } from './platform/messageThreadAutoArchiveService.js'
 import { startPaymentFactAuditScheduler } from './billing/paymentFactAuditScheduler.js'
 import { startCalendarCancellationNotifier } from './scheduling/calendarCancellationNotifications.js'
+import { startClassSwapNotifier } from './scheduling/classSwapNotifications.js'
 import { registerEmailPool } from './email/emailDeliveryStore.js'
 import { registerEmailUnsubscribeRoutes } from './email/marketingUnsubscribe.js'
 import { resolveJwtSecret } from './auth/jwtSecret.js'
@@ -359,6 +360,7 @@ const passwordResetLimiter = rateLimit({
 const pool = createRuntimeDatabasePool()
 let paymentFactAuditScheduler = null
 let calendarCancellationNotifier = null
+let classSwapNotifier = null
 
 // Job applications use their own request limit and JSON size cap before the generic parser.
 registerPublicJobApplicationRoutes(app, pool)
@@ -11889,6 +11891,7 @@ const startServer = async () => {
         startMessageThreadAutoArchiveScheduler(pool)
         paymentFactAuditScheduler = startPaymentFactAuditScheduler(pool)
         calendarCancellationNotifier = startCalendarCancellationNotifier(pool)
+        classSwapNotifier = startClassSwapNotifier(pool)
         startPayrollComplianceScheduler(pool)
         startPaymentRecoveryScheduler(pool)
         startW2ProviderEventScheduler(pool)
@@ -12023,6 +12026,7 @@ process.on('SIGINT', async () => {
   console.log('\n🛑 Shutting down server...')
   paymentFactAuditScheduler?.stop()
   calendarCancellationNotifier?.stop()
+  classSwapNotifier?.stop()
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')
@@ -12036,6 +12040,7 @@ process.on('SIGTERM', async () => {
   console.log('\n🛑 SIGTERM received, shutting down server...')
   paymentFactAuditScheduler?.stop()
   calendarCancellationNotifier?.stop()
+  classSwapNotifier?.stop()
   try {
     await pool.end()
     console.log('✅ PostgreSQL connection pool closed')

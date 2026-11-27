@@ -105,6 +105,7 @@ export async function initSchedulingTables(pool) {
   await pool.query(await readFile(new URL('../migrations/873_schedule_free_trial_overrides.sql', import.meta.url), 'utf8'))
   await pool.query(await readFile(new URL('../migrations/874_scheduling_day_cancellations.sql', import.meta.url), 'utf8'))
   await pool.query(await readFile(new URL('../migrations/880_calendar_cancellation_notifications.sql', import.meta.url), 'utf8'))
+  await pool.query(await readFile(new URL('../migrations/881_class_swap_notifications.sql', import.meta.url), 'utf8'))
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS scheduling_signup (

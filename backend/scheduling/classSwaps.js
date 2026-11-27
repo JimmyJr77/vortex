@@ -8,6 +8,8 @@ import { buildSlotDisplayLabel,loadGroupDisplayLabels } from './slotDisplayLabel
 import { lockSchedulingDay } from './dayCancellation.js'
 import { classSwapCapacityDeltas } from './classSwapsRoster.js'
 import { enrollmentStatusOnDateSql } from './enrollmentStatusOnDate.js'
+import { completeClassSwapNotification, previewClassSwapNotification, publicClassSwapNotification,
+  queueClassSwapNotification, validateClassSwapEmailBody, wakeClassSwapNotifier } from './classSwapNotifications.js'
 
 const fail = (message,statusCode=400) => Object.assign(new Error(message),{statusCode})
 const integer = (value,label) => {
@@ -30,6 +32,7 @@ export function normalizeClassSwapInput(input={}, { requireConfirmation=false }=
   const reason=String(input.reason??'').trim()||'Class swap from Daily Enrollments'
   if(reason.length>2000)throw fail('The reason must be 2,000 characters or fewer.')
   const requestKey=String(input.requestKey??'')
+  const emailBody=validateClassSwapEmailBody(input.emailBody)
   if(requireConfirmation&&!/^[A-Za-z0-9_.:-]{8,120}$/.test(requestKey))throw fail('A valid swap request key is required.')
   const selections=input.targetSelections??[input]
   if(!Array.isArray(selections)||selections.length<1||selections.length>32)throw fail('Choose between one and 32 replacement class times.')
@@ -42,7 +45,7 @@ export function normalizeClassSwapInput(input={}, { requireConfirmation=false }=
   if(new Set(targetSelections.map(row=>keyFor(row.targetFormId,row.targetSlotGroupId,row.targetTimeSlotId))).size!==targetSelections.length)throw fail('Choose each replacement class time only once.')
   return {mode:input.mode,source:input.source,signupId:integer(input.signupId,'enrollment'),effectiveDate,sourceDate,
     sourceTimeSlotId:input.sourceTimeSlotId==null?null:integer(input.sourceTimeSlotId,'original class schedule'),
-    ...targetSelections[0],targetSelections,reason,requestKey}
+    ...targetSelections[0],targetSelections,reason,requestKey,...(emailBody===undefined?{}:{emailBody})}
 }
 
 export async function listClassSwapStudents(db,{facilityId,search=''}={}) {
@@ -272,8 +275,11 @@ async function validateSelection(db,request,facilityId,{lock=false}={}) {
 export async function previewClassSwap(db,{facilityId,input}={}) {
   facilityId=requireAdminFacilityScope({facilityId})
   const request=normalizeClassSwapInput(input)
-  await validateSelection(db,request,facilityId)
-  return {billingImpact:request.mode==='permanent'?await previewCustomerBillingEnrollmentClassSwap(db,{signupId:request.signupId,facilityId,input:request}):null,
+  const selection=await validateSelection(db,request,facilityId)
+  const billingImpact=request.mode==='permanent'?await previewCustomerBillingEnrollmentClassSwap(db,{signupId:request.signupId,facilityId,input:request}):null
+  const notificationEmail=billingImpact?.notificationEmail??publicClassSwapNotification(await previewClassSwapNotification(db,
+    {...request,facilityId,sourceTimeSlotId:selection.sourceTimeSlotId}))
+  return {billingImpact,notificationEmail,
     message:request.mode==='temporary'?'This changes attendance for one occurrence. Existing enrollment and billing remain in place.':null}
 }
 
@@ -313,6 +319,7 @@ export async function executeClassSwap(pool,{facilityId,actorUserId,input}={}) {
       }}
     }}
     const result=await moveCustomerBillingEnrollmentClass(guardedPool,{signupId:request.signupId,facilityId,actorUserId,requestKey:request.requestKey,input:request})
+    wakeClassSwapNotifier(pool)
     return {...result,message:'Permanent class swap saved.'}
   }
   const client=await pool.connect()
@@ -324,7 +331,10 @@ export async function executeClassSwap(pool,{facilityId,actorUserId,input}={}) {
       if(prior.source_type!==request.source||Number(prior.source_id)!==request.signupId||prior.source_date!==request.sourceDate||prior.target_date!==request.effectiveDate
         ||(request.sourceTimeSlotId!=null&&Number(prior.source_time_slot_id)!==request.sourceTimeSlotId)||Number(prior.target_form_id)!==request.targetFormId
         ||Number(prior.target_slot_group_id)!==request.targetSlotGroupId||Number(prior.target_time_slot_id)!==request.targetTimeSlotId)throw fail('This request key belongs to a different class swap.',409)
-      await client.query('COMMIT');return {id:Number(prior.id),replayed:true,message:'One-time class swap already saved.'}
+      await client.query('COMMIT')
+      const notification=await completeClassSwapNotification(client,{facilityId,eventKey:`temporary:${prior.id}`})
+      wakeClassSwapNotifier(pool)
+      return {id:Number(prior.id),replayed:true,message:'One-time class swap already saved.',...notification}
     }
     await lockSelection(client,request,facilityId)
     const {source,target,athlete,sourceTimeSlotId}=await validateSelection(client,request,facilityId,{lock:true})
@@ -333,8 +343,13 @@ export async function executeClassSwap(pool,{facilityId,actorUserId,input}={}) {
       VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12::jsonb,$13,$14,$15) RETURNING id`,
     [facilityId,request.source,request.signupId,source.form_id,source.slot_group_id,sourceTimeSlotId,request.sourceDate,target.formId,target.slotGroupId,target.timeSlotId,
       request.effectiveDate,JSON.stringify(athlete),request.reason,actorUserId,request.requestKey])
+    const notificationPreview=await previewClassSwapNotification(client,{...request,facilityId,sourceTimeSlotId})
+    const eventKey=`temporary:${result.rows[0].id}`
+    await queueClassSwapNotification(client,{facilityId,eventKey,mode:request.mode,preview:notificationPreview,emailBody:request.emailBody})
     await client.query('COMMIT')
-    return {id:Number(result.rows[0].id),message:'One-time class swap saved. Billing is unchanged.'}
+    const notification=await completeClassSwapNotification(client,{facilityId,eventKey})
+    wakeClassSwapNotifier(pool)
+    return {id:Number(result.rows[0].id),message:'One-time class swap saved. Billing is unchanged.',...notification}
   }catch(error){await client.query('ROLLBACK').catch(()=>{});throw error}finally{client.release()}
 }
 

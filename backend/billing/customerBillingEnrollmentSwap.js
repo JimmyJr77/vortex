@@ -18,6 +18,8 @@ import { buildSlotDisplayLabel } from '../scheduling/slotDisplayLabel.js'
 import { classSwapCapacityDeltas } from '../scheduling/classSwapsRoster.js'
 import { assertEnrollmentDateAvailable } from '../scheduling/enrollmentDateAvailability.js'
 import { enrollmentStatusOnDateSql } from '../scheduling/enrollmentStatusOnDate.js'
+import { completeClassSwapNotification, previewClassSwapNotification, publicClassSwapNotification,
+  queueClassSwapNotification, validateClassSwapEmailBody, wakeClassSwapNotifier } from '../scheduling/classSwapNotifications.js'
 
 function dateOnly(value) {
   return billingDateKey(value)
@@ -87,6 +89,7 @@ export function normalizeCustomerBillingClassSwapInput(input = {}, now = new Dat
     : Number(targets[0].targetTimeSlotId)
   const effectiveDate = input.effectiveDate == null || input.effectiveDate === '' ? todayDateOnly(now) : dateOnly(input.effectiveDate)
   const reason = String(input.reason ?? '').trim()
+  const emailBody = validateClassSwapEmailBody(input.emailBody)
   const today = todayDateOnly(now)
   if (!Number.isInteger(targetFormId) || targetFormId <= 0) throw new Error('Choose the replacement class.')
   if (!Number.isInteger(targetSlotGroupId) || targetSlotGroupId <= 0) throw new Error('Choose a replacement class schedule.')
@@ -103,7 +106,8 @@ export function normalizeCustomerBillingClassSwapInput(input = {}, now = new Dat
     return { targetFormId: formId, targetSlotGroupId: groupId, targetTimeSlotId: slotId }
   })
   if (new Set(targetSelections.map(targetSlotKey)).size !== targetSelections.length) throw new Error('Choose each replacement class time only once.')
-  return { targetFormId, targetSlotGroupId, targetTimeSlotId: rawTimeSlotId, targetSelections, effectiveDate, reason, today }
+  return { targetFormId, targetSlotGroupId, targetTimeSlotId: rawTimeSlotId, targetSelections, effectiveDate, reason, today,
+    ...(emailBody === undefined ? {} : { emailBody }) }
 }
 
 /**
@@ -619,7 +623,11 @@ export async function previewCustomerBillingEnrollmentClassSwap(db, {
   const replacementCatchupCents=catchupMonths.reduce((total,row)=>total+row.netCents,0)
   const settlement=classSwapSettlement({targetProratedCents:sum('replacementFirstMonthCents')+replacementCatchupCents,
     unusedSourceCreditCents:unusedSourceCreditCents+laterSourceCreditCents})
+  const notificationEmail=publicClassSwapNotification(await previewClassSwapNotification(db,{
+    ...request,facilityId:Number(context.facility_id),mode:'permanent',source:'scheduling',signupId,billingAccountId:Number(context.family_billing_account_id),
+  }))
   return {
+    notificationEmail,
     ...replacements[0], replacements,
     sourceSignupId:Number(context.signup_id),sourceClassName:context.class_name,
     replacementClassName:replacements.map(row=>row.replacementClassName).join(' + '),
@@ -694,7 +702,9 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       const keys=targets=>targets.map(targetSlotKey).sort().join('|')
       if(Number(details.sourceSignupId)!==Number(signupId)||details.effectiveDate!==request.effectiveDate||keys(priorTargets)!==keys(request.targetSelections))throw new Error('This request key belongs to a different class move.')
       await client.query('COMMIT')
-      return replayedSwap(existing.rows[0])
+      const notification=await completeClassSwapNotification(client,{facilityId,eventKey:`permanent:${requestKey}`})
+      wakeClassSwapNotifier(pool)
+      return {...replayedSwap(existing.rows[0]),...notification}
     }
 
     preview = await previewCustomerBillingEnrollmentClassSwap(client, {
@@ -986,6 +996,11 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
       },
       actorUserId,
     })
+    const notificationPreview=await previewClassSwapNotification(client,{
+      ...request,facilityId:Number(context.facility_id),mode:'permanent',source:'scheduling',signupId,billingAccountId:Number(context.family_billing_account_id),
+    })
+    await queueClassSwapNotification(client,{facilityId:Number(context.facility_id),eventKey:`permanent:${requestKey}`,
+      mode:'permanent',preview:notificationPreview,emailBody:request.emailBody})
     await client.query('COMMIT')
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {})
@@ -1023,6 +1038,7 @@ export async function moveCustomerBillingEnrollmentClass(pool, {
   const balance = await loadCanonicalFinancialSnapshot(pool, { accountId: committed.accountId }).catch(() => null)
   return {
     ...committed,
+    ...await completeClassSwapNotification(pool,{facilityId,eventKey:`permanent:${requestKey}`}),
     replayed: false,
     preview,
     resultingBalanceCents: balance?.balanceCents ?? preview.resultingBalanceCents,

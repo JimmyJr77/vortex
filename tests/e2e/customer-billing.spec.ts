@@ -570,6 +570,11 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
         settlementAmountCents: 2250,
         ledgerDeltaCents: 2250,
         resultingBalanceCents: 16750,
+        notificationEmail: {
+          subject: 'Permanent class change for Avery Rivera',
+          body: 'Dear family,\n\nAvery Rivera’s schedule will change permanently beginning Tuesday, September 1, 2026.\n\nPrevious class: Monday Foundations — Monday, 4:00 PM–5:00 PM\nNew class: Saturday Tumbling — Saturday, 10:00 AM–11:00 AM\n\nPlease reply with any questions. We look forward to seeing Avery in class!\n\nThe Vortex Athletics Team',
+          recipientCount: 2, missingContactCount: 0,
+        },
       })
       return
     }
@@ -583,6 +588,7 @@ async function openCustomerBilling(page: Page, captured: CapturedRequests, outst
         settlementKind: 'one_time_charge',
         settlementAmountCents: 2250,
         ledgerDeltaCents: 2250,
+        notifications: { sent: 0, pending: 2, failed: 0, recipientCount: 2, missingContactCount: 0 },
       }, 201)
       return
     }
@@ -762,6 +768,14 @@ test.describe('Account Billing & Enrollments administration', () => {
     await expect(dialog.getByText('New monthly price').locator('..').getByText('$135.00', { exact: true })).toBeVisible()
     await expect(dialog.getByText('Account after move').locator('..').getByText('$167.50', { exact: true })).toBeVisible()
     await expect(dialog.getByText('The original and replacement class lines will be prorated in place.', { exact: false })).toBeVisible()
+    const email = dialog.getByLabel('Email message to parents', { exact: true })
+    await expect(email).toHaveValue(/Tuesday, September 1, 2026/)
+    await expect(email).toHaveValue(/Saturday Tumbling — Saturday, 10:00 AM–11:00 AM/)
+    const editedEmail = `${await email.inputValue()}\nThank you for choosing Vortex Athletics.`
+    await email.fill(' ')
+    await expect(dialog.getByRole('button', { name: 'Confirm class move' })).toBeDisabled()
+    await email.fill(editedEmail)
+    expect(captured.classSwaps).toHaveLength(0)
     await dialog.getByRole('button', { name: 'Confirm class move' }).click()
 
     await expect(page.getByText('Class move completed. The current-month class bills and any existing payment were reconciled in place.')).toBeVisible()
@@ -772,7 +786,9 @@ test.describe('Account Billing & Enrollments administration', () => {
       targetTimeSlotId: 902,
       effectiveDate: '2026-09-01',
       reason: 'Schedule change requested by family',
+      emailBody: editedEmail,
     })
+    await expect(page.getByText(/2 pending; delivery will retry automatically/)).toBeVisible()
     expect(captured.classSwapKeys?.[0]).toMatch(/^class-swap-/)
     expect(captured.classSwapKeys?.[0]).toBe(captured.classSwaps?.[0].requestKey)
   })

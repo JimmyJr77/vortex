@@ -22,6 +22,17 @@ type Capture = { previews: Record<string, unknown>[]; swaps: Record<string, unkn
 type StudentFixture = { key: string; memberId: number; name: string; enrollments: Record<string, unknown>[] }
 type FixtureOptions = { previewError?: string; executionErrors?: number; students?: StudentFixture[]; availableStrength?: boolean }
 
+function emailPreview(input: Record<string, unknown>, fixtures: StudentFixture[]) {
+  const student = fixtures.find(item => item.enrollments.some(enrollment => enrollment.signupId === input.signupId))!
+  const original = student.enrollments.filter(enrollment => enrollment.signupId === input.signupId)
+  const formatDate = (value: unknown) => new Date(`${String(value)}T12:00:00Z`).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' })
+  const targetNames = (input.targetSelections as { formId: number }[]).map(target => target.formId === 30 ? 'Evening Strength — Tuesday · 6:00 PM–7:00 PM' : 'Tuesday Foundations — Tuesday · 4:00 PM–5:00 PM')
+  const body = input.mode === 'permanent'
+    ? `Dear family,\n\n${student.name}’s class schedule will change permanently beginning ${formatDate(input.effectiveDate)}.\n\nPrevious schedule:\n${original.map(item => `${item.className} — ${item.scheduleLabel}`).join('\n')}\n\nNew schedule:\n${targetNames.join('\n')}\n\nPlease reply with any questions. We look forward to seeing ${student.name} in class!\n\nThe Vortex Athletics Team`
+    : `Dear family,\n\nWe are writing to confirm a one-time class change for ${student.name}.\n\nOriginal session: ${original[0].className} — ${formatDate(input.sourceDate)}, 4:00 PM–5:00 PM\nReplacement session: Tuesday Foundations — ${formatDate(input.effectiveDate)}, 4:00 PM–5:00 PM\n\nThis change applies only to the session above. Regular enrollment and tuition remain unchanged. Please reply with any questions.\n\nThe Vortex Athletics Team`
+  return { subject: `Class change for ${student.name}`, body, recipientCount: 2, missingContactCount: 0 }
+}
+
 async function openEnrollments(page: Page, options: FixtureOptions = {}): Promise<Capture> {
   const capture: Capture = { previews: [], swaps: [], swapKeys: [], classes: [] }
   await page.clock.setFixedTime(new Date('2026-11-27T15:00:00Z'))
@@ -64,7 +75,7 @@ async function openEnrollments(page: Page, options: FixtureOptions = {}): Promis
       if (options.previewError) {
         return route.fulfill({ status: 409, json: { success: false, message: options.previewError } })
       }
-      data = { billingImpact: body.mode === 'permanent' ? {
+      data = { notificationEmail: emailPreview(body, options.students || students), billingImpact: body.mode === 'permanent' ? {
         sourceFirstPeriodCents: 5000, replacementFirstMonthCents: 7000, replacementMonthlyCents: 14000,
         resultingBalanceCents: 2000, sourceRemainingClasses: 2, replacementRemainingClasses: 3,
       } : null }
@@ -75,7 +86,7 @@ async function openEnrollments(page: Page, options: FixtureOptions = {}): Promis
       if (capture.swaps.length <= (options.executionErrors || 0)) {
         return route.fulfill({ status: 503, json: { success: false, message: 'The swap service is temporarily unavailable. Please retry.' } })
       }
-      data = { message: 'Class swap completed.' }
+      data = { message: 'Class swap completed.', notifications: { sent: 0, pending: 2, failed: 0, recipientCount: 2, missingContactCount: 0 } }
     }
     if (path === '/api/admin/scheduling/daily-roster') data = {
       date: '2026-11-27', dateLabel: 'Friday, November 27, 2026', timeZone: 'America/New_York',
@@ -158,12 +169,22 @@ test('one-time click swap requires the exact confirmation and retains both occur
   await dialog.getByLabel('Type TEMPORARY to confirm', { exact: true }).fill('temporary')
   await expect(dialog.getByRole('button', { name: 'Finalize swap', exact: true })).toBeDisabled()
   await dialog.getByLabel('Type TEMPORARY to confirm', { exact: true }).fill('TEMPORARY')
+  const email = dialog.getByLabel('Email message to parents', { exact: true })
+  await expect(email).toHaveValue(/Monday, November 30, 2026/)
+  await expect(email).toHaveValue(/Tuesday, December 1, 2026/)
+  await expect(email).toHaveValue(/tuition remain unchanged/)
+  const editedEmail = `${await email.inputValue()}\nPlease arrive five minutes before the replacement class.`
+  await email.fill(' ')
+  await expect(dialog.getByRole('button', { name: 'Finalize swap', exact: true })).toBeDisabled()
+  await email.fill(editedEmail)
+  expect(capture.swaps).toHaveLength(0)
   await dialog.getByRole('button', { name: 'Finalize swap', exact: true }).click()
   await expect(dialog).toBeHidden()
   expect(capture.swaps).toHaveLength(1)
   expect(capture.swaps[0]).toMatchObject({ source: 'scheduling', signupId: 21, mode: 'temporary',
     sourceDate: '2026-11-30', effectiveDate: '2026-12-01', targetFormId: 20,
-    targetSlotGroupId: 32, targetTimeSlotId: 42, confirmation: 'TEMPORARY' })
+    targetSlotGroupId: 32, targetTimeSlotId: 42, confirmation: 'TEMPORARY', emailBody: editedEmail })
+  await expect(page.getByRole('status').filter({ hasText: /2 pending; delivery will retry automatically/ })).toBeVisible()
   expect(capture.swaps[0].requestKey).toEqual(expect.any(String))
 })
 
@@ -181,11 +202,17 @@ test('dragging a permanent source class opens billing review before PERMANENT co
   await expect(dialog).toBeVisible()
   await expect(dialog.getByText('Billing impact', { exact: true })).toBeVisible()
   await expect(dialog.getByText('$140.00', { exact: true })).toBeVisible()
+  const email = dialog.getByLabel('Email message to parents', { exact: true })
+  await expect(email).toHaveValue(/permanently beginning Tuesday, December 1, 2026/)
+  await expect(email).toHaveValue(/Monday Foundations — Monday · 4:00 PM–5:00 PM/)
+  await expect(email).toHaveValue(/Tuesday Foundations — Tuesday · 4:00 PM–5:00 PM/)
+  const editedEmail = `${await email.inputValue()}\nWe are happy to help with your new schedule.`
+  await email.fill(editedEmail)
   await dialog.getByLabel('Type PERMANENT to confirm', { exact: true }).fill('PERMANENT')
   await dialog.getByRole('button', { name: 'Finalize swap', exact: true }).click()
   await expect(dialog).toBeHidden()
   expect(capture.previews.at(-1)).toMatchObject({ mode: 'permanent', signupId: 21, effectiveDate: '2026-12-01' })
-  expect(capture.swaps.at(-1)).toMatchObject({ mode: 'permanent', confirmation: 'PERMANENT' })
+  expect(capture.swaps.at(-1)).toMatchObject({ mode: 'permanent', confirmation: 'PERMANENT', emailBody: editedEmail })
 })
 
 for (const previewError of ['The destination class is now full.', 'The original enrollment changed. Refresh and choose it again.']) {
@@ -214,6 +241,10 @@ test('retry after a failed finalization retains the same request body and idempo
   await page.getByRole('button', { name: 'To class Tuesday Foundations', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Confirm class swap', exact: true })
   await dialog.getByLabel('Type TEMPORARY to confirm', { exact: true }).fill('TEMPORARY')
+  const email = dialog.getByLabel('Email message to parents', { exact: true })
+  await expect(email).toHaveValue(/one-time class change/)
+  const editedEmail = `${await email.inputValue()}\nWe look forward to seeing you.`
+  await email.fill(editedEmail)
   await dialog.getByRole('button', { name: 'Finalize swap', exact: true }).click()
   await expect(dialog.getByRole('alert')).toHaveText('The swap service is temporarily unavailable. Please retry.')
   await expect(dialog.getByRole('button', { name: 'Finalize swap', exact: true })).toBeEnabled()
@@ -222,6 +253,7 @@ test('retry after a failed finalization retains the same request body and idempo
   await expect(dialog).toBeHidden()
   expect(capture.swaps).toHaveLength(2)
   expect(capture.swaps[1]).toEqual(capture.swaps[0])
+  expect(capture.swaps[1].emailBody).toBe(editedEmail)
   expect(capture.swapKeys).toEqual([capture.swaps[0].requestKey, capture.swaps[0].requestKey])
 })
 
@@ -263,6 +295,8 @@ test('a combined permanent enrollment requires one replacement for each original
   await expect(dialog.getByText('Tuesday Foundations', { exact: true })).toBeVisible()
   await expect(dialog.getByText('Evening Strength', { exact: true })).toBeVisible()
   await expect(dialog.getByText(/2 original days\/times → 2 replacement days\/times/)).toBeVisible()
+  await expect(dialog.getByLabel('Email message to parents', { exact: true })).toHaveValue(/Tumbling Combo — Wednesday · 5:00 PM–6:00 PM/)
+  await expect(dialog.getByLabel('Email message to parents', { exact: true })).toHaveValue(/Evening Strength — Tuesday · 6:00 PM–7:00 PM/)
   await dialog.getByLabel('Type PERMANENT to confirm', { exact: true }).fill('PERMANENT')
   await dialog.getByRole('button', { name: 'Finalize swap', exact: true }).click()
   await expect(dialog).toBeHidden()

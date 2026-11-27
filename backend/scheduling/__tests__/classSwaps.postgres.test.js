@@ -6,7 +6,8 @@ import pg from 'pg'
 import { listClassSwapStudents,listClassSwapClasses,previewClassSwap,executeClassSwap } from '../classSwaps.js'
 import { buildDailyRoster } from '../dailyRoster.js'
 import { classSwapCapacityDelta } from '../classSwapsRoster.js'
-import { moveCustomerBillingEnrollmentClass } from '../../billing/customerBillingEnrollmentSwap.js'
+import { moveCustomerBillingEnrollmentClass, previewCustomerBillingEnrollmentClassSwap } from '../../billing/customerBillingEnrollmentSwap.js'
+import { dispatchClassSwapNotifications, previewClassSwapNotification } from '../classSwapNotifications.js'
 
 const url=process.env.NEW_ADMIN_TEST_DATABASE_URL
 if(url&&(!['localhost','127.0.0.1'].includes(new URL(url).hostname)||!/^\/vortex_new_admin_dev(?:_[a-z0-9_]+)?$/.test(new URL(url).pathname)))throw new Error('An isolated local test database is required')
@@ -16,6 +17,7 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
   try{
     await db.query('BEGIN')
     await db.query(await readFile(new URL('../../migrations/879_scheduling_class_swaps.sql',import.meta.url),'utf8'))
+    await db.query(await readFile(new URL('../../migrations/881_class_swap_notifications.sql',import.meta.url),'utf8'))
     const one=async(sql,values=[])=>(await db.query(sql,values)).rows[0]
     const suffix=randomUUID()
     const facilityId=Number((await one("INSERT INTO facility(name,timezone) VALUES('Swap regression','America/New_York') RETURNING id")).id)
@@ -37,6 +39,13 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     const memberId=Number((await one("INSERT INTO member(facility_id,first_name,last_name,is_active,date_of_birth) VALUES($1,'Swap','Student',TRUE,'2020-01-01') RETURNING id",[facilityId])).id)
     const signupId=Number((await one(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,member_id,first_name,last_name,email,status,enrollment_start_date)
       VALUES($1,$2,NULL,$3,'Swap','Student','student@example.test','confirmed','2029-12-01') RETURNING id`,[source.formId,source.groupId,memberId])).id)
+    const notificationFamily=Number((await one("INSERT INTO family(facility_id,family_name) VALUES($1,'Swap notification family') RETURNING id",[facilityId])).id)
+    const parents=[]
+    for(const label of ['First','Second'])parents.push(Number((await one(`INSERT INTO member(facility_id,first_name,last_name,email,date_of_birth,is_active)
+      VALUES($1,$2,'Parent',$3,'1980-01-01',TRUE) RETURNING id`,[facilityId,label,`${label.toLowerCase()}-${suffix}@example.test`])).id))
+    await db.query('INSERT INTO family_member(family_id,member_id) SELECT $1,unnest($2::bigint[])',[notificationFamily,[memberId,...parents]])
+    await db.query('INSERT INTO parent_guardian_authority(parent_member_id,child_member_id,has_legal_authority) SELECT unnest($1::bigint[]),$2,TRUE',[parents,memberId])
+    await db.query("UPDATE program SET abridged_name='Short label' WHERE id=(SELECT program_id FROM scheduling_form WHERE id=$1)",[source.formId])
     const drop=async(name,status)=>Number((await one(`INSERT INTO drop_in_registration(form_id,slot_group_id,class_date,first_name,last_name,email,status,benefit_type)
       VALUES($1,$2,'2030-01-07',$3,'Trial',$4,$5,'free_trial') RETURNING id`,[source.formId,source.groupId,name,`${name}-${suffix}@example.test`,status])).id)
     const trialId=await drop('Confirmed','confirmed');await drop('Unpaid','payment_pending');await drop('NeedsAccount','account_required')
@@ -46,13 +55,40 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     assert.ok(!students.students.some(student=>/Unpaid|NeedsAccount/.test(student.name)))
     assert.equal((await listClassSwapStudents(db,{facilityId:facilityId+1000000})).students.length,0)
     const input={mode:'temporary',source:'scheduling',signupId,sourceTimeSlotId:source.slots[0],sourceDate:'2030-01-07',effectiveDate:'2030-01-09',targetFormId:target.formId,targetSlotGroupId:target.groupId,targetTimeSlotId:target.slots[0],reason:'Cross-day make-up',confirmation:'TEMPORARY',requestKey:`swap-${suffix}`}
-    assert.equal((await previewClassSwap(db,{facilityId,input})).billingImpact,null)
+    const temporaryPreview=await previewClassSwap(db,{facilityId,input:{...input,sourceTimeSlotId:null}})
+    assert.equal(temporaryPreview.billingImpact,null)
+    assert.equal(temporaryPreview.notificationEmail.recipientCount,2)
+    assert.equal('recipients' in temporaryPreview.notificationEmail,false)
+    assert.match(temporaryPreview.notificationEmail.body,/Monday and Wednesday/)
+    assert.doesNotMatch(temporaryPreview.notificationEmail.body,/Short label/)
+    assert.match(temporaryPreview.notificationEmail.body,/Monday, January 7, 2030, 4:00 PM–5:00 PM/)
+    assert.match(temporaryPreview.notificationEmail.body,/Wednesday, January 9, 2030, 4:00 PM–5:00 PM/)
+    assert.match(temporaryPreview.notificationEmail.body,/regular enrollment and tuition remain unchanged/)
+    input.emailBody=`${temporaryPreview.notificationEmail.body}\nPlease reply with questions & bring <water>.`
     await assert.rejects(executeClassSwap(db,{facilityId,actorUserId,input:{...input,confirmation:'wrong'}}),/Type TEMPORARY/)
     const client={release(){},query:(sql,values)=>db.query(sql==='BEGIN'?'SAVEPOINT class_swap_test':sql==='COMMIT'?'RELEASE SAVEPOINT class_swap_test':sql==='ROLLBACK'?'ROLLBACK TO SAVEPOINT class_swap_test':sql,values)}
     const pool={query:(...args)=>db.query(...args),connect:async()=>client}
     const before=Number((await one('SELECT COUNT(*)::int AS count FROM billing_charge')).count)
-    await executeClassSwap(pool,{facilityId,actorUserId,input})
+    const failedNotificationClient={release(){},query:(sql,values)=>{
+      if(sql.includes('INSERT INTO scheduling_class_swap_notice'))throw new Error('Simulated notification queue failure')
+      return client.query(sql,values)
+    }}
+    await assert.rejects(executeClassSwap({query:(...args)=>db.query(...args),connect:async()=>failedNotificationClient},{facilityId,actorUserId,input}),/notification queue failure/)
+    assert.equal(Number((await one('SELECT count(*)::int AS count FROM scheduling_class_swap WHERE request_key=$1',[input.requestKey])).count),0,'queue failure rolls the attendance swap back')
+    const temporaryResult=await executeClassSwap(pool,{facilityId,actorUserId,input})
+    assert.equal(temporaryResult.notifications.pending,2)
     assert.equal((await executeClassSwap(pool,{facilityId,actorUserId,input})).replayed,true)
+    assert.equal(Number((await one('SELECT count(*)::int AS count FROM scheduling_class_swap_notice WHERE facility_id=$1',[facilityId])).count),1)
+    assert.equal((await one('SELECT body FROM scheduling_class_swap_notice WHERE facility_id=$1',[facilityId])).body,input.emailBody)
+    const delivered=[];let attempted=0
+    await dispatchClassSwapNotifications(db,{send:async mail=>{attempted++;if(attempted===1)throw new Error('Simulated SMTP outage');delivered.push(mail);return {sent:true}},limit:2})
+    assert.equal(Number((await one("SELECT count(*)::int AS count FROM scheduling_class_swap_delivery WHERE status='pending'")).count),1)
+    await db.query("UPDATE scheduling_class_swap_delivery SET next_attempt_at=now() WHERE status='pending'")
+    await dispatchClassSwapNotifications(db,{send:async mail=>{delivered.push(mail);return {sent:true}}})
+    assert.equal(delivered.length,2)
+    assert.ok(delivered.every(mail=>mail.text===input.emailBody&&mail.html.includes('&amp;')&&mail.html.includes('&lt;water&gt;')))
+    assert.deepEqual(delivered.map(mail=>mail.to).sort(),parents.map((_,index)=>`${index?'second':'first'}-${suffix}@example.test`).sort())
+    assert.equal((await executeClassSwap(pool,{facilityId,actorUserId,input})).notifications.sent,2)
     assert.equal(Number((await one('SELECT COUNT(*)::int AS count FROM billing_charge')).count),before,'temporary swap does not create charges')
     const monday=await buildDailyRoster(db,'2030-01-07',{facilityId,includeNewRegistrations:false})
     assert.ok(!monday.classes.find(row=>row.timeSlotId===source.slots[0]).athletes.some(row=>row.memberId===memberId))
@@ -91,6 +127,8 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     await db.query("INSERT INTO discount_rule(facility_id,name,type,amount_value,config) VALUES($1,'Unused fixture promo','promo_code',0,'{\"code\":\"NOT_APPLIED\"}')",[facilityId])
     const paidSignup=Number((await one(`INSERT INTO scheduling_signup(form_id,slot_group_id,time_slot_id,member_id,first_name,last_name,email,status,enrollment_start_date,manual_discount_cents,manual_discount_reason)
       VALUES($1,$2,NULL,$3,'Permanent','Student','paid@example.test','confirmed','2029-12-01',2001,'Package discount') RETURNING id`,[permanentSource.formId,permanentSource.groupId,paidMember])).id)
+    await db.query("UPDATE family_billing_account SET payer_member_id=NULL,billing_email='imported-payer@example.test' WHERE id=$1",[accountId])
+    await db.query("UPDATE scheduling_signup SET email='' WHERE id=$1",[paidSignup])
     const paidSubscription=Number((await one(`INSERT INTO billing_subscription(family_billing_account_id,member_id,source_type,source_id,description,monthly_amount_cents,net_monthly_cents,start_date,next_bill_date)
       VALUES($1,$2,'scheduling_signup',$3,'Paid package',30000,27999,'2029-12-01','2030-01-01') RETURNING id`,[accountId,paidMember,String(paidSignup)])).id)
     const sourceCharge=Number((await one(`INSERT INTO billing_charge(family_billing_account_id,member_id,subscription_id,source_type,source_id,description,amount_cents,gross_amount_cents,discount_amount_cents,
@@ -106,6 +144,11 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     assert.equal(permanentPreview.billingImpact.replacements.length,2)
     assert.equal(permanentPreview.billingImpact.replacementMonthlyCents,17999,'fixed package discount is conserved across targets')
     assert.ok(permanentPreview.billingImpact.unusedSourceCreditCents>0)
+    assert.equal(permanentPreview.notificationEmail.recipientCount,1,'a legacy account billing email is usable without a payer member or submitted email')
+    assert.match(permanentPreview.notificationEmail.body,/Previous schedule:[\s\S]*Monday[\s\S]*Wednesday/)
+    assert.match(permanentPreview.notificationEmail.body,/Updated schedule:[\s\S]*Gymnastics replacement[\s\S]*Tuesday[\s\S]*Strength replacement[\s\S]*Thursday/)
+    assert.doesNotMatch(permanentPreview.notificationEmail.body,/tuition remain unchanged/)
+    permanent.emailBody=`${permanentPreview.notificationEmail.body}\nWe look forward to seeing you in your new classes.`
     const failingClient={release(){},query:async(sql,values)=>{
       if(sql.includes('INSERT INTO scheduling_signup')&&Number(values?.[0])===replacementB.formId)throw new Error('Simulated second replacement failure')
       return client.query(sql,values)
@@ -113,8 +156,15 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     await assert.rejects(executeClassSwap({query:(...args)=>db.query(...args),connect:async()=>failingClient},{facilityId,actorUserId,input:permanent}),/Simulated/)
     assert.equal((await one('SELECT cancel_effective_date FROM scheduling_signup WHERE id=$1',[paidSignup])).cancel_effective_date,null,'failure rolls source cancellation back')
     assert.equal(Number((await one('SELECT COUNT(*)::int AS count FROM scheduling_signup WHERE member_id=$1 AND form_id=ANY($2::bigint[])',[paidMember,[replacementA.formId,replacementB.formId]])).count),0,'failure rolls first replacement back')
+    const financialCountBeforeQueueFailure=Number((await one('SELECT COUNT(*)::int AS count FROM billing_charge')).count)
+    await assert.rejects(executeClassSwap({query:(...args)=>db.query(...args),connect:async()=>failedNotificationClient},{facilityId,actorUserId,input:permanent}),/notification queue failure/)
+    assert.equal((await one('SELECT cancel_effective_date FROM scheduling_signup WHERE id=$1',[paidSignup])).cancel_effective_date,null,'permanent notification failure rolls the source cancellation back')
+    assert.equal(Number((await one('SELECT COUNT(*)::int AS count FROM billing_charge')).count),financialCountBeforeQueueFailure,'notification failure rolls financial writes back with the permanent move')
+    assert.equal(Number((await one('SELECT COUNT(*)::int AS count FROM scheduling_signup WHERE member_id=$1 AND form_id=ANY($2::bigint[])',[paidMember,[replacementA.formId,replacementB.formId]])).count),0)
     const permanentResult=await executeClassSwap(pool,{facilityId,actorUserId,input:permanent})
     assert.equal(permanentResult.replacementSignupIds.length,2)
+    assert.equal(permanentResult.notifications.pending,1)
+    assert.equal((await one('SELECT body FROM scheduling_class_swap_notice WHERE event_key=$1',[`permanent:${permanent.requestKey}`])).body,permanent.emailBody)
     const adjustments=await db.query("SELECT amount_cents FROM billing_charge WHERE related_charge_id=$1 AND metadata->>'adjustmentKind'='class_swap_proration'",[sourceCharge])
     assert.deepEqual(adjustments.rows.map(row=>Number(row.amount_cents)),[-permanentPreview.billingImpact.unusedSourceCreditCents],'the source credit is created once for the whole replacement package')
     assert.equal(Number((await one('SELECT amount_cents FROM billing_payment WHERE id=$1',[settledPayment])).amount_cents),30000,'settled payment amount is preserved')
@@ -128,7 +178,35 @@ test('dated class swaps preserve billing, roster source slots, typed confirmatio
     const transferred=await db.query('SELECT discount_rule_snapshot FROM enrollment_price_adjustment WHERE signup_id=ANY($1::bigint[])',[permanentResult.replacementSignupIds])
     assert.equal(transferred.rows.reduce((sum,row)=>sum+Number(row.discount_rule_snapshot.amountValue),0),2001)
     assert.equal((await executeClassSwap(pool,{facilityId,actorUserId,input:permanent})).replayed,true)
+    assert.equal(Number((await one('SELECT count(*)::int AS count FROM scheduling_class_swap_notice WHERE event_key=$1',[`permanent:${permanent.requestKey}`])).count),1,'Daily permanent delegates to Billing without duplicate notifications')
     await assert.rejects(executeClassSwap(pool,{facilityId,actorUserId,input:{...permanent,targetSelections:[permanent.targetSelections[0]]}}),/different class move/)
     await assert.rejects(moveCustomerBillingEnrollmentClass(pool,{signupId:paidSignup,facilityId,actorUserId,requestKey:permanent.requestKey,input:{...permanent,effectiveDate:'2030-01-08'}}),/different class move/)
+    const legacyDestination=await addClass('Legacy Billing replacement',[4,2],20)
+    const legacyInput={targetFormId:legacyDestination.formId,targetSlotGroupId:legacyDestination.groupId,
+      effectiveDate:'2030-01-14',reason:'Direct Billing move'}
+    await db.query('UPDATE scheduling_time_slot SET is_active=FALSE WHERE id=$1',[replacementA.slots[0]])
+    await db.query('SAVEPOINT parent_letter_dates')
+    await db.query("UPDATE scheduling_time_slot SET schedule_mode='date',specific_date='2030-01-17',day_of_week=NULL WHERE id=$1",[legacyDestination.slots[0]])
+    const datedLetter=await previewClassSwapNotification(db,{facilityId,mode:'permanent',signupId:permanentResult.replacementSignupIds[0],
+      effectiveDate:'2030-01-14',targetSelections:[{targetFormId:legacyDestination.formId,targetSlotGroupId:legacyDestination.groupId,targetTimeSlotId:legacyDestination.slots[0]}]})
+    assert.match(datedLetter.body,/Updated schedule:[\s\S]*Thursday, January 17, 2030/,'PostgreSQL date values format correctly in permanent parent letters')
+    await db.query('ROLLBACK TO SAVEPOINT parent_letter_dates')
+    await db.query('SAVEPOINT parent_letter_rotation')
+    await db.query("UPDATE scheduling_time_slot SET week_letter=CASE WHEN id=$1 THEN NULL ELSE 'B' END WHERE slot_group_id=$2",[legacyDestination.slots[0],legacyDestination.groupId])
+    const rotatedLetter=await previewClassSwapNotification(db,{facilityId,mode:'permanent',signupId:permanentResult.replacementSignupIds[0],
+      effectiveDate:'2030-01-14',targetSelections:[{targetFormId:legacyDestination.formId,targetSlotGroupId:legacyDestination.groupId,targetTimeSlotId:legacyDestination.slots[0]}]})
+    assert.match(rotatedLetter.body,/Updated schedule:[\s\S]*Thursday \(A-week\)/,'a null A-week slot remains distinguishable from its B-week sibling')
+    await db.query('ROLLBACK TO SAVEPOINT parent_letter_rotation')
+    const legacyPreview=await previewCustomerBillingEnrollmentClassSwap(db,{signupId:permanentResult.replacementSignupIds[0],facilityId,input:legacyInput})
+    assert.match(legacyPreview.notificationEmail.body,/Previous schedule:[\s\S]*Gymnastics replacement/,'Billing can still move from an inactive original class time')
+    assert.match(legacyPreview.notificationEmail.body,/Updated schedule:[\s\S]*Thursday/)
+    assert.doesNotMatch(legacyPreview.notificationEmail.body.split('Updated schedule:')[1],/Tuesday/,'omitted legacy target slot resolves only the first active slot, not the whole group')
+    legacyInput.emailBody=`${legacyPreview.notificationEmail.body}\nPlease reply if this schedule needs adjustment.`
+    const legacyRequestKey=`legacy-notice-${suffix}`
+    const legacyResult=await moveCustomerBillingEnrollmentClass(pool,{signupId:permanentResult.replacementSignupIds[0],facilityId,actorUserId,requestKey:legacyRequestKey,input:legacyInput})
+    assert.equal(legacyResult.notifications.pending,1,'older Billing path also queues the parent notice')
+    assert.equal((await one('SELECT body FROM scheduling_class_swap_notice WHERE event_key=$1',[`permanent:${legacyRequestKey}`])).body,legacyInput.emailBody)
+    await moveCustomerBillingEnrollmentClass(pool,{signupId:permanentResult.replacementSignupIds[0],facilityId,actorUserId,requestKey:legacyRequestKey,input:legacyInput})
+    assert.equal(Number((await one('SELECT count(*)::int AS count FROM scheduling_class_swap_notice WHERE event_key=$1',[`permanent:${legacyRequestKey}`])).count),1)
   }finally{await db.query('ROLLBACK');await db.end()}
 })

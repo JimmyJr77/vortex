@@ -309,8 +309,8 @@ export async function sendEmail({
   if (category === 'daily_roster' && !delivery.id) {
     throw new Error('Unable to retain the daily roster delivery before sending.')
   }
-  if (category === 'schedule_change' && templateVersion === 'calendar-cancellation-v1' && !delivery.id) {
-    throw new Error('Unable to retain the cancellation email delivery before sending.')
+  if (category === 'schedule_change' && ['calendar-cancellation-v1','class-swap-update-v1'].includes(templateVersion) && !delivery.id) {
+    throw new Error('Unable to retain the schedule update email delivery before sending.')
   }
 
   if(category==='payroll_w2_notice'&&noticeTracking&&!delivery.id)throw new Error('Unable to retain the W-2 provider delivery before sending.')

@@ -1,4 +1,5 @@
 import { adminApiRequest } from './api'
+import type { ClassChangeEmailPreview, ClassChangeNotifications } from './classChangeNotification'
 
 export type ClassSwapMode = 'temporary' | 'permanent'
 export type SwapEnrollmentKind = 'recurring' | 'multi_class' | 'trial' | 'drop_in'
@@ -58,10 +59,12 @@ export interface ClassSwapInput {
   targetTimeSlotId: number | null
   targetSelections?: { formId: number; slotGroupId: number; timeSlotId: number | null }[]
   reason: string
+  emailBody?: string
 }
 
 export interface ClassSwapPreview {
   message?: string
+  notificationEmail?: ClassChangeEmailPreview
   billingImpact?: {
     sourceFirstPeriodCents: number
     replacementFirstMonthCents: number
@@ -95,7 +98,7 @@ export function previewClassSwap(input: ClassSwapInput, signal?: AbortSignal) {
 }
 
 export function finalizeClassSwap(input: ClassSwapInput, confirmation: string, requestKey: string) {
-  return request<{ message?: string; replayed?: boolean }>('', {
+  return request<{ message?: string; replayed?: boolean; notifications?: ClassChangeNotifications; notificationSummaryUnavailable?: boolean }>('', {
     method: 'POST', headers: { 'Idempotency-Key': requestKey },
     body: JSON.stringify({ ...input, confirmation, requestKey }),
   })
