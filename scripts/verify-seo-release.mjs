@@ -812,11 +812,11 @@ const verifyHtml = (
       assert(/<h2\b[^>]*>Weekly youth gymnastics class schedule<\/h2>/i.test(schedule) && /Mommy &amp; Me.*preschool/.test(schedule),
         `${label}: missing the crawlable youth gymnastics schedule and age-group guidance`)
       const startingClass = mainHtml.match(/<section\b[^>]*\sid=["']choose-a-class["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
-      assert(startingClass && schedule && mainHtml.indexOf(startingClass) < mainHtml.indexOf(schedule) &&
+      assert(startingClass && schedule && mainHtml.indexOf(schedule) < mainHtml.indexOf(startingClass) &&
         hasProgramTrialLink(startingClass, 'choose-a-class') &&
         /Dirt Devils.*ages 2–3.*Twisters.*ages 4–5/.test(startingClass) &&
         /ages 6–17.*Tornadoes.*Trial Assessment/.test(startingClass),
-        `${label}: class placement and its free trial entry must appear before the youth gymnastics schedule`)
+        `${label}: the youth gymnastics schedule must appear before class placement and its free trial entry`)
       if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       const priceLinks = anchorUrls(schedule)
       assert(pageIds.has('youth-gymnastics-pricing') && /Enroll now/.test(schedule) &&

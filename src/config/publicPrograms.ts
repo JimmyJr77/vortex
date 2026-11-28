@@ -108,7 +108,6 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
       heading: 'Weekly youth gymnastics class schedule',
       description: 'Once you know your child’s level, check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. Open a class to see its times and published skill requirements.',
       programName: DEVELOPMENTAL_GYMNASTICS_PROGRAM,
-      afterSection: 'choose-a-class',
     },
     sections: [
       {

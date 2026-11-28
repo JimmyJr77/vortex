@@ -307,6 +307,17 @@
   line-height: 1.85;
   padding-bottom: 3px;
 }
+
+#programs .np-section-heading {
+  flex-wrap: wrap;
+  row-gap: 16px;
+}
+
+#programs .np-section-heading>p {
+  max-width: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
 .np-program-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1264,6 +1275,10 @@
   }
 }
 @media(max-width:620px) {
+  #programs .np-section-heading>p {
+    font-size: clamp(11px, 3.8vw, 14px);
+  }
+
   .np-hero-grid {
     grid-template-columns: 1fr;
     gap: 42px;

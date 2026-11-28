@@ -312,16 +312,16 @@ export default function NewPage({ onLogin, isLoggedIn }: { onLogin: () => void; 
               <p className="np-hero-description">
                 <Link className="np-hero-program-link" to="/gymnastics" data-analytics-cta="explore_youth_gymnastics" data-analytics-section="hero">
                   Find a youth gymnastics class
-                </Link>,{' '}
+                </Link>;{' '}
                 <Link className="np-hero-program-link" to="/gymnastics#trampoline-tumbling"
                   data-analytics-cta="read_trampoline_tumbling_options" data-analytics-section="hero">
-                  practice tumbling and trampoline skills
-                </Link>,{' '}
+                  Practice tumbling and trampoline skills
+                </Link>;{' '}
                 <Link className="np-hero-program-link" to="/fit-and-flip" data-analytics-cta="explore_fit-flip" data-analytics-section="hero">
-                  build strength and speed in Fit &amp; Flip
-                </Link>, or{' '}
+                  Build strength and speed in Fit &amp; Flip
+                </Link>; or{' '}
                 <Link className="np-hero-program-link" to="/adult-gymnastics" data-analytics-cta="explore_adult_gymnastics" data-analytics-section="hero">
-                  start adult gymnastics with a coach
+                  Start adult gymnastics with a coach
                 </Link>.
               </p>
               <div className="np-hero-buttons"><a href="#starting-classes" className="np-button" data-analytics-cta="explore_programs" data-analytics-section="hero">Explore programs <ArrowRight size={18} /></a><button className="np-text-button" onClick={() => openMedia('training_film')}><span className="np-play-outline"><Play size={13} fill="currentColor" /></span>See us in motion</button></div>
