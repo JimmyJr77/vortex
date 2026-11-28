@@ -16,6 +16,7 @@ import { listClasses,classDetail,memberDetail } from './reads.js'
 import { schedulingScopeMiddleware } from './scope.js'
 import { listFamilies, loadFamilyWorkspace } from './familyWorkspace.js'
 import { loadEnrollmentTrend } from './enrollmentTrend.js'
+import { loadLeadConversionTrend } from './leadConversionTrend.js'
 import { saveMarketingSpend } from './marketingSpend.js'
 import { loadBillingDashboard } from './billingDashboard.js'
 import { familyNotes } from './accountNotes.js'
@@ -64,6 +65,7 @@ export function registerNewAdminRoutes(app,pool,{jwtSecret}) {
     facilityId: facility(req), ...target,
     canViewBilling: await canonicalAdminPermission(pool, req.canonicalAccess.userId, 'billing.view'),
   })
+  app.get(`${base}/lead-conversion-trend`,allow('members.view'),handler(req=>loadLeadConversionTrend(pool,facility(req),req.query)))
   app.get(`${base}/enrollment-trend`,allow('members.view'),handler(async req=>{
     const canViewFinancial = await canonicalAdminPermission(pool,req.canonicalAccess.userId,'billing.view')
     const canEditMarketing = canViewFinancial && await canonicalAdminPermission(pool,req.canonicalAccess.userId,'marketing.manage')

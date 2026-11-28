@@ -60,6 +60,7 @@ async function prepare(page: Page, { permission = true, failure = false, empty =
     if (path.startsWith('/api/admin/accounting/')) data = null
     if (path === '/api/admin/new-admin/families') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
     if (path === '/api/admin/new-admin/classes') data = { rows: [], total: 0, page: 1, pageSize: 25, totalPages: 0 }
+    if (path === '/api/admin/new-admin/lead-conversion-trend') data = { start: '2025-11-10', end: '2026-11-09', today: '2026-11-09', timezone: 'America/New_York', interval: 'month', totals: { inquiries: 0, freeTrials: 0, dropIns: 0, directSignups: 0, conversions: 0 }, buckets: [] }
     if (path === '/api/admin/new-admin/enrollment-trend') {
       if (failure) { failure = false; return route.fulfill({ status: 503, json: { success: false, message: 'Enrollment history is temporarily unavailable.' } }) }
       data = empty ? { ...buildData(), quarters:summarizeQuarters(trend.asOf, []), studentQuarters:summarizeQuarters(trend.asOf, []), summary:summarizeMonths([]), studentSummary:summarizeLossRates([]), coverageStart: null, months: trend.months.map(row => ({ ...row, totalFamilies: null, openingFamilies: null, newFamilies: null, canceledFamilies: null, lostFamilies: null, lossRate: null })) } : buildData()

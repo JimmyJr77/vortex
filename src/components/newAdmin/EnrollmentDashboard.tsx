@@ -4,6 +4,7 @@ import { useRead, type BillingTarget } from './api'
 import BillingDashboard from './BillingDashboard'
 import EnrollmentPopulation, { MetricCard } from './EnrollmentPopulation'
 import AcquisitionPanel from './AcquisitionPanel'
+import LeadConversionDashboard from './LeadConversionDashboard'
 import { number, type EnrollmentTrendData, type QuarterSummary } from './enrollmentTypes'
 export type { EnrollmentTrendData } from './enrollmentTypes'
 import { ErrorNotice, Loading } from './shared'
@@ -14,7 +15,7 @@ const rate = (value: number | null | undefined) => value == null ? 'Unavailable'
 export default function EnrollmentDashboard({ revision, canViewBilling, onBilling }: { revision: number; canViewBilling: boolean; onBilling: (target: BillingTarget) => void }) {
   const [retry, setRetry] = useState(0)
   const result = useRead<EnrollmentTrendData>('/api/admin/new-admin/enrollment-trend', revision + retry)
-  return <><section aria-label="Enrollment & Loss Data">
+  return <><LeadConversionDashboard revision={revision} /><section aria-label="Enrollment & Loss Data">
     <div className="mb-5"><p className="text-xs font-bold uppercase tracking-widest text-red-700">Family growth & retention</p><h2 className="mt-1 text-2xl font-bold">Enrollment &amp; Loss Data</h2><p className="mt-2 text-sm text-slate-600">Family growth, student enrollment, retention and marketing value.</p></div>
     {result.loading ? <Loading label="Loading family enrollment history…" /> : null}
     <ErrorNotice message={result.error} onRetry={() => setRetry(value => value + 1)} />

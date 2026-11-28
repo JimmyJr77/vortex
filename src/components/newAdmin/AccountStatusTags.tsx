@@ -1,11 +1,11 @@
 import { input } from './shared'
 
 export function ActiveStatusTag({ active }: { active: boolean }) {
-  return <span className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${active ? 'bg-emerald-50 text-emerald-800' : 'bg-slate-100 text-slate-700'}`}>{active ? 'Active' : 'Inactive'}</span>
+  return <span className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{active ? 'Active' : 'Inactive'}</span>
 }
 
 export function EnrollmentTag({ enrolled }: { enrolled: boolean }) {
-  return <span className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${enrolled ? 'bg-blue-50 text-blue-800' : 'bg-slate-100 text-slate-700'}`}>{enrolled ? 'Enrolled' : 'Not enrolled'}</span>
+  return <span className={`inline-block rounded-full px-2 py-1 text-xs font-semibold ${enrolled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>{enrolled ? 'Enrolled' : 'Not enrolled'}</span>
 }
 
 export default function AccountStatusTags({ active, enrolled }: { active: boolean; enrolled: boolean }) {
