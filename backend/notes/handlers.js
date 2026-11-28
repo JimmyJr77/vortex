@@ -1,4 +1,5 @@
 // Append-only, dated notes for families, members, and registrations.
+import { saveAdminNote } from './contactTracking.js'
 
 const SUBJECT_TYPES = ['family', 'member', 'registration']
 const NOTE_TYPES = ['user_comment', 'staff_note']
@@ -16,6 +17,8 @@ function mapNoteRow(row) {
     authorName: row.author_name || null,
     source: row.source || null,
     createdAt: row.created_at,
+    nonContact: row.non_contact === true,
+    contactDate: row.contact_date ?? null,
   }
 }
 
@@ -116,7 +119,7 @@ export function createNotesHandlers(pool) {
 
     async addNote(req, res) {
       try {
-        const { subjectType, subjectId, noteType, body } = req.body
+        const { subjectType, subjectId, noteType, body, nonContact = false } = req.body
         if (!SUBJECT_TYPES.includes(subjectType) || !subjectId) {
           return res.status(400).json({ success: false, message: 'Valid subjectType and subjectId are required' })
         }
@@ -126,28 +129,16 @@ export function createNotesHandlers(pool) {
         if (!body || !String(body).trim()) {
           return res.status(400).json({ success: false, message: 'Note body is required' })
         }
+        if (typeof nonContact !== 'boolean') {
+          return res.status(400).json({ success: false, message: 'nonContact must be a boolean' })
+        }
         if (!await subjectBelongsToFacility(pool, subjectType, subjectId, req.canonicalAccess?.facilityId)) {
           return res.status(404).json({ success: false, message: 'Note subject not found' })
         }
         const author = await resolveAdminAuthor(pool, req)
-        const result = await pool.query(
-          `
-          INSERT INTO note (subject_type, subject_id, note_type, body, author_kind, author_id, author_email, author_name, source)
-          VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 'admin_ui')
-          RETURNING *
-          `,
-          [
-            subjectType,
-            subjectId,
-            noteType,
-            String(body).trim(),
-            author.authorKind,
-            author.authorId,
-            author.authorEmail,
-            author.authorName,
-          ],
-        )
-        res.json({ success: true, data: mapNoteRow(result.rows[0]) })
+        const note = await saveAdminNote(pool, { subjectType, subjectId, noteType, body: String(body).trim(),
+          author, nonContact, facilityId: req.canonicalAccess.facilityId })
+        res.json({ success: true, data: mapNoteRow(note) })
       } catch (err) {
         console.error('[notes] addNote:', err)
         res.status(500).json({ success: false, message: 'Failed to add note' })

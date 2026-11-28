@@ -19,6 +19,7 @@ function formatDate(iso: string) {
 export default function MemberStaffNotesTab({ memberId }: { memberId: number }) {
   const [notes, setNotes] = useState<Note[]>([])
   const [draft, setDraft] = useState('')
+  const [nonContact, setNonContact] = useState(false)
   const [loading, setLoading] = useState(true)
   const [adding, setAdding] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -51,9 +52,11 @@ export default function MemberStaffNotesTab({ memberId }: { memberId: number }) 
         subjectId: memberId,
         noteType: 'staff_note',
         body,
+        nonContact,
       })
       setNotes((prev) => [created, ...prev])
       setDraft('')
+      setNonContact(false)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add note')
     } finally {
@@ -99,6 +102,11 @@ export default function MemberStaffNotesTab({ memberId }: { memberId: number }) 
         </button>
       </div>
 
+      <label className="flex items-center gap-2 text-sm text-gray-700">
+        <input type="checkbox" checked={nonContact} disabled={adding} onChange={event => setNonContact(event.target.checked)} />
+        Non-contact note
+      </label>
+
       <div className="space-y-2 max-h-80 overflow-y-auto">
         {notes.length === 0 ? (
           <p className="text-sm text-gray-400">No staff notes yet.</p>
@@ -107,7 +115,7 @@ export default function MemberStaffNotesTab({ memberId }: { memberId: number }) 
             <div key={note.id} className="border border-gray-200 rounded-lg p-3 bg-white">
               <p className="text-sm text-gray-800 whitespace-pre-wrap">{note.body}</p>
               <p className="text-xs text-gray-500 mt-1">
-                {note.authorName || 'Staff'} · {formatDate(note.createdAt)}
+                {note.authorName || 'Staff'} · {formatDate(note.createdAt)}{note.nonContact ? ' · Non-contact note' : ''}
               </p>
             </div>
           ))

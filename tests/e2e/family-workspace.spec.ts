@@ -6,7 +6,7 @@ const people = [
 ]
 const history = { rows: [{ key: 'signup:20', date: '2026-10-01', kind: 'enrollment', memberId: 11, title: 'Youth Gymnastics', summary: 'confirmed · Start 2026-10-01', source: 'Vortex', amountCents: null }], nextCursor: 'older-fixture' }
 const workspace = {
-  family: { id: 42, name: 'Rivera Family', active: false, enrolled: true, archived: false }, people, today: '2026-11-12',
+  family: { id: 42, name: 'Rivera Family', active: false, enrolled: true, archived: false, memberSince: '2018-03-03' }, people, today: '2026-11-12',
   participation: [{ id: 20, memberId: 11, className: 'Youth Gymnastics', status: 'active', startDate: '2026-10-01', cancelDate: null, slots: [{ day: 1, start: '16:00', end: '17:00', week: null, date: null }] }],
   trials: { rows: [{ id: 31, memberId: 11, className: 'Youth Gymnastics', date: '2026-09-25', kind: 'free_trial', status: 'attended' }], total: 1 },
   leads: { rows: [{ id: 55, name: 'Alex Rivera', status: 'qualified', createdAt: '2026-09-20', contactedAt: '2026-09-21', followUp: true, archived: false, linkType: 'contact_match', message: 'Interested in a first class.', notes: 'Trial booked.' }], total: 1 },
@@ -166,6 +166,58 @@ test('family and people directories filter active status independently from enro
   await expect(profile.getByRole('button', { name: 'Archive Jordan Rivera', exact: true })).toBeVisible()
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
   expect(errors).toEqual([])
+})
+
+test('family and people rows use direct actions, first membership dates and super-admin archive icons', async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 1050 })
+  const { requests, errors } = await prepare(page)
+  const workspaceRegion = page.getByRole('region', { name: 'Unified family workspace' })
+  await expect(workspaceRegion.locator('header')).toContainText('Member sinceMar 3, 2018')
+  await workspaceRegion.getByRole('button', { name: 'All families and people', exact: true }).click()
+  const families = page.getByRole('table', { name: 'Families', exact: true })
+  const row = families.getByRole('row').filter({ has: page.getByRole('button', { name: 'Rivera Family', exact: true }) })
+  await expect(families.getByRole('columnheader', { name: 'Member since', exact: true })).toBeVisible()
+  await expect(row.getByRole('time')).toHaveText('Mar 3, 2018')
+  const archive = row.getByRole('button', { name: 'Archive Rivera Family', exact: true })
+  await expect(archive).toHaveText('')
+  await page.mouse.move(5, 5)
+  await expect(archive).toHaveCSS('opacity', '0')
+  await row.hover()
+  await expect(archive).toHaveCSS('opacity', '1')
+  await page.mouse.move(5, 5)
+  await expect(archive).toHaveCSS('opacity', '0')
+  await archive.focus()
+  await expect(archive).toHaveCSS('opacity', '1')
+  await row.getByRole('button', { name: 'Billing', exact: true }).click()
+  await expect.poll(() => requests.includes('/api/admin/customer-billing/families/42/overview')).toBe(true)
+  await page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Members & accounts', exact: true }).click()
+  await page.getByRole('button', { name: 'People', exact: true }).click()
+  const peopleTable = page.getByRole('table', { name: 'People', exact: true })
+  const person = peopleTable.getByRole('row').filter({ has: page.getByRole('button', { name: 'Jordan Rivera', exact: true }) })
+  await expect(person.getByRole('button', { name: 'View', exact: true })).toHaveCount(0)
+  const personArchive = person.getByRole('button', { name: 'Archive Jordan Rivera', exact: true })
+  await expect(personArchive).toHaveText('')
+  await page.mouse.move(5, 5)
+  await expect(personArchive).toHaveCSS('opacity', '0')
+  await person.hover()
+  await expect(personArchive).toHaveCSS('opacity', '1')
+  const priorReads = requests.filter(path => path === '/api/admin/new-admin/families/42/workspace').length
+  await person.getByRole('button', { name: 'Open family', exact: true }).click()
+  await expect(workspaceRegion.getByRole('heading', { name: 'Rivera Family', exact: true })).toBeVisible()
+  expect(requests.filter(path => path === '/api/admin/new-admin/families/42/workspace')).toHaveLength(priorReads + 1)
+  expect(errors).toEqual([])
+})
+
+test('ordinary admins cannot see row archive actions even with lifecycle permission', async ({ page }) => {
+  await prepare(page, false, ['members.view', 'accounts.lifecycle'])
+  await page.getByRole('button', { name: 'All families and people', exact: true }).click()
+  const families = page.getByRole('table', { name: 'Families', exact: true })
+  await expect(families.getByRole('button', { name: /^Archive / })).toHaveCount(0)
+  await expect(families.getByRole('button', { name: 'Billing', exact: true })).toHaveCount(0)
+  await page.getByRole('button', { name: 'People', exact: true }).click()
+  const peopleTable = page.getByRole('table', { name: 'People', exact: true })
+  await expect(peopleTable.getByRole('button', { name: /^Archive / })).toHaveCount(0)
+  await expect(peopleTable.getByRole('button', { name: 'Open family', exact: true })).toHaveCount(2)
 })
 
 test('family workspace saves and reloads a member login username', async ({ page }) => {
@@ -359,20 +411,24 @@ test('family notes are searchable beside the composer and shared with linked lea
   await region.getByLabel('Add a note', { exact: true }).fill('Added in the family workspace')
   await region.getByRole('button', { name: 'Add note', exact: true }).click()
   await expect(notes.getByText('Added in the family workspace')).toBeVisible()
-  expect(noteWrites).toEqual([{ subjectType: 'family', subjectId: 42, noteType: 'staff_note', body: 'Added in the family workspace' }])
+  expect(noteWrites).toEqual([{ subjectType: 'family', subjectId: 42, noteType: 'staff_note', body: 'Added in the family workspace', nonContact: false }])
   const navigation = page.getByRole('navigation', { name: 'Admin sections' })
   await navigation.getByRole('button', { name: 'Leads', exact: true }).click()
   await page.getByRole('button', { name: 'Notes', exact: true }).click()
   const dialog = page.getByRole('dialog', { name: 'Notes · Alex Rivera' })
   await expect(dialog.getByText('Added in the family workspace')).toBeVisible()
+  await dialog.getByRole('checkbox', { name: 'Non-contact note', exact: true }).check()
   await dialog.getByLabel('Add a note', { exact: true }).fill('Added from the lead')
   await dialog.getByRole('button', { name: 'Add note', exact: true }).click()
   await expect(dialog.getByText('Added from the lead')).toBeVisible()
+  expect(noteWrites.at(-1)).toMatchObject({ nonContact: true })
+  await expect(dialog.getByRole('article').filter({ hasText: 'Added from the lead' })).toContainText('Non-contact note')
   await dialog.getByRole('button', { name: 'Close Notes · Alex Rivera', exact: true }).click()
   await navigation.getByRole('button', { name: 'Members & accounts', exact: true }).click()
   await page.getByRole('button', { name: 'Open family', exact: true }).click()
   await region.getByRole('button', { name: 'Leads & Notes', exact: true }).click()
   await expect(notes.getByText('Added from the lead')).toBeVisible()
+  await expect(notes.getByRole('article').filter({ hasText: 'Added from the lead' })).toContainText('Non-contact note')
   await page.setViewportSize({ width: 390, height: 844 })
   await search.fill('from the lead')
   await expect(notes.getByText('Added from the lead')).toBeVisible()

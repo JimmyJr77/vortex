@@ -70,6 +70,7 @@ test('platform boot includes every schema contract required by current Admin rou
     '871_store_terminal_payment.sql',
     '882_lead_trial_contact_identity.sql',
     '883_lead_last_contacted_date.sql',
+    '884_note_contact_tracking.sql',
   ])
 })
 

@@ -67,6 +67,28 @@ const annualRedemptionPredicate = `r.amount_cents >= 0
   AND (f.trigger_type = 'once_per_year' OR f.apply_basis = 'per_year'
     OR lower(f.name) LIKE '%annual%' OR lower(f.name) LIKE '%membership%')`
 
+/** Historical purchases, including expired memberships, for family join dates. */
+export function annualMembershipPurchaseHistorySql() {
+  const paidAt = `(SELECT max(payment.paid_at) FROM billing_payment_application application
+    JOIN billing_payment payment ON payment.id=application.billing_payment_id
+    WHERE application.billing_charge_id=charge.id AND application.application_kind='application'
+      AND payment.external_status IN ('settled','succeeded'))`
+  return `SELECT r.member_id,charge.family_billing_account_id,
+      COALESCE(r.satisfied_at,${paidAt},charge.created_at) AS purchased_at
+    ${annualRedemptionJoins} WHERE ${annualRedemptionPredicate}
+    UNION ALL
+    SELECT charge.member_id,charge.family_billing_account_id,COALESCE(${paidAt},charge.created_at) AS purchased_at
+    FROM billing_charge charge JOIN additional_fee f ON f.id=CASE WHEN charge.source_id ~ '^[0-9]+:'
+      THEN split_part(charge.source_id,':',1)::numeric END
+    WHERE charge.source_type='additional_fee' AND charge.amount_cents>=0 AND ${legacyPaidCharge}
+      AND (f.trigger_type='once_per_year' OR f.apply_basis='per_year'
+        OR lower(f.name) LIKE '%annual%' OR lower(f.name) LIKE '%membership%')
+      AND NOT EXISTS(SELECT 1 FROM additional_fee_redemption redeemed
+        WHERE redeemed.member_id=charge.member_id AND redeemed.fee_id=f.id
+          AND (redeemed.billing_charge_id=charge.id OR (redeemed.billing_charge_id IS NULL
+            AND charge.source_id=CONCAT(redeemed.fee_id,':',redeemed.member_id,':',redeemed.period_key))))`
+}
+
 /** SQL predicate for directory queries that need the same annual membership window for many athletes. */
 export const hasActiveAnnualMembershipSql = (memberId, asOfDate) => `EXISTS (
   SELECT 1 ${annualRedemptionJoins}

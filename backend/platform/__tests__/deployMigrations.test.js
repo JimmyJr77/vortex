@@ -154,6 +154,7 @@ test('release deploy includes application content migrations without broadening 
     '879_scheduling_class_swaps.sql',
     '882_lead_trial_contact_identity.sql',
     '883_lead_last_contacted_date.sql',
+    '884_note_contact_tracking.sql',
     '840_staff_legal_signatures.sql',
   ])
   assert.deepEqual(DEPLOY_RELEASE_MIGRATION_FILES, [

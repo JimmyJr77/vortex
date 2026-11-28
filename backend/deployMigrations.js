@@ -59,6 +59,7 @@ export const DEPLOY_APPLICATION_MIGRATION_FILES = Object.freeze([
   '879_scheduling_class_swaps.sql',
   '882_lead_trial_contact_identity.sql',
   '883_lead_last_contacted_date.sql',
+  '884_note_contact_tracking.sql',
   '840_staff_legal_signatures.sql',
 ])
 export const DEPLOY_RELEASE_MIGRATION_FILES = Object.freeze([

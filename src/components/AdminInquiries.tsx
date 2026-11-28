@@ -97,6 +97,7 @@ export default function AdminInquiries() {
   const [classTypesFilterOpen, setClassTypesFilterOpen] = useState(false)
   const [threadNotes, setThreadNotes] = useState<Record<number, Note[]>>({})
   const [threadDraft, setThreadDraft] = useState<Record<number, string>>({})
+  const [nonContactNotes, setNonContactNotes] = useState<Record<number, boolean>>({})
   const [loadingThreadId, setLoadingThreadId] = useState<number | null>(null)
   const [addingThreadId, setAddingThreadId] = useState<number | null>(null)
   const [togglingContactedId, setTogglingContactedId] = useState<number | null>(null)
@@ -343,12 +344,14 @@ export default function AdminInquiries() {
         subjectId: user.id,
         noteType: 'staff_note',
         body,
+        nonContact: nonContactNotes[user.id] ?? false,
       })
       setThreadNotes((prev) => ({
         ...prev,
         [user.id]: [created, ...(prev[user.id] || [])],
       }))
       setThreadDraft((prev) => ({ ...prev, [user.id]: '' }))
+      setNonContactNotes(prev => ({ ...prev, [user.id]: false }))
     } catch (error) {
       console.error('Error adding staff note:', error)
       alert('Failed to add note')
@@ -1110,7 +1113,7 @@ export default function AdminInquiries() {
                                             <div key={note.id} className="rounded border border-gray-200 bg-gray-50 p-2">
                                               <div className="text-sm text-gray-800 whitespace-pre-wrap">{note.body}</div>
                                               <div className="text-xs text-gray-500 mt-1">
-                                                {note.noteType === 'user_comment' ? 'User comment' : 'Staff note'} · {note.authorName || note.authorEmail || 'Unknown'} · {formatDate(note.createdAt)}
+                                                {note.noteType === 'user_comment' ? 'User comment' : 'Staff note'} · {note.authorName || note.authorEmail || 'Unknown'} · {formatDate(note.createdAt)}{note.nonContact ? ' · Non-contact note' : ''}
                                               </div>
                                             </div>
                                           ))
@@ -1127,6 +1130,10 @@ export default function AdminInquiries() {
                                         placeholder="Add a new staff note..."
                                         className="w-full px-3 py-2 bg-white text-black rounded text-sm border border-gray-300 resize-y focus:ring-2 focus:ring-vortex-red focus:border-transparent"
                                       />
+                                      <label className="mt-2 flex items-center gap-2 text-sm text-gray-700" onClick={event => event.stopPropagation()}>
+                                        <input type="checkbox" checked={nonContactNotes[user.id] ?? false} disabled={addingThreadId === user.id} onChange={event => setNonContactNotes(prev => ({ ...prev, [user.id]: event.target.checked }))} />
+                                        Non-contact note
+                                      </label>
                                       <div className="flex flex-wrap items-center gap-3 mt-3">
                                         <button
                                           type="button"

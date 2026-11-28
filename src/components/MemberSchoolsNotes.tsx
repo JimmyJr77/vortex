@@ -33,6 +33,7 @@ export default function MemberSchoolsNotes({ memberId }: { memberId: number }) {
 
   const [notes, setNotes] = useState<Note[]>([])
   const [newNote, setNewNote] = useState('')
+  const [nonContact, setNonContact] = useState(false)
   const [addingNote, setAddingNote] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -86,9 +87,10 @@ export default function MemberSchoolsNotes({ memberId }: { memberId: number }) {
     try {
       setAddingNote(true)
       setError(null)
-      const created = await notesApi.add({ subjectType: 'member', subjectId: memberId, noteType: 'staff_note', body: newNote.trim() })
+      const created = await notesApi.add({ subjectType: 'member', subjectId: memberId, noteType: 'staff_note', body: newNote.trim(), nonContact })
       setNotes((prev) => [created, ...prev])
       setNewNote('')
+      setNonContact(false)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to add note')
     } finally {
@@ -170,6 +172,10 @@ export default function MemberSchoolsNotes({ memberId }: { memberId: number }) {
             <Plus size={14} /> Add
           </button>
         </div>
+        <label className="mb-3 flex items-center gap-2 text-sm text-gray-700">
+          <input type="checkbox" checked={nonContact} disabled={addingNote} onChange={event => setNonContact(event.target.checked)} />
+          Non-contact note
+        </label>
         <div className="space-y-2 max-h-56 overflow-y-auto">
           {notes.length === 0 ? (
             <div className="text-sm text-gray-400">No staff notes yet.</div>
@@ -178,7 +184,7 @@ export default function MemberSchoolsNotes({ memberId }: { memberId: number }) {
               <div key={n.id} className="border border-gray-200 rounded-lg p-2 bg-gray-50">
                 <div className="text-sm text-gray-800 whitespace-pre-wrap">{n.body}</div>
                 <div className="text-xs text-gray-500 mt-1">
-                  {n.authorName || 'Staff'} · {formatDate(n.createdAt)}
+                  {n.authorName || 'Staff'} · {formatDate(n.createdAt)}{n.nonContact ? ' · Non-contact note' : ''}
                 </div>
               </div>
             ))

@@ -17,7 +17,7 @@ interface Person { id: number; name: string; firstName: string; lastName: string
 interface HistoryRow { key: string; date: string | null; kind: string; memberId: number | null; title: string; summary: string; source: string; amountCents: number | null }
 interface HistoryPage { rows: HistoryRow[]; nextCursor: string | null }
 interface Workspace {
-  family: { id: number; name: string; active: boolean; enrolled: boolean; archived: boolean }
+  family: { id: number; name: string; active: boolean; enrolled: boolean; archived: boolean; memberSince?: string | null }
   today?: string
   people: Person[]
   participation: Array<{ id: number; memberId: number; className: string; status: string; startDate: string | null; cancelDate: string | null; slots: Array<{ day: number | null; start: string; end: string; date: string | null; week: string | null }> }>
@@ -67,6 +67,7 @@ export default function FamilyWorkspace({ familyId, memberId, access, revision, 
           </div>
         </div>
         <div className="mt-3"><AccountStatusTags active={data.family.active} enrolled={data.family.enrolled} /></div>
+        <dl className="mt-3 text-sm"><div className="flex flex-wrap gap-x-2"><dt className="font-semibold">Member since</dt><dd>{data.family.memberSince ? <time dateTime={data.family.memberSince}>{dateLabel(data.family.memberSince)}</time> : 'Not recorded'}</dd></div></dl>
         {data.financial ? <div className="mt-6 grid gap-3 sm:grid-cols-3"><Summary label="Outstanding balance" value={money(data.financial.outstandingBalanceCents)} /><Summary label="Available credit" value={money(data.financial.futureCreditsCents)} /><Summary label="Next scheduled bill" value={dateLabel(data.financial.nextBillDate)} /></div> : <p className="mt-5 text-sm text-slate-500">{data.financialIssue || (data.permissions.canViewBilling ? 'No active billing account is linked. Existing history is retained below.' : 'Billing and financial history require billing access.')}</p>}
       </header>
       <nav aria-label="Family workspace sections" className="portal-section-tabs flex flex-wrap gap-2">{tabs.map(item => <button key={item} className={button} aria-pressed={tab === item} onClick={() => setTab(item)}>{item}</button>)}</nav>

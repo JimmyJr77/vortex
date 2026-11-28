@@ -5,13 +5,14 @@ import { Empty, ErrorNotice, input, Loading, primary } from './shared'
 
 const subjectLabels: Record<Note['subjectType'], string> = { family: 'Family', member: 'Member', registration: 'Inquiry' }
 
-export default function AccountNotes({ endpoint, canManage, subjectType, subjectId, revision = 0 }: {
-  endpoint: string; canManage: boolean; subjectType: 'family' | 'registration'; subjectId: number; revision?: number
+export default function AccountNotes({ endpoint, canManage, subjectType, subjectId, revision = 0, onAdded }: {
+  endpoint: string; canManage: boolean; subjectType: 'family' | 'registration'; subjectId: number; revision?: number; onAdded?: (note: Note) => void
 }) {
   const [version, setVersion] = useState(0)
   const notes = useRead<Note[]>(endpoint, revision + version)
   const [query, setQuery] = useState('')
   const [draft, setDraft] = useState('')
+  const [nonContact, setNonContact] = useState(false)
   const [busy, setBusy] = useState(false)
   const [saveError, setSaveError] = useState<string | null>(null)
   const refresh = () => setVersion(value => value + 1)
@@ -22,9 +23,11 @@ export default function AccountNotes({ endpoint, canManage, subjectType, subject
     setBusy(true)
     setSaveError(null)
     try {
-      await notesApi.add({ subjectType, subjectId, noteType: 'staff_note', body })
+      const note = await notesApi.add({ subjectType, subjectId, noteType: 'staff_note', body, nonContact })
       setDraft('')
+      setNonContact(false)
       refresh()
+      onAdded?.(note)
     } catch (caught) {
       setSaveError(caught instanceof Error ? caught.message : 'Unable to add note.')
     } finally {
@@ -40,6 +43,11 @@ export default function AccountNotes({ endpoint, canManage, subjectType, subject
       Add a note
       <textarea className={input} rows={3} value={draft} maxLength={10000} disabled={busy} onChange={event => setDraft(event.target.value)} />
     </label>
+    <label className="flex items-center gap-2 text-sm">
+      <input type="checkbox" checked={nonContact} disabled={busy} onChange={event => setNonContact(event.target.checked)} />
+      Non-contact note
+    </label>
+    <p className="text-xs text-slate-500">Notes update last contacted unless marked as non-contact.</p>
     <button type="submit" className={primary} disabled={busy || !draft.trim()}>{busy ? 'Adding…' : 'Add note'}</button>
   </form>
   const results = <>
@@ -49,7 +57,7 @@ export default function AccountNotes({ endpoint, canManage, subjectType, subject
         {matchingNotes.map(note => <article key={note.id} className="rounded-lg border border-slate-200 p-4">
           <p className="whitespace-pre-wrap break-words text-sm">{note.body}</p>
           <p className="mt-2 break-words text-xs text-slate-500">
-            {note.authorName || (note.noteType === 'user_comment' ? 'Family' : 'Staff')} · {new Date(note.createdAt).toLocaleString()} · {subjectLabels[note.subjectType]} #{note.subjectId}
+            {note.authorName || (note.noteType === 'user_comment' ? 'Family' : 'Staff')} · {new Date(note.createdAt).toLocaleString()} · {subjectLabels[note.subjectType]} #{note.subjectId}{note.nonContact ? ' · Non-contact note' : ''}
           </p>
         </article>)}
       </div>

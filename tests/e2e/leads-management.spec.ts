@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test'
 import type { Lead } from '../../src/components/newAdmin/leadTypes'
+import type { Note } from '../../src/utils/adminFeaturesApi'
 
 function lead(id: number, fields: Partial<Lead> = {}): Lead {
   return { id, firstName: 'Jordan', lastName: 'Rivera', email: `lead${id}@example.test`, phone: null,
@@ -122,6 +123,46 @@ async function effectiveOpacity(locator: Locator) {
   })
 }
 
+test('notes update last contacted immediately unless marked non-contact', async ({ page }) => {
+  const record = lead(7, { lastContactedAt: '2026-11-20' })
+  await openLeads(page, [record])
+  const notes: Note[] = []
+  const writes: Record<string, unknown>[] = []
+  await page.route('**/api/admin/new-admin/leads/7/notes', route => route.fulfill({ json: { success: true, data: notes } }))
+  await page.route('**/api/admin/notes', route => {
+    const body = route.request().postDataJSON()
+    writes.push(body)
+    const note: Note = { ...body, id: notes.length + 1, createdAt: '2026-11-27T16:00:00Z', contactDate: body.nonContact ? null : '2026-11-27',
+      authorKind: 'admin', authorId: 1, authorName: 'Admin Test', authorEmail: null, source: 'admin_ui' }
+    notes.unshift(note)
+    if (!note.nonContact) record.lastContactedAt = note.contactDate
+    return route.fulfill({ json: { success: true, data: note } })
+  })
+  await (await rowCell(page, 'Jordan Rivera', 'Actions')).getByRole('button', { name: 'Notes', exact: true }).click()
+  const dialog = page.getByRole('dialog', { name: 'Notes · Jordan Rivera', exact: true })
+  const date = dialog.getByLabel('Last contacted', { exact: true })
+  const nonContact = dialog.getByRole('checkbox', { name: 'Non-contact note', exact: true })
+  await expect(nonContact).not.toBeChecked()
+  await dialog.getByLabel('Add a note', { exact: true }).fill('Spoke with the parent')
+  await dialog.getByRole('button', { name: 'Add note', exact: true }).click()
+  await expect(date).toHaveValue('2026-11-27')
+  await expect(dialog.getByText('Spoke with the parent', { exact: true })).toBeVisible()
+  expect(writes[0]).toMatchObject({ nonContact: false })
+  await nonContact.check()
+  await dialog.getByLabel('Add a note', { exact: true }).fill('Internal scheduling reminder')
+  await dialog.getByRole('button', { name: 'Add note', exact: true }).click()
+  await expect(dialog.getByText('Internal scheduling reminder', { exact: true })).toBeVisible()
+  await expect(date).toHaveValue('2026-11-27')
+  await expect(nonContact).not.toBeChecked()
+  expect(writes[1]).toMatchObject({ nonContact: true })
+  await expect(dialog.getByRole('article').filter({ hasText: 'Internal scheduling reminder' })).toContainText('Non-contact note')
+  await dialog.getByRole('button', { name: 'Close Notes · Jordan Rivera', exact: true }).click()
+  await expect(await rowCell(page, 'Jordan Rivera', 'Last contacted')).toHaveText('Nov 27, 2026')
+  await (await rowCell(page, 'Jordan Rivera', 'Actions')).getByRole('button', { name: 'Notes', exact: true }).click()
+  await expect(date).toHaveValue('2026-11-27')
+  await expect(dialog.getByRole('article').filter({ hasText: 'Internal scheduling reminder' })).toContainText('Non-contact note')
+})
+
 test('only master admins see the archive icon and it appears on row hover or keyboard focus', async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 1050 })
   const { writes } = await openLeads(page, [lead(7, { inquiry: { campers: [
@@ -169,12 +210,12 @@ test('lead actions distinguish conversions and free trials already reserved or u
   for (const name of ['Unused Trial', 'Cancelled Trial']) {
     const actions = await rowCell(page, name, 'Actions')
     await expect(actions.getByRole('button', { name: 'Notes', exact: true })).toBeVisible()
-    await expect(actions.getByRole('button', { name: /^add free trial$/i })).toBeVisible()
+    await expect(actions.getByRole('button', { name: /^free trial$/i })).toBeVisible()
     await expect(actions.getByRole('button', { name: 'Convert', exact: true })).toBeVisible()
   }
   for (const name of ['Scheduled Trial', 'Attended Trial', 'Legacy Booking']) {
     const actions = await rowCell(page, name, 'Actions')
-    await expect(actions.getByRole('button', { name: /^add free trial$/i })).toHaveCount(0)
+    await expect(actions.getByRole('button', { name: /^free trial$/i })).toHaveCount(0)
     await expect(actions.getByRole('button', { name: 'Convert', exact: true })).toBeVisible()
   }
   const leadStatus = (await rowCell(page, 'Unused Trial', 'Status')).getByText('Lead', { exact: true })
@@ -182,7 +223,7 @@ test('lead actions distinguish conversions and free trials already reserved or u
   expect(red[0]).toBeGreaterThan(red[1])
   expect(red[0]).toBeGreaterThan(red[2])
   const linkedActions = await rowCell(page, 'Linked Prospect', 'Actions')
-  await expect(linkedActions.getByRole('button', { name: /^add free trial$/i })).toBeDisabled()
+  await expect(linkedActions.getByRole('button', { name: /^free trial$/i })).toBeDisabled()
   await expect(linkedActions.getByRole('button', { name: 'Convert', exact: true })).toBeVisible()
   await expect(page.getByRole('button', { name: /^Archive / })).toHaveCount(0)
 })
@@ -212,7 +253,7 @@ test('staff book a linked lead trial through the authenticated admin flow and it
   })
   const initialRequests = requests.length
   const initialReads = queries.length
-  await (await rowCell(page, 'Jordan Rivera', 'Actions')).getByRole('button', { name: /^Add Free trial$/i }).click()
+  await (await rowCell(page, 'Jordan Rivera', 'Actions')).getByRole('button', { name: /^Free trial$/i }).click()
   const dialog = page.getByRole('dialog', { name: 'Add Free trial · Jordan Rivera', exact: true })
   const child = dialog.getByRole('region', { name: 'Casey Rivera', exact: true })
   await child.getByRole('combobox', { name: 'Program for Casey', exact: true }).selectOption('fit-flip')
@@ -223,7 +264,7 @@ test('staff book a linked lead trial through the authenticated admin flow and it
   await expect(child.getByRole('status')).toContainText('Free trial confirmed · $0')
   expect(bookingWrites).toEqual([{ memberId: 100, freeTrial: { program: 'fit-flip', slotGroupId: 30, classDate: '2026-12-01' } }])
   await dialog.getByRole('button', { name: 'Done', exact: true }).click()
-  await expect((await rowCell(page, 'Jordan Rivera', 'Actions')).getByRole('button', { name: /^Add Free trial$/i })).toHaveCount(0)
+  await expect((await rowCell(page, 'Jordan Rivera', 'Actions')).getByRole('button', { name: /^Free trial$/i })).toHaveCount(0)
   await expect(page.getByRole('list', { name: 'Free trials for Casey Rivera', exact: true })).toContainText('Dec 1, 2026')
   expect(queries.length).toBeGreaterThan(initialReads)
   expect(requests.slice(initialRequests).filter(path => path.includes('/signup/') || path.includes('/members/'))).toEqual([])
@@ -257,7 +298,7 @@ test('a matching contact must be explicitly linked before staff can find or book
       { classId: 20, className: 'Cyclones', slotGroupId: 30, date: '2026-12-01', startTime: '16:00', endTime: '17:00', isFull: false, facilityId: 1 },
     ] } } })
   })
-  await (await rowCell(page, 'Matched Inquiry', 'Actions')).getByRole('button', { name: /^Add Free trial$/i }).click()
+  await (await rowCell(page, 'Matched Inquiry', 'Actions')).getByRole('button', { name: /^Free trial$/i }).click()
   const dialog = page.getByRole('dialog', { name: 'Add Free trial · Matched Inquiry', exact: true })
   await expect(dialog).toContainText('Confirm this is the same family')
   await expect(dialog.getByRole('button', { name: 'Review member', exact: true })).toBeVisible()

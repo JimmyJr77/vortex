@@ -219,6 +219,46 @@ test('family workspace preserves ledger/history, scopes families, paginates with
       assert.ok(!result.leads.rows.some(row => row.id === 998))
       assert.ok(!result.history.rows.some(row => row.key === 'inquiry:998'))
     })
+    await t.test('member since uses the first annual purchase, retaining expired memberships and original billing ownership', async () => {
+      await pool.query(`
+        UPDATE facility SET timezone='America/New_York' WHERE id=1;
+        INSERT INTO family(id,facility_id,family_name) VALUES
+          (1100,1,'Member since original'),(1101,1,'Member since unknown'),(1102,1,'Member since new household'),(1103,2,'Member since foreign');
+        INSERT INTO member(id,facility_id,family_id,first_name,last_name) VALUES
+          (2100,1,1102,'Moved','Member'),(2101,1,1100,'Former','Member'),(2102,2,1103,'Foreign','Member');
+        INSERT INTO family_member(family_id,member_id,is_active) VALUES
+          (1100,2100,FALSE),(1102,2100,TRUE),(1100,2101,FALSE),(1103,2102,TRUE);
+        INSERT INTO family_billing_account(id,family_id,payer_member_id) VALUES(1100,1100,2100),(1103,1103,2102);
+        INSERT INTO additional_fee(id,facility_id,name,trigger_type,apply_basis) VALUES
+          (1100,1,'Annual membership','once_per_year','per_year'),(1101,1,'One-time equipment','each_enrollment','per_order'),
+          (1102,2,'Annual membership','once_per_year','per_year');
+        INSERT INTO billing_charge(id,family_billing_account_id,member_id,description,source_type,source_id,amount_cents,collection_status,created_at) VALUES
+          (1100,1100,2100,'Membership fixture','additional_fee','1100:2100:2020-03-04',8500,'paid','2000-01-01'),
+          (1101,1100,2100,'Membership fixture','additional_fee','1100:2100:2019-03-04',8500,'paid','2000-01-01'),
+          (1102,1100,2100,'Membership fixture','additional_fee','1100:2100:2002-01-01',8500,'unpaid','2001-01-01'),
+          (1103,1100,2100,'Membership fixture','additional_fee','1101:2100:2001-01-01',8500,'paid','1999-01-01'),
+          (1104,1100,2100,'Membership fixture','additional_fee','not-a-fee-key',8500,'paid','1998-01-01');
+        INSERT INTO additional_fee_redemption(fee_id,member_id,period_key,amount_cents,billing_charge_id,satisfied_at,ended_at,created_at) VALUES
+          (1100,2100,'2020-03-04',8500,1100,'2019-03-04T02:00:00Z','2020-03-04','2000-01-01'),
+          (1100,2100,'2027-03-04',8500,NULL,'2026-03-04T02:00:00Z',NULL,'2026-03-04'),
+          (1100,2100,'2002-01-01',8500,1102,NULL,NULL,'2001-01-01'),
+          (1100,2100,'2100-01-01',8500,NULL,'2099-01-01',NULL,'2099-01-01'),
+          (1102,2102,'2001-01-01',8500,NULL,'2000-01-01',NULL,'2000-01-01');
+        INSERT INTO billing_payment(id,family_billing_account_id,amount_cents,paid_at) VALUES(1101,1100,8500,'2018-03-04T02:00:00Z');
+        INSERT INTO billing_payment_application(billing_payment_id,billing_charge_id,amount_cents) VALUES(1101,1101,8500);
+      `)
+      const directory = await listFamilies(pool,1,{search:'Member since'})
+      assert.deepEqual(directory.rows.map(row=>[row.id,row.memberSince]).sort((a,b)=>a[0]-b[0]),
+        [[1100,'2018-03-03'],[1101,null],[1102,null]])
+      assert.equal((await loadFamilyWorkspace(pool,{facilityId:1,familyId:1100})).family.memberSince,'2018-03-03')
+      await pool.query(`
+        UPDATE member SET is_active=FALSE WHERE id=2101;
+        INSERT INTO additional_fee_redemption(fee_id,member_id,period_key,amount_cents,satisfied_at,ended_at)
+          VALUES(1100,2101,'2018-05-20',8500,'2017-05-20T14:00:00Z','2018-05-20');
+      `)
+      assert.equal((await listFamilies(pool,1,{search:'Member since original'})).rows[0].memberSince,'2017-05-20')
+      assert.equal((await listFamilies(pool,1,{search:'No Billing Family'})).rows[0].memberSince,null)
+    })
   } finally {
     await pool.end()
     await admin.query(`DROP SCHEMA "${schema}" CASCADE`)

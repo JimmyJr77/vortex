@@ -7,6 +7,7 @@ import { loadCanonicalFinancialSnapshot } from '../billing/canonicalBillingAccou
 import { loadCustomerBillingAccount, loadCustomerBillingAnnualMemberships, applyCanonicalMembershipDisplay, upcomingRecurringPricingMonth, earliestActiveNextBillDate, billingMonthDueDate } from '../billing/customerBillingQueries.js'
 import { memberHasActiveMembershipSql, memberIsActiveSql, memberIsEnrolledSql } from './memberActivity.js'
 import { familyIsActiveSql, familyIsEnrolledSql } from './householdStatus.js'
+import { familyMemberSinceSql } from './familyMemberSince.js'
 
 const todaySql = "(CURRENT_TIMESTAMP AT TIME ZONE COALESCE((SELECT NULLIF(timezone,'') FROM facility WHERE id=$1),'America/New_York'))::date"
 
@@ -58,12 +59,13 @@ export async function listFamilies(pool, facilityId, query = {}) {
     SELECT (SELECT count(*)::int FROM matches) AS total,
       COALESCE((SELECT jsonb_agg(row ORDER BY lower(row.family_name),row.id) FROM (
         SELECT p.id,p.family_name,p.archived,${pageActive} AS active,${pageEnrolled} AS enrolled,
+          ${familyMemberSinceSql('p.id', '$1', todaySql)} AS member_since,
           (SELECT count(*)::int FROM member m WHERE m.facility_id=$1
           AND ${canonicalActiveHouseholdMemberPredicate({ memberAlias: 'm', familyIdReference: 'p.id' })}) AS people_count
         FROM page p) row),'[]'::jsonb) AS rows`,
   [id(facilityId), searchValue(query.search), ['all', 'archived'].includes(query.record) ? query.record : 'active', paging.pageSize, paging.offset, phoneSearchPattern(String(query.search ?? '').slice(0, 200)), active, enrolled])
   const row = result.rows[0]
-  return { rows: (row?.rows ?? []).map(r => ({ id: Number(r.id), name: r.family_name || 'Unnamed family', archived: Boolean(r.archived), active: Boolean(r.active), enrolled: Boolean(r.enrolled), peopleCount: r.people_count })),
+  return { rows: (row?.rows ?? []).map(r => ({ id: Number(r.id), name: r.family_name || 'Unnamed family', archived: Boolean(r.archived), active: Boolean(r.active), enrolled: Boolean(r.enrolled), peopleCount: r.people_count, memberSince: r.member_since ?? null })),
     total: row?.total ?? 0, page: paging.page, pageSize: paging.pageSize, totalPages: Math.ceil((row?.total ?? 0) / paging.pageSize) }
 }
 
@@ -88,6 +90,7 @@ async function readFamily(db, facilityId, familyId) {
     SELECT f.id,f.family_name,f.archived,COALESCE(NULLIF(loc.timezone,''),'America/New_York') AS timezone,
       ${familyIsActiveSql('f.id', '$2', today)} AS active,
       ${familyIsEnrolledSql('f.id', '$2', today)} AS enrolled,
+      ${familyMemberSinceSql('f.id', '$2', today)} AS member_since,
       (CURRENT_TIMESTAMP AT TIME ZONE COALESCE(NULLIF(loc.timezone,''),'America/New_York'))::date::text AS today,
       to_regclass('stripe_customer_projection') IS NOT NULL AS has_payment_projection
     FROM family f JOIN facility loc ON loc.id=f.facility_id WHERE f.id=$1 AND f.facility_id=$2`, [familyId, facilityId])
@@ -266,7 +269,7 @@ export async function loadFamilyWorkspace(pool, { facilityId, familyId = null, m
             brand: paymentMethod.paymentMethod?.brand ?? null, last4: paymentMethod.paymentMethod?.last4 ?? null } }
       }
     }
-    return { family: { id: resolved, name: family.family_name, archived: Boolean(family.archived), active: Boolean(family.active), enrolled: Boolean(family.enrolled) }, people, participation, today: family.today,
+    return { family: { id: resolved, name: family.family_name, archived: Boolean(family.archived), active: Boolean(family.active), enrolled: Boolean(family.enrolled), memberSince: family.member_since ?? null }, people, participation, today: family.today,
       trials: { rows: trials.rows.map(r => ({ id: Number(r.id), memberId: Number(r.member_id), className: r.title || 'Archived class', date: r.class_date, kind: r.benefit_type, status: r.status })), total: trials.rows[0]?.total ?? 0 },
       leads: { rows: leads.rows.map(r => ({ id: Number(r.id), name: `${r.first_name} ${r.last_name}`, status: r.lead_status,
         createdAt: r.created_at, contactedAt: r.first_contacted_at, followUp: r.follow_up, archived: Boolean(r.archived),

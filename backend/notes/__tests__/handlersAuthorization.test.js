@@ -19,6 +19,16 @@ function responseRecorder() {
   }
 }
 
+test('non-contact classification accepts only a boolean before querying', async () => {
+  const handlers = createNotesHandlers({ query() { throw new Error('Invalid input must not reach the database') } })
+  for (const nonContact of ['false', 'true', 0, 1, null, {}]) {
+    const res = responseRecorder()
+    await handlers.addNote({ body: { subjectType: 'registration', subjectId: 1, noteType: 'staff_note', body: 'Internal reminder', nonContact } }, res)
+    assert.equal(res.statusCode, 400)
+    assert.match(res.payload.message, /nonContact must be a boolean/)
+  }
+})
+
 test('note subjects fail closed outside the authenticated facility', async () => {
   const calls = []
   const pool = {

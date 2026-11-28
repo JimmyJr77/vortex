@@ -41,6 +41,8 @@ export interface Note {
   authorName: string | null
   source: string | null
   createdAt: string
+  nonContact?: boolean
+  contactDate?: string | null
 }
 
 export interface DbQueryFieldMeta {
@@ -194,7 +196,7 @@ export const notesApi = {
       deployHint: NOTES_DEPLOY_MESSAGE,
     })
   },
-  async add(body: { subjectType: Note['subjectType']; subjectId: number; noteType: Note['noteType']; body: string }): Promise<Note> {
+  async add(body: { subjectType: Note['subjectType']; subjectId: number; noteType: Note['noteType']; body: string; nonContact?: boolean }): Promise<Note> {
     return unwrap<Note>(
       await adminApiRequest('/api/admin/notes', { method: 'POST', body: JSON.stringify(body) }),
       { deployHint: NOTES_DEPLOY_MESSAGE },
