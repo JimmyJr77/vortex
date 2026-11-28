@@ -706,12 +706,19 @@ test.describe('Client-critical smoke flows', () => {
         await page.goto(`${path}#${id}`)
         const booking = page.locator(`#${id}`)
         await expect(booking.getByText('Checking recurring class times…')).toBeVisible()
-        await expect(booking.getByRole('link', { name: 'Register for recurring classes', exact: true })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}`)
+        await expect(booking.getByRole('link', { name: 'Enroll now', exact: true })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}`)
         releaseCatalog()
         await expect(booking.getByRole('heading', { level: 4 })).toHaveText(['First published class', 'Second published class'])
         await expect(booking.getByText('Monday · 6:00 PM – 7:00 PM', { exact: true })).toHaveCount(2)
         await expect(booking.locator('.np-class-pricing')).toHaveCount(0)
-        await expect(booking.getByRole('link', { name: 'Register for First published class recurring classes' })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}&form=20`)
+        await expect(booking.getByRole('link', { name: 'Enroll now — First published class' })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}&form=20`)
+        if (path !== '/gymnastics') {
+          const dropIns = booking.getByRole('link', { name: 'Non-Member drop-in', exact: true })
+          await expect(dropIns).toHaveCount(2)
+          for (const link of await dropIns.all()) {
+            await expect(link).toHaveAttribute('href', `/drop-in?program=${encodeURIComponent(program)}`)
+          }
+        }
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       } finally { releaseCatalog(); await context.close() }
     }
@@ -732,7 +739,7 @@ test.describe('Client-critical smoke flows', () => {
       await expect(booking).toBeFocused()
       await expect(booking.getByRole('heading', { name: 'Weekly times and prices', exact: true })).toBeInViewport()
       await page.keyboard.press('Tab')
-      await expect(booking.getByRole('link', { name: 'Register for recurring classes', exact: true })).toBeFocused()
+      await expect(booking.getByRole('link', { name: 'Enroll now', exact: true })).toBeFocused()
     }
     await page.goBack()
     await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult')
@@ -747,7 +754,10 @@ test.describe('Client-critical smoke flows', () => {
     const enrollmentClass = (formId: number, displayName: string, skillLevel: string, enrollVisible = true) =>
       ({ id: formId, formId, displayName, skillLevel, enrollVisible })
     const classes = [
+      enrollmentClass(10, 'Dirt Devils (Mommy & Me)', 'EARLY_STAGE'),
+      enrollmentClass(11, 'Twisters (Preschool)', 'EARLY_STAGE'),
       enrollmentClass(9, 'Tornadoes', 'BEGINNER'),
+      enrollmentClass(23, 'Vortex A4 Elite', 'ADVANCED'),
       { ...enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'), skillRequirements: 'Forward roll, handstand and round-off.', excludeFromDropIns: true },
       { ...enrollmentClass(14, 'Hidden class', 'ADVANCED', false), skillRequirements: 'Hidden placement requirement.' },
       enrollmentClass(15, 'Expired class', 'ADVANCED'),
@@ -804,18 +814,33 @@ test.describe('Client-critical smoke flows', () => {
     const schedule = page.getByRole('region', { name: 'Weekly youth gymnastics class schedule' })
     const pricing = page.locator('#youth-gymnastics-pricing')
     const classCards = pricing.locator('.np-youth-booking-classes > li')
-    await expect(classCards.getByRole('heading', { level: 4 })).toHaveText(['Tornadoes', 'Cyclones'])
-    await expect(schedule.getByText('Tuesday · 4:00 PM – 5:30 PM', { exact: true })).toHaveCount(2)
+    await expect(classCards.getByRole('heading', { level: 4 })).toHaveText(['Dirt Devils (Mommy & Me)', 'Twisters (Preschool)', 'Tornadoes', 'Vortex A4 Elite', 'Cyclones'])
+    await expect(schedule.getByText('Tuesday · 4:00 PM – 5:30 PM', { exact: true })).toHaveCount(5)
     await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeHidden()
     await classCards.filter({ hasText: 'Cyclones' }).getByText('Skill requirements', { exact: true }).click()
     await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeVisible()
     await expect(schedule.getByText('Hidden placement requirement.')).toHaveCount(0)
-    expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])
+    expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 10, 11, 15, 16, 22, 23])
     const tornadoesPricing = classCards.filter({ hasText: 'Tornadoes' })
     await expect(tornadoesPricing.locator('dd')).toHaveText(['$150.00–$160.00', '$50.00'])
-    await expect(tornadoesPricing.getByRole('link', { name: 'Register for Tornadoes recurring classes' }))
+    await expect(tornadoesPricing.getByRole('link', { name: 'Enroll now — Tornadoes' }))
       .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics&form=9')
     await expect(classCards.filter({ hasText: 'Cyclones' }).locator('dd')).toHaveText(['See registration', 'Unavailable'])
+    for (const name of ['Dirt Devils (Mommy & Me)', 'Twisters (Preschool)', 'Tornadoes']) {
+      await expect(classCards.filter({ has: page.getByRole('heading', { name, exact: true }) }).getByRole('link', { name: 'Non-Member drop-in', exact: true }))
+        .toHaveAttribute('href', '/drop-in?program=Developmental%20Gymnastics')
+    }
+    for (const name of ['Cyclones', 'Vortex A4 Elite']) {
+      await expect(classCards.filter({ has: page.getByRole('heading', { name, exact: true }) }).getByRole('link', { name: 'Non-Member drop-in', exact: true })).toHaveCount(0)
+    }
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: 900 })
+      await expect.poll(async () => {
+        const heights = await classCards.evaluateAll(cards => cards.map(card => card.getBoundingClientRect().height))
+        return Math.max(...heights) - Math.min(...heights)
+      }).toBeLessThanOrEqual(1)
+    }
+
     await expect(pricing.getByRole('link', { name: 'Find a free gymnastics trial' })).toHaveAttribute('href', '/gymnastics#first-visit')
     await pricing.getByRole('link', { name: 'Check drop-in dates', exact: true }).click()
     await expect(page).toHaveURL('/drop-in?program=Developmental%20Gymnastics')
@@ -882,7 +907,7 @@ test.describe('Client-critical smoke flows', () => {
     await expect(pricing.locator('.np-class-pricing')).toHaveCount(0)
     await expect(pricing.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
     for (const [index, formId] of [30,31].entries()) {
-      await expect(cards.nth(index).getByRole('link', { name: /Register for.*recurring classes/ })).toHaveAttribute('href', `/enroll?program=Fit%20%26%20Flip&form=${formId}`)
+      await expect(cards.nth(index).getByRole('link', { name: /Enroll now/ })).toHaveAttribute('href', `/enroll?program=Fit%20%26%20Flip&form=${formId}`)
     }
     await expect(pricing.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveAttribute('href', '/drop-in?program=Fit%20%26%20Flip')
     await expect(pricing.getByRole('link', { name: 'Find a free Fit & Flip trial' })).toHaveAttribute('href', '/fit-and-flip#training-fit')

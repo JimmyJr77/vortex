@@ -24,6 +24,12 @@ export const ADULT_DROP_IN_HREF = `/drop-in?program=${encodeURIComponent(ADULT_B
 export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_AND_FLIP_BOOKING_PROGRAM | typeof DEVELOPMENTAL_GYMNASTICS_PROGRAM
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
+
+export function isYouthGymnasticsDropInClass(name: string) {
+  const normalized = normalize(name)
+  return ['dirtdevils', 'mommyandme', 'twisters', 'preschool', 'tornadoes'].some(label => normalized.includes(label))
+}
+
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
 const fitAndFlipSearchCopy = Object.values(FIT_AND_FLIP_PUBLIC_COPY).join(' ')
 const fitAndFlipSearchAliases = new Set([

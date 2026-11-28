@@ -783,7 +783,7 @@ const verifyHtml = (
       const booking = mainHtml.match(/<section\b[^>]*\bclass=["'][^"']*np-program-schedule[^"']*["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const bookingLinks = anchorUrls(booking)
       assert(/enrollment requires an active annual membership/i.test(booking) &&
-        /Register for recurring classes/.test(booking) && /membership and cancellation terms/.test(booking) &&
+        /Enroll now/.test(booking) && /membership and cancellation terms/.test(booking) &&
         bookingLinks.some(url => url.href === `${HUB_ORIGIN}/terms-of-service`) &&
         bookingLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
         `${label}: missing direct recurring registration, membership guidance, or terms and contact links`)
@@ -812,7 +812,7 @@ const verifyHtml = (
         `${label}: class placement and its free trial entry must appear before the youth gymnastics schedule`)
       if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       const priceLinks = anchorUrls(schedule)
-      assert(pageIds.has('youth-gymnastics-pricing') && /Register for recurring classes/.test(schedule) &&
+      assert(pageIds.has('youth-gymnastics-pricing') && /Enroll now/.test(schedule) &&
         priceLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Developmental Gymnastics') &&
         /Dirt Devils.*Twisters.*Tornadoes.*Cyclones.*Vortex A4 Elite/.test(schedule) &&
         /How much do youth gymnastics classes cost\?/.test(mainHtml) &&
@@ -866,7 +866,7 @@ const verifyHtml = (
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
       const priceLinks = anchorUrls(schedule)
-      assert(pageIds.has('fit-flip-class-pricing') && /Register for recurring classes/.test(schedule) &&
+      assert(pageIds.has('fit-flip-class-pricing') && /Enroll now/.test(schedule) && /Non-Member drop-in/.test(schedule) &&
         /Paid monthly enrollment requires an active annual membership/i.test(schedule) &&
         hasDropInProgramLink(priceLinks, 'Fit & Flip') &&
         priceLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') &&
@@ -925,7 +925,7 @@ const verifyHtml = (
             `${label}: the adult monthly tuition summary must explain the annual membership requirement`)
         }
       }
-      assert(pageIds.has('adult-class-pricing') && /Register for recurring classes/i.test(schedule) &&
+      assert(pageIds.has('adult-class-pricing') && /Enroll now/i.test(schedule) && /Non-Member drop-in/.test(schedule) &&
         /enrollment requires an active annual membership/i.test(schedule) &&
         hasDropInProgramLink(anchorUrls(schedule), 'Adult Fitness & Acrobatics') &&
         anchorUrls(schedule).some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),

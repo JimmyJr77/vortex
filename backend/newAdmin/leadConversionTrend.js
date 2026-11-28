@@ -3,7 +3,7 @@ import { familyMemberSinceSql } from './familyMemberSince.js'
 import { leadDirectoryCtes } from './leadDeduplication.js'
 import { memberHasActiveMembershipSql } from './memberActivity.js'
 
-const measures = ['inquiries', 'freeTrials', 'dropIns', 'directSignups', 'conversions']
+const measures = ['inquiries', 'freeTrials', 'dropIns', 'directSignups', 'conversions', 'totalLeads']
 const shift = (day, amount) => new Date(Date.parse(`${day}T12:00:00Z`) + amount * 86400000).toISOString().slice(0, 10)
 function validDay(value) {
   return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -85,6 +85,22 @@ export async function loadLeadConversionTrend(pool, facilityId, query = {}, now 
       ), first_purchases AS MATERIALIZED (
         SELECT f.id AS family_id,${familyMemberSinceSql('f.id', '$1', '$5::date')}::date AS day
         FROM family f WHERE f.facility_id=$1
+      ), lead_identities AS (
+        SELECT prospect.id,CASE WHEN count(DISTINCT household.family_id)=1
+          THEN 'family:'||min(household.family_id)::text ELSE 'lead:'||prospect.id::text END AS identity
+        FROM prospect_events prospect LEFT JOIN lead_members linked ON linked.id=prospect.id
+          LEFT JOIN member_families household ON household.member_id=linked.member_id GROUP BY prospect.id
+      ), booking_identities AS (
+        SELECT member_id,CASE WHEN count(DISTINCT family_id)=1 THEN 'family:'||min(family_id)::text
+          ELSE 'member:'||member_id::text END AS identity FROM member_families GROUP BY member_id
+      ), prospect_touches AS (
+        SELECT identity.identity,${localDay('prospect.occurred_at')} AS day
+          FROM prospect_events prospect JOIN lead_identities identity ON identity.id=prospect.id
+        UNION ALL SELECT COALESCE(identity.identity,'member:'||booking.member_id::text),${localDay('booking.occurred_at')}
+          FROM booking_events booking LEFT JOIN booking_identities identity ON identity.member_id=booking.member_id
+        UNION ALL SELECT 'family:'||family_id::text,day FROM first_purchases WHERE day IS NOT NULL
+      ), first_leads AS (
+        SELECT identity,min(day) AS day FROM prospect_touches GROUP BY identity
       ), conversion_events AS (
         SELECT purchase.*,NOT EXISTS (
           SELECT 1 FROM prospect_events inquiry JOIN lead_members lead ON lead.id=inquiry.id
@@ -98,6 +114,7 @@ export async function loadLeadConversionTrend(pool, facilityId, query = {}, now 
         UNION ALL SELECT measure,${localDay('occurred_at')} FROM booking_events
         UNION ALL SELECT 'conversions',day FROM conversion_events
         UNION ALL SELECT 'directSignups',day FROM conversion_events WHERE direct
+        UNION ALL SELECT 'totalLeads',day FROM first_leads
       ) SELECT measure,day::text,count(*)::int AS count FROM events
         WHERE day BETWEEN $2::date AND $3::date GROUP BY measure,day ORDER BY day`,
     [facility, range.start, range.end, clock.timezone, clock.today])

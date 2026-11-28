@@ -71,7 +71,7 @@ function AdultBookingSummary({ booking, enrollmentHref }: { booking: PublicAdult
         <li>{monthlyTuitionCents !== null && <><strong>{formatCents(monthlyTuitionCents)} base tuition per month.</strong>{' '}</>}Recurring enrollment requires an active annual membership.</li>
       </ul>
       <p>Catalog checked <BookingDate date={checkedOn} />. Confirm current prices and availability when you book.</p>
-      <RecurringRegistrationLink href={`${enrollmentHref}&form=${booking.formId}`} section="adult_booking_summary" />
+      <RecurringRegistrationLink href={`${enrollmentHref}&form=${booking.formId}`} section="adult_booking_summary" dropInHref={ADULT_DROP_IN_HREF} />
       <RecurringBookingTerms />
     </div>
   )
@@ -255,7 +255,7 @@ export default function PublicProgramPage({ path }: { path: PublicProgramPath })
             {recurringSchedule.description && <p>{recurringSchedule.description}</p>}
             <div id={recurringSchedule.pricingId} className="np-program-booking" tabIndex={-1}>
               {adultBooking ? <AdultBookingSummary booking={adultBooking} enrollmentHref={primaryAction.href} /> : youthBooking ? (
-                <YouthBookingSummary booking={youthBooking} enrollmentHref={primaryAction.href}
+                <YouthBookingSummary booking={youthBooking} enrollmentHref={primaryAction.href} isYouthGymnastics={path === '/gymnastics'}
                   dropInHref={path === '/gymnastics' ? DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF : FIT_AND_FLIP_DROP_IN_HREF} />
               ) : (
                 <PublicRecurringSchedule key={recurringSchedule.programName} programName={recurringSchedule.programName}

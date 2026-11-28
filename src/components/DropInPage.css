@@ -159,6 +159,10 @@
   font-weight: 600;
 }
 
+.np-drop-in-page :is(.np-drop-in-class, .np-drop-in-session-option) {
+  background-color: #fff;
+}
+
 .np-drop-in-class {
   border-radius: 12px;
 }
@@ -195,7 +199,6 @@
 
 .np-drop-in-page .np-drop-in-session-alternative {
   border-style: dashed;
-  background: var(--np-paper, #f5f6f2);
 }
 
 .np-drop-in-different-date {

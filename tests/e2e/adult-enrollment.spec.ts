@@ -174,7 +174,7 @@ test('the adult hero stays in place while recurring times load on mobile', async
   await expect(schedule.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   const after = await heroImage.evaluate(image => image.getBoundingClientRect().top + window.scrollY)
   expect(Math.abs(before - after)).toBeLessThanOrEqual(1)
-  await expect(schedule.getByRole('link', { name: /Register for.*recurring classes/ }).first()).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
+  await expect(schedule.getByRole('link', { name: /Enroll now/ }).first()).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
 })
 
 test('adults see one set of current prices with a direct recurring registration path', async ({ page }) => {
@@ -209,7 +209,7 @@ test('adults see one set of current prices with a direct recurring registration 
   await expect(booking.locator('.np-class-pricing')).toHaveCount(0)
   await expect(booking.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
   await expect(booking.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveAttribute('href', adultDropInPath)
-  const registration = booking.getByRole('link', { name: `Register for ${adultName} recurring classes` })
+  const registration = booking.getByRole('link', { name: `Enroll now — ${adultName}` })
   await expect(registration).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
   expect(pricingRequests).toEqual(expect.arrayContaining([{ type: 'monthly', authorization: undefined }, { type: 'drop-in', authorization: undefined }]))
   await registration.click()
@@ -232,7 +232,7 @@ test('registration remains available when monthly tuition cannot be verified', a
   const booking = page.locator('#adult-class-pricing')
   await expect(booking.getByText('$52.50', { exact: true })).toBeVisible()
   await expect(booking.getByText('See registration', { exact: true })).toBeVisible()
-  await expect(booking.getByRole('link', { name: `Register for ${adultName} recurring classes` })).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
+  await expect(booking.getByRole('link', { name: `Enroll now — ${adultName}` })).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
   await expect(booking.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveAttribute('href', adultDropInPath)
 })
 
@@ -248,7 +248,7 @@ for (const [scenario, mockOptions, expectsFormRequest] of [
     await expect(page.getByText('Check registration for current class times, prices, and availability.')).toBeVisible()
     const schedule = page.getByRole('region', { name: scheduleHeading, exact: true })
     await expect(schedule.getByRole('list')).toHaveCount(0)
-    await expect(schedule.getByRole('link', { name: /Register for.*recurring classes/ }).first()).toHaveAttribute('href', adultBookingPath)
+    await expect(schedule.getByRole('link', { name: /Enroll now/ }).first()).toHaveAttribute('href', adultBookingPath)
     await expect(page.getByRole('link', { name: 'See recurring class times', exact: true })).toHaveAttribute('href', adultBookingPath)
     expect(formRequests.length > 0).toBe(expectsFormRequest)
     expect(formRequests.every((path) => path === `/api/scheduling/forms/${adultFormId}`)).toBe(true)

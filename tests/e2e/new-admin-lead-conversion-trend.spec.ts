@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test'
 
-async function prepare(page: Page, { failure = false, permission = true, empty = false } = {}) {
+async function prepare(page: Page, { failure = false, permission = true, empty = false, legacy = false } = {}) {
   const requests: URL[] = [], errors: string[] = []
   page.on('pageerror', error => errors.push(error.message))
   await page.addInitScript(() => {
@@ -17,7 +17,8 @@ async function prepare(page: Page, { failure = false, permission = true, empty =
     if (url.pathname.endsWith('/lead-conversion-trend')) {
       requests.push(url)
       if (failure) { failure = false; return route.fulfill({ status: 503, json: { success: false, message: 'Lead history is temporarily unavailable.' } }) }
-      const totals = empty ? { inquiries: 0, freeTrials: 0, dropIns: 0, directSignups: 0, conversions: 0 } : { inquiries: 12, freeTrials: 5, dropIns: 3, directSignups: 2, conversions: 6 }
+      const totals = empty ? { inquiries: 0, freeTrials: 0, dropIns: 0, directSignups: 0, conversions: 0, totalLeads: 0 as number | undefined } : { inquiries: 12, freeTrials: 5, dropIns: 3, directSignups: 2, conversions: 6, totalLeads: url.searchParams.get('interval') === 'day' ? 10 : 20 }
+      if (legacy) delete totals.totalLeads
       const start = url.searchParams.get('start') ?? '2025-11-28', end = url.searchParams.get('end') ?? '2026-11-27'
       data = { start, end, today: '2026-11-27', timezone: 'America/New_York', interval: url.searchParams.get('interval'), totals,
         buckets: [{ key: start, start, end, ...totals }] }
@@ -33,6 +34,9 @@ test('dashboard opens with lead timeline, selectable breakdowns, bar graph and e
   const { errors } = await prepare(page)
   const panel = page.getByRole('region', { name: 'Leads & conversions', exact: true })
   await expect(panel.getByRole('heading', { name: 'Leads & conversions', exact: true })).toBeVisible()
+  const rate = panel.getByRole('group', { name: 'Conversion rate', exact: true })
+  await expect(rate.getByText('30.0%', { exact: true })).toBeVisible()
+  await expect(rate.getByText('6 conversions ÷ 20 total leads', { exact: true })).toBeVisible()
   expect(await panel.evaluate(element => element.nextElementSibling?.getAttribute('aria-label'))).toBe('Enrollment & Loss Data')
   await expect(panel.getByRole('img', { name: /Timeline of lead activity/ })).toBeVisible()
   await panel.getByRole('button', { name: 'Bar graph', exact: true }).click()
@@ -44,6 +48,7 @@ test('dashboard opens with lead timeline, selectable breakdowns, bar graph and e
   await expect(table.getByRole('columnheader', { name: 'Non-member drop-ins', exact: true })).toHaveCount(0)
   for (const label of ['Inquiries', 'Free trials', 'Direct sign-ups', 'Conversions']) await panel.getByRole('checkbox', { name: label, exact: true }).uncheck()
   await expect(panel.getByText('Select at least one series to display.')).toBeVisible()
+  await expect(rate.getByText('30.0%', { exact: true })).toBeVisible()
   await panel.getByRole('checkbox', { name: 'Conversions', exact: true }).check()
   await page.setViewportSize({ width: 390, height: 844 })
   await expect(table).toBeVisible()
@@ -62,6 +67,7 @@ test('date controls request daily and weekly data and can reset the range', asyn
   await expect.poll(() => requests.at(-1)?.searchParams.get('interval')).toBe('day')
   expect(requests.at(-1)?.searchParams.get('start')).toBe('2026-11-01')
   expect(requests.at(-1)?.searchParams.get('end')).toBe('2026-11-20')
+  await expect(panel.getByRole('group', { name: 'Conversion rate', exact: true }).getByText('60.0%', { exact: true })).toBeVisible()
   await panel.getByLabel('Group by', { exact: true }).selectOption('week')
   await panel.getByRole('button', { name: 'Apply dates' }).click()
   await expect.poll(() => requests.at(-1)?.searchParams.get('interval')).toBe('week')
@@ -78,6 +84,10 @@ test('failed history can retry and an empty date range is explicit', async ({ pa
   await expect(panel.getByText('Lead history is temporarily unavailable.')).toBeVisible()
   await panel.getByRole('button', { name: /retry/i }).click()
   await expect(panel.getByText('No recorded lead or conversion activity in this date range.')).toBeVisible()
+  const rate = panel.getByRole('group', { name: 'Conversion rate', exact: true })
+  await expect(rate.getByText('—', { exact: true })).toBeVisible()
+  await expect(rate.getByText('0 conversions ÷ 0 total leads', { exact: true })).toBeVisible()
+  await expect(rate.getByText('No new leads in this range.')).toBeVisible()
   expect(errors).toEqual([])
 })
 
@@ -85,4 +95,11 @@ test('staff without dashboard permission cannot load lead history', async ({ pag
   const { requests } = await prepare(page, { permission: false })
   await expect(page.getByRole('navigation', { name: 'Admin sections' }).getByRole('button', { name: 'Dashboard', exact: true })).toHaveCount(0)
   expect(requests).toHaveLength(0)
+})
+
+test('conversion rate stays unavailable until lead totals are returned', async ({ page }) => {
+  const { errors } = await prepare(page, { legacy: true })
+  const rate = page.getByRole('group', { name: 'Conversion rate', exact: true })
+  await expect(rate.getByText('Unavailable', { exact: true })).toBeVisible()
+  expect(errors).toEqual([])
 })
