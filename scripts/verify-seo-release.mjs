@@ -780,12 +780,17 @@ const verifyHtml = (
       const visitLinks = anchorUrls(visit)
       assert([galleryUrl, accessibilityUrl].every(destination => visitLinks.some(url => url.href === destination)),
         `${label}: the program visit section must link to the Bowie gym photos and accessibility details`)
-      const pricing = mainHtml.match(/<details\b[^>]*\bclass=["']np-class-pricing\b[^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
-      const pricingLinks = anchorUrls(pricing)
-      assert(/Request cancellation/.test(pricing) &&
-        pricingLinks.some(url => url.href === `${HUB_ORIGIN}/terms-of-service`) &&
-        pricingLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
-        `${label}: missing the published recurring enrollment cancellation path or terms and contact links`)
+      const booking = mainHtml.match(/<section\b[^>]*\bclass=["'][^"']*np-program-schedule[^"']*["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
+      const bookingLinks = anchorUrls(booking)
+      assert(/enrollment requires an active annual membership/i.test(booking) &&
+        /Register for recurring classes/.test(booking) && /membership and cancellation terms/.test(booking) &&
+        bookingLinks.some(url => url.href === `${HUB_ORIGIN}/terms-of-service`) &&
+        bookingLinks.some(url => url.href === `${HUB_ORIGIN}/contact#inquiry`),
+        `${label}: missing direct recurring registration, membership guidance, or terms and contact links`)
+      assert(!/np-class-pricing/.test(booking), `${label}: the schedule must not repeat a separate price comparison`)
+      if (/id=["'](?:youth|adult)-booking-summary["']/.test(booking)) {
+        assert(!/np-recurring-schedule/.test(booking), `${label}: the published booking box must not duplicate the live schedule`)
+      }
     }
     if (pagePath === '/gymnastics') {
       const schoolAge = mainHtml.match(/<article\b[^>]*\sid=["']youth["'][^>]*>[\s\S]*?<\/article>/i)?.[0] ?? ''
@@ -806,16 +811,13 @@ const verifyHtml = (
         /ages 6–17.*Tornadoes.*Trial Assessment/.test(startingClass),
         `${label}: class placement and its free trial entry must appear before the youth gymnastics schedule`)
       if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
-      const prices = schedule.match(/<details\b[^>]*\sid=["']youth-gymnastics-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
-      const priceLinks = anchorUrls(prices)
-      assert(priceLinks.some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
-        url.searchParams.get('program') === 'Developmental Gymnastics'),
-        `${label}: the youth gymnastics price comparison must link to developmental enrollment`)
-      assert(/Dirt Devils.*Twisters.*Tornadoes.*Cyclones.*Vortex A4 Elite/.test(schedule) &&
-        /Compare youth gymnastics prices/.test(prices) && /Paid monthly enrollment requires an active annual membership/.test(prices) &&
-        /How much do youth gymnastics classes cost\?/.test(mainHtml) && hasDropInProgramLink(priceLinks, 'Developmental Gymnastics') &&
-        priceLinks.some(url => url.href === `${canonical}#first-visit`),
-        `${label}: missing the crawlable youth class comparison, tuition guidance, or trial and drop-in links`)
+      const priceLinks = anchorUrls(schedule)
+      assert(pageIds.has('youth-gymnastics-pricing') && /Register for recurring classes/.test(schedule) &&
+        priceLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Developmental Gymnastics') &&
+        /Dirt Devils.*Twisters.*Tornadoes.*Cyclones.*Vortex A4 Elite/.test(schedule) &&
+        /How much do youth gymnastics classes cost\?/.test(mainHtml) &&
+        mainLinks.some(url => url.href === `${canonical}#first-visit`),
+        `${label}: missing the youth class booking box or recurring registration and trial links`)
       const firstVisit = mainHtml.match(/<section\b[^>]*\sid=["']first-visit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/<h2\b[^>]*>What to expect at your child’s first gymnastics class<\/h2>/i.test(firstVisit),
         `${label}: missing the first gymnastics visit section`)
@@ -863,13 +865,13 @@ const verifyHtml = (
       if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
-      const pricing = schedule.match(/<details\b[^>]*\sid=["']fit-flip-class-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
-      const priceLinks = anchorUrls(pricing)
-      assert(/Compare Fit &amp; Flip prices/i.test(pricing) && /Paid monthly enrollment requires an active annual membership/i.test(pricing) &&
+      const priceLinks = anchorUrls(schedule)
+      assert(pageIds.has('fit-flip-class-pricing') && /Register for recurring classes/.test(schedule) &&
+        /Paid monthly enrollment requires an active annual membership/i.test(schedule) &&
         hasDropInProgramLink(priceLinks, 'Fit & Flip') &&
-        priceLinks.some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') &&
-        priceLinks.some((url) => url.href === `${HUB_ORIGIN}/fit-and-flip#training-fit`),
-        `${label}: missing the Fit & Flip price comparison and its crawlable booking and trial links`)
+        priceLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') &&
+        mainLinks.some(url => url.href === `${HUB_ORIGIN}/fit-and-flip#training-fit`),
+        `${label}: missing the Fit & Flip booking box and its recurring enrollment, trial, and drop-in links`)
       assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
       const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const firstClassLinks = anchorUrls(firstClass)
@@ -923,11 +925,11 @@ const verifyHtml = (
             `${label}: the adult monthly tuition summary must explain the annual membership requirement`)
         }
       }
-      const pricing = schedule.match(/<details\b[^>]*\sid=["']adult-class-pricing["'][^>]*>[\s\S]*?<\/details>/i)?.[0] ?? ''
-      assert(/Compare adult gymnastics prices/i.test(pricing) && /Paid monthly enrollment requires an active annual membership/i.test(pricing) &&
-        hasDropInProgramLink(anchorUrls(pricing), 'Adult Fitness & Acrobatics') &&
-        anchorUrls(pricing).some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
-        `${label}: missing the adult price comparison and its crawlable booking links`)
+      assert(pageIds.has('adult-class-pricing') && /Register for recurring classes/i.test(schedule) &&
+        /enrollment requires an active annual membership/i.test(schedule) &&
+        hasDropInProgramLink(anchorUrls(schedule), 'Adult Fitness & Acrobatics') &&
+        anchorUrls(schedule).some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
+        `${label}: missing the adult booking box and its recurring enrollment and drop-in links`)
       assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
       const format = mainHtml.match(/<section\b[^>]*\sid=["']class-format["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/Can I start adult gymnastics with no experience\?/i.test(format) && /with your feet on the floor/i.test(format) &&

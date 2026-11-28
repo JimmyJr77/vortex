@@ -138,7 +138,7 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     maxParticipants: consistentCapacity(sessions),
   } : null
 
-  return recurringTimes.length || monthlyTuitionCents || dropIn ? { checkedOn, recurringTimes, monthlyTuitionCents, dropIn } : null
+  return recurringTimes.length || monthlyTuitionCents || dropIn ? { formId: adultClass.formId, checkedOn, recurringTimes, monthlyTuitionCents, dropIn } : null
 }
 
 function priceRange(values: unknown[]): [number, number] | null {

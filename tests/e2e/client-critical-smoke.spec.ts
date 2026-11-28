@@ -70,7 +70,7 @@ test.describe('Client-critical smoke flows', () => {
     await openMenu.press('Enter')
     await contact.click()
     await expect(page).toHaveURL('/contact')
-    await expect(page.getByRole('heading', { name: 'Contact Vortex Athletics in Bowie, MD', level: 1 })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Contact Vortex Athletics & Gymnastics in Bowie, MD', level: 1 })).toBeVisible()
     await expect(navigation).toBeHidden()
   })
 
@@ -671,117 +671,55 @@ test.describe('Client-critical smoke flows', () => {
     await expect(page.locator('#class-placement').getByRole('heading', { level: 2 })).toBeInViewport()
   })
 
-  test('pricing opened before startup stays open and focused on each program page', async ({ browser, baseURL }) => {
-    const programs = [
-      { path: '/gymnastics', program: 'Developmental Gymnastics', schedule: 'youth-gymnastics-schedule', pricing: 'youth-gymnastics-pricing', label: 'Compare youth gymnastics prices' },
-      { path: '/fit-and-flip', program: 'Fit & Flip', schedule: 'fit-flip-schedule', pricing: 'fit-flip-class-pricing', label: 'Compare Fit & Flip prices' },
-      { path: '/adult-gymnastics', program: 'Adult Fitness & Acrobatics', schedule: 'adult-class-schedule', pricing: 'adult-class-pricing', label: 'Compare adult gymnastics prices' },
-    ]
-    for (const { path, program, schedule, pricing, label } of programs) {
+  test('each program keeps one booking box and direct registration while its catalog loads', async ({ browser, baseURL }) => {
+    for (const [path, program, id] of [
+      ['/gymnastics', 'Developmental Gymnastics', 'youth-gymnastics-pricing'],
+      ['/fit-and-flip', 'Fit & Flip', 'fit-flip-class-pricing'],
+      ['/adult-gymnastics', 'Adult Fitness & Acrobatics', 'adult-class-pricing'],
+    ]) {
       const context = await browser.newContext({ baseURL, viewport: { width: 390, height: 844 } })
-      await context.addCookies([{ name: '_vortex_cid', value: 'c_test_pricing_handoff', url: baseURL }])
       const page = await context.newPage()
-      let releaseEntry = () => {}
-      const entryGate = new Promise<void>(resolve => { releaseEntry = resolve })
       let releaseCatalog = () => {}
-      const catalogGate = new Promise<void>(resolve => { releaseCatalog = resolve })
-      let releaseConsent = () => {}
-      const consentGate = new Promise<void>(resolve => { releaseConsent = resolve })
-      const classes = Array.from({ length: 9 }, (_, index) => ({
-        id: 20 + index, formId: 20 + index, displayName: `Published class ${index + 1}`, enrollVisible: true,
-      }))
-      let priceRequests = 0
+      const gate = new Promise<void>(resolve => { releaseCatalog = resolve })
       await page.route('**/api/**', async route => {
-        const requestPath = new URL(route.request().url()).pathname
+        const url = new URL(route.request().url())
         const json = (data: unknown) => route.fulfill({ json: { success: true, data } })
-        if (requestPath === '/api/public/classes-offered') {
-          await catalogGate
-          return json({ programs: [{ id: 1, displayName: program, classes }] })
+        if (url.pathname === '/api/public/classes-offered') {
+          await gate
+          return json({ programs: [{ id: 1, displayName: program, classes: [
+            { id: 20, formId: 20, displayName: 'First published class', enrollVisible: true },
+            { id: 21, formId: 21, displayName: 'Second published class', enrollVisible: true },
+          ] }] })
         }
-        if (requestPath === '/api/public/drop-ins') {
-          priceRequests += 1
-          return json({ classes: [], sessions: [] })
-        }
-        if (requestPath === '/api/consent/sync/c_test_pricing_handoff') {
-          await consentGate
-          return route.fulfill({ json: { success: true, consent: null } })
-        }
-        const form = requestPath.match(/^\/api\/scheduling\/forms\/(\d+)(\/offerings)?$/)
+        if (url.pathname === '/api/public/drop-ins') return json({ sessions: [] })
+        const form = url.pathname.match(/^\/api\/scheduling\/forms\/(\d+)(\/offerings)?$/)
         if (!form) return json({})
         if (form[2]) return json([])
         const formId = Number(form[1])
-        return json({ id: formId, programsId: 1, isActive: true, slotGroups: [
-          { id: formId, formId, offeringId: null, isActive: true, scheduleMode: 'day', occurrences: [
-            { id: formId, formId, slotGroupId: formId, isActive: true, scheduleMode: 'day',
-              dayOfWeek: 1, startTime: '18:00', endTime: '19:00' },
-          ] },
-        ] })
-      })
-      await page.route(url => url.pathname === '/src/main.tsx', async route => {
-        await entryGate
-        await route.continue()
-      })
-      await page.route(url => url.pathname === path, async route => {
-        const response = await route.fetch()
-        const html = await response.text()
-        const entry = `<div id="root" data-prerendered-program="${path}">
-          <div class="np-program-page">
-            <section id="${schedule}">
-              <div style="height:1500px"></div>
-              <details class="np-class-pricing" id="${pricing}"><summary>${label}</summary><p>First response</p></details>
-            </section>
-            <div style="height:1000px"></div>
-          </div>
-        </div>`
-        expect(html).toContain('<div id="root"></div>')
-        await route.fulfill({ response, body: html.replace('<div id="root"></div>', entry) })
+        return json({ id: formId, programsId: 1, isActive: true, slotGroups: [{
+          id: formId, formId, isActive: true, scheduleMode: 'day', occurrences: [{
+            id: formId, formId, slotGroupId: formId, isActive: true, scheduleMode: 'day', dayOfWeek: 1, startTime: '18:00', endTime: '19:00',
+          }],
+        }] })
       })
       try {
-        await page.goto(`${path}#${schedule}`, { waitUntil: 'commit' })
-        await expect(page.getByText('First response', { exact: true })).toHaveCount(1)
-        const details = page.locator(`#${pricing}`)
-        const summary = details.locator('summary')
-        await summary.evaluate(element => element.scrollIntoView({ block: 'center', behavior: 'instant' }))
-        await summary.press('Enter')
-        await expect(details).toHaveAttribute('open', '')
-        await expect(summary).toBeFocused()
-        await expect(summary).toBeInViewport()
-
-        releaseEntry()
-        await expect(page.getByText('First response', { exact: true })).toHaveCount(0)
-        await expect(details).toHaveAttribute('open', '')
-        await expect(summary).toBeFocused()
-        await expect(page).toHaveURL(`${path}#${schedule}`)
+        await page.goto(`${path}#${id}`)
+        const booking = page.locator(`#${id}`)
+        await expect(booking.getByText('Checking recurring class times…')).toBeVisible()
+        await expect(booking.getByRole('link', { name: 'Register for recurring classes', exact: true })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}`)
         releaseCatalog()
-        await expect(page.locator('.np-recurring-schedule').getByText('Published class 9', { exact: false })).toBeVisible()
-        const consent = page.getByRole('dialog', { name: 'Cookie consent' })
-        await expect(consent).toHaveCount(0)
-        releaseConsent()
-        await expect(consent).toBeVisible()
-        await expect.poll(() => summary.evaluate(element => {
-          const { x, y, width, height } = element.getBoundingClientRect()
-          return element.contains(document.elementFromPoint(x + width / 2, y + height / 2))
-        })).toBe(true)
-        await expect(summary).toBeFocused()
-        await expect.poll(() => priceRequests).toBe(1)
-      } finally {
-        releaseEntry()
-        releaseCatalog()
-        releaseConsent()
-        await context.close()
-      }
+        await expect(booking.getByRole('heading', { level: 4 })).toHaveText(['First published class', 'Second published class'])
+        await expect(booking.getByText('Monday · 6:00 PM – 7:00 PM', { exact: true })).toHaveCount(2)
+        await expect(booking.locator('.np-class-pricing')).toHaveCount(0)
+        await expect(booking.getByRole('link', { name: 'Register for First published class recurring classes' })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}&form=20`)
+        expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+      } finally { releaseCatalog(); await context.close() }
     }
   })
 
-  test('keyboard pricing links focus the opened comparison', async ({ page }) => {
+  test('keyboard pricing links focus the single booking box', async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 844 })
-    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: {
-      success: true, data: { programs: [] },
-    } }))
-    await page.route('**/api/public/drop-ins', route => route.fulfill({ json: {
-      success: true, data: { sessions: [] },
-    } }))
-
+    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: { success: true, data: { programs: [] } } }))
     for (const { from, name, to, id } of [
       { from: '/gymnastics', name: 'Compare youth gymnastics prices', to: '/gymnastics', id: 'youth-gymnastics-pricing' },
       { from: '/fit-and-flip', name: 'Compare monthly and drop-in prices', to: '/fit-and-flip', id: 'fit-flip-class-pricing' },
@@ -790,28 +728,16 @@ test.describe('Client-critical smoke flows', () => {
       await page.goto(from)
       await page.getByRole('link', { name, exact: true }).press('Enter')
       await expect(page).toHaveURL(`${to}#${id}`)
-      const pricing = page.locator(`#${id}`)
-      const summary = pricing.locator('summary')
-      await expect(pricing).toHaveAttribute('open', '')
-      await expect(summary).toBeFocused()
-      await expect(summary).toBeInViewport({ ratio: 1 })
+      const booking = page.locator(`#${id}`)
+      await expect(booking).toBeFocused()
+      await expect(booking.getByRole('heading', { name: 'Weekly times and prices', exact: true })).toBeInViewport()
       await page.keyboard.press('Tab')
-      await expect(pricing.getByRole('link', { name: 'Terms of Service', exact: true })).toBeFocused()
+      await expect(booking.getByRole('link', { name: 'Register for recurring classes', exact: true })).toBeFocused()
     }
-
     await page.goBack()
     await expect(page).toHaveURL('/blog/returning-to-gymnastics-as-an-adult')
     await page.goForward()
-    await expect(page).toHaveURL('/adult-gymnastics#adult-class-pricing')
-    const adultPricing = page.locator('#adult-class-pricing')
-    await expect(adultPricing).toHaveAttribute('open', '')
-    await expect(adultPricing.locator('summary')).not.toBeFocused()
-
-    await page.goto('/gymnastics#youth-gymnastics-pricing')
-    const youthPricing = page.locator('#youth-gymnastics-pricing')
-    await expect(youthPricing).toHaveAttribute('open', '')
-    await expect(youthPricing.locator('summary')).toBeInViewport({ ratio: 1 })
-    await expect(youthPricing.locator('summary')).not.toBeFocused()
+    await expect(page.locator('#adult-class-pricing').getByRole('heading', { name: 'Weekly times and prices' })).toBeInViewport()
   })
 
   test('the youth gymnastics page lists published weekly times and keeps class levels distinct', async ({ page }) => {
@@ -850,22 +776,6 @@ test.describe('Client-critical smoke flows', () => {
       return route.fulfill({ json: { success: true, data } })
     })
 
-    await page.goto('/gymnastics#youth-gymnastics-schedule')
-    const schedule = page.getByRole('region', { name: 'Weekly youth gymnastics class schedule' })
-    await expect(schedule.getByRole('heading')).toBeInViewport()
-    await expect(schedule.locator('.np-recurring-schedule summary')).toHaveText(['Tornadoes Beginner', 'Cyclones Intermediate'])
-    const times = schedule.getByText('Tuesday · 4:00 PM – 5:30 PM', { exact: true })
-    await expect(times.first()).toBeHidden()
-    await schedule.getByText('Tornadoes Beginner', { exact: true }).click()
-    await expect(times.first()).toBeVisible()
-    await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeHidden()
-    await schedule.getByText('Cyclones Intermediate', { exact: true }).click()
-    await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeVisible()
-    await expect(schedule.getByText('Hidden placement requirement.')).toHaveCount(0)
-    await expect(schedule.getByRole('link', { name: 'Check dates and availability' }))
-      .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics')
-    expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])
-
     await page.route(/\/api\/signup\/catalog\/classes\/(9|22)\/offerings$/, (route) => {
       expect(route.request().headers().authorization).toBeUndefined()
       const formId = Number(new URL(route.request().url()).pathname.split('/').at(-2))
@@ -890,21 +800,26 @@ test.describe('Client-critical smoke flows', () => {
         { ...youth, programName: 'Fit & Flip', totalCents: 3000 },
       ] } } })
     })
-    await page.getByRole('link', { name: 'Compare youth gymnastics prices' }).click()
-    await expect(page).toHaveURL('/gymnastics#youth-gymnastics-pricing')
+    await page.goto('/gymnastics#youth-gymnastics-pricing')
+    const schedule = page.getByRole('region', { name: 'Weekly youth gymnastics class schedule' })
     const pricing = page.locator('#youth-gymnastics-pricing')
-    await expect(pricing.getByRole('table')).toBeVisible()
-    const tornadoesPricing = pricing.getByRole('row', { name: /Tornadoes/ })
-    await expect(tornadoesPricing.getByRole('cell')).toHaveText(['$150.00–$160.00', '$50.00'])
-    await expect(tornadoesPricing.getByRole('link', { name: 'Tornadoes' }))
+    const classCards = pricing.locator('.np-youth-booking-classes > li')
+    await expect(classCards.getByRole('heading', { level: 4 })).toHaveText(['Tornadoes', 'Cyclones'])
+    await expect(schedule.getByText('Tuesday · 4:00 PM – 5:30 PM', { exact: true })).toHaveCount(2)
+    await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeHidden()
+    await classCards.filter({ hasText: 'Cyclones' }).getByText('Skill requirements', { exact: true }).click()
+    await expect(schedule.getByText('Forward roll, handstand and round-off.')).toBeVisible()
+    await expect(schedule.getByText('Hidden placement requirement.')).toHaveCount(0)
+    expect([...requestedForms].sort((a, b) => a - b)).toEqual([9, 15, 16, 22])
+    const tornadoesPricing = classCards.filter({ hasText: 'Tornadoes' })
+    await expect(tornadoesPricing.locator('dd')).toHaveText(['$150.00–$160.00', '$50.00'])
+    await expect(tornadoesPricing.getByRole('link', { name: 'Register for Tornadoes recurring classes' }))
       .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics&form=9')
-    await expect(pricing.getByRole('row', { name: /Cyclones/ }).getByRole('cell')).toHaveText(['See enrollment', 'Unavailable'])
+    await expect(classCards.filter({ hasText: 'Cyclones' }).locator('dd')).toHaveText(['See registration', 'Unavailable'])
     await expect(pricing.getByRole('link', { name: 'Find a free gymnastics trial' })).toHaveAttribute('href', '/gymnastics#first-visit')
-    await pricing.getByRole('link', { name: 'Review available drop-in dates' }).click()
+    await pricing.getByRole('link', { name: 'Check drop-in dates', exact: true }).click()
     await expect(page).toHaveURL('/drop-in?program=Developmental%20Gymnastics')
     await expect(page.getByRole('heading', { name: 'Youth gymnastics drop-ins.' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Tornadoes' })).toBeVisible()
-    await expect(page.getByRole('heading', { name: /Fit & Flip|Cyclones/ })).toHaveCount(0)
   })
 
   test('Fit & Flip compares current prices by program without using member benefits', async ({ page }) => {
@@ -947,42 +862,34 @@ test.describe('Client-critical smoke flows', () => {
       const request = route.request()
       priceRequests.push({ path: new URL(request.url()).pathname, authorization: request.headers().authorization })
       return route.fulfill({ json: { success: true, data: { sessions: [
-        { programName: program, totalCents: 5000, isFull: false },
-        { programName: program, totalCents: 6000, isFull: false },
-        { programName: program, totalCents: 2000, isFull: true },
-        { programName: program, totalCents: 1000, excludedFromDropIns: true },
+        { classId: 41, programName: program, totalCents: 5000, isFull: false },
+        { classId: 42, programName: program, totalCents: 6000, isFull: false },
+        { classId: 41, programName: program, totalCents: 2000, isFull: true },
+        { classId: 41, programName: program, totalCents: 1000, excludedFromDropIns: true },
         { programName: 'Adult Fitness & Acrobatics', totalCents: 2500, isFull: false },
       ] } } })
     })
 
-    await page.goto('/fit-and-flip', { waitUntil: 'networkidle' })
-    expect(scheduleRequests).toBe(0)
-    const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
-    await schedule.locator('.np-class-pricing').scrollIntoViewIfNeeded()
-    await expect(schedule.locator('.np-recurring-schedule > ul > li')).toContainText(['Cyclones (8–11)', 'Cyclones (12–15)'])
-    expect(scheduleRequests).toBe(1)
-    expect(priceRequests).toEqual([])
-    await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
+    await page.addInitScript(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
     await page.goto('/blog/youth-sports-bowie')
     await page.getByRole('link', { name: 'Compare Fit & Flip prices', exact: true }).click()
     await expect(page).toHaveURL('/fit-and-flip#fit-flip-class-pricing')
     const pricing = page.locator('#fit-flip-class-pricing')
-    await expect(pricing).toHaveAttribute('open', '')
-    await expect(pricing.getByText('$150.00–$160.00 per month', { exact: true })).toBeVisible()
-    await expect(pricing.getByText('$50.00–$60.00 per class', { exact: true })).toBeVisible()
-    await expect(pricing.getByText('$0 on qualifying dates', { exact: true })).toBeVisible()
+    const cards = pricing.locator('.np-youth-booking-classes > li')
+    await expect(cards.getByRole('heading', { level: 4 })).toHaveText(['Cyclones (8–11)', 'Cyclones (12–15)'])
+    await expect(cards.nth(0).locator('dd')).toHaveText(['$150.00', '$50.00'])
+    await expect(cards.nth(1).locator('dd')).toHaveText(['$160.00', '$60.00'])
+    await expect(pricing.locator('.np-class-pricing')).toHaveCount(0)
     await expect(pricing.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
-    await expect(pricing.getByRole('link', { name: 'Review monthly enrollment' })).toHaveAttribute('href', '/enroll?program=Fit%20%26%20Flip')
-    await expect(pricing.getByRole('link', { name: 'Review available drop-in dates' })).toHaveAttribute('href', '/drop-in?program=Fit%20%26%20Flip')
+    for (const [index, formId] of [30,31].entries()) {
+      await expect(cards.nth(index).getByRole('link', { name: /Register for.*recurring classes/ })).toHaveAttribute('href', `/enroll?program=Fit%20%26%20Flip&form=${formId}`)
+    }
+    await expect(pricing.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveAttribute('href', '/drop-in?program=Fit%20%26%20Flip')
     await expect(pricing.getByRole('link', { name: 'Find a free Fit & Flip trial' })).toHaveAttribute('href', '/fit-and-flip#training-fit')
+    expect(scheduleRequests).toBe(1)
     expect(priceRequests.map(({ path }) => path).sort()).toEqual([
       '/api/public/drop-ins', '/api/signup/catalog/classes/41/offerings', '/api/signup/catalog/classes/42/offerings',
     ])
-    await pricing.locator('summary').click()
-    await expect(pricing).not.toHaveAttribute('open', '')
-    await page.getByRole('link', { name: 'Compare monthly and drop-in prices', exact: true }).click()
-    await expect(pricing).toHaveAttribute('open', '')
-    await expect(pricing.getByText('$150.00–$160.00 per month', { exact: true })).toBeVisible()
     expect(priceRequests.every(({ authorization }) => authorization === undefined)).toBe(true)
   })
 

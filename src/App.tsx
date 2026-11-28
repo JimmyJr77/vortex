@@ -1,4 +1,4 @@
-import { Suspense, useState, useEffect, useCallback, useRef, type ComponentType } from 'react'
+import { Suspense, useState, useEffect, useCallback, type ComponentType } from 'react'
 import { lazyWithRetry } from './utils/chunkLoadRecovery'
 import { Routes, Route, useLocation, Navigate, matchPath } from 'react-router-dom'
 import HubSeo from './components/HubSeo'
@@ -129,7 +129,6 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
     return hasAdminSession() ? (localStorage.getItem('vortex_admin_portal') === 'new-admin' ? 'new-admin' : 'admin') : 'website'
   })
   const location = useLocation()
-  const initialLocation = useRef(location)
   const isLeadRegistration = Boolean(matchPath('/signup/lead', location.pathname))
   const isLandingPage = location.pathname === '/' || Boolean(matchPath('/newpage', location.pathname))
   const isPublicRegistrationPage = ['/signup/family', '/signup/invite', '/signup/lead', '/verify-email', '/registration/receipt', '/waivers-memberships'].some(path => Boolean(matchPath(path, location.pathname)))
@@ -412,9 +411,7 @@ function App({ snapshotPage }: { snapshotPage?: PublicSnapshotPage }) {
             } else setIsLoginOpen(true)
           }} />} />
           {Object.values(PUBLIC_PROGRAMS).map(({ path }) => (
-            <Route key={path} path={path} element={<ProgramPage key={path} path={path}
-              initialPricing={path === programSnapshot?.path && location === initialLocation.current
-                ? programSnapshot.openPricing : undefined} />} />
+            <Route key={path} path={path} element={<ProgramPage key={path} path={path} />} />
           ))}
           {Object.entries(publicLandingRedirects).map(([path, destination]) => <Route key={path} path={path} element={<PublicLandingRedirect destination={destination} />} />)}
           <Route path="/copy" element={<CopyPage />} />

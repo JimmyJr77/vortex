@@ -98,22 +98,8 @@ async function loadSnapshotPage(path: string): Promise<PublicSnapshotPage> {
 
 async function mountPublicSnapshot(path: string) {
   try {
-    // The browser can blur an early-focused summary while resolving the initial fragment.
-    const focusedAtStartup = document.activeElement
     // Render the resolved components so React can replace the snapshot in one commit.
     const [{ default: Website }, snapshotPage] = await Promise.all([import('./App.tsx'), loadSnapshotPage(path)])
-    if (snapshotPage.kind === 'program' && window.location.pathname.toLowerCase().replace(/\/+$/, '') === path) {
-      const pricing = root.querySelector<HTMLDetailsElement>('.np-program-page details.np-class-pricing[id][open]')
-      const summary = pricing?.querySelector('summary')
-      if (pricing && summary) {
-        snapshotPage.openPricing = {
-          id: pricing.id,
-          summaryViewportTop: summary.getBoundingClientRect().top,
-          summaryFocused: document.activeElement === summary ||
-            (document.activeElement === document.body && focusedAtStartup === summary),
-        }
-      }
-    }
     flushSync(() => {
       prepareReactMount()
       renderWebsite(<Website snapshotPage={snapshotPage} />)

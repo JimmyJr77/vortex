@@ -5,7 +5,6 @@ import {
   BUSINESS_HOURS, BUSINESS_NAP, GOOGLE_DIRECTIONS_URL, INSIDE_THE_GYM_PATH, PARKING_AND_ACCESSIBILITY_PATH, TEAM_PHONE, TEAM_PHONE_E164,
 } from '../../config/contact'
 import { publicBookingSnapshot, type PublicAdultBooking } from '../../config/publicBookingSnapshot'
-import type { OpenProgramPricingSnapshot } from '../../config/publicPageLoaders'
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
@@ -14,6 +13,8 @@ import { ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP
 import PublicDialog from './PublicDialog'
 import PublicRecurringSchedule from './PublicRecurringSchedule'
 import YouthBookingSummary from './YouthBookingSummary'
+import RecurringRegistrationLink from './RecurringRegistrationLink'
+import RecurringBookingTerms from './RecurringBookingTerms'
 import './PublicProgramPage.css'
 
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
@@ -43,7 +44,7 @@ function formatBookingTime(time: string) {
   return bookingTime.format(new Date(`1970-01-01T${time}:00Z`))
 }
 
-function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
+function AdultBookingSummary({ booking, enrollmentHref }: { booking: PublicAdultBooking; enrollmentHref: string }) {
   const { recurringTimes, monthlyTuitionCents, dropIn, checkedOn } = booking
   const weekly = dropIn && dropIn.firstDate !== dropIn.lastDate
   return (
@@ -67,27 +68,21 @@ function AdultBookingSummary({ booking }: { booking: PublicAdultBooking }) {
             <Link to={ADULT_DROP_IN_HREF} data-analytics-cta="browse_drop_ins" data-analytics-section="adult_booking_summary">Check drop-in dates</Link>.
           </li>
         )}
-        {monthlyTuitionCents !== null && (
-          <li><strong>{formatCents(monthlyTuitionCents)} base tuition per month.</strong> Recurring enrollment requires an active annual membership.</li>
-        )}
+        <li>{monthlyTuitionCents !== null && <><strong>{formatCents(monthlyTuitionCents)} base tuition per month.</strong>{' '}</>}Recurring enrollment requires an active annual membership.</li>
       </ul>
       <p>Catalog checked <BookingDate date={checkedOn} />. Confirm current prices and availability when you book.</p>
+      <RecurringRegistrationLink href={`${enrollmentHref}&form=${booking.formId}`} section="adult_booking_summary" />
+      <RecurringBookingTerms />
     </div>
   )
 }
 
-export default function PublicProgramPage({ path, initialPricing }: {
-  path: PublicProgramPath
-  initialPricing?: OpenProgramPricingSnapshot
-}) {
+export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {
   const program = PUBLIC_PROGRAMS[path]
   const { hash, key } = useLocation()
   const { primaryAction, secondaryAction, recurringSchedule, trial } = program
   const [trialOpen, setTrialOpen] = useState(false)
   const handledTrialLocation = useRef<string | null>(null)
-  const restoredPricing = useRef(false)
-  const scheduleLayoutSettled = useRef(false)
-  const restorePricingVisibility = useRef<(() => void) | null>(null)
   const trialSectionId = trial && (trial.program === 'gymnastics' ? 'first-visit' : 'training-fit')
   const adultBooking = path === '/adult-gymnastics' ? publicBookingSnapshot?.[path] : null
   const youthBooking = path === '/adult-gymnastics' ? null : publicBookingSnapshot?.[path]
@@ -95,64 +90,15 @@ export default function PublicProgramPage({ path, initialPricing }: {
     .find(section => section.trialLabel && hash === `#${sectionTrialAnchor(section.id)}`)
     ?.id.replaceAll('-', '_')
 
-  const handleScheduleLayoutSettled = useCallback(() => {
-    scheduleLayoutSettled.current = true
-    restorePricingVisibility.current?.()
-  }, [])
-
   useEffect(() => {
-    if (!hash && !initialPricing) return
-    let cancelPendingRestore: (() => void) | undefined
+    if (!hash) return
     const frame = requestAnimationFrame(() => {
-      if (initialPricing && !restoredPricing.current) {
-        restoredPricing.current = true
-        const pricing = document.getElementById(initialPricing.id)
-        if (pricing instanceof HTMLDetailsElement) {
-          const summary = pricing.querySelector('summary')
-          if (summary) {
-            pricing.open = true
-            if (initialPricing.summaryFocused) summary.focus({ preventScroll: true })
-            const shift = summary.getBoundingClientRect().top - initialPricing.summaryViewportTop
-            window.scrollBy({ top: shift, behavior: 'instant' })
-
-            if (!scheduleLayoutSettled.current) {
-              const position = window.scrollY
-              const listeners = new AbortController()
-              const cancel = () => {
-                listeners.abort()
-                restorePricingVisibility.current = null
-              }
-              cancelPendingRestore = cancel
-              for (const type of ['pointerdown', 'wheel', 'keydown', 'focusin']) {
-                document.addEventListener(type, cancel, { capture: true, passive: true, signal: listeners.signal })
-              }
-              window.addEventListener('scroll', () => {
-                if (window.scrollY !== position) cancel()
-              }, { passive: true, signal: listeners.signal })
-              restorePricingVisibility.current = () => {
-                cancel()
-                if (!pricing.open || !summary.isConnected || window.scrollY !== position) return
-                const { x, y, width, height } = summary.getBoundingClientRect()
-                const centeredTop = (window.innerHeight - height) / 2
-                const targetTop = Math.min(initialPricing.summaryViewportTop, centeredTop)
-                if (targetTop >= 0 && y > targetTop) {
-                  window.scrollBy({ top: y - targetTop, behavior: 'instant' })
-                } else if (!summary.contains(document.elementFromPoint(x + width / 2, y + height / 2))) {
-                  window.scrollBy({ top: y - centeredTop, behavior: 'instant' })
-                }
-              }
-            }
-            return
-          }
-        }
-      }
-      if (hash) document.getElementById(hash.slice(1))?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      const target = document.getElementById(hash.slice(1))
+      target?.scrollIntoView({ block: 'start', behavior: 'instant' })
+      if (target?.classList.contains('np-program-booking')) target.focus({ preventScroll: true })
     })
-    return () => {
-      cancelAnimationFrame(frame)
-      cancelPendingRestore?.()
-    }
-  }, [hash, initialPricing, key, path])
+    return () => cancelAnimationFrame(frame)
+  }, [hash, key, path])
 
   const openTrial = useCallback((section: string) => {
     if (!trial) return
@@ -307,20 +253,15 @@ export default function PublicProgramPage({ path, initialPricing }: {
           <section className="np-program-section np-program-schedule" id={recurringSchedule.id} aria-labelledby={`${recurringSchedule.id}-heading`}>
             <h2 id={`${recurringSchedule.id}-heading`}>{recurringSchedule.heading}</h2>
             {recurringSchedule.description && <p>{recurringSchedule.description}</p>}
-            {adultBooking && <AdultBookingSummary booking={adultBooking} />}
-            {youthBooking && (
-              <YouthBookingSummary booking={youthBooking} enrollmentHref={primaryAction.href}
-                dropInHref={path === '/gymnastics' ? DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF : FIT_AND_FLIP_DROP_IN_HREF} />
-            )}
-            <PublicRecurringSchedule
-              key={recurringSchedule.programName}
-              programName={recurringSchedule.programName}
-              scheduleId={recurringSchedule.id}
-              onLayoutSettled={initialPricing ? handleScheduleLayoutSettled : undefined}
-            />
-            <Link to={primaryAction.href} className="np-program-plain-link" data-analytics-cta={primaryAction.analyticsKey} data-analytics-section={recurringSchedule.id.replaceAll('-', '_')}>
-              Check dates and availability <ArrowUpRight size={16} aria-hidden="true" />
-            </Link>
+            <div id={recurringSchedule.pricingId} className="np-program-booking" tabIndex={-1}>
+              {adultBooking ? <AdultBookingSummary booking={adultBooking} enrollmentHref={primaryAction.href} /> : youthBooking ? (
+                <YouthBookingSummary booking={youthBooking} enrollmentHref={primaryAction.href}
+                  dropInHref={path === '/gymnastics' ? DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF : FIT_AND_FLIP_DROP_IN_HREF} />
+              ) : (
+                <PublicRecurringSchedule key={recurringSchedule.programName} programName={recurringSchedule.programName}
+                  scheduleId={recurringSchedule.id} />
+              )}
+            </div>
           </section>
         )}
 

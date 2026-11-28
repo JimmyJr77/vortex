@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, ChevronDown } from 'lucide-react'
+import { ArrowUpRight, ChevronDown, Home } from 'lucide-react'
 import { ENROLL_PATH } from '../../config/enrollSites'
 import guideIndex from '../../config/publicGuideIndex.json'
 
 const programNavigation = [
+  { label: 'All programs', key: 'programs', to: '/#programs' },
   { label: 'All classes', key: 'browse_classes', to: ENROLL_PATH },
   { label: 'Youth gymnastics', key: 'explore_gymnastics', to: '/gymnastics' },
   { label: 'Fit & Flip youth training', key: 'explore_fit-flip', to: '/fit-and-flip' },
   { label: 'Adult gymnastics', key: 'explore_adult_gymnastics', to: '/adult-gymnastics' },
-  { label: 'All programs', key: 'programs', to: '/#programs' },
 ]
 
 /** The homepage and public booking pages always use the same navigation. */
@@ -43,7 +43,7 @@ export default function PublicNavigationLinks({ mobile = false, onNavigate }: { 
                 onNavigate?.()
               }}
             >
-              {label}
+              {key === 'programs' ? <span className="inline-flex items-center gap-2"><Home size={16} aria-hidden="true" />{label}</span> : label}
             </Link>
           </li>
         ))}

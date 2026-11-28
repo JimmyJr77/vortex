@@ -96,7 +96,7 @@ test('adult gymnastics, general enrollment, and published form links open the cu
   await expect(page).toHaveURL('/adult-gymnastics#adult-class-schedule')
   await expect(page.getByRole('heading', { name: scheduleHeading, exact: true })).toBeVisible()
   await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
-  await expect(page.getByText('All times Eastern. Check enrollment for dates and availability.')).toBeVisible()
+  await expect(page.getByText('All times Eastern.', { exact: true })).toBeVisible()
   const booking = page.getByRole('link', { name: 'See recurring class times', exact: true })
   await expect(booking).toHaveAttribute('href', adultBookingPath)
   await booking.click()
@@ -174,15 +174,16 @@ test('the adult hero stays in place while recurring times load on mobile', async
   await expect(schedule.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
   const after = await heroImage.evaluate(image => image.getBoundingClientRect().top + window.scrollY)
   expect(Math.abs(before - after)).toBeLessThanOrEqual(1)
-  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', adultBookingPath)
+  await expect(schedule.getByRole('link', { name: /Register for.*recurring classes/ }).first()).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
 })
 
-test('adults can compare live monthly and nonmember drop-in rates on demand', async ({ page }) => {
+test('adults see one set of current prices with a direct recurring registration path', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await mockClasses(page)
+  await page.addInitScript(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
   const pricingRequests: { type: string; authorization?: string }[] = []
   await page.route('**/api/signup/catalog/classes/20/offerings', route => {
-    pricingRequests.push({ type: 'monthly' })
+    pricingRequests.push({ type: 'monthly', authorization: route.request().headers().authorization })
     return route.fulfill({ json: { success: true, data: {
       formId: adultFormId, costUnit: 'per_month', scheduleOptions: [
         { scheduleMode: 'day', slotGroupId: slot.slotGroupId, offeringId: 700, priceCents: 12000 },
@@ -191,62 +192,48 @@ test('adults can compare live monthly and nonmember drop-in rates on demand', as
     } } })
   })
   await page.route('**/api/public/drop-ins', route => {
-    const authorization = route.request().headers().authorization
-    pricingRequests.push({ type: 'drop-in', authorization })
+    pricingRequests.push({ type: 'drop-in', authorization: route.request().headers().authorization })
     return route.fulfill({ json: { success: true, data: { sessions: [
-      { programName: adultProgram, totalCents: authorization ? 3750 : 5000, isFull: false },
-      { programName: adultProgram, totalCents: 2500, isFull: true },
-      { programName: adultProgram, totalCents: 1000, excludedFromDropIns: true },
-      { programName: 'Fit & Flip', totalCents: 2000, isFull: false },
+      { classId: 20, programName: adultProgram, totalCents: 5000, isFull: false },
+      { classId: 20, programName: adultProgram, totalCents: 2500, isFull: true },
+      { classId: 20, programName: adultProgram, totalCents: 1000, excludedFromDropIns: true },
+      { classId: 10, programName: 'Fit & Flip', totalCents: 2000, isFull: false },
     ] } } })
   })
-  await page.goto('/adult-gymnastics')
-  const pricing = page.locator('#adult-class-pricing')
-  await pricing.scrollIntoViewIfNeeded()
-  await expect(page.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toBeVisible()
-  await expect(pricing).not.toHaveAttribute('open', '')
-  expect(pricingRequests).toEqual([])
-  await page.evaluate(() => localStorage.setItem('vortex_member_token', 'test-member-token'))
-  await page.getByRole('link', { name: 'Read the guide to returning as an adult' }).click()
-  await page.getByRole('link', { name: 'Compare monthly enrollment and drop-in prices' }).click()
-  await expect(page).toHaveURL('/adult-gymnastics#adult-class-pricing')
-  await expect(pricing).toHaveAttribute('open', '')
-  await expect(pricing.getByText('Compare adult gymnastics prices', { exact: true })).toBeInViewport()
-  await expect(pricing.getByText('$150.00 per month', { exact: true })).toBeVisible()
-  await expect(pricing.getByText('$50.00 per class', { exact: true })).toBeVisible()
-  await expect(pricing.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
-  await expect(pricing.getByRole('link', { name: 'Review monthly enrollment' })).toHaveAttribute('href', adultBookingPath)
-  await expect(pricing.getByRole('link', { name: 'Review available drop-in dates' })).toHaveAttribute('href', adultDropInPath)
-  expect(pricingRequests).toEqual(expect.arrayContaining([{ type: 'monthly' }, { type: 'drop-in', authorization: undefined }]))
-  await pricing.getByText('Compare adult gymnastics prices', { exact: true }).click()
-  await expect(pricing).not.toHaveAttribute('open', '')
-  await expect(pricing.getByText('$150.00 per month', { exact: true })).toBeHidden()
+  await page.goto('/adult-gymnastics#adult-class-pricing')
+  const booking = page.locator('#adult-class-pricing')
+  await expect(booking.getByRole('heading', { name: 'Weekly times and prices' })).toBeVisible()
+  await expect(booking.getByText('$150.00', { exact: true })).toHaveCount(1)
+  await expect(booking.getByText('$50.00', { exact: true })).toHaveCount(1)
+  await expect(booking.getByText('Monday · 7:00 PM – 8:30 PM', { exact: true })).toHaveCount(1)
+  await expect(booking.locator('.np-class-pricing')).toHaveCount(0)
+  await expect(booking.getByText(/Paid monthly enrollment requires an active annual membership/)).toBeVisible()
+  await expect(booking.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveAttribute('href', adultDropInPath)
+  const registration = booking.getByRole('link', { name: `Register for ${adultName} recurring classes` })
+  await expect(registration).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
+  expect(pricingRequests).toEqual(expect.arrayContaining([{ type: 'monthly', authorization: undefined }, { type: 'drop-in', authorization: undefined }]))
+  await registration.click()
+  await expect(page).toHaveURL(adultBookingPath + '&form=' + adultFormId)
+  await expect(page.getByRole('heading', { name: adultName, exact: true })).toBeVisible()
+  await expect(page.getByRole('button', { name: /Monday.*7:00 PM/ })).toBeVisible()
 })
 
-test('pricing keeps current drop-in rates and booking links when monthly tuition cannot be verified', async ({ page }) => {
-  let releaseCatalog!: () => void
-  const catalogGate = new Promise<void>(resolve => { releaseCatalog = resolve })
-  await mockClasses(page, { catalogGate })
+test('registration remains available when monthly tuition cannot be verified', async ({ page }) => {
+  await mockClasses(page)
   await page.route('**/api/signup/catalog/classes/20/offerings', route => route.fulfill({ json: {
     success: true, data: { formId: adultFormId, costUnit: 'per_class', scheduleOptions: [
       { scheduleMode: 'day', slotGroupId: slot.slotGroupId, offeringId: 701, priceCents: 12000 },
     ] },
   } }))
   await page.route('**/api/public/drop-ins', route => route.fulfill({ json: { success: true, data: { sessions: [
-    { programName: adultProgram, totalCents: 5250, isFull: false },
+    { classId: 20, programName: adultProgram, totalCents: 5250, isFull: false },
   ] } } }))
-  await page.goto('/adult-gymnastics')
-  const pricing = page.locator('#adult-class-pricing')
-  try {
-    await pricing.getByText('Compare adult gymnastics prices', { exact: true }).click()
-    await expect(pricing.getByText('$52.50 per class', { exact: true })).toBeVisible()
-    await expect(pricing.getByText('Checking current tuition…')).toBeVisible()
-  } finally {
-    releaseCatalog()
-  }
-  await expect(pricing.getByText('See current tuition in enrollment.')).toBeVisible()
-  await expect(pricing.getByRole('link', { name: 'Review monthly enrollment' })).toHaveAttribute('href', adultBookingPath)
-  await expect(pricing.getByRole('link', { name: 'Review available drop-in dates' })).toHaveAttribute('href', adultDropInPath)
+  await page.goto('/adult-gymnastics#adult-class-pricing')
+  const booking = page.locator('#adult-class-pricing')
+  await expect(booking.getByText('$52.50', { exact: true })).toBeVisible()
+  await expect(booking.getByText('See registration', { exact: true })).toBeVisible()
+  await expect(booking.getByRole('link', { name: `Register for ${adultName} recurring classes` })).toHaveAttribute('href', adultBookingPath + '&form=' + adultFormId)
+  await expect(booking.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveAttribute('href', adultDropInPath)
 })
 
 for (const [scenario, mockOptions, expectsFormRequest] of [
@@ -258,10 +245,10 @@ for (const [scenario, mockOptions, expectsFormRequest] of [
   test(`the adult landing page keeps the enrollment link for ${scenario}`, async ({ page }) => {
     const formRequests = await mockClasses(page, mockOptions)
     await page.goto('/adult-gymnastics#adult-class-schedule')
-    await expect(page.getByText('Check enrollment for current class times or contact Vortex for help.')).toBeVisible()
+    await expect(page.getByText('Check registration for current class times, prices, and availability.')).toBeVisible()
     const schedule = page.getByRole('region', { name: scheduleHeading, exact: true })
     await expect(schedule.getByRole('list')).toHaveCount(0)
-    await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', adultBookingPath)
+    await expect(schedule.getByRole('link', { name: /Register for.*recurring classes/ }).first()).toHaveAttribute('href', adultBookingPath)
     await expect(page.getByRole('link', { name: 'See recurring class times', exact: true })).toHaveAttribute('href', adultBookingPath)
     expect(formRequests.length > 0).toBe(expectsFormRequest)
     expect(formRequests.every((path) => path === `/api/scheduling/forms/${adultFormId}`)).toBe(true)

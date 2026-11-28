@@ -1,6 +1,7 @@
 export type PublicWeeklyClassTime = { days: string; startTime: string; endTime: string }
 
 export type PublicAdultBooking = {
+  formId: number
   checkedOn: string
   recurringTimes: PublicWeeklyClassTime[]
   monthlyTuitionCents: number | null

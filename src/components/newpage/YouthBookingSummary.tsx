@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom'
 import type { PublicYouthBooking } from '../../config/publicBookingSnapshot'
 import { formatCents } from '../../utils/money'
+import RecurringRegistrationLink from './RecurringRegistrationLink'
+import RecurringBookingTerms from './RecurringBookingTerms'
 
 const calendarDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' })
 const clockTime = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
@@ -53,15 +55,17 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
                 {dropInCapacity != null && ` Up to ${dropInCapacity} athletes total per listed drop-in class.`}
               </p>
             )}
+            <RecurringRegistrationLink href={`${enrollmentHref}&form=${formId}`} className={name} section="youth_booking_summary" />
           </li>
         ))}
       </ul>
       <footer className="np-youth-booking-footer">
         <p>Catalog checked <time dateTime={booking.checkedOn}>{calendarDate.format(new Date(booking.checkedOn))}</time>. Confirm current prices and availability when you book.</p>
-        {booking.classes.some(({ monthlyTuition }) => monthlyTuition !== null) && <p>Paid monthly enrollment requires an active annual membership.</p>}
+        <p>Paid monthly enrollment requires an active annual membership.</p>
         {booking.classes.some(({ dropInExcluded }) => !dropInExcluded) && (
           <Link to={dropInHref} data-analytics-cta="browse_drop_ins" data-analytics-section="youth_booking_summary">Check drop-in dates</Link>
         )}
+        <RecurringBookingTerms />
       </footer>
     </div>
   )

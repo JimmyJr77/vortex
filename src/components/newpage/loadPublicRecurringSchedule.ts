@@ -19,7 +19,7 @@ export type RecurringPriceClass = {
   groups: { id: number; offeringId?: number | null }[]
 }
 
-type RecurringClassTimes = RecurringPriceClass & {
+export type RecurringClassTimes = RecurringPriceClass & {
   skillLevel: string | null
   skillRequirements: string | null
   times: { label: string; isFull: boolean }[]

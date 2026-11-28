@@ -99,7 +99,7 @@ test('shows the current Eastern schedule by age and keeps the enrollment link on
   await expect(cohorts.nth(1)).toContainText(older)
   await expect(cohorts.nth(1)).toContainText('Tuesday · 7:00 PM – 8:30 PM')
   await expect(schedule.getByText(/Thursday|Friday|Unpublished|Typhoons/)).toHaveCount(0)
-  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
+  await expect(schedule.getByRole('link', { name: /^Register for .*recurring classes$/ }).first()).toHaveAttribute('href', bookingPath + '&form=30')
   expect([...new Set(formRequests)].sort()).toEqual([30, 31])
 
   await page.getByRole('navigation', { name: 'Other Vortex programs' }).getByRole('link', { name: 'Youth Gymnastics', exact: true }).click()
@@ -133,7 +133,7 @@ test('marks a recurring time full only when every matching group is confirmed fu
     'Thursday · 6:00 PM – 7:30 PM',
   ])
   await expect(schedule.getByText(/check enrollment for another time or waitlist options/i)).toBeVisible()
-  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
+  await expect(schedule.getByRole('link', { name: /^Register for .*recurring classes$/ }).first()).toHaveAttribute('href', bookingPath + '&form=30')
 })
 
 test('keeps the healthy Fit & Flip group visible when the other form fails', async ({ page }) => {
@@ -144,7 +144,7 @@ test('keeps the healthy Fit & Flip group visible when the other form fails', asy
   const cohorts = schedule.locator('.np-recurring-schedule > ul > li')
   await expect(cohorts).toHaveCount(1)
   await expect(cohorts).toContainText(older)
-  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
+  await expect(schedule.getByRole('link', { name: /^Register for .*recurring classes$/ }).first()).toHaveAttribute('href', bookingPath + '&form=31')
 })
 
 test('keeps filtered enrollment available if weekly times cannot load', async ({ page }) => {
@@ -152,8 +152,8 @@ test('keeps filtered enrollment available if weekly times cannot load', async ({
   await page.goto('/fit-and-flip')
   const schedule = page.getByRole('region', { name: 'Recurring Fit & Flip class times' })
   await schedule.scrollIntoViewIfNeeded()
-  await expect(schedule.getByText('Check enrollment for current class times or contact Vortex for help.')).toBeVisible()
-  await expect(schedule.getByRole('link', { name: 'Check dates and availability' })).toHaveAttribute('href', bookingPath)
+  await expect(schedule.getByText('Check registration for current class times, prices, and availability.')).toBeVisible()
+  await expect(schedule.getByRole('link', { name: /^Register for .*recurring classes$/ }).first()).toHaveAttribute('href', bookingPath)
 })
 
 test('returning from a linked class time keeps the focused catalog on reload and history', async ({ page }) => {

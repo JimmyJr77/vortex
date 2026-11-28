@@ -60,6 +60,7 @@ type PublicProgram = {
   trial?: { program: FreeTrialProgram; label: string }
   recurringSchedule?: {
     id: string
+    pricingId: string
     heading: string
     description?: string
     programName: RecurringBookingProgram
@@ -103,6 +104,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     trial: { program: 'gymnastics', label: GYMNASTICS_TRIAL_LABEL },
     recurringSchedule: {
       id: 'youth-gymnastics-schedule',
+      pricingId: 'youth-gymnastics-pricing',
       heading: 'Weekly youth gymnastics class schedule',
       description: 'Once you know your child’s level, check weekly times and tuition for Dirt Devils (Mommy & Me), Twisters (preschool), Tornadoes, Cyclones, and Vortex A4 Elite. Open a class to see its times and published skill requirements.',
       programName: DEVELOPMENTAL_GYMNASTICS_PROGRAM,
@@ -377,6 +379,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     trial: { program: 'fit-flip', label: FIT_AND_FLIP_TRIAL_LABEL },
     recurringSchedule: {
       id: 'fit-flip-schedule',
+      pricingId: 'fit-flip-class-pricing',
       heading: 'Recurring Fit & Flip class times',
       description: 'Check weekly Cyclones times for ages 8–11 and 12–15. The schedule lists the days offered for each age group. Choose a recurring weekday during enrollment, where you can check spots and start dates.',
       programName: FIT_AND_FLIP_BOOKING_PROGRAM,
@@ -555,6 +558,7 @@ export const PUBLIC_PROGRAMS: Record<PublicProgramPath, PublicProgram> = {
     secondaryAction: { href: ADULT_DROP_IN_HREF, label: 'See Typhoons drop-in dates', analyticsKey: 'browse_drop_ins' },
     recurringSchedule: {
       id: 'adult-class-schedule',
+      pricingId: 'adult-class-pricing',
       heading: 'Recurring adult gymnastics class times',
       programName: ADULT_BOOKING_PROGRAM,
     },

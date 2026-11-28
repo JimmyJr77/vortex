@@ -142,6 +142,48 @@
   border-radius: 6px;
 }
 
+.np-program-booking {
+  scroll-margin-top: calc(var(--site-header-height, 90px) + 18px);
+}
+
+.np-program-booking:focus-visible {
+  outline: 2px solid var(--np-red);
+  outline-offset: 4px;
+}
+
+.np-program-booking .np-booking-register {
+  margin-top: 14px;
+  gap: 8px;
+  color: #fff;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.np-booking-terms {
+  color: var(--np-muted);
+  font-size: 14px;
+}
+
+.np-booking-skill-requirements {
+  margin-block: 6px;
+  font-size: 14px;
+}
+
+.np-booking-skill-requirements summary {
+  cursor: pointer;
+  font-weight: 650;
+}
+
+.np-program-booking .np-recurring-schedule {
+  margin-top: 0;
+}
+
+.np-program-booking .np-recurring-schedule > .np-youth-booking-classes {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  max-width: none;
+  gap: 8px;
+}
+
 .np-youth-booking-summary a {
   display: inline-flex;
   align-items: center;

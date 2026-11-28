@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link, useLocation, useNavigationType } from 'react-router-dom'
-import { CONTACT_INQUIRY_PATH } from '../../config/contact'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { getApiUrl } from '../../utils/api'
 import { formatCents } from '../../utils/money'
 import {
@@ -9,24 +8,24 @@ import {
   FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
   getScopedDropInProgram, type RecurringBookingProgram,
 } from '../../utils/publicBookingPrograms'
-import type { RecurringPriceClass } from './loadPublicRecurringSchedule'
+import type { RecurringClassTimes, RecurringPriceClass } from './loadPublicRecurringSchedule'
+import { formatSkillLevel } from '../../utils/classDisplayUtils'
+import RecurringRegistrationLink from './RecurringRegistrationLink'
+import RecurringBookingTerms from './RecurringBookingTerms'
 
 const PRICING_DETAILS = {
   [DEVELOPMENTAL_GYMNASTICS_PROGRAM]: {
-    id: 'youth-gymnastics-pricing', label: 'Compare youth gymnastics prices',
-    comparisonKey: 'compare_youth_gymnastics_prices', scheduleSection: 'youth_gymnastics_schedule',
+    id: 'youth-gymnastics-pricing',
     bookingHref: DEVELOPMENTAL_GYMNASTICS_HREF, dropInHref: DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF,
     trial: { href: '/gymnastics#first-visit', label: 'Find a free gymnastics trial' },
   },
   [ADULT_BOOKING_PROGRAM]: {
-    id: 'adult-class-pricing', label: 'Compare adult gymnastics prices',
-    comparisonKey: 'compare_adult_class_prices', scheduleSection: 'adult_class_schedule',
+    id: 'adult-class-pricing',
     bookingHref: ADULT_BOOKING_HREF, dropInHref: ADULT_DROP_IN_HREF,
     trial: null,
   },
   [FIT_AND_FLIP_BOOKING_PROGRAM]: {
-    id: 'fit-flip-class-pricing', label: 'Compare Fit & Flip prices',
-    comparisonKey: 'compare_fit_flip_class_prices', scheduleSection: 'fit_flip_schedule',
+    id: 'fit-flip-class-pricing',
     bookingHref: FIT_AND_FLIP_BOOKING_HREF, dropInHref: FIT_AND_FLIP_DROP_IN_HREF,
     trial: { href: '/fit-and-flip#training-fit', label: 'Find a free Fit & Flip trial' },
   },
@@ -84,113 +83,61 @@ function describePrices(prices: number[], unit: string, fallback: string) {
   return unit ? `${amount} ${unit}` : amount
 }
 
-export default function PublicClassPricing({ program, classes, usesClassTuition, onOpen }: {
+export default function PublicClassPricing({ program, classes, usesClassTuition, loading }: {
   program: RecurringBookingProgram
-  classes: readonly RecurringPriceClass[] | null
+  classes: readonly RecurringClassTimes[] | null
   usesClassTuition: boolean
-  onOpen: () => void
+  loading: boolean
 }) {
-  const { id, label, comparisonKey, scheduleSection, bookingHref, dropInHref, trial } = PRICING_DETAILS[program]
-  const { hash, key } = useLocation()
-  const navigationType = useNavigationType()
-  const detailsRef = useRef<HTMLDetailsElement>(null)
-  const isYouthGymnastics = program === DEVELOPMENTAL_GYMNASTICS_PROGRAM
+  const { id, bookingHref, dropInHref, trial } = PRICING_DETAILS[program]
   const analyticsSection = id.replaceAll('-', '_')
-  const [requested, setRequested] = useState(false)
   const [monthly, setMonthly] = useState<number[][] | null>(null)
   const [dropIn, setDropIn] = useState<Awaited<ReturnType<typeof fetchDropInPrices>> | null>(null)
-  const uniformClassTuition = monthly?.every(prices => prices.length > 0 && prices.every(price => price === prices[0]))
-    ? monthly.map(prices => prices[0]) : []
 
   useEffect(() => {
-    const details = detailsRef.current
-    if (hash !== `#${id}` || !details) return
-
-    details.open = true
-    if (navigationType === 'PUSH') details.querySelector('summary')?.focus({ preventScroll: true })
-  }, [hash, id, key, navigationType])
-
-  useEffect(() => {
-    if (requested && classes !== null && usesClassTuition) {
+    if (classes?.length && usesClassTuition) {
       return requestPrices(signal => fetchMonthlyPrices(classes, signal), setMonthly)
     }
-  }, [classes, requested, usesClassTuition])
+  }, [classes, usesClassTuition])
 
   useEffect(() => {
-    if (requested) return requestPrices(signal => fetchDropInPrices(program, signal), setDropIn)
-  }, [program, requested])
+    if (classes?.length) return requestPrices(signal => fetchDropInPrices(program, signal), setDropIn)
+  }, [classes, program])
 
-  return (
-    <details className={`np-class-pricing${isYouthGymnastics ? ' np-youth-gymnastics-pricing' : ''}`} id={id} ref={detailsRef} onToggle={event => {
-      if (event.currentTarget.open) {
-        onOpen()
-        setRequested(true)
-      }
-    }}>
-      <summary data-analytics-cta={comparisonKey} data-analytics-section={scheduleSection}>
-        {label}
-      </summary>
-      {isYouthGymnastics && (
-        <p>Compare base tuition for a weekly class and the nonmember price for a single visit. Check the right level for your child before choosing a time.</p>
-      )}
-      <p>Paid monthly enrollment requires an active annual membership. Membership is optional for drop-ins and eligible free trials. Review fees, first-month adjustments, and any benefits during booking.</p>
-      <p>
-        To request cancellation of a recurring class, open <strong>Classes</strong> in your Vortex account.
-        Under <strong>Enrollments</strong>, choose <strong>Manage enrollment</strong> for the class, then{' '}
-        <strong>Request cancellation</strong>. Your enrollment and billing stay active while Billing reviews
-        the request. See the <Link to="/terms-of-service" className="underline">Terms of Service</Link> or{' '}
-        <Link to={CONTACT_INQUIRY_PATH} className="underline">contact Vortex with questions</Link>.
-      </p>
-      {isYouthGymnastics && requested && (
-        <div aria-live="polite" data-prerender-dynamic="">
-          {classes === null ? <p>Checking current class prices…</p> : classes.length ? (
-            <table>
-              <thead>
-                <tr><th scope="col">Class</th><th scope="col">Base monthly tuition</th><th scope="col">Nonmember drop-in</th></tr>
-              </thead>
-              <tbody>
-                {classes.map(({ classId, name, formId, excludeFromDropIns }, index) => (
-                  <tr key={formId}>
-                    <th scope="row">
-                      <Link to={`${bookingHref}&form=${formId}`} data-analytics-cta="browse_classes" data-analytics-section={analyticsSection}>{name}</Link>
-                    </th>
-                    <td>{usesClassTuition && monthly === null ? 'Checking…' : describePrices(monthly?.[index] ?? [], '', 'See enrollment')}</td>
-                    <td>{excludeFromDropIns ? 'Unavailable' : dropIn === null ? 'Checking…' : describePrices(
-                      dropIn.filter(session => session.classId === classId).map(session => session.totalCents), '', 'Check dates',
-                    )}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : <p>Check enrollment or available drop-in dates for current prices.</p>}
-        </div>
-      )}
-      {!isYouthGymnastics && requested && (
-        <dl aria-live="polite" data-prerender-dynamic="">
-          <div>
-            <dt>Listed base tuition</dt>
-            <dd>{monthly ? describePrices(uniformClassTuition, 'per month', 'See current tuition in enrollment.') : 'Checking current tuition…'}</dd>
-          </div>
-          <div>
-            <dt>Nonmember drop-in</dt>
-            <dd>{dropIn ? describePrices(dropIn.map(session => session.totalCents), 'per class', 'See prices for available dates.') : 'Checking current drop-in prices…'}</dd>
-          </div>
-          {program === FIT_AND_FLIP_BOOKING_PROGRAM && (
-            <div>
-              <dt>Eligible first trial</dt>
-              <dd>$0 on qualifying dates</dd>
-            </div>
-          )}
-        </dl>
-      )}
-      {isYouthGymnastics && <p>Eligible athletes can book one free trial. The trial finder uses age and gymnastics experience to show the right option.</p>}
+  return <div className="np-youth-booking-summary">
+    <header className="np-youth-booking-header">
+      <h3>Weekly times and prices</h3>
+      <p>All times Eastern.</p>
+    </header>
+    <div className="np-recurring-schedule" data-prerender-dynamic="" aria-live="polite">
+      {classes?.length ? <ul className="np-youth-booking-classes">
+        {classes.map(({ classId, formId, name, times, skillLevel, skillRequirements, excludeFromDropIns }, index) => {
+          const enrollmentHref = `${bookingHref}&form=${formId}`
+          return <li key={formId}>
+            <h4><Link to={enrollmentHref} data-analytics-cta="browse_classes" data-analytics-section={analyticsSection}>{name}</Link></h4>
+            {skillLevel && <p className="text-sm">{formatSkillLevel(skillLevel)}</p>}
+            {skillRequirements && <details className="np-booking-skill-requirements"><summary>Skill requirements</summary><p>{skillRequirements}</p></details>}
+            <ul className="np-youth-booking-times">
+              {times.map(({ label, isFull }) => <li key={label}><span>{label}{isFull && <strong className="text-amber-800"> · Full</strong>}</span></li>)}
+            </ul>
+            <dl className="np-youth-booking-prices">
+              <dt>Base monthly tuition</dt><dd>{!usesClassTuition ? 'See registration' : monthly === null ? 'Checking…' : describePrices(monthly[index] ?? [], '', 'See registration')}</dd>
+              <dt>Nonmember drop-in</dt><dd>{excludeFromDropIns ? 'Unavailable' : dropIn === null ? 'Checking…' : describePrices(dropIn.filter(session => session.classId === classId).map(session => session.totalCents), '', 'Check dates')}</dd>
+            </dl>
+            <RecurringRegistrationLink href={enrollmentHref} className={name} section={analyticsSection} />
+          </li>
+        })}
+      </ul> : <p>{loading ? 'Checking recurring class times…' : 'Check registration for current class times, prices, and availability.'}</p>}
+    </div>
+    <footer className="np-youth-booking-footer">
+      {classes?.some(({ times }) => times.some(({ isFull }) => isFull)) && <p>If a time is full, check enrollment for another time or waitlist options.</p>}
+      <p>Paid monthly enrollment requires an active annual membership. Membership is optional for drop-ins and eligible free trials. Confirm current prices and availability when you register.</p>
+      {!classes?.length && <RecurringRegistrationLink href={bookingHref} section={analyticsSection} />}
       <div className="np-program-page-actions">
-        <Link to={bookingHref} className="np-program-plain-link" data-analytics-cta="browse_classes" data-analytics-section={analyticsSection}>Review monthly enrollment</Link>
-        <Link to={dropInHref} className="np-program-plain-link" data-analytics-cta="browse_drop_ins" data-analytics-section={analyticsSection}>Review available drop-in dates</Link>
-        {trial && (
-          <Link to={trial.href} className="np-program-plain-link" data-analytics-cta="free_trial_section" data-analytics-section={analyticsSection}>{trial.label}</Link>
-        )}
+        <Link to={dropInHref} data-analytics-cta="browse_drop_ins" data-analytics-section={analyticsSection}>Check drop-in dates</Link>
+        {trial && <Link to={trial.href} data-analytics-cta="free_trial_section" data-analytics-section={analyticsSection}>{trial.label}</Link>}
       </div>
-    </details>
-  )
+      <RecurringBookingTerms />
+    </footer>
+  </div>
 }
