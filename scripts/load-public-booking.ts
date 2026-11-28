@@ -117,7 +117,8 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     currentOptions.some(option => option.priceCents === flat)
     ? flat : null
 
-  const sessions = publishedDropInDatesForClass(dropIns, program.id, adultClass, checkedOn)
+  const dropInExcluded = (adultClass.excludeFromDropIns ?? program.excludeFromDropIns) === true
+  const sessions = (dropInExcluded ? [] : publishedDropInDatesForClass(dropIns, program.id, adultClass, checkedOn))
     .filter(session => session.isFull === false)
     .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime))
 
@@ -138,7 +139,7 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     maxParticipants: consistentCapacity(sessions),
   } : null
 
-  return recurringTimes.length || monthlyTuitionCents || dropIn ? { formId: adultClass.formId, checkedOn, recurringTimes, monthlyTuitionCents, dropIn } : null
+  return recurringTimes.length || monthlyTuitionCents || dropIn ? { formId: adultClass.formId, checkedOn, recurringTimes, monthlyTuitionCents, dropIn, dropInExcluded } : null
 }
 
 function priceRange(values: unknown[]): [number, number] | null {

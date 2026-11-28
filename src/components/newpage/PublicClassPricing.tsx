@@ -6,7 +6,7 @@ import {
   ADULT_BOOKING_HREF, ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF,
   DEVELOPMENTAL_GYMNASTICS_HREF, DEVELOPMENTAL_GYMNASTICS_PROGRAM, DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF,
   FIT_AND_FLIP_BOOKING_HREF, FIT_AND_FLIP_BOOKING_PROGRAM, FIT_AND_FLIP_DROP_IN_HREF,
-  getScopedDropInProgram, isYouthGymnasticsDropInClass, type RecurringBookingProgram,
+  getScopedDropInProgram, type RecurringBookingProgram,
 } from '../../utils/publicBookingPrograms'
 import type { RecurringClassTimes, RecurringPriceClass } from './loadPublicRecurringSchedule'
 import { formatSkillLevel } from '../../utils/classDisplayUtils'
@@ -91,7 +91,7 @@ export default function PublicClassPricing({ program, classes, usesClassTuition,
 }) {
   const { id, bookingHref, dropInHref, trial } = PRICING_DETAILS[program]
   const analyticsSection = id.replaceAll('-', '_')
-  const dropInButtonHref = program === DEVELOPMENTAL_GYMNASTICS_PROGRAM ? undefined : dropInHref
+  const hasDropInClasses = classes?.some(({ excludeFromDropIns }) => !excludeFromDropIns) === true
   const [monthly, setMonthly] = useState<number[][] | null>(null)
   const [dropIn, setDropIn] = useState<Awaited<ReturnType<typeof fetchDropInPrices>> | null>(null)
 
@@ -114,7 +114,7 @@ export default function PublicClassPricing({ program, classes, usesClassTuition,
       {classes?.length ? <ul className="np-youth-booking-classes">
         {classes.map(({ classId, formId, name, times, skillLevel, skillRequirements, excludeFromDropIns }, index) => {
           const enrollmentHref = `${bookingHref}&form=${formId}`
-          const dropInExcluded = excludeFromDropIns || (program === DEVELOPMENTAL_GYMNASTICS_PROGRAM && !isYouthGymnasticsDropInClass(name))
+          const dropInExcluded = excludeFromDropIns === true
           return <li key={formId}>
             <h4><Link to={enrollmentHref} data-analytics-cta="browse_classes" data-analytics-section={analyticsSection}>{name}</Link></h4>
             {skillLevel && <p className="text-sm">{formatSkillLevel(skillLevel)}</p>}
@@ -134,9 +134,9 @@ export default function PublicClassPricing({ program, classes, usesClassTuition,
     <footer className="np-youth-booking-footer">
       {classes?.some(({ times }) => times.some(({ isFull }) => isFull)) && <p>If a time is full, check enrollment for another time or waitlist options.</p>}
       <p>Paid monthly enrollment requires an active annual membership. Membership is optional for drop-ins and eligible free trials. Confirm current prices and availability when you register.</p>
-      {!classes?.length && <RecurringRegistrationLink href={bookingHref} section={analyticsSection} dropInHref={dropInButtonHref} />}
+      {!classes?.length && <RecurringRegistrationLink href={bookingHref} section={analyticsSection} />}
       <div className="np-program-page-actions">
-        <Link to={dropInHref} data-analytics-cta="browse_drop_ins" data-analytics-section={analyticsSection}>Check drop-in dates</Link>
+        {hasDropInClasses && <Link to={dropInHref} data-analytics-cta="browse_drop_ins" data-analytics-section={analyticsSection}>Check drop-in dates</Link>}
         {trial && <Link to={trial.href} data-analytics-cta="free_trial_section" data-analytics-section={analyticsSection}>{trial.label}</Link>}
       </div>
       <RecurringBookingTerms />

@@ -712,16 +712,56 @@ test.describe('Client-critical smoke flows', () => {
         await expect(booking.getByText('Monday · 6:00 PM – 7:00 PM', { exact: true })).toHaveCount(2)
         await expect(booking.locator('.np-class-pricing')).toHaveCount(0)
         await expect(booking.getByRole('link', { name: 'Enroll now — First published class' })).toHaveAttribute('href', `/enroll?program=${encodeURIComponent(program)}&form=20`)
-        if (path !== '/gymnastics') {
-          const dropIns = booking.getByRole('link', { name: 'Non-Member drop-in', exact: true })
-          await expect(dropIns).toHaveCount(2)
-          for (const link of await dropIns.all()) {
-            await expect(link).toHaveAttribute('href', `/drop-in?program=${encodeURIComponent(program)}`)
-          }
+        const dropIns = booking.getByRole('link', { name: 'Non-member drop-in', exact: true })
+        await expect(dropIns).toHaveCount(2)
+        for (const link of await dropIns.all()) {
+          await expect(link).toHaveAttribute('href', `/drop-in?program=${encodeURIComponent(program)}`)
         }
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
       } finally { releaseCatalog(); await context.close() }
     }
+  })
+
+  test('published gymnastics schedules refresh drop-in eligibility from the catalog', async ({ page }) => {
+    const names = ['Twisters (Preschool)', 'New gymnastics class', 'Cyclones']
+    const snapshot = {
+      '/gymnastics': { checkedOn: '2026-11-27', classes: names.map((name, index) => ({
+        formId: index + 1, name, times: [{ days: 'Tuesday', startTime: '17:30', endTime: '18:30' }],
+        monthlyTuition: [10000, 10000], dropIn: null, dropInDays: [], dropInCapacity: null,
+        dropInExcluded: index !== 1,
+      })) },
+      '/fit-and-flip': null,
+      '/adult-gymnastics': null,
+    }
+    let allowsDropIns = true
+    await page.route('**/src/config/publicBookingSnapshot.ts*', route => route.fulfill({
+      contentType: 'application/javascript', body: `export const publicBookingSnapshot = ${JSON.stringify(snapshot)}`,
+    }))
+    await page.route('**/api/public/classes-offered', route => route.fulfill({ json: { success: true, data: { programs: [{
+      id: 2, displayName: 'Development Gymnastics', excludeFromDropIns: true,
+      classes: names.map((displayName, index) => ({
+        id: index + 1, formId: index + 1, displayName, enrollVisible: true,
+        excludeFromDropIns: !allowsDropIns || index === 2,
+      })),
+    }] } } }))
+
+    await page.goto('/gymnastics#youth-gymnastics-pricing')
+    const summary = page.locator('#youth-booking-summary')
+    const cards = summary.locator('.np-youth-booking-classes > li')
+    for (const name of names.slice(0, 2)) {
+      const card = cards.filter({ has: page.getByRole('heading', { name, exact: true }) })
+      await expect(card.getByRole('link', { name: 'Non-member drop-in', exact: true }))
+        .toHaveAttribute('href', '/drop-in?program=Developmental%20Gymnastics')
+      await expect(card.getByText('Unavailable', { exact: true })).toHaveCount(0)
+    }
+    await expect(cards.last().getByRole('link', { name: 'Non-member drop-in', exact: true })).toHaveCount(0)
+    await expect(summary.getByText('Listed drop-ins include dates', { exact: false })).toHaveCount(0)
+
+    allowsDropIns = false
+    await page.reload()
+    await expect(summary.getByRole('link', { name: 'Non-member drop-in', exact: true })).toHaveCount(0)
+    await expect(summary.getByRole('link', { name: 'Check drop-in dates', exact: true })).toHaveCount(0)
+    await expect(cards.getByText('Unavailable', { exact: true })).toHaveCount(3)
   })
 
   test('keyboard pricing links focus the single booking box', async ({ page }) => {
@@ -757,7 +797,7 @@ test.describe('Client-critical smoke flows', () => {
       enrollmentClass(10, 'Dirt Devils (Mommy & Me)', 'EARLY_STAGE'),
       enrollmentClass(11, 'Twisters (Preschool)', 'EARLY_STAGE'),
       enrollmentClass(9, 'Tornadoes', 'BEGINNER'),
-      enrollmentClass(23, 'Vortex A4 Elite', 'ADVANCED'),
+      { ...enrollmentClass(23, 'Vortex A4 Elite', 'ADVANCED'), excludeFromDropIns: true },
       { ...enrollmentClass(22, 'Cyclones', 'INTERMEDIATE'), skillRequirements: 'Forward roll, handstand and round-off.', excludeFromDropIns: true },
       { ...enrollmentClass(14, 'Hidden class', 'ADVANCED', false), skillRequirements: 'Hidden placement requirement.' },
       enrollmentClass(15, 'Expired class', 'ADVANCED'),
@@ -827,11 +867,11 @@ test.describe('Client-critical smoke flows', () => {
       .toHaveAttribute('href', '/enroll?program=Developmental%20Gymnastics&form=9')
     await expect(classCards.filter({ hasText: 'Cyclones' }).locator('dd')).toHaveText(['See registration', 'Unavailable'])
     for (const name of ['Dirt Devils (Mommy & Me)', 'Twisters (Preschool)', 'Tornadoes']) {
-      await expect(classCards.filter({ has: page.getByRole('heading', { name, exact: true }) }).getByRole('link', { name: 'Non-Member drop-in', exact: true }))
+      await expect(classCards.filter({ has: page.getByRole('heading', { name, exact: true }) }).getByRole('link', { name: 'Non-member drop-in', exact: true }))
         .toHaveAttribute('href', '/drop-in?program=Developmental%20Gymnastics')
     }
     for (const name of ['Cyclones', 'Vortex A4 Elite']) {
-      await expect(classCards.filter({ has: page.getByRole('heading', { name, exact: true }) }).getByRole('link', { name: 'Non-Member drop-in', exact: true })).toHaveCount(0)
+      await expect(classCards.filter({ has: page.getByRole('heading', { name, exact: true }) }).getByRole('link', { name: 'Non-member drop-in', exact: true })).toHaveCount(0)
     }
     for (const width of [390, 1280]) {
       await page.setViewportSize({ width, height: 900 })
@@ -839,6 +879,12 @@ test.describe('Client-critical smoke flows', () => {
         const heights = await classCards.evaluateAll(cards => cards.map(card => card.getBoundingClientRect().height))
         return Math.max(...heights) - Math.min(...heights)
       }).toBeLessThanOrEqual(1)
+      if (width === 1280) {
+        const positions = await classCards.evaluateAll(cards => cards.map(card => card.getBoundingClientRect().top))
+        expect(positions[1]).toBe(positions[0])
+        expect(positions[2]).toBe(positions[0])
+        expect(positions[3]).toBeGreaterThan(positions[0])
+      }
     }
 
     await expect(pricing.getByRole('link', { name: 'Find a free gymnastics trial' })).toHaveAttribute('href', '/gymnastics#first-visit')

@@ -9,12 +9,13 @@ import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicProg
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
 import { formatCents } from '../../utils/money'
-import { ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
+import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import PublicDialog from './PublicDialog'
 import PublicRecurringSchedule from './PublicRecurringSchedule'
 import YouthBookingSummary from './YouthBookingSummary'
 import RecurringRegistrationLink from './RecurringRegistrationLink'
 import RecurringBookingTerms from './RecurringBookingTerms'
+import usePublicDropInEligibility from './usePublicDropInEligibility'
 import './PublicProgramPage.css'
 
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
@@ -45,7 +46,10 @@ function formatBookingTime(time: string) {
 }
 
 function AdultBookingSummary({ booking, enrollmentHref }: { booking: PublicAdultBooking; enrollmentHref: string }) {
-  const { recurringTimes, monthlyTuitionCents, dropIn, checkedOn } = booking
+  const { recurringTimes, monthlyTuitionCents, checkedOn } = booking
+  const eligibility = usePublicDropInEligibility(ADULT_BOOKING_PROGRAM)
+  const dropInExcluded = eligibility ? eligibility.get(booking.formId) ?? true : booking.dropInExcluded
+  const dropIn = dropInExcluded ? null : booking.dropIn
   const weekly = dropIn && dropIn.firstDate !== dropIn.lastDate
   return (
     <div id="adult-booking-summary" className="np-adult-booking-summary">
@@ -69,9 +73,10 @@ function AdultBookingSummary({ booking, enrollmentHref }: { booking: PublicAdult
           </li>
         )}
         <li>{monthlyTuitionCents !== null && <><strong>{formatCents(monthlyTuitionCents)} base tuition per month.</strong>{' '}</>}Recurring enrollment requires an active annual membership.</li>
+        {dropInExcluded && <li>Nonmember drop-ins are unavailable for this class.</li>}
       </ul>
       <p>Catalog checked <BookingDate date={checkedOn} />. Confirm current prices and availability when you book.</p>
-      <RecurringRegistrationLink href={`${enrollmentHref}&form=${booking.formId}`} section="adult_booking_summary" dropInHref={ADULT_DROP_IN_HREF} />
+      <RecurringRegistrationLink href={`${enrollmentHref}&form=${booking.formId}`} section="adult_booking_summary" dropInHref={dropInExcluded ? undefined : ADULT_DROP_IN_HREF} />
       <RecurringBookingTerms />
     </div>
   )

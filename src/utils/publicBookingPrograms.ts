@@ -25,11 +25,6 @@ export type RecurringBookingProgram = typeof ADULT_BOOKING_PROGRAM | typeof FIT_
 
 const normalize = (name: string) => name.toLowerCase().replace(/&/g, 'and').replace(/[^a-z0-9]/g, '')
 
-export function isYouthGymnasticsDropInClass(name: string) {
-  const normalized = normalize(name)
-  return ['dirtdevils', 'mommyandme', 'twisters', 'preschool', 'tornadoes'].some(label => normalized.includes(label))
-}
-
 const normalizedAdultBookingProgram = normalize(ADULT_BOOKING_PROGRAM)
 const fitAndFlipSearchCopy = Object.values(FIT_AND_FLIP_PUBLIC_COPY).join(' ')
 const fitAndFlipSearchAliases = new Set([

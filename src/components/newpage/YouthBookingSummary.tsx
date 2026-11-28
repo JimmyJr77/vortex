@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom'
 import type { PublicYouthBooking } from '../../config/publicBookingSnapshot'
 import { formatCents } from '../../utils/money'
-import { isYouthGymnasticsDropInClass } from '../../utils/publicBookingPrograms'
+import { DEVELOPMENTAL_GYMNASTICS_PROGRAM, FIT_AND_FLIP_BOOKING_PROGRAM } from '../../utils/publicBookingPrograms'
 import RecurringRegistrationLink from './RecurringRegistrationLink'
 import RecurringBookingTerms from './RecurringBookingTerms'
+import usePublicDropInEligibility from './usePublicDropInEligibility'
 
 const calendarDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' })
 const clockTime = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
@@ -23,7 +24,11 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
   dropInHref: string
   isYouthGymnastics?: boolean
 }) {
-  const acceptsDropIns = (name: string, excluded: boolean) => !excluded && (!isYouthGymnastics || isYouthGymnasticsDropInClass(name))
+  const eligibility = usePublicDropInEligibility(isYouthGymnastics ? DEVELOPMENTAL_GYMNASTICS_PROGRAM : FIT_AND_FLIP_BOOKING_PROGRAM)
+  const classes = booking.classes.map(classItem => ({
+    ...classItem,
+    dropInExcluded: eligibility ? eligibility.get(classItem.formId) ?? true : classItem.dropInExcluded,
+  }))
   return (
     <div id="youth-booking-summary" className="np-youth-booking-summary" role="region" aria-labelledby="youth-booking-summary-heading">
       <header className="np-youth-booking-header">
@@ -31,45 +36,38 @@ export default function YouthBookingSummary({ booking, enrollmentHref, dropInHre
         <p>All times Eastern.</p>
       </header>
       <ul className="np-youth-booking-classes">
-        {booking.classes.map(({ formId, name, times, monthlyTuition, dropIn, dropInDays, dropInCapacity, dropInExcluded: excluded }) => {
-          const dropInExcluded = !acceptsDropIns(name, excluded)
-          return (
-            <li key={formId}>
-              <h4>
-                <Link to={`${enrollmentHref}&form=${formId}`} data-analytics-cta="browse_classes" data-analytics-section="youth_booking_summary">{name}</Link>
-              </h4>
-              <ul className="np-youth-booking-times">
-                {times.map(({ days, startTime, endTime }) => (
-                  <li key={`${startTime}-${endTime}`}>
-                    <span>{days}</span>
-                    <span><time dateTime={startTime}>{formatTime(startTime)}</time>–<time dateTime={endTime}>{formatTime(endTime)}</time></span>
-                  </li>
-                ))}
-              </ul>
-              {(monthlyTuition || dropIn || dropInExcluded) && (
-                <dl className="np-youth-booking-prices">
-                  {monthlyTuition && <><dt>Base monthly tuition</dt><dd>{formatPrice(monthlyTuition)}</dd></>}
-                  {(dropInExcluded || dropIn) && (
-                    <><dt>Nonmember drop-in</dt><dd>{dropInExcluded ? 'Unavailable' : dropIn && formatPrice(dropIn)}</dd></>
-                  )}
-                </dl>
-              )}
-              {!isYouthGymnastics && dropInDays.length > 0 && (
-                <p className="mt-2 text-sm text-gray-600">
-                  Listed drop-ins include dates on {dayList.format(dropInDays)}.
-                  {dropInCapacity != null && ` Up to ${dropInCapacity} athletes total per listed drop-in class.`}
-                </p>
-              )}
-              <RecurringRegistrationLink href={`${enrollmentHref}&form=${formId}`} className={name} section="youth_booking_summary"
-                dropInHref={dropInExcluded ? undefined : dropInHref} />
-            </li>
-          )
-        })}
+        {classes.map(({ formId, name, times, monthlyTuition, dropIn, dropInDays, dropInCapacity, dropInExcluded }) => (
+          <li key={formId}>
+            <h4>
+              <Link to={`${enrollmentHref}&form=${formId}`} data-analytics-cta="browse_classes" data-analytics-section="youth_booking_summary">{name}</Link>
+            </h4>
+            <ul className="np-youth-booking-times">
+              {times.map(({ days, startTime, endTime }) => (
+                <li key={`${startTime}-${endTime}`}>
+                  <span>{days}</span>
+                  <span><time dateTime={startTime}>{formatTime(startTime)}</time>–<time dateTime={endTime}>{formatTime(endTime)}</time></span>
+                </li>
+              ))}
+            </ul>
+            <dl className="np-youth-booking-prices">
+              {monthlyTuition && <><dt>Base monthly tuition</dt><dd>{formatPrice(monthlyTuition)}</dd></>}
+              <dt>Nonmember drop-in</dt><dd>{dropInExcluded ? 'Unavailable' : dropIn ? formatPrice(dropIn) : 'Check dates'}</dd>
+            </dl>
+            {!isYouthGymnastics && dropInDays.length > 0 && (
+              <p className="mt-2 text-sm text-gray-600">
+                Listed drop-ins include dates on {dayList.format(dropInDays)}.
+                {dropInCapacity != null && ` Up to ${dropInCapacity} athletes total per listed drop-in class.`}
+              </p>
+            )}
+            <RecurringRegistrationLink href={`${enrollmentHref}&form=${formId}`} className={name} section="youth_booking_summary"
+              dropInHref={dropInExcluded ? undefined : dropInHref} />
+          </li>
+        ))}
       </ul>
       <footer className="np-youth-booking-footer">
         <p>Catalog checked <time dateTime={booking.checkedOn}>{calendarDate.format(new Date(booking.checkedOn))}</time>. Confirm current prices and availability when you book.</p>
         <p>Paid monthly enrollment requires an active annual membership.</p>
-        {booking.classes.some(({ name, dropInExcluded }) => acceptsDropIns(name, dropInExcluded)) && (
+        {classes.some(({ dropInExcluded }) => !dropInExcluded) && (
           <Link to={dropInHref} data-analytics-cta="browse_drop_ins" data-analytics-section="youth_booking_summary">Check drop-in dates</Link>
         )}
         <RecurringBookingTerms />

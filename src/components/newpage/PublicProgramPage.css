@@ -507,6 +507,12 @@
   padding-block: 18px;
 }
 
+@media (min-width: 1024px) {
+  #youth-gymnastics-schedule .np-youth-booking-classes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 760px) {
   .np-program-hero-layout {
     grid-template-columns: minmax(0, 1fr);

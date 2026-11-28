@@ -224,6 +224,13 @@ const isCalendarDate = (value) => {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value
 }
 
+function scheduleExcludesAllDropIns(schedule) {
+  if (/Nonmember drop-ins are unavailable for this class\./.test(schedule)) return true
+  const classCount = tags(schedule, 'h4').length
+  const excludedCount = [...schedule.matchAll(/<dt\b[^>]*>\s*Nonmember drop-in\s*<\/dt>\s*<dd\b[^>]*>\s*Unavailable\s*<\/dd>/gi)].length
+  return classCount > 0 && excludedCount === classCount
+}
+
 function verifyYouthBookingSummary(label, schedule, { path, program }) {
   const summary = schedule.match(/<div\b[^>]*\sid=["']youth-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
   assert(summary, `${label}: the youth booking summary must be inside its program schedule`)
@@ -866,13 +873,14 @@ const verifyHtml = (
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
       const priceLinks = anchorUrls(schedule)
-      assert(pageIds.has('fit-flip-class-pricing') && /Enroll now/.test(schedule) && /Non-Member drop-in/.test(schedule) &&
+      const excludesDropIns = scheduleExcludesAllDropIns(schedule)
+      assert(pageIds.has('fit-flip-class-pricing') && /Enroll now/.test(schedule) && (excludesDropIns || /Non-member drop-in/.test(schedule)) &&
         /Paid monthly enrollment requires an active annual membership/i.test(schedule) &&
-        hasDropInProgramLink(priceLinks, 'Fit & Flip') &&
+        (excludesDropIns || hasDropInProgramLink(priceLinks, 'Fit & Flip')) &&
         priceLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip') &&
         mainLinks.some(url => url.href === `${HUB_ORIGIN}/fit-and-flip#training-fit`),
         `${label}: missing the Fit & Flip booking box and its recurring enrollment, trial, and drop-in links`)
-      assert(hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
+      assert(excludesDropIns || hasDropInProgramLink(mainLinks, 'Fit & Flip'), `${label}: missing a crawlable link for Cyclones drop-in dates`)
       const firstClass = mainHtml.match(/<section\b[^>]*\sid=["']training-fit["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       const firstClassLinks = anchorUrls(firstClass)
       assert(pageIds.has('compare-cyclones-classes') &&
@@ -925,12 +933,13 @@ const verifyHtml = (
             `${label}: the adult monthly tuition summary must explain the annual membership requirement`)
         }
       }
-      assert(pageIds.has('adult-class-pricing') && /Enroll now/i.test(schedule) && /Non-Member drop-in/.test(schedule) &&
+      const excludesDropIns = scheduleExcludesAllDropIns(schedule)
+      assert(pageIds.has('adult-class-pricing') && /Enroll now/i.test(schedule) && (excludesDropIns || /Non-member drop-in/.test(schedule)) &&
         /enrollment requires an active annual membership/i.test(schedule) &&
-        hasDropInProgramLink(anchorUrls(schedule), 'Adult Fitness & Acrobatics') &&
+        (excludesDropIns || hasDropInProgramLink(anchorUrls(schedule), 'Adult Fitness & Acrobatics')) &&
         anchorUrls(schedule).some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
         `${label}: missing the adult booking box and its recurring enrollment and drop-in links`)
-      assert(hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
+      assert(excludesDropIns || hasDropInProgramLink(mainLinks, 'Adult Fitness & Acrobatics'), `${label}: missing a crawlable link for single-class adult bookings`)
       const format = mainHtml.match(/<section\b[^>]*\sid=["']class-format["'][^>]*>[\s\S]*?<\/section>/i)?.[0] ?? ''
       assert(/Can I start adult gymnastics with no experience\?/i.test(format) && /with your feet on the floor/i.test(format) &&
         anchorUrls(format).some(url => url.href === `${watchUrl}#strength-and-handstand`),

@@ -5,6 +5,7 @@ export type PublicAdultBooking = {
   checkedOn: string
   recurringTimes: PublicWeeklyClassTime[]
   monthlyTuitionCents: number | null
+  dropInExcluded: boolean
   dropIn: {
     firstDate: string
     lastDate: string

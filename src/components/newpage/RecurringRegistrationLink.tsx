@@ -13,7 +13,7 @@ export default function RecurringRegistrationLink({ href, className, section, dr
     {enrollment}
     {dropInHref && <Link to={dropInHref} className="np-button np-booking-register"
       data-analytics-cta="browse_drop_ins" data-analytics-section={section}>
-      Non-Member drop-in <ArrowUpRight size={16} aria-hidden="true" />
+      Non-member drop-in <ArrowUpRight size={16} aria-hidden="true" />
     </Link>}
   </span>
 }
