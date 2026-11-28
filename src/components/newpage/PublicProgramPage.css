@@ -86,25 +86,6 @@
   text-underline-offset: 3px;
 }
 
-.np-adult-booking-summary {
-  max-width: 68ch;
-  padding: 14px 16px;
-  margin-top: 14px;
-  border: 1px solid var(--np-line);
-  border-radius: 8px;
-  line-height: 1.6;
-}
-
-.np-adult-booking-summary li + li,
-.np-adult-booking-summary p {
-  margin-top: 8px;
-}
-
-.np-adult-booking-summary a {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
 .np-program-booking .np-booking-actions {
   margin-top: 14px;
 }

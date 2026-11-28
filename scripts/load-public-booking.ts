@@ -139,7 +139,7 @@ async function loadAdultBooking(program: CatalogProgram | undefined, dropIns: Dr
     maxParticipants: consistentCapacity(sessions),
   } : null
 
-  return recurringTimes.length || monthlyTuitionCents || dropIn ? { formId: adultClass.formId, checkedOn, recurringTimes, monthlyTuitionCents, dropIn, dropInExcluded } : null
+  return recurringTimes.length || monthlyTuitionCents || dropIn ? { formId: adultClass.formId, name: adultClass.displayName, checkedOn, recurringTimes, monthlyTuitionCents, dropIn, dropInExcluded } : null
 }
 
 function priceRange(values: unknown[]): [number, number] | null {

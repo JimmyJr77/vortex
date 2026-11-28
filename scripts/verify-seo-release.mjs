@@ -225,20 +225,19 @@ const isCalendarDate = (value) => {
 }
 
 function scheduleExcludesAllDropIns(schedule) {
-  if (/Nonmember drop-ins are unavailable for this class\./.test(schedule)) return true
   const classCount = tags(schedule, 'h4').length
   const excludedCount = [...schedule.matchAll(/<dt\b[^>]*>\s*Nonmember drop-in\s*<\/dt>\s*<dd\b[^>]*>\s*Unavailable\s*<\/dd>/gi)].length
   return classCount > 0 && excludedCount === classCount
 }
 
-function verifyYouthBookingSummary(label, schedule, { path, program }) {
-  const summary = schedule.match(/<div\b[^>]*\sid=["']youth-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
-  assert(summary, `${label}: the youth booking summary must be inside its program schedule`)
+function verifyPublishedBookingSummary(label, schedule, { path, program }) {
+  const summary = schedule.match(/<div\b[^>]*\sid=["'](?:youth|adult)-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
+  assert(summary, `${label}: the published booking summary must be inside its program schedule`)
   if (!summary) return
 
   const checkTime = summary.match(/\bCatalog checked\s+(<time\b[^>]*>)/i)?.[1] ?? ''
   assert(isCalendarDate(attribute(checkTime, 'datetime')),
-    `${label}: the youth booking summary must show a valid catalog check date`)
+    `${label}: the published booking summary must show a valid catalog check date`)
 
   const classHeadings = [...summary.matchAll(/<h4\b[^>]*>[\s\S]*?<\/h4>/gi)]
   assert(classHeadings.length > 0 && classHeadings.every(([heading]) => {
@@ -247,20 +246,20 @@ function verifyYouthBookingSummary(label, schedule, { path, program }) {
     const form = url?.searchParams.get('form') ?? ''
     return links.length === 1 && url.origin === HUB_ORIGIN && url.pathname === path &&
       url.searchParams.get('program') === program && /^[1-9]\d*$/.test(form) && Number.isSafeInteger(Number(form))
-  }), `${label}: every youth booking class must link to its published enrollment form in ${program}`)
+  }), `${label}: every published booking class must link to its published enrollment form in ${program}`)
   const excludedDropIns = [...summary.matchAll(/<dt\b[^>]*>\s*Nonmember drop-in\s*<\/dt>\s*<dd\b[^>]*>\s*Unavailable\s*<\/dd>/gi)].length
   assert(hasDropInProgramLink(anchorUrls(summary), program) || excludedDropIns === classHeadings.length,
-    `${label}: the youth booking summary must link to the ${program} drop-in calendar when classes accept drop-ins`)
+    `${label}: the published booking summary must link to the ${program} drop-in calendar when classes accept drop-ins`)
 
   const monthlyAmounts = [...summary.matchAll(/<dt\b[^>]*>\s*Base monthly tuition\s*<\/dt>\s*<dd\b[^>]*>([\s\S]*?)<\/dd>/gi)]
   if (monthlyAmounts.some(([, amount]) => /\$\d/.test(amount))) {
     assert(/Paid monthly enrollment requires an active annual membership/i.test(summary),
-      `${label}: the youth booking summary must explain the annual membership requirement for monthly tuition`)
+      `${label}: the published booking summary must explain the annual membership requirement for monthly tuition`)
   }
 
   const visibleText = decodeHtml(summary.replace(/<[^>]*>/g, ' '))
   if (/\b\d{1,2}:\d{2}\b/.test(visibleText)) {
-    assert(/\bEastern\b/.test(visibleText), `${label}: the youth booking summary must identify class times as Eastern`)
+    assert(/\bEastern\b/.test(visibleText), `${label}: the published booking summary must identify class times as Eastern`)
   }
 }
 
@@ -817,7 +816,7 @@ const verifyHtml = (
         /Dirt Devils.*ages 2–3.*Twisters.*ages 4–5/.test(startingClass) &&
         /ages 6–17.*Tornadoes.*Trial Assessment/.test(startingClass),
         `${label}: the youth gymnastics schedule must appear before class placement and its free trial entry`)
-      if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
+      if (pageIds.has('youth-booking-summary')) verifyPublishedBookingSummary(label, schedule, programActions.get(pagePath))
       const priceLinks = anchorUrls(schedule)
       assert(pageIds.has('youth-gymnastics-pricing') && /Enroll now/.test(schedule) &&
         priceLinks.some(url => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Developmental Gymnastics') &&
@@ -869,7 +868,7 @@ const verifyHtml = (
       const scheduleIntro = schedule.match(/<p\b[^>]*>[\s\S]*?<\/p>/i)?.[0] ?? ''
       assert(/Choose a recurring weekday during enrollment/i.test(scheduleIntro),
         `${label}: the Fit & Flip schedule intro must explain choosing a recurring weekday`)
-      if (pageIds.has('youth-booking-summary')) verifyYouthBookingSummary(label, schedule, programActions.get(pagePath))
+      if (pageIds.has('youth-booking-summary')) verifyPublishedBookingSummary(label, schedule, programActions.get(pagePath))
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' && url.searchParams.get('program') === 'Fit & Flip'),
         `${label}: the Fit & Flip schedule must link to filtered enrollment`)
       const priceLinks = anchorUrls(schedule)
@@ -910,29 +909,7 @@ const verifyHtml = (
       assert(anchorUrls(schedule).some((url) => url.origin === HUB_ORIGIN && url.pathname === '/enroll' &&
         url.searchParams.get('program') === 'Adult Fitness & Acrobatics'),
         `${label}: the recurring adult schedule must link to Typhoons enrollment`)
-      const publishedBooking = schedule.match(/<div\b[^>]*\sid=["']adult-booking-summary["'][^>]*>[\s\S]*?<\/div>/i)?.[0]
-      if (publishedBooking) {
-        const weeklyRows = publishedBooking.match(/<li\b[^>]*\bclass=["']np-adult-recurring-time["'][^>]*>[\s\S]*?<\/li>/gi) ?? []
-        assert(/Catalog checked <time\b[^>]*\bdatetime=["']\d{4}-\d{2}-\d{2}["']/i.test(publishedBooking) &&
-          (weeklyRows.length > 0 || /\$[\d,.]+ (?:base tuition per month|per nonmember drop-in)/.test(publishedBooking)),
-          `${label}: the published adult booking summary must show a dated catalog check and verified hours or price`)
-        for (const row of weeklyRows) {
-          const times = tags(row, 'time')
-          assert(/Recurring class<\/strong>.*\b(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)\b/.test(row) &&
-            /Eastern/.test(row) && times.length === 2 &&
-            times.every(tag => /^(?:[01]\d|2[0-3]):[0-5]\d$/.test(attribute(tag, 'datetime'))),
-            `${label}: recurring adult hours must show the weekday, start and end times, and time zone`)
-        }
-        if (publishedBooking.includes('per nonmember drop-in')) {
-          assert(tags(publishedBooking, 'time').length >= 2 && /Eastern/.test(publishedBooking) &&
-            hasDropInProgramLink(anchorUrls(publishedBooking), 'Adult Fitness & Acrobatics'),
-            `${label}: the adult drop-in summary must show a dated time and link to the live calendar`)
-        }
-        if (publishedBooking.includes('base tuition per month')) {
-          assert(/Recurring enrollment requires an active annual membership/.test(publishedBooking),
-            `${label}: the adult monthly tuition summary must explain the annual membership requirement`)
-        }
-      }
+      if (pageIds.has('adult-booking-summary')) verifyPublishedBookingSummary(label, schedule, programActions.get(pagePath))
       const excludesDropIns = scheduleExcludesAllDropIns(schedule)
       assert(pageIds.has('adult-class-pricing') && /Enroll now/i.test(schedule) && (excludesDropIns || /Non-member drop-in/.test(schedule)) &&
         /enrollment requires an active annual membership/i.test(schedule) &&

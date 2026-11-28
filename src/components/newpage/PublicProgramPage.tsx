@@ -8,14 +8,10 @@ import { publicBookingSnapshot, type PublicAdultBooking } from '../../config/pub
 import { PUBLIC_PROGRAMS, type PublicProgramPath } from '../../config/publicPrograms'
 import { trackEvent } from '../../utils/analyticsClient'
 import { lazyWithRetry } from '../../utils/chunkLoadRecovery'
-import { formatCents } from '../../utils/money'
 import { ADULT_BOOKING_PROGRAM, ADULT_DROP_IN_HREF, DEVELOPMENTAL_GYMNASTICS_DROP_IN_HREF, FIT_AND_FLIP_DROP_IN_HREF } from '../../utils/publicBookingPrograms'
 import PublicDialog from './PublicDialog'
 import PublicRecurringSchedule from './PublicRecurringSchedule'
 import YouthBookingSummary from './YouthBookingSummary'
-import RecurringRegistrationLink from './RecurringRegistrationLink'
-import RecurringBookingTerms from './RecurringBookingTerms'
-import usePublicDropInEligibility from './usePublicDropInEligibility'
 import './PublicProgramPage.css'
 
 const NewPageFreeTrial = lazyWithRetry(() => import('./NewPageFreeTrial'))
@@ -33,53 +29,22 @@ const HERO_IMAGE_SIZES = [
   '557px',
 ].join(', ')
 
-const bookingDate = new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeZone: 'UTC' })
 const bookingWeekday = new Intl.DateTimeFormat('en-US', { weekday: 'long', timeZone: 'UTC' })
-const bookingTime = new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' })
-
-function BookingDate({ date }: { date: string }) {
-  return <time dateTime={date}>{bookingDate.format(new Date(date))}</time>
-}
-
-function formatBookingTime(time: string) {
-  return bookingTime.format(new Date(`1970-01-01T${time}:00Z`))
-}
 
 function AdultBookingSummary({ booking, enrollmentHref }: { booking: PublicAdultBooking; enrollmentHref: string }) {
-  const { recurringTimes, monthlyTuitionCents, checkedOn } = booking
-  const eligibility = usePublicDropInEligibility(ADULT_BOOKING_PROGRAM)
-  const dropInExcluded = eligibility ? eligibility.get(booking.formId) ?? true : booking.dropInExcluded
-  const dropIn = dropInExcluded ? null : booking.dropIn
-  const weekly = dropIn && dropIn.firstDate !== dropIn.lastDate
-  return (
-    <div id="adult-booking-summary" className="np-adult-booking-summary">
-      <ul>
-        {recurringTimes.map(({ days, startTime, endTime }) => (
-          <li key={`${startTime}-${endTime}`} className="np-adult-recurring-time">
-            <strong>Recurring class</strong> {days}{' '}
-            <time dateTime={startTime}>{formatBookingTime(startTime)}</time>–<time dateTime={endTime}>{formatBookingTime(endTime)}</time> Eastern
-          </li>
-        ))}
-        {dropIn && (
-          <li>
-            <strong>{formatCents(dropIn.priceCents)} per nonmember drop-in.</strong>{' '}
-            {weekly ? `Listed ${bookingWeekday.format(new Date(dropIn.firstDate))} drop-ins are ` : 'First listed drop-in at '}
-            {formatBookingTime(dropIn.startTime)}–{formatBookingTime(dropIn.endTime)} Eastern
-            {weekly ? ' from ' : ' on '}<BookingDate date={dropIn.firstDate} />
-            {weekly && <> through <BookingDate date={dropIn.lastDate} /></>}.
-            {dropIn.maxParticipants != null && ` Up to ${dropIn.maxParticipants} participants per listed drop-in.`}
-            {dropIn.freeTrial && ' These dates accept eligible one-time free trials.'}{' '}
-            <Link to={ADULT_DROP_IN_HREF} data-analytics-cta="browse_drop_ins" data-analytics-section="adult_booking_summary">Check drop-in dates</Link>.
-          </li>
-        )}
-        <li>{monthlyTuitionCents !== null && <><strong>{formatCents(monthlyTuitionCents)} base tuition per month.</strong>{' '}</>}Recurring enrollment requires an active annual membership.</li>
-        {dropInExcluded && <li>Nonmember drop-ins are unavailable for this class.</li>}
-      </ul>
-      <p>Catalog checked <BookingDate date={checkedOn} />. Confirm current prices and availability when you book.</p>
-      <RecurringRegistrationLink href={`${enrollmentHref}&form=${booking.formId}`} section="adult_booking_summary" dropInHref={dropInExcluded ? undefined : ADULT_DROP_IN_HREF} />
-      <RecurringBookingTerms />
-    </div>
-  )
+  const { formId, name, recurringTimes, monthlyTuitionCents, dropIn, dropInExcluded, checkedOn } = booking
+  return <YouthBookingSummary
+    id="adult-booking-summary" analyticsSection="adult_booking_summary" programName={ADULT_BOOKING_PROGRAM}
+    enrollmentHref={enrollmentHref} dropInHref={ADULT_DROP_IN_HREF}
+    booking={{ checkedOn, classes: [{
+      formId, name, times: recurringTimes,
+      monthlyTuition: monthlyTuitionCents !== null ? [monthlyTuitionCents, monthlyTuitionCents] : null,
+      dropIn: dropIn ? [dropIn.priceCents, dropIn.priceCents] : null,
+      dropInDays: dropIn ? [bookingWeekday.format(new Date(dropIn.firstDate))] : [],
+      dropInCapacity: dropIn?.maxParticipants ?? null,
+      dropInExcluded,
+    }] }}
+  />
 }
 
 export default function PublicProgramPage({ path }: { path: PublicProgramPath }) {

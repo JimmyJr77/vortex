@@ -73,6 +73,44 @@ async function mockClasses(page: Page, {
   return formRequests
 }
 
+test('published adult times and prices use the shared class card layout', async ({ page }) => {
+  await mockClasses(page)
+  const snapshot = {
+    '/gymnastics': null,
+    '/fit-and-flip': null,
+    '/adult-gymnastics': {
+      formId: adultFormId, name: adultName, checkedOn: '2026-11-28',
+      recurringTimes: [{ days: 'Monday', startTime: '19:00', endTime: '20:30' }],
+      monthlyTuitionCents: 15000, dropInExcluded: false,
+      dropIn: { firstDate: '2026-11-30', lastDate: '2027-01-25', startTime: '19:00', endTime: '20:30',
+        priceCents: 5000, freeTrial: true, maxParticipants: 8 },
+    },
+  }
+  await page.route('**/src/config/publicBookingSnapshot.ts*', route => route.fulfill({
+    contentType: 'application/javascript', body: `export const publicBookingSnapshot = ${JSON.stringify(snapshot)}`,
+  }))
+  await page.goto('/adult-gymnastics#adult-class-pricing')
+  const summary = page.locator('#adult-booking-summary')
+  const card = summary.locator('.np-youth-booking-classes > li')
+  await expect(summary.getByRole('heading', { name: 'Weekly times and prices', exact: true })).toBeVisible()
+  await expect(summary.getByText('All times Eastern.', { exact: true })).toBeVisible()
+  await expect(card).toHaveCount(1)
+  await expect(card.getByRole('heading', { level: 4, name: adultName })).toBeVisible()
+  await expect(card.locator('.np-youth-booking-times')).toHaveText('Monday7:00 PM–8:30 PM')
+  await expect(card.locator('dt')).toHaveText(['Base monthly tuition', 'Nonmember drop-in'])
+  await expect(card.locator('dd')).toHaveText(['$150.00', '$50.00'])
+  await expect(card.getByRole('link', { name: `Enroll now — ${adultName}`, exact: true }))
+    .toHaveAttribute('href', `${adultBookingPath}&form=${adultFormId}`)
+  await expect(card.getByRole('link', { name: 'Non-member drop-in', exact: true })).toHaveAttribute('href', adultDropInPath)
+  await expect(summary).toContainText('Catalog checked Nov 28, 2026.')
+  await expect(summary).toContainText('Paid monthly enrollment requires an active annual membership.')
+  await expect(summary.getByText(/per nonmember drop-in\./)).toHaveCount(0)
+  for (const width of [390, 1280]) {
+    await page.setViewportSize({ width, height: 900 })
+    expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+  }
+})
+
 test('Typhoons first-visit guidance explains confirmed and pending drop-in bookings', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 })
   await page.goto('/adult-gymnastics#adult-drop-in-confirmation')
